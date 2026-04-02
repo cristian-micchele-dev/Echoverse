@@ -1,0 +1,70 @@
+.scp {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+/* ─── Round counter ──────────────────────────── */
+.scp__round {
+  display: flex;
+  align-items: baseline;
+  gap: 0.15rem;
+  font-family: var(--font-body);
+}
+
+.scp__round-cur {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.scp__round-sep,
+.scp__round-tot {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+/* ─── Streak ─────────────────────────────────── */
+.scp__streak {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  background: rgba(201, 168, 76, 0.1);
+  border: 1px solid rgba(201, 168, 76, 0.2);
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.75rem;
+  animation: streak-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.scp__streak-num {
+  font-weight: 700;
+  color: var(--gold);
+}
+
+@keyframes streak-pop {
+  from { transform: scale(0.8); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+/* ─── Score ──────────────────────────────────── */
+.scp__score {
+  display: flex;
+  align-items: baseline;
+  gap: 0.2rem;
+}
+
+.scp__score-val {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 0.03em;
+}
+
+.scp__score-label {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}

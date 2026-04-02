@@ -1,0 +1,601 @@
+/* ─── Base ────────────────────────────────────────── */
+.story-page {
+  min-height: 100vh;
+  background: var(--ink-950);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.story-top-bar {
+  padding: 1.25rem 1.5rem 0;
+  display: flex;
+  align-items: center;
+}
+
+.story-back-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: none;
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  padding: 0.45rem 0.9rem;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+.story-back-btn:hover {
+  color: var(--text-primary);
+  border-color: var(--border-default);
+}
+.story-back-btn--abandon {
+  color: var(--text-muted);
+}
+
+/* ─── Intro (selección de personaje) ─────────────── */
+.story-intro {
+  text-align: center;
+  padding: 2.5rem 1.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.story-intro__eyebrow {
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--gold);
+  opacity: 0.9;
+}
+
+.story-intro__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0.04em;
+}
+
+.story-intro__sub {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  max-width: 480px;
+  line-height: 1.6;
+}
+
+/* ─── Grid de personajes ──────────────────────────── */
+.story-chars-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+  gap: 0.75rem;
+  padding: 1rem 1.5rem 3rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.story-char-card {
+  position: relative;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  aspect-ratio: 2 / 3;
+  cursor: pointer;
+  border: 1px solid var(--border-faint);
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  background: none;
+  padding: 0;
+  animation: story-card-in 0.35s ease both;
+  animation-delay: var(--card-delay, 0s);
+}
+@keyframes story-card-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.story-char-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  border-color: color-mix(in srgb, var(--char-color) 50%, transparent);
+  box-shadow: 0 12px 30px -8px color-mix(in srgb, var(--char-color) 30%, transparent);
+}
+
+.story-char-card__bg {
+  position: absolute;
+  inset: 0;
+}
+.story-char-card__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+.story-char-card__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 55%, transparent 100%);
+}
+.story-char-card__info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0.7rem 0.6rem 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+.story-char-card__universe {
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--char-color) 90%, white);
+  opacity: 0.85;
+}
+.story-char-card__name {
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+/* ─── Fase de escenarios ──────────────────────────── */
+.story-page--scenarios {
+  align-items: center;
+}
+
+.story-char-hero {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 2rem 1.5rem 1rem;
+  max-width: 560px;
+  width: 100%;
+}
+.story-char-hero__avatar-wrap {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid color-mix(in srgb, var(--char-color) 50%, transparent);
+  flex-shrink: 0;
+  background: var(--ink-800);
+  box-shadow: 0 0 20px -4px color-mix(in srgb, var(--char-color) 40%, transparent);
+}
+.story-char-hero__avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+.story-char-hero__emoji {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+}
+.story-char-hero__universe {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--char-color) 90%, white);
+  opacity: 0.8;
+}
+.story-char-hero__name {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-top: 0.15rem;
+}
+
+.story-scenarios-wrap {
+  max-width: 560px;
+  width: 100%;
+  padding: 0 1.5rem 3rem;
+}
+.story-scenarios-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+.story-scenarios-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.story-scenario-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.1rem 1.25rem;
+  background: var(--ink-800);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  text-align: left;
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  font-family: var(--font-body);
+}
+.story-scenario-card:hover {
+  transform: translateX(4px);
+  border-color: color-mix(in srgb, var(--scenario-color) 50%, transparent);
+  background: color-mix(in srgb, var(--scenario-color) 5%, var(--ink-800));
+  box-shadow: 0 4px 20px -6px color-mix(in srgb, var(--scenario-color) 25%, transparent);
+}
+.story-scenario-card:hover .story-scenario-card__arrow {
+  color: var(--scenario-color);
+  transform: translateX(3px);
+}
+.story-scenario-card__emoji {
+  font-size: 1.6rem;
+  flex-shrink: 0;
+}
+.story-scenario-card__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.story-scenario-card__title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--scenario-color);
+}
+.story-scenario-card__desc {
+  font-size: 0.77rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+.story-scenario-card__arrow {
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: color 0.2s, transform 0.2s;
+}
+
+/* ─── Fase jugando ────────────────────────────────── */
+.story-page--playing {
+  background: radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--char-color) 6%, transparent) 0%, transparent 60%), var(--ink-950);
+}
+
+.story-play-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border-faint);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: rgba(5, 5, 7, 0.88);
+  backdrop-filter: blur(12px);
+  flex-wrap: wrap;
+}
+
+.story-play-identity {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.story-play-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: top center;
+  border: 1px solid color-mix(in srgb, var(--char-color) 40%, transparent);
+}
+.story-play-avatar-emoji {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  background: var(--ink-700);
+  border-radius: 50%;
+}
+.story-play-name {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.story-play-scenario {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  padding-left: 0.5rem;
+  border-left: 1px solid var(--border-faint);
+}
+
+.story-progress {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.story-progress__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ink-500);
+  transition: background 0.3s, box-shadow 0.3s;
+}
+.story-progress__dot--done {
+  background: color-mix(in srgb, var(--char-color) 60%, white);
+}
+.story-progress__dot--active {
+  background: var(--char-color);
+  box-shadow: 0 0 8px 1px color-mix(in srgb, var(--char-color) 60%, transparent);
+}
+.story-progress__label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-left: 0.2rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── Contenido del juego ─────────────────────────── */
+.story-play-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 2rem 1.5rem 4rem;
+  max-width: 720px;
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Turnos anteriores (atenuados) */
+.story-entry {
+  opacity: 0.55;
+  border-left: 2px solid var(--border-faint);
+  padding-left: 1rem;
+}
+.story-entry__turn-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+.story-entry__narrative {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.75;
+  white-space: pre-wrap;
+}
+.story-entry__choice-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--char-color) 80%, white);
+  background: color-mix(in srgb, var(--char-color) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--char-color) 25%, transparent);
+  border-radius: 999px;
+  padding: 0.3rem 0.7rem;
+}
+
+/* Narrativa activa */
+.story-current {
+  animation: story-fade-in 0.4s ease;
+}
+@keyframes story-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.story-turn-badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--char-color);
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.story-turn-badge::before {
+  content: '';
+  display: block;
+  width: 20px;
+  height: 1px;
+  background: var(--char-color);
+  opacity: 0.5;
+}
+.story-narrative {
+  font-size: 0.97rem;
+  color: var(--text-primary);
+  line-height: 1.85;
+  white-space: pre-wrap;
+}
+.story-cursor {
+  display: inline-block;
+  color: var(--char-color);
+  animation: story-blink 0.9s step-end infinite;
+  margin-left: 2px;
+}
+@keyframes story-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* Desenlace final */
+.story-current--final .story-narrative {
+  font-size: 1rem;
+}
+.story-final-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 1.25rem;
+}
+.story-final-badge span {
+  font-size: 0.6rem;
+  opacity: 0.7;
+}
+
+/* ─── Elecciones ──────────────────────────────────── */
+.story-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  animation: story-fade-in 0.3s ease;
+}
+.story-choices__label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.story-choices__label--warn {
+  color: #c87050;
+}
+.story-choices__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.story-choice-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.9rem 1.1rem;
+  background: var(--ink-800);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-family: var(--font-body);
+  text-align: left;
+  transition: transform 0.15s, border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  color: var(--text-primary);
+}
+.story-choice-btn:hover {
+  transform: translateX(4px);
+  border-color: color-mix(in srgb, var(--char-color) 55%, transparent);
+  background: color-mix(in srgb, var(--char-color) 7%, var(--ink-800));
+  box-shadow: 0 4px 18px -6px color-mix(in srgb, var(--char-color) 25%, transparent);
+}
+.story-choice-btn:hover svg {
+  color: var(--char-color);
+  transform: translateX(3px);
+}
+.story-choice-btn:hover .story-choice-btn__key {
+  background: var(--char-color);
+  color: var(--ink-950);
+}
+.story-choice-btn__key {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--char-color) 15%, var(--ink-700));
+  color: var(--char-color);
+  font-size: 0.75rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s, color 0.2s;
+  font-family: var(--font-body);
+}
+.story-choice-btn__text {
+  flex: 1;
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+.story-choice-btn svg {
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: color 0.2s, transform 0.2s;
+}
+
+/* ─── Acciones finales ────────────────────────────── */
+.story-end-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding-top: 0.5rem;
+  animation: story-fade-in 0.4s ease;
+}
+.story-end-btn {
+  padding: 0.65rem 1.2rem;
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.2s;
+  border: none;
+}
+.story-end-btn:hover {
+  transform: translateY(-2px);
+}
+.story-end-btn--new {
+  background: color-mix(in srgb, var(--char-color) 18%, var(--ink-700));
+  color: var(--char-color);
+  border: 1px solid color-mix(in srgb, var(--char-color) 35%, transparent);
+}
+.story-end-btn--new:hover {
+  box-shadow: 0 6px 20px -4px color-mix(in srgb, var(--char-color) 30%, transparent);
+}
+.story-end-btn--chars {
+  background: var(--ink-700);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+}
+.story-end-btn--home {
+  background: var(--ink-700);
+  color: var(--text-muted);
+  border: 1px solid var(--border-faint);
+}
+
+/* ─── Mobile ──────────────────────────────────────── */
+@media (max-width: 600px) {
+  .story-chars-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    padding: 0.75rem 1rem 2rem;
+  }
+  .story-play-header {
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+  }
+  .story-play-scenario { display: none; }
+  .story-play-content {
+    padding: 1.25rem 1rem 3rem;
+  }
+}
+@media (max-width: 380px) {
+  .story-chars-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

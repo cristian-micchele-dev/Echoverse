@@ -1,0 +1,28 @@
+import 'dotenv/config'
+import express from 'express'
+import cors from 'cors'
+import rateLimit from 'express-rate-limit'
+import chatRouter          from './routes/chat.js'
+import interrogationRouter from './routes/interrogation.js'
+const app = express()
+const PORT = process.env.PORT || 3001
+
+const ALLOWED_ORIGIN = process.env.FRONTEND_URL || 'http://localhost:5173'
+app.use(cors({ origin: ALLOWED_ORIGIN }))
+
+const limiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 60,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Demasiadas solicitudes. Intentá de nuevo en un minuto.' }
+})
+app.use('/api', limiter)
+app.use(express.json())
+
+app.use('/api', chatRouter)
+app.use('/api', interrogationRouter)
+
+app.listen(PORT, () => {
+  console.log(`Servidor corriendo en http://localhost:${PORT}`)
+})

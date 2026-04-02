@@ -1,0 +1,654 @@
+.chat-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  max-width: 800px;
+  margin: 0 auto;
+  position: relative;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.chat-page--visible {
+  opacity: 1;
+}
+
+/* ─── Wallpaper inmersivo ─────────────────────────── */
+.chat-wallpaper {
+  position: fixed;
+  inset: 0;
+  background-size: cover;
+  background-position: top center;
+  background-repeat: no-repeat;
+  opacity: 0.055;
+  filter: blur(18px) saturate(0.6);
+  transform: scale(1.05);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ─── Ambient glow del personaje ──────────────────── */
+.chat-page__ambient {
+  position: fixed;
+  top: -30%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  height: 400px;
+  background: radial-gradient(ellipse, var(--char-dim, transparent) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ─── Background Effects ──────────────────────────── */
+.chat-bg-effect {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+/* STARS (Darth Vader) */
+.chat-bg-effect--stars .bg-particle {
+  position: absolute;
+  width: calc(1px + var(--i) * 0.12px);
+  height: calc(1px + var(--i) * 0.12px);
+  border-radius: 50%;
+  background: white;
+  opacity: calc(0.1 + (var(--i) * 0.015));
+  left: calc((var(--i) * 4.7%) + 1%);
+  top: calc((var(--i) * 4.5%) + 2%);
+  animation: star-twinkle calc(2s + var(--i) * 0.3s) ease-in-out infinite;
+  animation-delay: calc(var(--i) * 0.18s);
+}
+@keyframes star-twinkle {
+  0%, 100% { opacity: calc(0.08 + (var(--i) * 0.01)); transform: scale(1); }
+  50% { opacity: calc(0.3 + (var(--i) * 0.012)); transform: scale(1.4); }
+}
+
+/* RAIN (John Wick) */
+.chat-bg-effect--rain .bg-particle {
+  position: absolute;
+  width: 1px;
+  height: calc(30px + var(--i) * 6px);
+  background: linear-gradient(to bottom, transparent, rgba(180, 200, 255, 0.25));
+  left: calc(var(--i) * 6.5%);
+  top: -60px;
+  animation: rain-fall calc(1.2s + var(--i) * 0.15s) linear infinite;
+  animation-delay: calc(var(--i) * 0.22s);
+}
+@keyframes rain-fall {
+  from { transform: translateY(-60px); opacity: 0.6; }
+  to { transform: translateY(110vh); opacity: 0; }
+}
+
+/* EMBERS (Gollum, Jack Sparrow) */
+.chat-bg-effect--embers .bg-particle {
+  position: absolute;
+  width: calc(2px + (var(--i) * 0.3px));
+  height: calc(2px + (var(--i) * 0.3px));
+  border-radius: 50%;
+  background: radial-gradient(circle, #ff7700, #ff3300);
+  left: calc(8% + (var(--i) * 8%));
+  bottom: -10px;
+  box-shadow: 0 0 4px #ff5500;
+  animation: ember-rise calc(4s + var(--i) * 0.5s) ease-in infinite;
+  animation-delay: calc(var(--i) * 0.6s);
+}
+@keyframes ember-rise {
+  0% { transform: translateY(0) translateX(0); opacity: 0.8; }
+  33% { transform: translateY(-30vh) translateX(10px); opacity: 0.6; }
+  66% { transform: translateY(-60vh) translateX(-8px); opacity: 0.3; }
+  100% { transform: translateY(-90vh) translateX(5px); opacity: 0; }
+}
+
+/* PARTICLES (Gandalf, Harry Potter) */
+.chat-bg-effect--particles .bg-particle {
+  position: absolute;
+  width: calc(2px + (var(--i) % 3) * 1px);
+  height: calc(2px + (var(--i) % 3) * 1px);
+  border-radius: 50%;
+  background: var(--char-color, gold);
+  left: calc(5% + (var(--i) * 7%));
+  bottom: calc(5% + (var(--i) * 4%));
+  opacity: 0;
+  box-shadow: 0 0 6px var(--char-color, gold);
+  animation: particle-float calc(5s + var(--i) * 0.4s) ease-in-out infinite;
+  animation-delay: calc(var(--i) * 0.5s);
+}
+@keyframes particle-float {
+  0% { transform: translateY(0); opacity: 0; }
+  20% { opacity: 0.6; }
+  80% { opacity: 0.3; }
+  100% { transform: translateY(-60vh); opacity: 0; }
+}
+
+/* LIGHTNING (Goku, Terminator) */
+.chat-bg-effect--lightning .bg-particle {
+  position: absolute;
+  width: 1px;
+  height: calc(60px + var(--i) * 30px);
+  background: linear-gradient(to bottom, var(--char-color, #fff), transparent);
+  left: calc(10% + var(--i) * 18%);
+  top: 0;
+  opacity: 0;
+  transform-origin: top center;
+  animation: lightning-flash calc(3s + var(--i) * 0.7s) ease-in-out infinite;
+  animation-delay: calc(var(--i) * 1.2s);
+}
+@keyframes lightning-flash {
+  0%, 90%, 100% { opacity: 0; transform: scaleX(1); }
+  92% { opacity: 0.4; transform: scaleX(2); }
+  94% { opacity: 0; }
+  96% { opacity: 0.25; transform: scaleX(1); }
+  98% { opacity: 0; }
+}
+
+/* SPARKS (Tony Stark) */
+.chat-bg-effect--sparks .bg-particle {
+  position: absolute;
+  width: calc(2px + (var(--i) % 2) * 1px);
+  height: calc(2px + (var(--i) % 2) * 1px);
+  border-radius: 50%;
+  background: var(--char-color, orange);
+  left: calc(5% + var(--i) * 7%);
+  bottom: 20%;
+  box-shadow: 0 0 4px var(--char-color, orange);
+  animation: spark-fly calc(1.5s + var(--i) * 0.2s) ease-out infinite;
+  animation-delay: calc(var(--i) * 0.3s);
+}
+@keyframes spark-fly {
+  0% { transform: translate(0, 0) scale(1); opacity: 0.9; }
+  100% {
+    transform: translate(calc((var(--i) - 7) * 20px), calc(-60px - var(--i) * 10px)) scale(0);
+    opacity: 0;
+  }
+}
+
+/* SMOKE (Walter White, Tommy Shelby, Hannibal) */
+.chat-bg-effect--smoke .bg-particle {
+  position: absolute;
+  width: calc(50px + var(--i) * 18px);
+  height: calc(50px + var(--i) * 18px);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(160,160,160,0.055) 0%, transparent 70%);
+  left: calc(5% + var(--i) * 9%);
+  bottom: -60px;
+  animation: smoke-rise calc(9s + var(--i) * 1.2s) ease-out infinite;
+  animation-delay: calc(var(--i) * 1s);
+}
+@keyframes smoke-rise {
+  0%   { transform: translateY(0) scale(0.7) translateX(0); opacity: 0; }
+  15%  { opacity: 1; }
+  100% { transform: translateY(-75vh) scale(3) translateX(calc((var(--i) % 3 - 1) * 40px)); opacity: 0; }
+}
+
+/* SNOW (Ragnar, Jon Snow) */
+.chat-bg-effect--snow .bg-particle {
+  position: absolute;
+  width: calc(2px + (var(--i) % 3) * 1.5px);
+  height: calc(2px + (var(--i) % 3) * 1.5px);
+  border-radius: 50%;
+  background: rgba(220, 235, 255, 0.7);
+  left: calc(var(--i) * 5.5%);
+  top: -12px;
+  box-shadow: 0 0 3px rgba(200, 220, 255, 0.4);
+  animation: snow-fall calc(6s + var(--i) * 0.6s) linear infinite;
+  animation-delay: calc(var(--i) * 0.45s);
+}
+@keyframes snow-fall {
+  0%   { transform: translateY(-12px) translateX(0); opacity: 0; }
+  8%   { opacity: 0.7; }
+  90%  { opacity: 0.3; }
+  100% { transform: translateY(105vh) translateX(calc((var(--i) % 5 - 2) * 18px)); opacity: 0; }
+}
+
+/* ─── Header ──────────────────────────────────────── */
+.chat-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.875rem 1.25rem;
+  border-bottom: 1px solid var(--border-subtle);
+  background: rgba(9, 9, 14, 0.85);
+  backdrop-filter: blur(12px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: inset 0 2px 0 0 var(--char-color);
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: none;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-family: var(--font-body);
+  transition: color 0.2s, border-color 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.back-btn:hover {
+  color: var(--text-primary);
+  border-color: var(--border-default);
+}
+
+.chat-header__character {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.chat-header__avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--surface-3);
+  border: 1px solid var(--border-default);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  overflow: hidden;
+  box-shadow: 0 0 12px -2px var(--char-color);
+  transition: box-shadow 0.3s ease;
+}
+.chat-header__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+.chat-header__avatar--typing {
+  box-shadow: 0 0 18px 2px var(--char-color);
+  animation: avatar-pulse 1s ease-in-out infinite;
+}
+@keyframes avatar-pulse {
+  0%, 100% { box-shadow: 0 0 12px -2px var(--char-color); }
+  50% { box-shadow: 0 0 22px 4px var(--char-color); }
+}
+
+.chat-header__name {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chat-header__universe {
+  font-size: 0.72rem;
+  color: var(--char-color);
+  opacity: 0.85;
+}
+
+.chat-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.chat-header__status {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.clear-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background: none;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+.clear-btn:hover {
+  color: var(--text-primary);
+  border-color: var(--border-default);
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 6px #4ade80;
+  animation: pulse-dot 2.5s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* ─── Mensajes ────────────────────────────────────── */
+.messages-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  position: relative;
+  z-index: 1;
+  scrollbar-width: thin;
+  scrollbar-color: var(--surface-4) transparent;
+}
+
+.messages-container::-webkit-scrollbar { width: 4px; }
+.messages-container::-webkit-scrollbar-track { background: transparent; }
+.messages-container::-webkit-scrollbar-thumb { background: var(--surface-4); border-radius: 2px; }
+
+/* ─── Empty state ─────────────────────────────────── */
+.empty-chat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  text-align: center;
+  padding: 3rem 2rem;
+}
+
+.empty-chat__avatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: var(--surface-3);
+  border: 1px solid var(--border-default);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  overflow: hidden;
+  box-shadow: 0 0 0 6px var(--char-dim, transparent), 0 0 40px -8px var(--char-color);
+  margin-bottom: 0.5rem;
+}
+.empty-chat__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+.empty-chat__name {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: 0.03em;
+}
+
+.empty-chat__welcome {
+  max-width: 380px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-left: 3px solid var(--char-color);
+  border-radius: var(--radius-md);
+  padding: 0.8rem 1rem;
+  margin-top: 0.25rem;
+}
+.empty-chat__welcome p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  font-style: italic;
+}
+
+/* ─── Suggested questions ─────────────────────────── */
+.suggested-questions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  max-width: 420px;
+  margin-top: 0.5rem;
+}
+
+.suggested-q {
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--char-color) 40%, var(--border-subtle));
+  color: var(--text-secondary);
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.15s;
+}
+.suggested-q:hover {
+  background: var(--char-dim, rgba(255,255,255,0.05));
+  color: var(--char-color);
+  border-color: var(--char-color);
+  transform: translateY(-1px);
+}
+
+/* ─── Botón scroll-to-bottom ──────────────────────── */
+.scroll-down-btn {
+  position: absolute;
+  bottom: 90px;
+  right: 1.25rem;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--surface-4);
+  border: 1px solid var(--border-default);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 20;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  animation: fade-in-up 0.2s ease;
+  transition: background 0.2s, color 0.2s;
+}
+.scroll-down-btn:hover {
+  background: var(--surface-3);
+  color: var(--char-color);
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Input area ──────────────────────────────────── */
+.input-area {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+  padding: 0.875rem 1.25rem 1.125rem;
+  border-top: 1px solid var(--border-subtle);
+  background: rgba(9, 9, 14, 0.85);
+  backdrop-filter: blur(12px);
+  position: relative;
+  z-index: 10;
+}
+
+.message-input {
+  flex: 1;
+  background: var(--surface-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  padding: 0.7rem 1rem;
+  font-size: 0.9rem;
+  font-family: var(--font-body);
+  resize: none;
+  outline: none;
+  line-height: 1.5;
+  max-height: 140px;
+  overflow-y: hidden;
+  transition: border-color 0.2s;
+}
+.message-input:focus {
+  border-color: color-mix(in srgb, var(--char-color) 40%, var(--border-subtle));
+}
+.message-input::placeholder { color: var(--text-faint); }
+.message-input:disabled { opacity: 0.5; }
+
+.send-btn {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  background: var(--char-color, var(--gold));
+  border: none;
+  border-radius: var(--radius-md);
+  color: #070709;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s, transform 0.15s;
+}
+.send-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.send-btn:not(:disabled):hover { opacity: 0.85; transform: scale(1.05); }
+.send-btn:not(:disabled):active { transform: scale(0.97); }
+
+/* ─── Typing indicator ────────────────────────────── */
+.bubble--typing {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0.75rem 1rem;
+  min-width: 56px;
+}
+
+.typing-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--char-color, var(--gold));
+  opacity: 0.5;
+  animation: typing-bounce 1.2s ease-in-out infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typing-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30%            { transform: translateY(-5px); opacity: 1; }
+}
+
+/* ── Typing: tremble (Gollum) ─────────────────────── */
+.bubble--typing.typing--tremble {
+  animation: tremble 0.12s ease-in-out infinite;
+}
+@keyframes tremble {
+  0%   { transform: translate(0, 0); }
+  20%  { transform: translate(-2px, 1px); }
+  40%  { transform: translate(2px, -1px); }
+  60%  { transform: translate(-1px, 2px); }
+  80%  { transform: translate(1px, -1px); }
+  100% { transform: translate(0, 0); }
+}
+
+/* ── Typing: glitch (Terminator) ─────────────────── */
+.bubble--typing.typing--glitch {
+  animation: glitch-bubble 0.9s steps(1) infinite;
+}
+.bubble--typing.typing--glitch .typing-dot {
+  animation: glitch-dot 0.4s steps(1) infinite;
+}
+@keyframes glitch-bubble {
+  0%, 90%, 100% { transform: none; filter: none; }
+  20% { transform: translateX(-3px); filter: hue-rotate(90deg) brightness(1.2); }
+  40% { transform: translateX(3px); }
+  60% { transform: skewX(4deg); filter: brightness(1.4); }
+}
+@keyframes glitch-dot {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.5; background: var(--char-color); }
+  20% { transform: translateY(-5px); opacity: 1; }
+  40% { transform: translateY(0); background: #00ffff; }
+  80% { transform: translateY(-3px); background: var(--char-color); }
+}
+
+/* ── Typing: mystical (Gandalf, Harry Potter) ──────── */
+.bubble--typing.typing--mystical .typing-dot {
+  animation: mystical-pulse 1.8s ease-in-out infinite;
+  box-shadow: 0 0 8px var(--char-color);
+}
+.bubble--typing.typing--mystical .typing-dot:nth-child(2) { animation-delay: 0.35s; }
+.bubble--typing.typing--mystical .typing-dot:nth-child(3) { animation-delay: 0.7s; }
+@keyframes mystical-pulse {
+  0%, 100% { transform: scale(0.7); opacity: 0.3; }
+  50% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 14px var(--char-color); }
+}
+
+/* ── Typing: viking (Ragnar) ─────────────────────── */
+.bubble--typing.typing--viking .typing-dot {
+  animation: viking-slam 0.9s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+}
+.bubble--typing.typing--viking .typing-dot:nth-child(2) { animation-delay: 0.15s; }
+.bubble--typing.typing--viking .typing-dot:nth-child(3) { animation-delay: 0.3s; }
+@keyframes viking-slam {
+  0%, 100% { transform: translateY(0) scale(1); opacity: 0.5; }
+  40% { transform: translateY(-8px) scale(1.1); opacity: 1; }
+  70% { transform: translateY(2px) scale(0.95); opacity: 0.8; }
+}
+
+/* ─── Avatar pulse while typing ──────────────────── */
+.bubble-avatar--pulse {
+  animation: avatar-glow-pulse 1.1s ease-in-out infinite;
+}
+@keyframes avatar-glow-pulse {
+  0%, 100% { box-shadow: 0 0 6px var(--char-color); }
+  50% { box-shadow: 0 0 16px 3px var(--char-color); }
+}
+
+.send-btn__loading {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(0,0,0,0.3);
+  border-top-color: #070709;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ─── Mobile responsive ───────────────────────────── */
+@media (max-width: 480px) {
+  .chat-header {
+    padding: 0.75rem 1rem;
+    gap: 0.6rem;
+  }
+
+  .back-btn span { display: none; }
+  .back-btn { padding: 0.4rem 0.5rem; }
+
+  .chat-header__status span:last-child { display: none; }
+
+  .chat-header__name { font-size: 0.85rem; }
+  .chat-header__universe { display: none; }
+
+  .messages-container { padding: 1rem 0.75rem; }
+
+  .input-area { padding: 0.75rem 0.75rem 1rem; gap: 0.5rem; }
+
+  .scroll-down-btn { right: 0.75rem; bottom: 80px; }
+
+  .suggested-questions { max-width: 100%; }
+}

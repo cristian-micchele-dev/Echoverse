@@ -1,0 +1,112 @@
+.options-grid {
+  display: grid;
+  gap: 0.65rem;
+  width: 100%;
+}
+
+.options-grid--4 { grid-template-columns: 1fr 1fr; }
+.options-grid--3 { grid-template-columns: 1fr 1fr 1fr; }
+
+/* ─── Option button ──────────────────────────── */
+.opt {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: var(--ink-800);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+  min-height: 72px;
+  font-family: var(--font-body);
+  text-align: left;
+}
+
+.opt:not(:disabled):hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--char-color) 55%, transparent);
+  box-shadow: 0 6px 24px -6px color-mix(in srgb, var(--char-color) 30%, transparent);
+}
+
+.opt:not(:disabled):hover .opt__glow {
+  opacity: 1;
+}
+
+/* ─── Image ──────────────────────────────────── */
+.opt__img {
+  flex-shrink: 0;
+  width: 60px;
+  height: 72px;
+  overflow: hidden;
+}
+
+.opt__img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+/* ─── Text ───────────────────────────────────── */
+.opt__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.6rem 0.75rem;
+  min-width: 0;
+}
+
+.opt__name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.opt__universe {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ─── Hover glow radial ──────────────────────── */
+.opt__glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 0% 50%, color-mix(in srgb, var(--char-color) 12%, transparent) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+
+/* ─── Feedback states ────────────────────────── */
+.opt--chosen {
+  border-color: color-mix(in srgb, var(--char-color) 70%, transparent) !important;
+  background: color-mix(in srgb, var(--char-color) 10%, var(--ink-800));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--char-color) 30%, transparent), 0 4px 20px -4px color-mix(in srgb, var(--char-color) 25%, transparent);
+}
+
+.opt--dim {
+  opacity: 0.3;
+}
+
+/* ─── Mobile ─────────────────────────────────── */
+@media (max-width: 480px) {
+  .options-grid--4 { grid-template-columns: 1fr 1fr; }
+  .options-grid--3 { grid-template-columns: 1fr 1fr; }
+
+  .opt__img { width: 52px; height: 64px; }
+  .opt { min-height: 64px; }
+}

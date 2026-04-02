@@ -1,0 +1,133 @@
+.mission-runner {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+/* ─── Header ─────────────────────────────────────── */
+.mission-runner__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.mission-runner__identity {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.mission-runner__avatar-wrap {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1.5px solid var(--char-color, var(--gold));
+  flex-shrink: 0;
+}
+
+.mission-runner__avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mission-runner__avatar-emoji {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  background: var(--ink-700);
+}
+
+.mission-runner__identity-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.mission-runner__char-name {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.mission-runner__mission-label {
+  font-size: 0.7rem;
+  color: var(--char-color, var(--gold));
+  letter-spacing: 0.06em;
+}
+
+/* ─── Progreso ───────────────────────────────────── */
+.mission-runner__progress {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.mission-runner__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ink-500);
+  transition: background 0.3s ease, transform 0.3s ease;
+}
+
+.mission-runner__dot--done {
+  background: var(--char-color, var(--gold));
+  opacity: 0.5;
+}
+
+.mission-runner__dot--active {
+  background: var(--char-color, var(--gold));
+  transform: scale(1.3);
+  box-shadow: 0 0 8px var(--char-color, var(--gold));
+}
+
+.mission-runner__step-label {
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-left: 0.25rem;
+}
+
+/* ─── Escena ─────────────────────────────────────── */
+.mission-runner__scene {
+  transition: opacity 0.3s ease;
+}
+
+.mission-runner__scene--out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ─── Transición entre escenas ───────────────────── */
+.mission-runner__transition {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 3rem;
+}
+
+.mission-runner__transition-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--char-color, var(--gold));
+  animation: transition-bounce 0.6s ease-in-out infinite;
+}
+
+.mission-runner__transition-dot:nth-child(2) { animation-delay: 0.12s; }
+.mission-runner__transition-dot:nth-child(3) { animation-delay: 0.24s; }
+
+@keyframes transition-bounce {
+  0%, 100% { transform: translateY(0);    opacity: 0.4; }
+  50%       { transform: translateY(-6px); opacity: 1; }
+}

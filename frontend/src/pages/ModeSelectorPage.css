@@ -1,0 +1,335 @@
+/* ─── Mode Selector Page ─────────────────────────────── */
+
+.ms {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 1.5rem 5rem;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+.ms--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.ms-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 15% 0%,   rgba(109, 74, 255, 0.09) 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 100%, rgba(155, 123, 255, 0.06) 0%, transparent 50%);
+}
+
+.ms-inner {
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* ─── Header ─────────────────────────────────────────── */
+.ms-header {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding-top: 0.5rem;
+}
+
+.ms-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  align-self: flex-start;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-family: var(--font-body);
+  padding: 0.3rem 0;
+  transition: color 0.18s ease;
+}
+.ms-back:hover { color: #9B7BFF; }
+
+.ms-hero { display: flex; flex-direction: column; gap: 0.5rem; }
+
+.ms-eyebrow {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #9B7BFF;
+  opacity: 0.85;
+}
+
+.ms-title {
+  font-family: 'Cormorant Garamond', var(--font-display), Georgia, serif;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  line-height: 1.08;
+  margin: 0;
+}
+.ms-title em {
+  font-style: italic;
+  color: #9B7BFF;
+}
+
+.ms-subtitle {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  max-width: 400px;
+  margin: 0;
+}
+
+/* ─── Tier 1: Main cards ─────────────────────────────── */
+.ms-main-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.ms-main-card {
+  position: relative;
+  min-height: 260px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  font-family: var(--font-body);
+  text-align: left;
+  padding: 0;
+  background: var(--ink-700, rgba(255,255,255,0.03));
+  transition: border-color 0.22s ease, transform 0.22s ease, box-shadow 0.22s ease;
+  animation: ms-in 0.45s ease both;
+}
+.ms-main-card:hover {
+  border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+  transform: translateY(-4px);
+  box-shadow:
+    0 16px 44px rgba(0,0,0,0.35),
+    0 0 30px color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
+/* Character image */
+.ms-main-card__visual {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.ms-main-card__visual img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  filter: grayscale(30%) brightness(0.55);
+  display: block;
+  transition: transform 0.5s ease, filter 0.5s ease;
+}
+.ms-main-card:hover .ms-main-card__visual img {
+  transform: scale(1.05);
+  filter: grayscale(0%) brightness(0.6);
+}
+
+/* Gradient overlay */
+.ms-main-card__visual-fade {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to top, rgba(10,10,14,0.95) 0%, rgba(10,10,14,0.5) 45%, rgba(10,10,14,0.1) 100%),
+    linear-gradient(to bottom, rgba(10,10,14,0.4) 0%, transparent 25%);
+}
+
+/* Text content */
+.ms-main-card__body {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+  padding: 1.4rem 1.3rem 1.25rem;
+}
+
+.ms-main-card__eyebrow {
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  opacity: 0.85;
+}
+
+.ms-main-card__label {
+  font-family: 'Cormorant Garamond', var(--font-display), Georgia, serif;
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+
+.ms-main-card__desc {
+  font-size: 0.76rem;
+  color: rgba(255,255,255,0.6);
+  line-height: 1.5;
+  margin: 0.1rem 0 0.35rem;
+}
+
+.ms-main-card__tag {
+  display: inline-flex;
+  align-self: flex-start;
+  padding: 0.18rem 0.55rem;
+  border-radius: 99px;
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent);
+  color: var(--accent);
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Glow layer */
+.ms-main-card__glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 100%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+.ms-main-card:hover .ms-main-card__glow { opacity: 1; }
+
+/* ─── Divider ─────────────────────────────────────────── */
+.ms-divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 0.5rem 0 0;
+}
+.ms-divider::before,
+.ms-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255,255,255,0.08);
+}
+.ms-divider span {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  white-space: nowrap;
+  opacity: 0.65;
+}
+
+/* ─── Tier 2: Secondary cards ─────────────────────────── */
+.ms-secondary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.ms-secondary-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.1rem;
+  background: var(--ink-700, rgba(255,255,255,0.03));
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: var(--font-body);
+  text-align: left;
+  transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
+  animation: ms-in 0.45s ease both;
+}
+.ms-secondary-card:hover {
+  border-color: color-mix(in srgb, var(--accent) 38%, transparent);
+  background: color-mix(in srgb, var(--accent) 5%, transparent);
+  transform: translateY(-2px);
+}
+
+.ms-secondary-card__icon {
+  color: var(--accent);
+  opacity: 0.85;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.ms-secondary-card__text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.ms-secondary-card__eyebrow {
+  font-size: 0.56rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  opacity: 0.75;
+}
+
+.ms-secondary-card__label {
+  font-family: 'Cormorant Garamond', var(--font-display), Georgia, serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.15;
+}
+
+.ms-secondary-card__desc {
+  font-size: 0.73rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+  margin: 0;
+}
+
+.ms-secondary-card__arrow {
+  color: var(--text-muted);
+  flex-shrink: 0;
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.ms-secondary-card:hover .ms-secondary-card__arrow {
+  opacity: 0.6;
+  transform: translateX(0);
+}
+
+/* ─── Entrance animation ─────────────────────────────── */
+@keyframes ms-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Responsive ─────────────────────────────────────── */
+@media (max-width: 860px) {
+  .ms-main-grid { grid-template-columns: 1fr; }
+  .ms-main-card { min-height: 200px; }
+  .ms-secondary-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 500px) {
+  .ms { padding: 1rem 1rem 3rem; }
+  .ms-title { font-size: 2rem; }
+  .ms-main-card { min-height: 180px; }
+}

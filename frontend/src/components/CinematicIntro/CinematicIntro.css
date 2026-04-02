@@ -1,0 +1,293 @@
+/* ═══════════════════════════════════════════════════════
+   CinematicIntro — Intro cinematográfica premium
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Contenedor principal ────────────────────────────── */
+.ci {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  cursor: pointer;
+  overflow: hidden;
+  font-family: var(--font-display, 'Georgia', serif);
+
+  /* Estado inicial: invisible */
+  opacity: 0;
+  transition: opacity var(--ci-enter, 700ms) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ci--visible {
+  opacity: 1;
+}
+
+.ci--leaving {
+  opacity: 0;
+  transition-duration: var(--ci-leave, 500ms);
+  transition-timing-function: cubic-bezier(0.55, 0, 1, 0.45);
+}
+
+/* ── Barras letterbox ────────────────────────────────── */
+.ci-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: clamp(44px, 9vh, 84px);
+  background: #000;
+  z-index: 4;
+  pointer-events: none;
+}
+.ci-bar--top    { top: 0; }
+.ci-bar--bottom { bottom: 0; }
+
+/* ── Fondo ───────────────────────────────────────────── */
+.ci-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Imagen del personaje, muy sutil */
+.ci-bg__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 15%;
+  opacity: 0.14;
+  filter: grayscale(55%) contrast(1.15) brightness(0.85);
+  transform: scale(1.06);
+  transition: transform 3s ease;
+}
+.ci--visible .ci-bg__img {
+  transform: scale(1.0);
+}
+
+/* Color wash del personaje */
+.ci-bg__color-wash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 75% 75% at 60% 40%,
+    color-mix(in srgb, var(--ci-color, #c9a84c) 10%, transparent) 0%,
+    transparent 70%
+  );
+}
+
+/* Vignette */
+.ci-bg__overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 90% at 50% 50%, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.85) 100%),
+    linear-gradient(to bottom, #000 0%, transparent 18%, transparent 80%, #000 100%);
+}
+
+/* Líneas de TV / scanlines */
+.ci-bg__scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 2px,
+    rgba(0,0,0,0.06) 2px,
+    rgba(0,0,0,0.06) 4px
+  );
+  opacity: 0.5;
+}
+
+/* Grano de película (SVG inline para no depender de assets externos) */
+.ci-bg__grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.042;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 220 220' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 190px 190px;
+}
+
+/* ── Línea de acento lateral ─────────────────────────── */
+.ci-accent-line {
+  position: absolute;
+  left: clamp(1.5rem, 4vw, 3.5rem);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2px;
+  height: 0;
+  background: var(--ci-color, #c9a84c);
+  z-index: 3;
+  transition: height 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.4s, opacity 0.3s;
+  opacity: 0;
+  box-shadow: 0 0 12px var(--ci-color, #c9a84c);
+}
+.ci--visible .ci-accent-line {
+  height: clamp(80px, 18vh, 160px);
+  opacity: 0.7;
+}
+
+/* ── Contenido central ───────────────────────────────── */
+.ci-content {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(0.45rem, 1.4vh, 0.85rem);
+  text-align: center;
+  padding: 0 clamp(1.5rem, 7vw, 5rem);
+  max-width: 700px;
+  width: 100%;
+}
+
+/* ── Animación de entrada por línea ─────────────────── */
+@keyframes ci-line-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+    filter: blur(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+/* Todos los elementos empiezan invisibles */
+.ci-eyebrow,
+.ci-rule,
+.ci-name,
+.ci-desc,
+.ci-quote,
+.ci-mission-tag {
+  opacity: 0;
+}
+
+/* Al estar visible, dispara animaciones con delay individual */
+.ci--visible .ci-eyebrow,
+.ci--visible .ci-rule,
+.ci--visible .ci-name,
+.ci--visible .ci-desc,
+.ci--visible .ci-quote,
+.ci--visible .ci-mission-tag {
+  animation: ci-line-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(350ms + var(--d, 0ms));
+}
+
+/* ── Eyebrow (etiqueta de modo) ──────────────────────── */
+.ci-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: clamp(0.58rem, 1.2vw, 0.68rem);
+  font-weight: 700;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: var(--ci-color, #c9a84c);
+}
+.ci-eyebrow__dash {
+  display: block;
+  width: 22px;
+  height: 1px;
+  background: var(--ci-color, #c9a84c);
+  opacity: 0.7;
+}
+
+/* ── Regla decorativa ────────────────────────────────── */
+.ci-rule {
+  width: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--ci-color, #c9a84c) 30%,
+    rgba(255,255,255,0.6) 50%,
+    var(--ci-color, #c9a84c) 70%,
+    transparent
+  );
+  margin: 0 auto;
+  transition: width 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.5s;
+}
+.ci--visible .ci-rule {
+  width: 200px;
+}
+
+/* ── Nombre del personaje ────────────────────────────── */
+.ci-name {
+  font-family: var(--font-display, 'Georgia', serif);
+  font-size: clamp(2.4rem, 9vw, 5.5rem);
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  color: #ffffff;
+  text-shadow:
+    0 0 50px color-mix(in srgb, var(--ci-color, #c9a84c) 55%, transparent),
+    0 0 100px color-mix(in srgb, var(--ci-color, #c9a84c) 25%, transparent),
+    0 2px 6px rgba(0,0,0,0.8);
+}
+
+/* ── Descripción ─────────────────────────────────────── */
+.ci-desc {
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: clamp(0.68rem, 1.3vw, 0.77rem);
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.38);
+  margin-top: -0.25rem;
+}
+
+/* ── Cita ────────────────────────────────────────────── */
+.ci-quote {
+  font-family: var(--font-display, 'Georgia', serif);
+  font-size: clamp(1rem, 2.2vw, 1.3rem);
+  font-style: italic;
+  font-weight: 400;
+  color: rgba(255,255,255,0.8);
+  line-height: 1.55;
+  margin: 0.15rem 0;
+  quotes: none;
+  max-width: 520px;
+}
+
+/* ── Etiqueta de misión ──────────────────────────────── */
+.ci-mission-tag {
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: clamp(0.58rem, 1.1vw, 0.67rem);
+  font-weight: 600;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.28);
+  margin-top: 0.2rem;
+}
+
+/* ── Skip hint ───────────────────────────────────────── */
+.ci-skip-hint {
+  position: absolute;
+  bottom: clamp(52px, 11vh, 96px);
+  right: clamp(1.25rem, 3vw, 2.5rem);
+  z-index: 5;
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: 0.6rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.18);
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+.ci--leaving .ci-skip-hint { opacity: 0; }
+
+/* ── Responsive ──────────────────────────────────────── */
+@media (max-width: 480px) {
+  .ci-bar { height: 36px; }
+  .ci-accent-line { display: none; }
+  .ci-name { letter-spacing: 0.06em; }
+  .ci-quote { font-size: 0.95rem; }
+}

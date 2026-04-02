@@ -1,0 +1,217 @@
+.char-card {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  cursor: pointer;
+  outline: none;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.5);
+  opacity: 0;
+  transform: translateY(16px);
+  animation: card-enter 0.45s ease forwards;
+  animation-delay: var(--card-delay, 0s);
+  transition:
+    transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.35s ease;
+}
+@keyframes card-enter {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.char-card:hover,
+.char-card:focus-visible {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow:
+    0 12px 40px rgba(0,0,0,0.6),
+    0 0 0 1px var(--char-color),
+    0 0 32px -4px var(--char-color);
+}
+
+/* ─── Fondo ──────────────────────────────────────── */
+.char-card__bg {
+  position: absolute;
+  inset: 0;
+}
+
+.char-card__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.char-card__img--loaded {
+  opacity: 1;
+}
+
+/* ─── Overlay ────────────────────────────────────── */
+.char-card__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0,0,0,0.95) 0%,
+    rgba(0,0,0,0.55) 45%,
+    rgba(0,0,0,0.15) 75%,
+    transparent 100%
+  );
+  z-index: 1;
+}
+
+/* ─── Emoji (sin imagen) ─────────────────────────── */
+.char-card__emoji {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(3.5rem, 6vw, 5rem);
+  z-index: 1;
+  /* Glow sutil del emoji */
+  filter: drop-shadow(0 0 24px var(--char-color));
+  opacity: 0.9;
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.char-card:hover .char-card__emoji {
+  opacity: 1;
+  transform: scale(1.08);
+}
+
+/* ─── Scanline (efecto proyector) ────────────────── */
+.char-card__scanline {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(255, 255, 255, 0.04),
+    transparent
+  );
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.char-card:hover .char-card__scanline {
+  opacity: 1;
+  animation: scanline 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes scanline {
+  from { top: -50%; }
+  to   { top: 150%; }
+}
+
+/* ─── Contenido ──────────────────────────────────── */
+.char-card__content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1.25rem 1rem 1rem;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.char-card__universe {
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--char-color);
+  opacity: 0.9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.char-card__name {
+  font-family: var(--font-display);
+  font-size: clamp(0.85rem, 1.6vw, 1.05rem);
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+}
+
+.char-card__desc {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  margin-top: 0.15rem;
+}
+
+.char-card:hover .char-card__desc {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.char-card__cta {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--char-color);
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.25s ease 0.05s, transform 0.25s ease 0.05s;
+}
+
+.char-card:hover .char-card__cta {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ─── Badge historial ────────────────────────────── */
+.char-card__badge {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: rgba(0,0,0,0.7);
+  border: 1px solid var(--char-color);
+  border-radius: 999px;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--char-color);
+  backdrop-filter: blur(6px);
+  animation: badge-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+@keyframes badge-pop {
+  from { transform: scale(0); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+/* ─── Borde glow ─────────────────────────────────── */
+.char-card__border {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid var(--border-subtle);
+  z-index: 4;
+  pointer-events: none;
+  transition: border-color 0.35s ease;
+}
+
+.char-card:hover .char-card__border {
+  border-color: rgba(255, 255, 255, 0.15);
+}

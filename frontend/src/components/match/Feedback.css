@@ -1,0 +1,98 @@
+.fb {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  animation: fb-in 0.22s ease forwards;
+}
+
+@keyframes fb-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+
+/* ─── Reveal state (normal choice) ──────────── */
+.fb--reveal {
+  background: color-mix(in srgb, var(--chosen-color, #a78bfa) 9%, var(--ink-700));
+  border-color: color-mix(in srgb, var(--chosen-color, #a78bfa) 28%, transparent);
+}
+
+/* ─── Timeout state ──────────────────────────── */
+.fb--timeout {
+  background: color-mix(in srgb, #888 6%, var(--ink-700));
+  border-color: rgba(160, 160, 160, 0.2);
+}
+
+/* ─── Left column ────────────────────────────── */
+.fb__left {
+  flex-shrink: 0;
+}
+
+.fb__icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  background: rgba(160, 160, 160, 0.12);
+  color: var(--text-muted);
+}
+
+.fb__avatar {
+  width: 36px;
+  height: 44px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--chosen-color, #a78bfa) 40%, transparent);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--chosen-color, #a78bfa) 20%, transparent);
+}
+
+.fb__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+/* ─── Text ───────────────────────────────────── */
+.fb__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.fb__verdict {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--chosen-color, #a78bfa) 80%, #fff);
+}
+
+.fb__verdict strong {
+  color: color-mix(in srgb, var(--chosen-color, #a78bfa) 90%, #fff);
+}
+
+.fb__insight {
+  font-size: 0.84rem;
+  color: var(--text-primary);
+  line-height: 1.45;
+  font-style: italic;
+}
+
+.fb__line {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+  margin-top: 0.05rem;
+}
+
+.fb--timeout .fb__verdict {
+  color: var(--text-muted);
+}

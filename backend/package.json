@@ -1,0 +1,21 @@
+{
+  "name": "chat-personajes-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js",
+    "test": "node --test src/data/characters.test.js src/routes/chat.test.js"
+  },
+  "dependencies": {
+    "@elevenlabs/elevenlabs-js": "^2.39.0",
+    "@google/generative-ai": "^0.24.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.18.2",
+    "express-rate-limit": "^8.3.1",
+    "groq-sdk": "^0.9.1",
+    "openai": "^6.32.0"
+  }
+}

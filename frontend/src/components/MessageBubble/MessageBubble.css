@@ -1,0 +1,155 @@
+.bubble-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  max-width: 78%;
+  animation: bubble-in 0.2s ease forwards;
+}
+
+.bubble-row--grouped {
+  margin-top: -0.45rem;
+}
+
+.bubble-avatar--hidden {
+  visibility: hidden;
+}
+
+@keyframes bubble-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.bubble-row--user {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.bubble-row--char {
+  align-self: flex-start;
+}
+
+/* ─── Avatar ──────────────────────────────────────── */
+.bubble-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--surface-3);
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+  margin-bottom: 2px;
+  overflow: hidden;
+}
+.bubble-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+/* ─── Wrap (burbuja + acciones) ───────────────────── */
+.bubble-wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+}
+.bubble-wrap--user {
+  align-items: flex-end;
+}
+
+/* ─── Burbuja ─────────────────────────────────────── */
+.bubble {
+  padding: 0.65rem 0.9rem;
+  border-radius: 16px;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: var(--font-body);
+}
+
+.bubble--user {
+  background: var(--char-color, var(--gold));
+  color: #070709;
+  font-weight: 450;
+  border-bottom-right-radius: 4px;
+}
+
+.bubble--char {
+  background: var(--surface-3);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  border-bottom-left-radius: 4px;
+}
+
+/* ─── Acciones (reacción + botones) ──────────────── */
+.bubble-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.bubble-row:hover .bubble-actions {
+  opacity: 1;
+}
+
+.bubble-reaction {
+  font-size: 0.9rem;
+  line-height: 1;
+  animation: reaction-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+@keyframes reaction-pop {
+  from { transform: scale(0); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+/* ─── Botones copiar / compartir ─────────────────── */
+.copy-btn,
+.share-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: none;
+  border: 1px solid var(--border-faint);
+  border-radius: 6px;
+  color: var(--text-faint);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+.copy-btn:hover {
+  color: var(--char-color, var(--gold));
+  border-color: var(--border-subtle);
+}
+.share-btn:hover {
+  color: var(--char-color, var(--gold));
+  border-color: var(--border-subtle);
+}
+
+/* ─── Cursor de escritura ─────────────────────────── */
+.typing-cursor {
+  display: inline-block;
+  animation: blink 0.7s step-end infinite;
+  color: var(--char-color, var(--gold));
+  margin-left: 1px;
+  font-weight: 300;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* ─── Mobile ──────────────────────────────────────── */
+@media (max-width: 480px) {
+  .bubble-row { max-width: 90%; }
+  .bubble-actions { opacity: 1; }
+}
