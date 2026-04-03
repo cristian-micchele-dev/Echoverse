@@ -139,12 +139,16 @@ export default function InterrogationPage() {
         return updated
       })
 
-      // Update pressure based on defensive/irritated tones
-      if (['defensive', 'irritated'].includes(data.emotionalTone)) {
-        setPressureLevel(prev => Math.min(100, prev + 20))
-      } else if (data.emotionalTone === 'confident') {
-        setPressureLevel(prev => Math.max(0, prev - 10))
-      }
+      // Update pressure based on emotional tone + confidence
+      const pressureDelta = (() => {
+        let delta = 5  // base: cada pregunta suma presión
+        if (['defensive', 'irritated'].includes(data.emotionalTone)) delta += 15
+        else if (data.emotionalTone === 'dismissive') delta += 5
+        else if (data.emotionalTone === 'confident') delta -= 10
+        if (typeof data.confidence === 'number' && data.confidence < 0.4) delta += 10
+        return delta
+      })()
+      setPressureLevel(prev => Math.min(100, Math.max(0, prev + pressureDelta)))
     } catch (err) {
       console.error(err)
       setExchanges(prev => {
@@ -212,9 +216,15 @@ export default function InterrogationPage() {
       if (!res.ok) throw new Error(data.error || 'Error')
       setConfrontationResponse(data.response)
       setConfrontationTone(data.emotionalTone)
-      if (['defensive', 'irritated'].includes(data.emotionalTone)) {
-        setPressureLevel(prev => Math.min(100, prev + 30))
-      }
+      const confrontationDelta = (() => {
+        let delta = 10  // confrontación siempre suma más presión
+        if (['defensive', 'irritated'].includes(data.emotionalTone)) delta += 20
+        else if (data.emotionalTone === 'dismissive') delta += 10
+        else if (data.emotionalTone === 'confident') delta -= 5
+        if (typeof data.confidence === 'number' && data.confidence < 0.4) delta += 10
+        return delta
+      })()
+      setPressureLevel(prev => Math.min(100, Math.max(0, prev + confrontationDelta)))
     } catch (err) {
       console.error(err)
       setConfrontationResponse('Sin respuesta.')

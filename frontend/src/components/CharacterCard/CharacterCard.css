@@ -177,6 +177,40 @@
   transform: translateY(0);
 }
 
+/* ─── Botón info ─────────────────────────────────── */
+.char-card__info {
+  position: absolute;
+  top: 0.55rem;
+  left: 0.55rem;
+  z-index: 5;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 50%;
+  color: rgba(255, 255, 255, 0.55);
+  cursor: pointer;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: opacity 0.2s ease, transform 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  backdrop-filter: blur(4px);
+}
+
+.char-card:hover .char-card__info,
+.char-card:focus-visible .char-card__info {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.char-card__info:hover {
+  color: var(--char-color);
+  border-color: var(--char-color);
+  background: rgba(0, 0, 0, 0.75);
+}
+
 /* ─── Badge historial ────────────────────────────── */
 .char-card__badge {
   position: absolute;
