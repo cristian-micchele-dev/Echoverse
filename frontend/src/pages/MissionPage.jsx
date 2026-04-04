@@ -5,6 +5,8 @@ import { readSSEStream } from '../utils/sse'
 import CinematicIntro from '../components/CinematicIntro/CinematicIntro'
 import './MissionPage.css'
 import { API_URL } from '../config/api.js'
+import { CAMPAIGN_ARCS } from '../data/missionLevels.js'
+import { getMissionProgress, isLevelUnlocked, saveLevelComplete, resetProgress } from '../utils/missionProgress.js'
 
 const MISSION_TRACKS = [
   '/sounds/ArcSound - Dark Suspense Cinematic.mp3',
@@ -152,6 +154,9 @@ export default function MissionPage() {
   const [missionResult, setMissionResult] = useState(null) // 'win' | 'lose' | null
   const [pendingStats,  setPendingStats]  = useState(null)
   const [muted, setMuted] = useState(false)
+  const [campaignMode, setCampaignMode] = useState(false)
+  const [selectedLevel, setSelectedLevel] = useState(null)
+  const [campaignProgress, setCampaignProgress] = useState(() => getMissionProgress())
   const bottomRef = useRef(null)
   const nameInputRef = useRef(null)
   const audioRef = useRef(null)
@@ -231,7 +236,8 @@ export default function MissionPage() {
           difficulty,
           missionType,
           stats: currentStats,
-          finalResult
+          finalResult,
+          isCampaign: campaignMode
         })
       })
 
@@ -268,11 +274,31 @@ export default function MissionPage() {
     setPhase('setup')
   }
 
+  const handleCampaignLevelSelect = (levelConfig) => {
+    const char = characters.find(c => c.id === levelConfig.character)
+    if (!char) return
+    setSelectedLevel(levelConfig.level)
+    setSelectedChar(char)
+    setDifficulty(levelConfig.difficulty)
+    setPlayerName(char.name)
+    setPhase('setup')
+  }
+
+  const handleNextLevel = () => {
+    const nextConfig = CAMPAIGN_ARCS.flatMap(a => a.levels).find(l => l.level === selectedLevel + 1)
+    if (nextConfig) {
+      handleCampaignLevelSelect(nextConfig)
+    } else {
+      handleRestart()
+    }
+  }
+
   const initialVida   = { easy: 5, normal: 4, hard: 3 }
   const initialSigilo = { easy: 4, normal: 3, hard: 2 }
 
   const handleStartMission = () => {
-    if (!playerName.trim()) return
+    if (!campaignMode && !playerName.trim()) return
+    if (campaignMode && !playerName.trim() && selectedChar) setPlayerName(selectedChar.name)
     const startVida   = initialVida[difficulty]   ?? 4
     const startSigilo = initialSigilo[difficulty] ?? 3
     const stats = { vida: startVida, riesgo: 0, sigilo: startSigilo }
@@ -324,6 +350,10 @@ export default function MissionPage() {
     if (newHistory.length >= 5) {
       setMissionResult('win')
       setPhase('ended')
+      if (campaignMode && selectedLevel) {
+        saveLevelComplete(selectedLevel)
+        setCampaignProgress(getMissionProgress())
+      }
       fetchMission(selectedChar, newHistory, { vida: newVida, riesgo: newRiesgo, sigilo: newSigilo }, 'win')
       return
     }
@@ -334,6 +364,8 @@ export default function MissionPage() {
   const handleRestart = () => {
     setPhase('chars')
     setSelectedChar(null)
+    setSelectedLevel(null)
+    setCampaignProgress(getMissionProgress())
     setPlayerName('')
     setHistory([])
     setCurrentText('')
@@ -405,35 +437,109 @@ export default function MissionPage() {
         </div>
         <div className="mission-intro">
           <span className="mission-intro__eyebrow">⚔ Modo Misión</span>
-          <h1 className="mission-intro__title">Entrá al Universo</h1>
-          <p className="mission-intro__sub">Elegí un personaje. Él te lanzará directo a una misión en su mundo — vos sos el protagonista.</p>
+          <h1 className="mission-intro__title">
+            {campaignMode ? 'Campaña — 30 Niveles' : 'Entrá al Universo'}
+          </h1>
+          <p className="mission-intro__sub">
+            {campaignMode
+              ? 'Progresá nivel a nivel encarnando a cada personaje. Dificultad creciente.'
+              : 'Elegí un personaje. Él te lanzará directo a una misión en su mundo — vos sos el protagonista.'}
+          </p>
         </div>
-        <div className="mission-chars-grid">
-          {characters.map((char, i) => (
-            <button
-              key={char.id}
-              className="mission-char-card"
-              style={{ '--char-color': char.themeColor, '--char-gradient': char.gradient, '--card-delay': `${i * 0.03}s` }}
-              onClick={() => handleCharSelect(char)}
-            >
-              <div className="mission-char-card__bg" style={{ background: char.gradient }}>
-                {char.image && <img src={char.image} alt={char.name} className="mission-char-card__img" />}
-              </div>
-              <div className="mission-char-card__overlay" />
-              <div className="mission-char-card__info">
-                <span className="mission-char-card__universe">{char.universe}</span>
-                <span className="mission-char-card__name">{char.name}</span>
-              </div>
-            </button>
-          ))}
+
+        <div className="mission-mode-tabs">
+          <button
+            className={`mission-mode-tab ${!campaignMode ? 'mission-mode-tab--active' : ''}`}
+            onClick={() => setCampaignMode(false)}
+          >
+            Libre
+          </button>
+          <button
+            className={`mission-mode-tab ${campaignMode ? 'mission-mode-tab--active' : ''}`}
+            onClick={() => setCampaignMode(true)}
+          >
+            Campaña
+          </button>
         </div>
+
+        {!campaignMode && (
+          <div className="mission-chars-grid">
+            {characters.map((char, i) => (
+              <button
+                key={char.id}
+                className="mission-char-card"
+                style={{ '--char-color': char.themeColor, '--char-gradient': char.gradient, '--card-delay': `${i * 0.03}s` }}
+                onClick={() => handleCharSelect(char)}
+              >
+                <div className="mission-char-card__bg" style={{ background: char.gradient }}>
+                  {char.image && <img src={char.image} alt={char.name} className="mission-char-card__img" />}
+                </div>
+                <div className="mission-char-card__overlay" />
+                <div className="mission-char-card__info">
+                  <span className="mission-char-card__universe">{char.universe}</span>
+                  <span className="mission-char-card__name">{char.name}</span>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {campaignMode && (
+          <div className="campaign-arcs">
+            {CAMPAIGN_ARCS.map(arc => {
+              const arcChar = characters.find(c => c.id === arc.character)
+              return (
+                <div key={arc.arcName} className="campaign-arc">
+                  <div className="campaign-arc__header" style={{ '--char-color': arcChar?.themeColor || '#888' }}>
+                    {arcChar?.image && (
+                      <img src={arcChar.image} alt={arcChar.name} className="campaign-arc__avatar" />
+                    )}
+                    <div className="campaign-arc__info">
+                      <span className="campaign-arc__name">{arc.arcName}</span>
+                      <span className="campaign-arc__char">{arcChar?.name}</span>
+                    </div>
+                    <span className="campaign-arc__diff-badge">
+                      {arc.levels[0].difficulty === 'easy' ? '🟢 Fácil' : arc.levels[0].difficulty === 'normal' ? '🟡 Normal' : '🔴 Difícil'}
+                    </span>
+                  </div>
+                  <div className="campaign-levels">
+                    {arc.levels.map(lvl => {
+                      const unlocked = isLevelUnlocked(lvl.level)
+                      const completed = !!campaignProgress.completedLevels[lvl.level]
+                      return (
+                        <button
+                          key={lvl.level}
+                          className={`campaign-level-btn ${completed ? 'campaign-level-btn--done' : unlocked ? 'campaign-level-btn--open' : 'campaign-level-btn--locked'}`}
+                          style={{ '--char-color': arcChar?.themeColor || '#888' }}
+                          disabled={!unlocked}
+                          onClick={() => handleCampaignLevelSelect(lvl)}
+                        >
+                          <span className="campaign-level-btn__num">{lvl.level}</span>
+                          <span className="campaign-level-btn__state">
+                            {completed ? '✔' : unlocked ? '▶' : '🔒'}
+                          </span>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              )
+            })}
+            <div className="campaign-reset">
+              <button className="campaign-reset-btn" onClick={() => { resetProgress(); setCampaignProgress(getMissionProgress()) }}>
+                Reiniciar progreso
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     )
   }
 
   /* ── Setup ──────────────────────────────────────── */
   if (phase === 'setup') {
-    const step1Done = playerName.trim().length > 0
+    const step1Done = campaignMode || playerName.trim().length > 0
+    const activeDiff = DIFFICULTIES.find(d => d.id === difficulty)
 
     return (
       <div className="mission-page mission-page--setup" style={{ '--char-color': selectedChar.themeColor }}>
@@ -448,13 +554,15 @@ export default function MissionPage() {
 
         <div className="mission-setup">
           {/* Indicador de pasos */}
-          <div className="mission-setup__steps">
-            <div className={`mission-setup__step-dot ${step1Done ? 'mission-setup__step-dot--done' : 'mission-setup__step-dot--active'}`} />
-            <div className={`mission-setup__step-line ${step1Done ? 'mission-setup__step-line--done' : ''}`} />
-            <div className={`mission-setup__step-dot ${step1Done ? 'mission-setup__step-dot--done' : ''}`} />
-            <div className={`mission-setup__step-line ${step1Done ? 'mission-setup__step-line--done' : ''}`} />
-            <div className={`mission-setup__step-dot ${step1Done ? 'mission-setup__step-dot--active' : ''}`} />
-          </div>
+          {!campaignMode && (
+            <div className="mission-setup__steps">
+              <div className={`mission-setup__step-dot ${step1Done ? 'mission-setup__step-dot--done' : 'mission-setup__step-dot--active'}`} />
+              <div className={`mission-setup__step-line ${step1Done ? 'mission-setup__step-line--done' : ''}`} />
+              <div className={`mission-setup__step-dot ${step1Done ? 'mission-setup__step-dot--done' : ''}`} />
+              <div className={`mission-setup__step-line ${step1Done ? 'mission-setup__step-line--done' : ''}`} />
+              <div className={`mission-setup__step-dot ${step1Done ? 'mission-setup__step-dot--active' : ''}`} />
+            </div>
+          )}
 
           {/* Personaje */}
           <div className="mission-setup__char">
@@ -464,29 +572,39 @@ export default function MissionPage() {
             }
             <p className="mission-setup__char-name">{selectedChar.name}</p>
             <p className="mission-setup__char-universe">{selectedChar.universe}</p>
+            {campaignMode && selectedLevel && (
+              <div className="mission-setup__level-badge">Nivel {selectedLevel.level}</div>
+            )}
           </div>
 
           {/* Paso 1: Identidad */}
-          <div className="mission-setup__section">
-            <p className="mission-setup__question">¿Cómo te llamás?</p>
-            <input
-              ref={nameInputRef}
-              className="mission-setup__name-input"
-              type="text"
-              placeholder="Tu nombre..."
-              value={playerName}
-              onChange={e => setPlayerName(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleStartMission()}
-              maxLength={24}
-            />
-            {playerAlias && (
-              <div className="mission-setup__alias-block">
-                <span className="mission-setup__alias-label">Serás conocido como</span>
-                <p className="mission-setup__alias-name">{playerAlias}</p>
-                <div className="mission-setup__alias-line" />
-              </div>
-            )}
-          </div>
+          {campaignMode ? (
+            <div className="mission-setup__section mission-setup__section--reveal" style={{ '--reveal-delay': '0s' }}>
+              <p className="mission-setup__question">En esta misión sos</p>
+              <p className="mission-setup__campaign-identity">{selectedChar.name}</p>
+            </div>
+          ) : (
+            <div className="mission-setup__section">
+              <p className="mission-setup__question">¿Cómo te llamás?</p>
+              <input
+                ref={nameInputRef}
+                className="mission-setup__name-input"
+                type="text"
+                placeholder="Tu nombre..."
+                value={playerName}
+                onChange={e => setPlayerName(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleStartMission()}
+                maxLength={24}
+              />
+              {playerAlias && (
+                <div className="mission-setup__alias-block">
+                  <span className="mission-setup__alias-label">Serás conocido como</span>
+                  <p className="mission-setup__alias-name">{playerAlias}</p>
+                  <div className="mission-setup__alias-line" />
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Paso 2: Tipo de misión */}
           {step1Done && (
@@ -515,19 +633,31 @@ export default function MissionPage() {
           {step1Done && (
             <div className="mission-setup__section mission-setup__section--reveal" style={{ '--reveal-delay': '0.07s' }}>
               <p className="mission-setup__question">Nivel de riesgo</p>
-              <div className="mission-setup__pills">
-                {DIFFICULTIES.map(d => (
-                  <button
-                    key={d.id}
-                    className={`mission-setup__pill ${difficulty === d.id ? 'mission-setup__pill--active' : ''}`}
-                    style={{ '--pill-color': d.color }}
-                    onClick={() => setDifficulty(d.id)}
+              {campaignMode ? (
+                <div className="mission-setup__pills">
+                  <div
+                    className="mission-setup__pill mission-setup__pill--active mission-setup__pill--locked"
+                    style={{ '--pill-color': activeDiff?.color }}
                   >
-                    <span className="mission-setup__pill-label">{d.label}</span>
-                    <span className="mission-setup__pill-desc">{d.desc}</span>
-                  </button>
-                ))}
-              </div>
+                    <span className="mission-setup__pill-label">{activeDiff?.label}</span>
+                    <span className="mission-setup__pill-desc">{activeDiff?.desc} — fijado por campaña</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="mission-setup__pills">
+                  {DIFFICULTIES.map(d => (
+                    <button
+                      key={d.id}
+                      className={`mission-setup__pill ${difficulty === d.id ? 'mission-setup__pill--active' : ''}`}
+                      style={{ '--pill-color': d.color }}
+                      onClick={() => setDifficulty(d.id)}
+                    >
+                      <span className="mission-setup__pill-label">{d.label}</span>
+                      <span className="mission-setup__pill-desc">{d.desc}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
@@ -535,11 +665,11 @@ export default function MissionPage() {
           {step1Done && (
             <button
               className="mission-setup__start mission-setup__section--reveal"
-              disabled={!playerName.trim()}
+              disabled={!campaignMode && !playerName.trim()}
               onClick={handleStartMission}
               style={{ '--reveal-delay': '0.13s' }}
             >
-              Iniciar operación
+              {campaignMode ? 'Comenzar nivel' : 'Iniciar operación'}
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
@@ -724,24 +854,71 @@ export default function MissionPage() {
 
         {isEnded && !streaming && (
           <div className="mission-end-actions">
-            <button className="mission-end-btn mission-end-btn--new" onClick={() => {
-              setHistory([])
-              setMissionTitle('')
-              setPhase('setup')
-            }}>
-              Nueva misión
-            </button>
-            <div className="mission-end-actions__row">
-              <button className="mission-end-btn mission-end-btn--share" onClick={handleShare}>
-                {copied ? 'Copiado' : 'Compartir'}
-              </button>
-              <button className="mission-end-btn mission-end-btn--chars" onClick={handleRestart}>
-                Otro personaje
-              </button>
-              <button className="mission-end-btn mission-end-btn--home" onClick={() => navigate('/')}>
-                Inicio
-              </button>
-            </div>
+            {campaignMode && missionResult === 'win' && selectedLevel?.level === 30 ? (
+              <div className="mission-campaign-complete">
+                <p className="mission-campaign-complete__title">¡Campaña completada!</p>
+                <p className="mission-campaign-complete__sub">Superaste los 30 niveles. Sos una leyenda.</p>
+                <button className="mission-end-btn mission-end-btn--chars" onClick={handleRestart}>
+                  Volver a campaña
+                </button>
+              </div>
+            ) : campaignMode && missionResult === 'win' ? (
+              <>
+                <button className="mission-end-btn mission-end-btn--next" onClick={handleNextLevel}>
+                  Siguiente nivel
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <path d="M3 7h8M7.5 3.5L11 7l-3.5 3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+                <div className="mission-end-actions__row">
+                  <button className="mission-end-btn mission-end-btn--chars" onClick={handleRestart}>
+                    Campaña
+                  </button>
+                  <button className="mission-end-btn mission-end-btn--home" onClick={() => navigate('/')}>
+                    Inicio
+                  </button>
+                </div>
+              </>
+            ) : campaignMode && missionResult === 'lose' ? (
+              <>
+                <button className="mission-end-btn mission-end-btn--new" onClick={() => {
+                  setHistory([])
+                  setMissionTitle('')
+                  setPhase('setup')
+                }}>
+                  Reintentar nivel
+                </button>
+                <div className="mission-end-actions__row">
+                  <button className="mission-end-btn mission-end-btn--chars" onClick={handleRestart}>
+                    Campaña
+                  </button>
+                  <button className="mission-end-btn mission-end-btn--home" onClick={() => navigate('/')}>
+                    Inicio
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <button className="mission-end-btn mission-end-btn--new" onClick={() => {
+                  setHistory([])
+                  setMissionTitle('')
+                  setPhase('setup')
+                }}>
+                  Nueva misión
+                </button>
+                <div className="mission-end-actions__row">
+                  <button className="mission-end-btn mission-end-btn--share" onClick={handleShare}>
+                    {copied ? 'Copiado' : 'Compartir'}
+                  </button>
+                  <button className="mission-end-btn mission-end-btn--chars" onClick={handleRestart}>
+                    Otro personaje
+                  </button>
+                  <button className="mission-end-btn mission-end-btn--home" onClick={() => navigate('/')}>
+                    Inicio
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         )}
 

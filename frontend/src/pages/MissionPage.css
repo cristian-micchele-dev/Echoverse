@@ -963,6 +963,196 @@
 .mission-delta--good { background: rgba(74,222,128,0.12);  color: #4ade80; }
 .mission-delta--bad  { background: rgba(248,113,113,0.12); color: #f87171; }
 
+/* ─── Campaign Mode ──────────────────────────────── */
+.mission-mode-tabs {
+  display: flex;
+  gap: 0.5rem;
+  padding: 1rem 1.5rem 0;
+}
+.mission-mode-tab {
+  flex: 1;
+  background: none;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  padding: 0.55rem 1rem;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.mission-mode-tab:hover { color: var(--text-primary); border-color: var(--border-default); }
+.mission-mode-tab--active {
+  background: rgba(255,255,255,0.06);
+  border-color: var(--char-color, var(--border-default));
+  color: var(--text-primary);
+}
+
+.campaign-arcs {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.25rem 1.5rem 2rem;
+}
+
+.campaign-arc__header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+.campaign-arc__avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--border-subtle);
+}
+.campaign-arc__emoji {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+.campaign-arc__info {}
+.campaign-arc__name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 0.1rem;
+}
+.campaign-arc__char {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0;
+}
+
+.campaign-levels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.campaign-level-btn {
+  min-width: 48px;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1px solid var(--border-subtle);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  transition: transform 0.12s, border-color 0.15s, background 0.15s;
+}
+.campaign-level-btn__num { font-size: 0.9rem; }
+.campaign-level-btn__tag { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.7; }
+
+.campaign-level-btn--open {
+  background: rgba(255,255,255,0.04);
+  color: var(--text-primary);
+  border-color: var(--border-default);
+}
+.campaign-level-btn--open:hover { transform: translateY(-2px); background: rgba(255,255,255,0.08); }
+
+.campaign-level-btn--done {
+  background: rgba(74,222,128,0.1);
+  color: #4ade80;
+  border-color: rgba(74,222,128,0.3);
+}
+.campaign-level-btn--done:hover { transform: translateY(-2px); }
+
+.campaign-level-btn--locked {
+  background: none;
+  color: var(--text-muted);
+  border-color: var(--border-subtle);
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.campaign-reset {
+  margin: 0.5rem 1.5rem 0;
+  background: none;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  padding: 0.4rem 0.9rem;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+.campaign-reset:hover { color: #f87171; border-color: rgba(248,113,113,0.4); }
+
+/* Setup campaign extras */
+.mission-setup__level-badge {
+  display: inline-block;
+  margin-top: 0.4rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid var(--char-color, var(--border-subtle));
+  color: var(--char-color, var(--text-secondary));
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.mission-setup__campaign-identity {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--char-color, var(--text-primary));
+  text-align: center;
+  margin: 0.25rem 0 0;
+}
+
+.mission-setup__pill--locked {
+  cursor: default;
+  pointer-events: none;
+  opacity: 0.85;
+  border-style: dashed;
+}
+
+/* Ended campaign buttons */
+.mission-end-btn--next {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.85rem 1.5rem;
+  background: linear-gradient(135deg, var(--char-color, #6366f1), color-mix(in srgb, var(--char-color, #6366f1) 60%, #000));
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.12s;
+}
+.mission-end-btn--next:hover { opacity: 0.9; transform: translateY(-1px); }
+
+.mission-campaign-complete {
+  text-align: center;
+  padding: 1rem 0;
+}
+.mission-campaign-complete__title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #fbbf24;
+  margin: 0 0 0.4rem;
+}
+.mission-campaign-complete__sub {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin: 0 0 1.25rem;
+}
+
 /* ─── Mobile ──────────────────────────────────────── */
 @media (max-width: 600px) {
   .mission-chars-grid { grid-template-columns: repeat(3, 1fr); gap: 0.5rem; padding: 0.75rem 1rem 2rem; }

@@ -366,7 +366,7 @@ function buildMissionMessages({ history, recentHistory, alias, isFinal, difficul
 }
 
 router.post('/mission', async (req, res) => {
-  const { characterId, history = [], playerName, difficulty = 'normal', missionType = 'combate', stats = {}, finalResult = null } = req.body
+  const { characterId, history = [], playerName, difficulty = 'normal', missionType = 'combate', stats = {}, finalResult = null, isCampaign = false } = req.body
   const character = characters[characterId]
   if (!character) return res.status(404).json({ error: 'Personaje no encontrado' })
 
@@ -431,8 +431,16 @@ router.post('/mission', async (req, res) => {
 
   const missionSystemPrompt = `${character.systemPrompt}
 
-MODO MISIÓN — NARRADOR EN SEGUNDA PERSONA:
-El jugador se llama ${alias}. Usá siempre segunda persona ("Entrás", "Ves", "Tenés que").
+${isCampaign
+    ? `MODO CAMPAÑA — ENCARNACIÓN:
+El jugador ENCARNA a ${alias}. Narrá en segunda persona estricta como si el jugador FUERA ${alias}:
+- Usá sus habilidades únicas, su forma de moverse, pensar y actuar característica
+- Las opciones deben reflejar lo que ESTE personaje haría — no un agente genérico
+- Su personalidad, miedos, obsesiones y estilo deben impregnar cada escena y cada decisión
+- Tratalo como el protagonista que ES, no como un agente externo
+- Usá segunda persona: "Entrás", "Ves", "Sentís", "Tus manos..."`
+    : `MODO MISIÓN — NARRADOR EN SEGUNDA PERSONA:
+El jugador se llama ${alias}. Usá siempre segunda persona ("Entrás", "Ves", "Tenés que").`}
 ${difficultyInstructions[difficulty] || difficultyInstructions.normal}
 ${missionTypeMap[missionType] || missionTypeMap.combate}
 ${statsLine}${loseConditionsNote}
