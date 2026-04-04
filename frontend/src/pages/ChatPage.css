@@ -294,6 +294,20 @@
   opacity: 0.85;
 }
 
+.chat-header__affinity {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--char-color);
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid var(--char-color);
+  border-radius: 999px;
+  padding: 0.1rem 0.45rem;
+  margin-top: 0.2rem;
+  backdrop-filter: blur(4px);
+  opacity: 0.9;
+}
+
 .chat-header__actions {
   display: flex;
   align-items: center;

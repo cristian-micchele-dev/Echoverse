@@ -66,8 +66,15 @@ function buildDuoSystemPrompt(characterPrompt, duoMode) {
   return null
 }
 
+const AFFINITY_CONTEXT = {
+  1: 'El usuario ya ha hablado contigo antes. Reconócelo sutilmente como alguien conocido.',
+  2: 'El usuario y tú tenéis historia juntos. Trátalo con la confianza de un aliado.',
+  3: 'Es alguien en quien confías profundamente. Puedes mostrarte más abierto y personal.',
+  4: 'Es una leyenda entre quienes te conocen. Recíbelo con el máximo respeto dentro de tu personaje.',
+}
+
 function buildChatSystemPrompt(character, body) {
-  const { duoMode, battleMode, confesionarioMode } = body
+  const { duoMode, battleMode, confesionarioMode, affinityLevel = 0 } = body
 
   if (duoMode?.role) {
     return buildDuoSystemPrompt(character.systemPrompt, duoMode)
@@ -81,7 +88,8 @@ function buildChatSystemPrompt(character, body) {
     return `${character.systemPrompt}${CONFESIONARIO_MODE_SUFFIX}`
   }
 
-  return `${BASE_PROMPT}\n\n${character.systemPrompt}`
+  const affinityNote = AFFINITY_CONTEXT[affinityLevel] ? `\n\n${AFFINITY_CONTEXT[affinityLevel]}` : ''
+  return `${BASE_PROMPT}\n\n${character.systemPrompt}${affinityNote}`
 }
 
 function resolveChatTokenLimit(body) {

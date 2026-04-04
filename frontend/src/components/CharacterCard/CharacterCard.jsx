@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import CharacterBioModal from '../CharacterBioModal/CharacterBioModal'
+import { getAffinityData, getAffinityLevel, getAffinityLabel, getAffinityEmoji } from '../../utils/affinity'
 import './CharacterCard.css'
 
 export default function CharacterCard({ character, index = 0, onSelect }) {
@@ -8,6 +9,9 @@ export default function CharacterCard({ character, index = 0, onSelect }) {
   const [imgLoaded, setImgLoaded] = useState(false)
   const [imgError, setImgError] = useState(false)
   const [bioOpen, setBioOpen] = useState(false)
+
+  const { messageCount } = getAffinityData(character.id)
+  const affinityLevel = getAffinityLevel(messageCount)
 
   const showImage = character.image && !imgError
 
@@ -59,6 +63,13 @@ export default function CharacterCard({ character, index = 0, onSelect }) {
 
         {/* Scanline — pasa al hover */}
         <div className="char-card__scanline" />
+
+        {/* Badge de afinidad */}
+        {affinityLevel >= 1 && (
+          <div className="char-card__badge">
+            {getAffinityEmoji(affinityLevel)} {getAffinityLabel(affinityLevel)}
+          </div>
+        )}
 
         {/* Botón info */}
         {character.bio && (

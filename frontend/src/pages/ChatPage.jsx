@@ -7,6 +7,7 @@ import { readSSEStream } from '../utils/sse'
 import { saveSession } from '../utils/session'
 import './ChatPage.css'
 import { API_URL } from '../config/api.js'
+import { getAffinityData, getAffinityLevel, getAffinityLabel, getAffinityEmoji } from '../utils/affinity'
 const MAX_STORED_MESSAGES = 50
 
 function playNotificationSound(tone) {
@@ -206,7 +207,7 @@ export default function ChatPage() {
       const response = await fetch(`${API_URL}/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ characterId, messages: updatedMessages })
+        body: JSON.stringify({ characterId, messages: updatedMessages, affinityLevel: getAffinityLevel(getAffinityData(characterId).messageCount) })
       })
 
       let firstChunk = true
@@ -288,6 +289,14 @@ export default function ChatPage() {
           <div>
             <h2 className="chat-header__name">{character.name}</h2>
             <span className="chat-header__universe">{character.universe}</span>
+            {(() => {
+              const level = getAffinityLevel(getAffinityData(characterId).messageCount)
+              return level >= 1 ? (
+                <span className="chat-header__affinity">
+                  {getAffinityEmoji(level)} {getAffinityLabel(level)}
+                </span>
+              ) : null
+            })()}
           </div>
         </div>
 
