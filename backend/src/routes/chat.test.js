@@ -547,3 +547,239 @@ describe('POST /api/chat — happy path SSE con cliente mockeado', () => {
     assert.equal(result.statusCode, 404)
   })
 })
+
+// ---------------------------------------------------------------------------
+// Suite 4: POST /api/ultima-cena/scene — validaciones de input
+// ---------------------------------------------------------------------------
+//
+// Testea el contrato de validación del endpoint sin llamar a la IA.
+// Los casos cubiertos son los bugs corregidos (regresión) y los bordes
+// documentados en el endpoint: chars < 3, chars > 4, trigger vacío.
+// ---------------------------------------------------------------------------
+
+describe('POST /api/ultima-cena/scene — validaciones de input', () => {
+  let server
+
+  before(async () => {
+    const app = express()
+    app.use(express.json())
+    const { default: chatRouter } = await import('./chat.js')
+    app.use('/api', chatRouter)
+    server = createServer(app)
+    await new Promise(resolve => server.listen(0, '127.0.0.1', resolve))
+  })
+
+  after(async () => {
+    await new Promise((resolve, reject) =>
+      server.close(err => err ? reject(err) : resolve())
+    )
+  })
+
+  // ── Regresión: trigger vacío ──────────────────────────────────────────────
+
+  test('regresion: devuelve 400 si el trigger es string vacío', async () => {
+    const result = await httpRequest(
+      server,
+      { path: '/api/ultima-cena/scene', method: 'POST' },
+      {
+        chars: [
+          { id: 'frodo', name: 'Frodo Bolsón' },
+          { id: 'vader', name: 'Darth Vader' },
+          { id: 'sherlock', name: 'Sherlock Holmes' }
+        ],
+        trigger: '',
+        tema: '',
+        sceneFlow: 'Libre.',
+        dialogueRules: ''
+      }
+    )
+    assert.equal(result.statusCode, 400)
+    const body = JSON.parse(result.body)
+    assert.ok('error' in body, 'debe incluir campo error')
+  })
+
+  test('regresion: devuelve 400 si el trigger es solo espacios en blanco', async () => {
+    const result = await httpRequest(
+      server,
+      { path: '/api/ultima-cena/scene', method: 'POST' },
+      {
+        chars: [
+          { id: 'frodo', name: 'Frodo Bolsón' },
+          { id: 'vader', name: 'Darth Vader' },
+          { id: 'sherlock', name: 'Sherlock Holmes' }
+        ],
+        trigger: '   ',
+        tema: '',
+        sceneFlow: 'Libre.',
+        dialogueRules: ''
+      }
+    )
+    assert.equal(result.statusCode, 400)
+    const body = JSON.parse(result.body)
+    assert.ok('error' in body)
+  })
+
+  test('regresion: devuelve 400 si el trigger está ausente del body', async () => {
+    const result = await httpRequest(
+      server,
+      { path: '/api/ultima-cena/scene', method: 'POST' },
+      {
+        chars: [
+          { id: 'frodo', name: 'Frodo Bolsón' },
+          { id: 'vader', name: 'Darth Vader' },
+          { id: 'sherlock', name: 'Sherlock Holmes' }
+        ],
+        tema: '',
+        sceneFlow: 'Libre.',
+        dialogueRules: ''
+        // trigger ausente
+      }
+    )
+    assert.equal(result.statusCode, 400)
+  })
+
+  // ── Regresión: chars < 3 ─────────────────────────────────────────────────
+
+  test('regresion: devuelve 400 si se envían menos de 3 personajes (2)', async () => {
+    const result = await httpRequest(
+      server,
+      { path: '/api/ultima-cena/scene', method: 'POST' },
+      {
+        chars: [
+          { id: 'frodo', name: 'Frodo Bolsón' },
+          { id: 'vader', name: 'Darth Vader' }
+        ],
+        trigger: 'Un silencio incómodo.',
+        tema: '',
+        sceneFlow: 'Libre.',
+        dialogueRules: ''
+      }
+    )
+    assert.equal(result.statusCode, 400)
+    const body = JSON.parse(result.body)
+    assert.ok('error' in body)
+    assert.match(body.error, /3|4|personajes/i)
+  })
+
+  test('regresion: devuelve 400 si se envía 1 personaje', async () => {
+    const result = await httpRequest(
+      server,
+      { path: '/api/ultima-cena/scene', method: 'POST' },
+      {
+        chars: [{ id: 'frodo', name: 'Frodo Bolsón' }],
+        trigger: 'Algo pasa.',
+        tema: '',
+        sceneFlow: 'Libre.',
+        dialogueRules: ''
+      }
+    )
+    assert.equal(result.statusCode, 400)
+  })
+
+  test('regresion: devuelve 400 si chars está vacío', async () => {
+    const result = await httpRequest(
+      server,
+      { path: '/api/ultima-cena/scene', method: 'POST' },
+      {
+        chars: [],
+        trigger: 'Algo pasa.',
+        tema: '',
+        sceneFlow: 'Libre.',
+        dialogueRules: ''
+      }
+    )
+    assert.equal(result.statusCode, 400)
+  })
+
+  test('regresion: devuelve 400 si chars está ausente', async () => {
+    const result = await httpRequest(
+      server,
+      { path: '/api/ultima-cena/scene', method: 'POST' },
+      {
+        trigger: 'Algo pasa.',
+        tema: '',
+        sceneFlow: 'Libre.',
+        dialogueRules: ''
+      }
+    )
+    assert.equal(result.statusCode, 400)
+  })
+
+  // ── Regresión: chars > 4 ─────────────────────────────────────────────────
+
+  test('regresion: devuelve 400 si se envían más de 4 personajes (5)', async () => {
+    const result = await httpRequest(
+      server,
+      { path: '/api/ultima-cena/scene', method: 'POST' },
+      {
+        chars: [
+          { id: 'frodo', name: 'Frodo Bolsón' },
+          { id: 'vader', name: 'Darth Vader' },
+          { id: 'sherlock', name: 'Sherlock Holmes' },
+          { id: 'tony', name: 'Tony Stark' },
+          { id: 'gandalf', name: 'Gandalf' }
+        ],
+        trigger: 'Un silencio incómodo.',
+        tema: '',
+        sceneFlow: 'Libre.',
+        dialogueRules: ''
+      }
+    )
+    assert.equal(result.statusCode, 400)
+    const body = JSON.parse(result.body)
+    assert.ok('error' in body)
+    assert.match(body.error, /3|4|personajes/i)
+  })
+
+  // ── Borde: exactamente 3 personajes — debe pasar la validación ────────────
+
+  test('acepta exactamente 3 personajes con trigger válido (inicia SSE)', async () => {
+    // No podemos verificar el cuerpo completo sin mockear Mistral,
+    // pero sí verificamos que el endpoint NO devuelve 400/404
+    // y que inicia la respuesta SSE (status 200, content-type correcto).
+    // La llamada a Mistral fallará con la key de test, pero el status inicial
+    // ya fue enviado con flushHeaders() antes del try/catch.
+    const result = await httpRequest(
+      server,
+      { path: '/api/ultima-cena/scene', method: 'POST' },
+      {
+        chars: [
+          { id: 'frodo', name: 'Frodo Bolsón' },
+          { id: 'vader', name: 'Darth Vader' },
+          { id: 'sherlock', name: 'Sherlock Holmes' }
+        ],
+        trigger: 'Un silencio incómodo cae sobre la mesa.',
+        tema: 'Es la última noche antes de algo que cambiará todo.',
+        sceneFlow: '1. Reacciones. 2. Conflicto. 3. Resolución.',
+        dialogueRules: 'Frases cortas.'
+      }
+    )
+    // El endpoint llama initSseResponse (flushed headers) antes del try/catch de Mistral.
+    // Con la key de test la llamada falla, pero el SSE ya inició en status 200.
+    assert.notEqual(result.statusCode, 400, 'no debe rechazar 3 personajes con trigger válido')
+    assert.notEqual(result.statusCode, 404)
+  })
+
+  // ── Borde: exactamente 4 personajes — debe pasar la validación ────────────
+
+  test('acepta exactamente 4 personajes con trigger válido (inicia SSE)', async () => {
+    const result = await httpRequest(
+      server,
+      { path: '/api/ultima-cena/scene', method: 'POST' },
+      {
+        chars: [
+          { id: 'frodo', name: 'Frodo Bolsón' },
+          { id: 'vader', name: 'Darth Vader' },
+          { id: 'sherlock', name: 'Sherlock Holmes' },
+          { id: 'tony', name: 'Tony Stark' }
+        ],
+        trigger: 'La copa de vino se rompe.',
+        tema: '',
+        sceneFlow: 'Libre.',
+        dialogueRules: ''
+      }
+    )
+    assert.notEqual(result.statusCode, 400, 'no debe rechazar 4 personajes con trigger válido')
+    assert.notEqual(result.statusCode, 404)
+  })
+})

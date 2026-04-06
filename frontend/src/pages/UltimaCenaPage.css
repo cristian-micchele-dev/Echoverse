@@ -1,0 +1,884 @@
+/* ─── Page layout ────────────────────────────────────────────────────────── */
+
+.cena-page {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding: 0 clamp(1rem, 4vw, 2rem);
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.cena-page--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.cena-page--mesa {
+  max-width: 780px;
+  margin: 0 auto;
+  width: 100%;
+  height: 100dvh;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* ─── Warm ambient background ────────────────────────────────────────────── */
+
+.cena-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 70% 40% at 80% 100%, rgba(200, 120, 50, 0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 15% 5%,  rgba(114, 82, 232, 0.08) 0%, var(--void) 65%);
+}
+
+/* ─── Back button ────────────────────────────────────────────────────────── */
+
+.cena-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  padding: 0.3rem 0;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-family: var(--font-body);
+  align-self: flex-start;
+  transition: color 0.18s ease;
+}
+.cena-back-btn:hover { color: var(--violet-300); }
+
+/* ─── Setup Header ───────────────────────────────────────────────────────── */
+
+.cena-header {
+  max-width: 900px;
+  width: 100%;
+  margin: 0 auto;
+  padding-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.cena-header__eyebrow {
+  display: block;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--gold);
+  opacity: 0.8;
+  margin-bottom: 0.15rem;
+}
+
+.cena-header__title h1 {
+  font-family: 'Cormorant Garamond', var(--font-display), Georgia, serif;
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  margin: 0.2rem 0;
+}
+
+.cena-header__title p {
+  font-size: 0.86rem;
+  color: var(--text-muted);
+  margin-top: 0.3rem;
+}
+
+/* ─── Setup body ─────────────────────────────────────────────────────────── */
+
+.cena-setup {
+  max-width: 900px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding-bottom: 4rem;
+}
+
+/* ─── Slots ──────────────────────────────────────────────────────────────── */
+
+.cena-slots {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.cena-slot {
+  width: 90px;
+  height: 120px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.cena-slot--empty {
+  background: rgba(255,255,255,0.025);
+  border: 1.5px dashed rgba(255,255,255,0.1);
+}
+
+.cena-slot--optional {
+  opacity: 0.45;
+}
+
+.cena-slot--filled {
+  border: 1.5px solid color-mix(in srgb, var(--slot-color) 55%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--slot-color) 15%, transparent),
+    0 8px 24px -4px color-mix(in srgb, var(--slot-color) 30%, transparent);
+}
+
+.cena-slot--filled img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+}
+
+.cena-slot__name {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1.5rem 0.4rem 0.4rem;
+  background: linear-gradient(to top, rgba(4,3,10,0.92) 0%, transparent 100%);
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: center;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+}
+
+.cena-slot__placeholder {
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.18);
+  font-style: italic;
+  text-align: center;
+  padding: 0.5rem;
+  line-height: 1.4;
+}
+
+.cena-slot__plus {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.05);
+  border: 1px dashed rgba(255,255,255,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255,255,255,0.2);
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.cena-slot__remove {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: rgba(0,0,0,0.7);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--text-muted);
+  font-size: 0.55rem;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s, background 0.15s;
+  z-index: 2;
+}
+.cena-slot__remove:hover { color: #fff; background: rgba(0,0,0,0.9); }
+
+/* ─── Temas ──────────────────────────────────────────────────────────────── */
+
+.cena-temas {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.cena-temas__label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.cena-temas__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 0.5rem;
+}
+
+.cena-tema-btn {
+  background: var(--bg-raised);
+  border: 1px solid var(--border-subtle);
+  border-left: 3px solid transparent;
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  transition: border-color 0.18s, background 0.18s, box-shadow 0.18s;
+  font-family: var(--font-body);
+}
+
+.cena-tema-btn:hover {
+  background: var(--bg-float);
+  border-color: var(--border-default);
+  border-left-color: var(--gold);
+}
+
+.cena-tema-btn--active {
+  border-color: var(--border-default);
+  border-left-color: var(--gold) !important;
+  background: color-mix(in srgb, var(--gold) 6%, var(--bg-raised));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--gold) 12%, transparent);
+}
+
+.cena-tema-btn__label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.cena-tema-btn--active .cena-tema-btn__label {
+  color: var(--gold);
+}
+
+.cena-tema-btn__desc {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+/* ─── Search ─────────────────────────────────────────────────────────────── */
+
+.cena-search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 0.55rem 0.85rem;
+  color: var(--text-muted);
+  transition: border-color 0.18s;
+}
+.cena-search-wrap:focus-within { border-color: var(--border-default); }
+
+.cena-search-input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-family: var(--font-body);
+}
+.cena-search-input::placeholder { color: var(--text-muted); }
+
+.cena-search-clear {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.72rem;
+  padding: 0.1rem 0.2rem;
+  transition: color 0.15s;
+  line-height: 1;
+}
+.cena-search-clear:hover { color: var(--text-primary); }
+
+/* ─── Character grid cards ───────────────────────────────────────────────── */
+
+.cena-char-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 0.6rem;
+}
+
+.cena-char-btn {
+  background: var(--bg-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  overflow: hidden;
+  height: 140px;
+  position: relative;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  font-family: var(--font-body);
+}
+
+.cena-char-btn:not(.cena-char-btn--disabled):hover {
+  border-color: color-mix(in srgb, var(--char-color, var(--border-default)) 55%, transparent);
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 24px rgba(0,0,0,0.35),
+    0 0 20px -4px color-mix(in srgb, var(--char-color, transparent) 20%, transparent);
+}
+
+.cena-char-btn--selected {
+  border-color: color-mix(in srgb, var(--char-color, var(--gold)) 70%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--char-color, var(--gold)) 20%, transparent),
+    0 6px 20px -4px color-mix(in srgb, var(--char-color, var(--gold)) 35%, transparent);
+}
+
+.cena-char-btn--disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.cena-char-slot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 3;
+  background: var(--char-color, var(--gold));
+  color: #000;
+  font-size: 0.58rem;
+  font-weight: 800;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+}
+
+/* Image area — fills the card */
+.cena-char-img {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.cena-char-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+  filter: brightness(0.75);
+  transition: filter 0.3s ease, transform 0.4s ease;
+}
+
+.cena-char-btn:not(.cena-char-btn--disabled):hover .cena-char-img img {
+  filter: brightness(0.9);
+  transform: scale(1.04);
+}
+
+.cena-char-btn--selected .cena-char-img img {
+  filter: brightness(0.85);
+}
+
+/* Gradient overlay at bottom of image */
+.cena-char-img::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(4,3,10,0.9) 0%, rgba(4,3,10,0.1) 55%, transparent 100%);
+  pointer-events: none;
+}
+
+/* Name overlaid at bottom of the card */
+.cena-char-name {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0.4rem 0.4rem 0.45rem;
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: center;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  z-index: 1;
+}
+
+.cena-char-btn--selected .cena-char-name {
+  color: var(--char-color, var(--gold));
+}
+
+/* ─── Start button ───────────────────────────────────────────────────────── */
+
+.cena-start-btn {
+  background: var(--gold);
+  color: #0a0a0a;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 0.9rem 2.5rem;
+  font-size: 0.92rem;
+  font-weight: 700;
+  font-family: 'Cormorant Garamond', var(--font-display), Georgia, serif;
+  font-style: italic;
+  cursor: pointer;
+  align-self: center;
+  letter-spacing: 0.04em;
+  transition: opacity 0.2s, transform 0.18s, box-shadow 0.18s;
+  box-shadow: 0 4px 18px -4px rgba(200,168,74,0.35);
+}
+
+.cena-start-btn:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px -4px rgba(200,168,74,0.45);
+}
+.cena-start-btn:disabled { opacity: 0.28; cursor: not-allowed; }
+
+/* ─── Mesa layout ────────────────────────────────────────────────────────── */
+
+.cena-mesa-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 1rem;
+  background: color-mix(in srgb, var(--bg-deep) 92%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.cena-asientos {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex: 1;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.cena-asientos::-webkit-scrollbar { display: none; }
+
+.cena-asiento {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  flex-shrink: 0;
+}
+
+.cena-asiento__img-wrap {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid rgba(255,255,255,0.1);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  flex-shrink: 0;
+}
+
+.cena-asiento--typing .cena-asiento__img-wrap {
+  border-color: var(--char-color, var(--gold));
+  box-shadow: 0 0 10px -2px var(--char-color, var(--gold));
+}
+
+.cena-asiento__img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+.cena-asiento__name {
+  font-size: 0.58rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.cena-asiento__typing-dots {
+  display: flex;
+  gap: 2px;
+  justify-content: center;
+}
+
+.cena-asiento__typing-dots span {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--char-color, var(--gold));
+  animation: cena-dot-pulse 1s ease-in-out infinite;
+}
+.cena-asiento__typing-dots span:nth-child(2) { animation-delay: 0.18s; }
+.cena-asiento__typing-dots span:nth-child(3) { animation-delay: 0.36s; }
+
+@keyframes cena-dot-pulse {
+  0%, 80%, 100% { transform: scale(0.8); opacity: 0.35; }
+  40% { transform: scale(1.2); opacity: 1; }
+}
+
+/* ─── Dice button ────────────────────────────────────────────────────────── */
+
+.cena-evento-btn {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.18s, border-color 0.18s, color 0.18s;
+}
+.cena-evento-btn:hover:not(:disabled) {
+  background: rgba(200,168,74,0.08);
+  border-color: rgba(200,168,74,0.3);
+  color: var(--gold);
+}
+.cena-evento-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* ─── Messages ───────────────────────────────────────────────────────────── */
+
+.cena-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.25rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  scroll-behavior: smooth;
+}
+
+/* ─── Empty state ────────────────────────────────────────────────────────── */
+
+.cena-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 3rem 1rem;
+  text-align: center;
+  margin: auto;
+}
+
+.cena-empty__avatars {
+  display: flex;
+  align-items: center;
+}
+
+.cena-empty__avatars img {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: top center;
+  border: 2px solid;
+  margin-left: -12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+.cena-empty__avatars img:first-child { margin-left: 0; }
+
+.cena-empty p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  max-width: 260px;
+  line-height: 1.6;
+}
+
+.cena-empty__tema {
+  font-size: 0.62rem;
+  color: var(--gold);
+  opacity: 0.65;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin-top: -0.25rem;
+}
+
+.cena-empty__hint {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.18);
+  margin-top: -0.5rem;
+}
+
+/* ─── Event message ──────────────────────────────────────────────────────── */
+
+.cena-evento-msg {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.35rem 0;
+  margin: 0.15rem 0;
+}
+
+.cena-evento-msg__bar {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(200,168,74,0.22), transparent);
+}
+
+.cena-evento-msg p {
+  font-size: 0.72rem;
+  color: rgba(200,168,74,0.6);
+  font-style: italic;
+  text-align: center;
+  flex-shrink: 0;
+  max-width: 65%;
+  line-height: 1.4;
+}
+
+/* ─── Chat messages ──────────────────────────────────────────────────────── */
+
+.cena-msg {
+  display: flex;
+  gap: 0.55rem;
+  max-width: 86%;
+  animation: cena-msg-in 0.22s ease both;
+}
+
+@keyframes cena-msg-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.cena-msg--user {
+  align-self: flex-end;
+  max-width: 72%;
+}
+
+.cena-msg--char {
+  align-self: flex-start;
+}
+
+/* ─── Reacción silenciosa ─────────────────────────────────────────────────── */
+
+.cena-reaction {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 0.25rem;
+  align-self: flex-start;
+}
+
+.cena-reaction__avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 1px solid color-mix(in srgb, var(--char-color, var(--border)) 40%, transparent);
+  opacity: 0.7;
+}
+
+.cena-reaction__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}
+
+.cena-reaction__text {
+  font-size: 0.78rem;
+  font-style: italic;
+  color: var(--text-muted);
+  margin: 0;
+  opacity: 0.75;
+  line-height: 1.4;
+}
+
+.cena-msg__avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1.5px solid color-mix(in srgb, var(--char-color) 50%, rgba(255,255,255,0.1));
+  flex-shrink: 0;
+  margin-top: 0.3rem;
+}
+
+.cena-msg__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+.cena-msg__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+}
+
+.cena-msg__name {
+  font-size: 0.63rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  line-height: 1;
+}
+
+.cena-msg__bubble {
+  background: var(--bg-raised);
+  border: 1px solid var(--border-subtle);
+  border-left: 2.5px solid var(--char-color, rgba(255,255,255,0.12));
+  border-radius: 2px var(--radius-md) var(--radius-md) var(--radius-md);
+  padding: 0.6rem 0.85rem;
+}
+
+.cena-msg__bubble p {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  margin: 0;
+}
+
+.cena-msg__bubble--user {
+  background: var(--bg-float);
+  border: 1px solid var(--border-subtle);
+  border-left: none;
+  border-radius: var(--radius-md) var(--radius-md) 2px var(--radius-md);
+}
+.cena-msg__bubble--user p { color: var(--text-primary); }
+
+/* ─── Input area ─────────────────────────────────────────────────────────── */
+
+.cena-input-area {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: color-mix(in srgb, var(--bg-deep) 92%, transparent);
+  backdrop-filter: blur(8px);
+  border-top: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.cena-input {
+  flex: 1;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 0.6rem 0.9rem;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-family: var(--font-body);
+  resize: none;
+  outline: none;
+  max-height: 100px;
+  overflow-y: auto;
+  transition: border-color 0.18s;
+  line-height: 1.5;
+}
+.cena-input:focus { border-color: var(--border-default); }
+.cena-input::placeholder { color: var(--text-muted); }
+.cena-input:disabled { opacity: 0.45; }
+
+.cena-send-btn {
+  background: var(--gold);
+  border: none;
+  border-radius: var(--radius-md);
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #0a0a0a;
+  flex-shrink: 0;
+  transition: opacity 0.2s, box-shadow 0.2s;
+}
+.cena-send-btn:hover:not(:disabled) {
+  opacity: 0.88;
+  box-shadow: 0 4px 14px -2px rgba(200,168,74,0.4);
+}
+.cena-send-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+.cena-send-loading {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(0,0,0,0.25);
+  border-top-color: #000;
+  border-radius: 50%;
+  animation: cena-spin 0.7s linear infinite;
+}
+
+@keyframes cena-spin { to { transform: rotate(360deg); } }
+
+/* ─── Generating indicator ───────────────────────────────────────────────── */
+
+.cena-generating {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  padding: 0.55rem 0.75rem;
+  align-self: flex-start;
+}
+
+.cena-generating span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  animation: cena-dot-pulse 1s ease-in-out infinite;
+}
+.cena-generating span:nth-child(2) { animation-delay: 0.2s; }
+.cena-generating span:nth-child(3) { animation-delay: 0.4s; }
+
+/* ─── Responsive ─────────────────────────────────────────────────────────── */
+
+@media (max-width: 600px) {
+  .cena-char-grid {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  }
+
+  .cena-char-btn {
+    height: 120px;
+  }
+
+  .cena-slots {
+    gap: 0.5rem;
+  }
+
+  .cena-slot {
+    width: 74px;
+    height: 100px;
+  }
+
+  .cena-temas__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .cena-evento-msg p {
+    white-space: normal;
+    max-width: 80%;
+  }
+
+  .cena-msg {
+    max-width: 92%;
+  }
+}

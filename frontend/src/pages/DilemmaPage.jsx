@@ -9,6 +9,7 @@ import {
   applyStateEffects,
   pickDilemas
 } from '../data/dilemas'
+import { getAffinityData, getAffinityLevel } from '../utils/affinity'
 import './DilemmaPage.css'
 import { API_URL } from '../config/api.js'
 
@@ -31,6 +32,7 @@ export default function DilemmaPage() {
 
   // ─── Session data ─────────────────────────────────────────────────────────
   const [character, setCharacter] = useState(null)
+  const [affinityLevel, setAffinityLevel] = useState(0)
   const [scenario, setScenario] = useState(null)
   const [sessionDilemas, setSessionDilemas] = useState([]) // dilemas elegidos al azar para esta sesión
   const [roundIndex, setRoundIndex] = useState(0)
@@ -61,6 +63,8 @@ export default function DilemmaPage() {
   // ─── Character select ─────────────────────────────────────────────────────
   function handleCharSelect(char) {
     setCharacter(char)
+    const { messageCount } = getAffinityData(char.id)
+    setAffinityLevel(getAffinityLevel(messageCount))
     transitionTo('scenario', 80)
   }
 
@@ -104,7 +108,9 @@ export default function DilemmaPage() {
           characterId: character.id,
           dilemmaQuestion: dilema.question,
           choiceLabel: choice.label,
-          choiceHistory: historyPayload
+          choiceKey: choice.key,
+          choiceHistory: historyPayload,
+          affinityLevel
         })
       })
 
@@ -118,7 +124,7 @@ export default function DilemmaPage() {
       setIsStreaming(false)
       setTimeout(() => setConsequenceVisible(true), 400)
     }
-  }, [character, choiceHistory])
+  }, [character, choiceHistory, affinityLevel])
 
   // ─── Advance from reaction ────────────────────────────────────────────────
   function handleReactionNext() {
@@ -158,6 +164,7 @@ export default function DilemmaPage() {
   function handleRestart() {
     setPhase('select')
     setCharacter(null)
+    setAffinityLevel(0)
     setScenario(null)
     setSessionDilemas([])
     setRoundIndex(0)
@@ -207,6 +214,7 @@ export default function DilemmaPage() {
           totalRounds={totalRounds}
           character={character}
           narrativeState={narrativeState}
+          affinityLevel={affinityLevel}
           onChoose={handleChoiceSelect}
           onExit={handleRestart}
         />
@@ -403,7 +411,7 @@ function IntroPhase({ scenario, character, onNext, onBack }) {
 // DILEMMA PHASE
 // ─────────────────────────────────────────────────────────────────────────────
 
-function DilemmaPhase({ dilema, roundIndex, totalRounds, character, narrativeState, onChoose, onExit }) {
+function DilemmaPhase({ dilema, roundIndex, totalRounds, narrativeState, affinityLevel, onChoose, onExit }) {
   const [phaseVisible, setPhaseVisible] = useState(false)
 
   useEffect(() => {
@@ -413,6 +421,10 @@ function DilemmaPhase({ dilema, roundIndex, totalRounds, character, narrativeSta
 
   const tensionLevel = narrativeState.tension
   const tensionClass = tensionLevel > 60 ? 'high' : tensionLevel > 30 ? 'mid' : 'low'
+
+  const ac = dilema.affinityChoice ?? null
+  const affinityUnlocked = ac && affinityLevel >= ac.minLevel
+  const affinityLocked = ac && !affinityUnlocked
 
   return (
     <div className={`dilema-phase dilema-dilemma ${phaseVisible ? 'dilema-dilemma--visible' : ''}`}>
@@ -459,6 +471,25 @@ function DilemmaPhase({ dilema, roundIndex, totalRounds, character, narrativeSta
             <span className="dilema-choice-btn__label">{choice.label}</span>
           </button>
         ))}
+
+        {/* Affinity unlocked choice */}
+        {affinityUnlocked && (
+          <button
+            className="dilema-choice-btn dilema-choice-btn--affinity"
+            onClick={() => onChoose(ac.choice, dilema)}
+          >
+            <span className="dilema-choice-btn__key dilema-choice-btn__key--affinity">🔓</span>
+            <span className="dilema-choice-btn__label">{ac.choice.label}</span>
+          </button>
+        )}
+
+        {/* Affinity locked hint */}
+        {affinityLocked && (
+          <div className="dilema-choice-locked">
+            <span className="dilema-choice-locked__icon">🔒</span>
+            <span className="dilema-choice-locked__text">Opción secreta — disponible para Confidentes</span>
+          </div>
+        )}
       </div>
 
     </div>

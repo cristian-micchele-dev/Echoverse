@@ -15,6 +15,7 @@ import {
   buildDuoRoleBPrompt,
   buildDuoRoleA2Prompt
 } from '../data/prompts.js'
+import { buildSceneSystemPrompt, extractCharDesc } from '../utils/ultimaCenaSceneBuilder.js'
 
 const router = Router()
 
@@ -58,12 +59,40 @@ function sendSseError(res, message) {
 const MAX_HISTORY = 10 // últimos 10 mensajes (~5 turnos de conversación)
 
 const DUO_TOKEN_MAP = { A: 150, B: 150, A2: 60 }
+const ULTIMA_CENA_TOKEN_MAP = { respond: 100, remate: 55 }
 
 function buildDuoSystemPrompt(characterPrompt, duoMode) {
   if (duoMode.role === 'A') return buildDuoRoleAPrompt(characterPrompt, duoMode.otherCharName)
   if (duoMode.role === 'B') return buildDuoRoleBPrompt(characterPrompt, duoMode.otherCharName, duoMode.responseA)
   if (duoMode.role === 'A2') return buildDuoRoleA2Prompt(characterPrompt, duoMode.otherCharName, duoMode.responseB)
   return null
+}
+
+function buildUltimaCenaPrompt(characterPrompt, mode) {
+  const { role, otherChars = [], tema, evento, previousResponse } = mode
+  const otherNames = otherChars.map(c => c.name).join(', ')
+
+  const temaContext = tema ? `\nEl contexto de esta reunión: ${tema}` : ''
+  const eventoContext = evento ? `\nACABA DE OCURRIR: ${evento} Reaccioná a esto prioritariamente.` : ''
+  const remateContext = role === 'remate' && previousResponse
+    ? `\nAlguien acaba de decir: "${previousResponse}". Respondé a eso en UNA sola oración breve, en carácter.`
+    : ''
+
+  const tokenNote = role === 'remate'
+    ? 'Respondé en UNA sola oración. Nada más.'
+    : 'Respondé en 2 o 3 oraciones como máximo.'
+
+  return `${characterPrompt}
+
+MODO ÚLTIMA CENA:
+Estás sentado en una mesa junto a: ${otherNames || 'otros comensales'}.
+La conversación es libre, sin guión.${temaContext}${eventoContext}${remateContext}
+
+- ${tokenNote}
+- Mantené tu personalidad y tu forma de hablar.
+- Podés dirigirte a los otros por su nombre si es natural.
+- Solo diálogo. No describas acciones físicas entre corchetes.
+- SIEMPRE en español.`
 }
 
 const AFFINITY_CONTEXT = {
@@ -74,10 +103,14 @@ const AFFINITY_CONTEXT = {
 }
 
 function buildChatSystemPrompt(character, body) {
-  const { duoMode, battleMode, confesionarioMode, affinityLevel = 0 } = body
+  const { duoMode, battleMode, confesionarioMode, ultimaCenaMode, affinityLevel = 0 } = body
 
   if (duoMode?.role) {
     return buildDuoSystemPrompt(character.systemPrompt, duoMode)
+  }
+
+  if (ultimaCenaMode?.role) {
+    return buildUltimaCenaPrompt(character.systemPrompt, ultimaCenaMode)
   }
 
   if (battleMode) {
@@ -93,8 +126,9 @@ function buildChatSystemPrompt(character, body) {
 }
 
 function resolveChatTokenLimit(body) {
-  const { duoMode, battleMode } = body
+  const { duoMode, battleMode, ultimaCenaMode } = body
   if (duoMode?.role) return DUO_TOKEN_MAP[duoMode.role] ?? 512
+  if (ultimaCenaMode?.role) return ULTIMA_CENA_TOKEN_MAP[ultimaCenaMode.role] ?? 100
   if (battleMode) return 120
   return 512
 }
@@ -628,7 +662,7 @@ router.get('/characters', (req, res) => {
 })
 
 router.post('/dilema', async (req, res) => {
-  const { characterId, dilemmaQuestion, choiceLabel, choiceHistory } = req.body
+  const { characterId, dilemmaQuestion, choiceLabel, choiceKey, choiceHistory, affinityLevel = 0 } = req.body
 
   const character = characters[characterId]
   if (!character) return res.status(404).json({ error: 'Personaje no encontrado' })
@@ -644,13 +678,17 @@ router.post('/dilema', async (req, res) => {
     ? `\nDECISIONES PREVIAS DEL USUARIO EN ESTA SESIÓN:\n${historyLines}`
     : ''
 
+  const secretChoiceNote = choiceKey === 'C'
+    ? '\nEl usuario eligió una opción secreta que muy pocos ven. Reaccioná con reconocimiento genuino — no exagerado — como si algo en él te hubiera sorprendido.'
+    : ''
+
   const systemPrompt = `${character.systemPrompt}
 
 MODO DILEMAS MORALES — REACCIÓN:
 
 El usuario acaba de enfrentar este dilema: "${dilemmaQuestion}"
 Eligió: "${choiceLabel}"
-${historyContext}
+${historyContext}${secretChoiceNote}
 
 INSTRUCCIONES PARA TU REACCIÓN:
 - Respondé en 3 a 4 oraciones cortas. No más.
@@ -666,6 +704,46 @@ INSTRUCCIONES PARA TU REACCIÓN:
   } catch (error) {
     console.error('Error Mistral /dilema:', error.message)
     sendSseError(res, 'Error al contactar la IA')
+  }
+})
+
+// ─── Última Cena — helpers ────────────────────────────────────────────────────
+// buildSceneSystemPrompt y extractCharDesc importadas de ../utils/ultimaCenaSceneBuilder.js
+const SCENE_MAX_TOKENS = 380
+
+// ─── Última Cena — escena completa ───────────────────────────────────────────
+router.post('/ultima-cena/scene', async (req, res) => {
+  const { chars: charList, trigger, tema, sceneFlow, dialogueRules, isEvento } = req.body
+
+  if (!charList || charList.length < 3 || charList.length > 4) {
+    return res.status(400).json({ error: 'Se necesitan entre 3 y 4 personajes' })
+  }
+
+  if (!trigger || typeof trigger !== 'string' || !trigger.trim()) {
+    return res.status(400).json({ error: 'El trigger no puede estar vacío' })
+  }
+
+  // Resolve each character: use backend DB if available, fall back to name-only
+  // Always attach `name` from the frontend since backend chars don't have that field
+  const resolvedChars = charList.map(({ id, name }) => {
+    const found = characters[id]
+    if (found) return { ...found, name: name || id }
+    return { name: name || id, systemPrompt: `Sos ${name || id}, un personaje icónico. Respondé siempre en español.` }
+  })
+
+  initSseResponse(res)
+
+  const temaLine = tema ? `\nCONTEXTO DE LA REUNIÓN: ${tema}` : ''
+  const triggerType = isEvento ? 'EVENTO QUE IRRUMPE EN LA MESA' : 'SITUACIÓN'
+  const dialogueLine = dialogueRules ? `\nTONO Y ESTILO ESPECÍFICO: ${dialogueRules}` : ''
+
+  const systemPrompt = buildSceneSystemPrompt({ resolvedChars, temaLine, dialogueLine, triggerType })
+
+  try {
+    await streamMistral(res, systemPrompt, [{ role: 'user', content: trigger }], SCENE_MAX_TOKENS)
+  } catch (error) {
+    console.error('Error /ultima-cena/scene:', error.message)
+    sendSseError(res, 'Error al generar la escena')
   }
 })
 

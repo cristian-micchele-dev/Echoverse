@@ -6,9 +6,9 @@ describe('parseChoices', () => {
     const block = '[A] Atacar de frente\n[B] Huir\n[C] Negociar'
     const result = parseChoices(block)
     expect(result).toHaveLength(3)
-    expect(result[0]).toEqual({ key: 'A', text: 'Atacar de frente' })
-    expect(result[1]).toEqual({ key: 'B', text: 'Huir' })
-    expect(result[2]).toEqual({ key: 'C', text: 'Negociar' })
+    expect(result[0]).toEqual({ key: 'A', text: 'Atacar de frente', type: null })
+    expect(result[1]).toEqual({ key: 'B', text: 'Huir', type: null })
+    expect(result[2]).toEqual({ key: 'C', text: 'Negociar', type: null })
   })
 
   test('devuelve array vacío para bloque sin opciones', () => {
@@ -40,10 +40,10 @@ describe('parseMissionResponse', () => {
     expect(result.narrative).not.toContain('[FIN]')
   })
 
-  test('extrae CALIFICACIÓN con porcentaje y veredicto', () => {
+  test('devuelve effects null cuando no hay bloque EFECTOS', () => {
     const text = 'Bien ejecutado.\nCALIFICACIÓN: 85% — Héroe digno'
     const result = parseMissionResponse(text)
-    expect(result.rating).toEqual({ grade: '85%', verdict: 'Héroe digno' })
+    expect(result.effects).toBeNull()
   })
 
   test('devuelve choices vacío y sin título para narrativa simple', () => {
@@ -52,7 +52,7 @@ describe('parseMissionResponse', () => {
     expect(result.choices).toEqual([])
     expect(result.isFinal).toBe(false)
     expect(result.title).toBeNull()
-    expect(result.rating).toBeNull()
+    expect(result.effects).toBeNull()
   })
 
   test('parsea opciones sin separador --- usando fallback [A]', () => {

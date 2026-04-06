@@ -94,6 +94,24 @@ const SECONDARY_MODES = [
       </svg>
     ),
   },
+  {
+    id: 'ultima-cena',
+    eyebrow: 'Multijugador Narrativo',
+    label: 'Última Cena',
+    desc: 'Elegís 3 o 4 personajes y los sentás a la misma mesa.',
+    route: '/ultima-cena',
+    accent: '#8B4A2A',
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <circle cx="9" cy="7" r="2.5" stroke="currentColor" strokeWidth="1.7"/>
+        <circle cx="15" cy="7" r="2.5" stroke="currentColor" strokeWidth="1.7"/>
+        <circle cx="12" cy="14" r="2.5" stroke="currentColor" strokeWidth="1.7"/>
+        <path d="M4 20c0-2.5 2-4 5-4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/>
+        <path d="M20 20c0-2.5-2-4-5-4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/>
+        <path d="M9 20c0-1.5 1.3-3 3-3s3 1.5 3 3" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/>
+      </svg>
+    ),
+  },
 ]
 
 

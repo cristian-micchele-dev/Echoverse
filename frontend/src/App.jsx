@@ -17,6 +17,7 @@ import EsteOEsePage from './pages/EsteOEsePage'
 import StoryPage from './pages/StoryPage'
 import CriticalPage from './pages/CriticalPage'
 import OperacionPage from './pages/OperacionPage'
+import UltimaCenaPage from './pages/UltimaCenaPage'
 import './App.css'
 
 export default function App() {
@@ -41,6 +42,7 @@ export default function App() {
         <Route path="/story" element={<StoryPage />} />
         <Route path="/critical" element={<CriticalPage />} />
         <Route path="/operacion" element={<OperacionPage />} />
+        <Route path="/ultima-cena" element={<UltimaCenaPage />} />
       </Routes>
     </BrowserRouter>
   )

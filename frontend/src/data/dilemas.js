@@ -708,6 +708,346 @@ export const DILEMA_SCENARIOS = [
         ]
       }
     ]
+  },
+
+  // ─── Familia 3: Lealtad o Justicia ─────────────────────────────────────────
+  {
+    id: 'lealtad-o-justicia',
+    title: 'Lealtad o Justicia',
+    subtitle: 'Códigos. Traición. El precio de saber.',
+    introVariants: [
+      [
+        'Hay cosas que sabés y que nunca debiste haber visto.',
+        'Ahora ese conocimiento es tuyo. Y también su peso.',
+        'La pregunta no es si hacés algo con lo que sabés.',
+        'La pregunta es con qué versión de vos querés vivir después.'
+      ],
+      [
+        'La lealtad no se declara. Se prueba cuando cuesta algo.',
+        'Vos ya llegaste al momento en el que cuesta.',
+        'De un lado: lo que alguien necesita de vos.',
+        'Del otro: lo que vos necesitás de vos mismo.'
+      ],
+      [
+        'Todos tienen un código. El problema es que los códigos colisionan.',
+        'Alguien que confiaba en vos, alguien que debería poder confiar, alguien que no sabe nada.',
+        'Y vos en el medio de todo eso, sabiendo lo que sabés.',
+        'La justicia es fácil cuando no te cuesta nada.'
+      ],
+      [
+        'Hay un precio para cada elección. Lo pagás ahora o lo pagás después.',
+        'La lealtad ciega tiene sus propias consecuencias. La justicia fría también.',
+        'Nadie sale limpio de estas decisiones.',
+        '¿Desde dónde querés mirar hacia atrás?'
+      ]
+    ],
+    dilemmaPool: [
+      {
+        id: 'lj-01',
+        type: 'betrayal',
+        roundLabel: 'DILEMA',
+        setup: 'Tu aliado más cercano hizo algo que no tiene vuelta atrás. Algo que, si se supiera, lo destruiría a él y a todo lo que construyeron juntos. Vos sos la única persona que lo sabe.',
+        question: '¿Lo cubrís, o aceptás que la lealtad tiene límites y lo exponés?',
+        choices: [
+          {
+            key: 'A',
+            label: 'Cubrirlo. Lo que hizo no cambia lo que fue para vos.',
+            consequence: 'Lo cubriste. Él lo sabe. Eso creó algo entre los dos que ninguno va a nombrar jamás.',
+            stateEffects: { trust: -8, tension: 18, bondScore: 15, guiltLoad: 20, pragmatism: 12, empathy: -5 }
+          },
+          {
+            key: 'B',
+            label: 'Exponerlo. La lealtad no puede convertirse en complicidad.',
+            consequence: 'Lo expusiste. Fue devastador para los dos. No sabés si hiciste lo correcto, pero sabés que no podías hacer otra cosa.',
+            stateEffects: { trust: 10, tension: 25, bondScore: -20, guiltLoad: 15, pragmatism: 8, empathy: 10 }
+          }
+        ]
+      },
+      {
+        id: 'lj-02',
+        type: 'law_vs_justice',
+        roundLabel: 'DILEMA',
+        setup: 'Tu líder te ordenó algo. No es ilegal. Pero sabés que está mal, y que las consecuencias las van a pagar otros que no tienen voz en esto.',
+        question: '¿Obedecés porque la estructura depende de que alguien diga que sí, o desafiás porque algunas cosas no se delegan?',
+        choices: [
+          {
+            key: 'A',
+            label: 'Obedecer. No podés ganar desde afuera si primero perdés el lugar desde donde peleás.',
+            consequence: 'Obedeciste. El daño se hizo. Seguís adentro. Todavía no sabés si eso fue una estrategia o una rendición.',
+            stateEffects: { trust: -5, tension: 15, bondScore: 5, guiltLoad: 18, pragmatism: 18, empathy: -12 }
+          },
+          {
+            key: 'B',
+            label: 'Desafiar. No hay posición que valga proteger a ese precio.',
+            consequence: 'Desafiaste. Pagaste el costo. Lo que construiste con ese gesto todavía no tiene nombre.',
+            stateEffects: { trust: 8, tension: 22, bondScore: -10, guiltLoad: 10, pragmatism: -12, empathy: 18 }
+          }
+        ]
+      },
+      {
+        id: 'lj-03',
+        type: 'truth_vs_loyalty',
+        roundLabel: 'DILEMA',
+        setup: 'Podés salvar a alguien que no conocés o proteger a alguien que amás. El tiempo y la distancia hacen que no puedas hacer las dos cosas.',
+        question: '¿La sangre —o lo que se construye como sangre— manda primero, o hay algo más grande que eso?',
+        choices: [
+          {
+            key: 'A',
+            label: 'Proteger a quien amás. No existe lealtad abstracta más grande que la concreta.',
+            consequence: 'Los protegiste. El desconocido pagó un precio que nunca vas a conocer del todo. Eso también te pertenece ahora.',
+            stateEffects: { trust: 5, tension: 20, bondScore: 18, guiltLoad: 25, pragmatism: 8, empathy: -8 }
+          },
+          {
+            key: 'B',
+            label: 'Salvar al desconocido. La justicia no distingue quién te importa a vos.',
+            consequence: 'Hiciste lo que podías defender en voz alta. El costo fue algo que no se puede defender en voz alta.',
+            stateEffects: { trust: 8, tension: 15, bondScore: -12, guiltLoad: 18, pragmatism: -5, empathy: 18 }
+          }
+        ],
+        affinityChoice: {
+          minLevel: 3,
+          choice: {
+            key: 'C',
+            label: 'Hay una tercera salida. Pero necesitás confiar completamente en alguien para que funcione.',
+            consequence: 'Encontraste el camino que nadie más hubiera visto. Solo es posible cuando conocés bien el terreno — y a las personas que hay en él.',
+            stateEffects: { trust: 15, tension: 12, bondScore: 20, guiltLoad: 8, pragmatism: 10, empathy: 10 }
+          }
+        }
+      },
+      {
+        id: 'lj-04',
+        type: 'hidden_cost',
+        roundLabel: 'DILEMA',
+        setup: 'Alguien que en su momento se jugó por vos ahora necesita algo de vuelta. Lo que piden compromete algo tuyo que no querés comprometer.',
+        question: '¿Las deudas de lealtad tienen fecha de vencimiento, o se pagan aunque el precio ya no sea el mismo?',
+        choices: [
+          {
+            key: 'A',
+            label: 'Pagarla. Una deuda es una deuda, y no elegís cuándo se cobra.',
+            consequence: 'Pagaste. La deuda se cerró. Lo que perdiste para pagarla todavía está abierto.',
+            stateEffects: { trust: 5, tension: 12, bondScore: 12, guiltLoad: 15, pragmatism: -8, empathy: 12 }
+          },
+          {
+            key: 'B',
+            label: 'No pagarla. Lo que debías era a una versión anterior de los dos.',
+            consequence: 'No pagaste. Eso también tiene un precio. Uno que todavía estás calculando.',
+            stateEffects: { trust: -10, tension: 10, bondScore: -15, guiltLoad: 20, pragmatism: 15, empathy: -10 }
+          }
+        ]
+      },
+      {
+        id: 'lj-05',
+        type: 'betrayal',
+        roundLabel: 'DILEMA',
+        setup: 'Descubrís que la causa por la que te jugaste —y pediste a otros que se jugaran— estaba basada en algo falso desde el principio. No una distorsión. Una mentira calculada.',
+        question: '¿Asumís la responsabilidad de lo que construiste sobre esa base, o priorizás exponerla aunque el derrumbe sea total?',
+        choices: [
+          {
+            key: 'A',
+            label: 'Asumir la responsabilidad. No podés controlar la base, pero sí lo que construiste sobre ella.',
+            consequence: 'Te hiciste cargo. El edificio no se cayó. Lo que construiste cambió de forma cuando supiste en qué estaba parado.',
+            stateEffects: { trust: 8, tension: 20, bondScore: 10, guiltLoad: 22, pragmatism: 10, empathy: 5 }
+          },
+          {
+            key: 'B',
+            label: 'Exponerla. Todo lo construido sobre una mentira merece caer.',
+            consequence: 'La expusiste. El derrumbe fue real. Algo nuevo va a tener que construirse. Quizás ya empezó.',
+            stateEffects: { trust: 15, tension: 28, bondScore: -8, guiltLoad: 12, pragmatism: 5, empathy: 8 }
+          }
+        ]
+      },
+      {
+        id: 'lj-06',
+        type: 'truth_vs_loyalty',
+        roundLabel: 'DILEMA',
+        setup: 'Alguien cometió algo que te afecta directamente. Denunciarlo destruiría algo que construyeron juntos durante años. Quedarte callado también te destruye, pero de otra forma.',
+        question: '¿La justicia personal tiene que esperar cuando lo que está en juego afecta a más personas que vos?',
+        choices: [
+          {
+            key: 'A',
+            label: 'Denunciarlo. Lo construido sobre la impunidad de alguien no merece sobrevivir.',
+            consequence: 'Lo denunciaste. Lo que construyeron juntos no sobrevivió. Tampoco estás seguro de que debía haberlo hecho.',
+            stateEffects: { trust: 10, tension: 22, bondScore: -18, guiltLoad: 15, pragmatism: 5, empathy: 12 }
+          },
+          {
+            key: 'B',
+            label: 'Quedarte callado. Hay cosas más grandes que el ajuste de cuentas propio.',
+            consequence: 'Te quedaste callado. Eso también te cambió. No de la forma en que te lo prometiste cuando tomaste la decisión.',
+            stateEffects: { trust: -8, tension: 15, bondScore: 8, guiltLoad: 25, pragmatism: 12, empathy: -5 }
+          }
+        ]
+      }
+    ]
+  },
+
+  // ─── Familia 4: El Precio del Poder ────────────────────────────────────────
+  {
+    id: 'el-precio-del-poder',
+    title: 'El Precio del Poder',
+    subtitle: 'Decisiones que solo vos podés tomar. Y que solo vos vas a cargar.',
+    introVariants: [
+      [
+        'Tenés poder. No como privilegio: como herramienta que algún día alguien eligió ponerte en la mano.',
+        'Y las herramientas tienen un uso. Y ese uso tiene consecuencias.',
+        'Las decisiones que tomás desde donde estás no solo te afectan a vos.',
+        '¿Cuánto de eso sos capaz de cargar?'
+      ],
+      [
+        'El poder no se lleva bien con la inocencia.',
+        'Para llegar a donde estás tuviste que dejar algo atrás. Para quedarte, también.',
+        'Las decisiones que nadie más puede tomar ahora son tuyas.',
+        'El problema no es si sos capaz de tomarlas. Es si podés vivir con haberlas tomado.'
+      ],
+      [
+        'Mandar es saber que siempre hay alguien pagando las consecuencias de tus elecciones.',
+        'Alguien que no eligió estar en esa posición.',
+        'Vos sí elegiste. O no supiste a qué estabas diciendo que sí.',
+        '¿Lo sabés ahora?'
+      ],
+      [
+        'Las decisiones difíciles son las únicas que importan.',
+        'Las fáciles las puede tomar cualquiera.',
+        'Las tuyas no lo son. Y tampoco lo son las personas que afectan.',
+        'Eso es lo que hace que este momento sea lo que es.'
+      ]
+    ],
+    dilemmaPool: [
+      {
+        id: 'pp-01',
+        type: 'trolley',
+        roundLabel: 'DILEMA',
+        setup: 'Podés sacrificar a uno para salvar a muchos. La persona que vas a sacrificar confía en vos. Las que vas a salvar no saben que existís.',
+        question: '¿Los números mandan, o hay un punto en el que la aritmética del poder se convierte en algo que no querés ser?',
+        choices: [
+          {
+            key: 'A',
+            label: 'Los números mandan. Desde donde estás, es lo único que podés defender sin mentirte.',
+            consequence: 'Lo hiciste. Los números salieron bien. La persona que confiaba en vos ya no puede confiar en nadie.',
+            stateEffects: { trust: -10, tension: 25, bondScore: -15, guiltLoad: 28, pragmatism: 22, empathy: -15 }
+          },
+          {
+            key: 'B',
+            label: 'Hay una línea. Y del otro lado de esa línea no querés estar.',
+            consequence: 'No cruzaste la línea. El costo fue diferente. Algunas de esas personas que ibas a salvar pagaron algo que no debían.',
+            stateEffects: { trust: 5, tension: 20, bondScore: 5, guiltLoad: 20, pragmatism: -18, empathy: 18 }
+          }
+        ]
+      },
+      {
+        id: 'pp-02',
+        type: 'hidden_cost',
+        roundLabel: 'DILEMA',
+        setup: 'La verdad hundiría la moral de los que dependen de vos en el peor momento posible. La mentira los mantiene en movimiento. Por ahora.',
+        question: '¿El liderazgo incluye decidir qué verdades son demasiado pesadas para que otros las carguen en este momento?',
+        choices: [
+          {
+            key: 'A',
+            label: 'Sí. Algunos momentos requieren que alguien cargue la verdad solo para que los demás puedan seguir.',
+            consequence: 'Los mantuviste en movimiento. Con una versión de la realidad que vos construiste para que pudieran funcionar. Eso también te pertenece.',
+            stateEffects: { trust: -8, tension: 15, bondScore: 5, guiltLoad: 20, pragmatism: 18, empathy: -8 }
+          },
+          {
+            key: 'B',
+            label: 'No. La gente tiene derecho a elegir con qué información se mueve.',
+            consequence: 'Se los dijiste. Algunos se pararon. Otros siguieron con más peso del que deberían cargar. No sabés todavía cuál fue la diferencia.',
+            stateEffects: { trust: 12, tension: 22, bondScore: -5, guiltLoad: 12, pragmatism: -12, empathy: 15 }
+          }
+        ]
+      },
+      {
+        id: 'pp-03',
+        type: 'law_vs_justice',
+        roundLabel: 'DILEMA',
+        setup: 'Podrías salir ahora. Conservar lo que todavía no está manchado. O quedarte y seguir siendo el engranaje que hace funcionar algo que te da asco, pero que sin vos sería peor.',
+        question: '¿Quedarse es resistencia o complicidad? ¿Irse es integridad o abandono?',
+        choices: [
+          {
+            key: 'A',
+            label: 'Quedarse. Irse es el lujo del que no tiene que responder por lo que deja atrás.',
+            consequence: 'Te quedaste. Seguís siendo el engranaje. No sabés en qué momento ese rol dejó de ser una decisión y se convirtió en una identidad.',
+            stateEffects: { trust: -5, tension: 18, bondScore: 8, guiltLoad: 22, pragmatism: 20, empathy: -8 }
+          },
+          {
+            key: 'B',
+            label: 'Irse. Hay cosas que no podés salvar desde adentro sin perder lo que te hacía diferente.',
+            consequence: 'Te fuiste. Lo que dejaste atrás siguió sin vos. Diferente, quizás peor, quizás igual. No te lo van a decir.',
+            stateEffects: { trust: 10, tension: 15, bondScore: -10, guiltLoad: 15, pragmatism: -15, empathy: 12 }
+          }
+        ]
+      },
+      {
+        id: 'pp-04',
+        type: 'betrayal',
+        roundLabel: 'DILEMA',
+        setup: 'Hay alguien en tu equipo que es mejor que vos en esto. Si lo promovés, perdés tu posición. Si no lo hacés, el sistema funciona peor, y vos seguís donde estás.',
+        question: '¿El poder bien ejercido incluye reconocer cuándo alguien más debería tenerlo?',
+        choices: [
+          {
+            key: 'A',
+            label: 'Promoverlo. El sistema importa más que tu lugar en él.',
+            consequence: 'Lo promoviste. El sistema mejoró. Tu lugar cambió. Todavía estás decidiendo si eso fue generosidad o resignación.',
+            stateEffects: { trust: 12, tension: 15, bondScore: 10, guiltLoad: 8, pragmatism: 5, empathy: 15 }
+          },
+          {
+            key: 'B',
+            label: 'No promoverlo. El sistema siempre va a necesitar a alguien que sepa cómo funciona desde adentro.',
+            consequence: 'No lo promoviste. El sistema siguió. Vos también. Esa justificación todavía necesita un poco más de trabajo.',
+            stateEffects: { trust: -5, tension: 12, bondScore: -8, guiltLoad: 18, pragmatism: 15, empathy: -12 }
+          }
+        ],
+        affinityChoice: {
+          minLevel: 3,
+          choice: {
+            key: 'C',
+            label: 'Construir algo diferente con él. Sin jerarquías que alguno de los dos tenga que perder.',
+            consequence: 'Lo que armaron no tiene precedente. Tampoco tiene garantías. Pero tiene algo que las otras opciones no podían darte.',
+            stateEffects: { trust: 15, tension: 10, bondScore: 18, guiltLoad: 5, pragmatism: 10, empathy: 12 }
+          }
+        }
+      },
+      {
+        id: 'pp-05',
+        type: 'survival',
+        roundLabel: 'DILEMA',
+        setup: 'El sistema que construiste empieza a funcionar sin vos. No porque falló, sino porque funcionó demasiado bien. Podés intervenir y controlarlo. O dejarlo crecer y aceptar que ya no te necesita.',
+        question: '¿El creador tiene derecho a moldear lo que creó una vez que ya tiene vida propia?',
+        choices: [
+          {
+            key: 'A',
+            label: 'Intervenir. Nada de lo que se construyó puede ignorar la dirección del que lo construyó.',
+            consequence: 'Interveniste. Lo que tenía vida propia ahora tiene tu mano de vuelta. No sabés si eso lo hizo mejor o solo más tuyo.',
+            stateEffects: { trust: -5, tension: 18, bondScore: 5, guiltLoad: 12, pragmatism: 18, empathy: -8 }
+          },
+          {
+            key: 'B',
+            label: 'Dejarlo crecer. Construiste algo que puede vivir sin vos. Esa es la única victoria real.',
+            consequence: 'Lo dejaste. Creció en direcciones que no esperabas. Algunas te gustaron. Otras no. Ya no era completamente tuyo. Quizás nunca lo fue.',
+            stateEffects: { trust: 10, tension: 10, bondScore: -5, guiltLoad: 8, pragmatism: -10, empathy: 15 }
+          }
+        ]
+      },
+      {
+        id: 'pp-06',
+        type: 'hidden_cost',
+        roundLabel: 'DILEMA',
+        setup: 'Una victoria posible requiere un costo que sabés que te va a cambiar. No el tipo de cambio que podés racionalizar después. El tipo que simplemente sos, de manera diferente, desde ese momento en adelante.',
+        question: '¿Hay victorias que no vale la pena ganar si el precio es dejar de reconocerte?',
+        choices: [
+          {
+            key: 'A',
+            label: 'Vale la pena. El que eras antes de esa decisión no tenía acceso a lo que viene después.',
+            consequence: 'Pagaste el precio. Ganaste. Sos diferente ahora. Todavía estás midiendo si "diferente" era lo que querías decir con "necesario".',
+            stateEffects: { trust: -5, tension: 22, bondScore: -5, guiltLoad: 25, pragmatism: 22, empathy: -12 }
+          },
+          {
+            key: 'B',
+            label: 'No vale la pena. Una victoria que requiere dejar de ser reconocible no es una victoria.',
+            consequence: 'No la tomaste. El costo fue otro. No menor. Pero al menos fue uno que reconocés como tuyo.',
+            stateEffects: { trust: 8, tension: 15, bondScore: 5, guiltLoad: 12, pragmatism: -18, empathy: 15 }
+          }
+        ]
+      }
+    ]
   }
 ]
 
@@ -743,6 +1083,18 @@ export const DILEMA_PROFILES = [
     label: 'El Testigo',
     description: 'Estuviste presente en todo. No siempre actuaste. Eso también es una elección — una que tiene sus propias consecuencias.',
     conditions: { pragmatism: { max: 45 }, empathy: { max: 45 } }
+  },
+  {
+    id: 'rebelde',
+    label: 'El Rebelde',
+    description: 'No seguiste las reglas de nadie que no hubiera ganado tu respeto. Eso tiene un costo y una forma de libertad que pocas personas se permiten.',
+    conditions: { tension: { min: 60 }, pragmatism: { min: 55 } }
+  },
+  {
+    id: 'sacrificado',
+    label: 'El Sacrificado',
+    description: 'Pusiste a otros antes que a vos, una y otra vez. En algún punto eso dejó de ser generosidad y se convirtió en algo que no sabés cómo nombrar todavía.',
+    conditions: { guiltLoad: { min: 60 }, bondScore: { min: 10 } }
   },
   {
     id: 'superviviente',
