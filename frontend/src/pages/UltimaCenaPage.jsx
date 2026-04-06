@@ -165,7 +165,7 @@ export default function UltimaCenaPage() {
           <div className="cena-header__title">
             <span className="cena-header__eyebrow">Multijugador Narrativo</span>
             <h1>Última Cena</h1>
-            <p>Elegí 3 o 4 personajes. Un trigger, una escena completa con todos ellos.</p>
+            <p>Elegí 3 o 4 personajes. Dirigite a uno o lanzá un tema — la mesa reacciona.</p>
           </div>
         </header>
 
@@ -326,23 +326,24 @@ export default function UltimaCenaPage() {
                 />
               ))}
             </div>
-            <p>La mesa está lista.<br />Escribí algo — todos responden.</p>
+            <p>La mesa está lista.<br />Dirigite a alguien o lanzá un tema.</p>
             {tema !== 'libre' && (
               <span className="cena-empty__tema">
                 {currentTema.label}
               </span>
             )}
             <p className="cena-empty__hint">
-              O usá 🎲 para provocar un evento de mesa.
+              Usá <strong>@Nombre</strong> para hablarle a uno solo · 🎲 para provocar un evento
             </p>
           </div>
         )}
 
         {messages.map((msg, i) => {
+          const isSceneStart = i > 0 && (msg.role === 'user' || msg.role === 'evento')
           // ── Evento ─────────────────────────────────────
           if (msg.role === 'evento') {
             return (
-              <div key={i} className="cena-evento-msg">
+              <div key={i} className={`cena-evento-msg${isSceneStart ? ' cena-scene-start' : ''}`}>
                 <span className="cena-evento-msg__bar" />
                 <p>{msg.content}</p>
                 <span className="cena-evento-msg__bar" />
@@ -352,7 +353,7 @@ export default function UltimaCenaPage() {
           // ── Usuario ────────────────────────────────────
           if (msg.role === 'user') {
             return (
-              <div key={i} className="cena-msg cena-msg--user">
+              <div key={i} className={`cena-msg cena-msg--user${isSceneStart ? ' cena-scene-start' : ''}`}>
                 <div className="cena-msg__bubble cena-msg__bubble--user">
                   <p>{msg.content}</p>
                 </div>
@@ -395,7 +396,15 @@ export default function UltimaCenaPage() {
         {/* Typing indicator mientras el AI genera */}
         {isLoading && !streamingChar && (
           <div className="cena-generating">
-            <span /><span /><span />
+            {selected.map((char, i) => (
+              <div
+                key={char.id}
+                className="cena-generating__avatar"
+                style={{ '--char-color': char.themeColor, animationDelay: `${i * 0.15}s` }}
+              >
+                <img src={char.image} alt={char.name} onError={e => e.target.style.display='none'} />
+              </div>
+            ))}
           </div>
         )}
 
@@ -410,7 +419,7 @@ export default function UltimaCenaPage() {
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Lanzá un tema, una pregunta, una provocación..."
+          placeholder="Lanzá un tema… o @Nombre para hablarle a uno solo"
           rows={1}
           disabled={isLoading}
         />
