@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { characters } from '../data/characters'
 import { getAffinityLevel, getAffinityLabel, getAffinityEmoji } from '../utils/affinity'
-import { getMissionProgress } from '../utils/missionProgress'
+import { getMissionProgress, resetProgress } from '../utils/missionProgress'
 import { API_URL } from '../config/api.js'
 import './ProfilePage.css'
 
@@ -36,6 +36,7 @@ export default function ProfilePage() {
                 body: JSON.stringify({ characterId, messageCount: data.messageCount })
               }).catch(() => {})
             })
+            localStorage.removeItem('chat-history-meta')
             setAffinities(entries.map(([character_id, data]) => ({
               character_id,
               message_count: data.messageCount
@@ -57,6 +58,7 @@ export default function ProfilePage() {
             headers: { ...headers, 'Content-Type': 'application/json' },
             body: JSON.stringify({ highestUnlocked: local.highestUnlocked, completedLevels: local.completedLevels })
           }).catch(() => {})
+          resetProgress()
           setMission(local)
           return
         }
