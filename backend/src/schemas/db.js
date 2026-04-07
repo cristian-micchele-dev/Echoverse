@@ -19,5 +19,5 @@ export const dilemaSeenSchema = z.object({
 
 export const missionProgressSchema = z.object({
   highestUnlocked: z.number().int().min(1),
-  completedLevels: z.any()
+  completedLevels: z.record(z.string(), z.unknown())
 })

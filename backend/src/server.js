@@ -18,6 +18,7 @@ const limiter = rateLimit({
   max: 60,
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { xForwardedForHeader: false },
   message: { error: 'Demasiadas solicitudes. Intentá de nuevo en un minuto.' }
 })
 app.use('/api', limiter)
