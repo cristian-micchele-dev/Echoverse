@@ -24,7 +24,7 @@ export default function AuthPage() {
         navigate('/')
       } else {
         await register(email, password)
-        setInfo('Revisá tu email para confirmar la cuenta.')
+        navigate('/')
       }
     } catch (err) {
       setError(err.message || 'Error inesperado')

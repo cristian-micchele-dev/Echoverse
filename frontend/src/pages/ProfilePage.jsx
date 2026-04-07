@@ -16,9 +16,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (!session) { navigate('/auth'); return }
-
     const headers = { Authorization: `Bearer ${session.access_token}` }
-
     Promise.all([
       fetch(`${API_URL}/db/affinity`, { headers }).then(r => r.json()),
       fetch(`${API_URL}/db/mission-progress`, { headers }).then(r => r.json()),
@@ -46,76 +44,138 @@ export default function ProfilePage() {
     .filter(a => a.level > 0)
     .sort((a, b) => b.message_count - a.message_count)
 
-  return (
-    <div className="profile-page">
-      <div className="profile-container">
+  const totalMessages = affinities.reduce((sum, a) => sum + (a.message_count || 0), 0)
+  const completedLevels = mission ? Object.keys(mission.completedLevels || {}).length : 0
+  const highestLevel = mission?.highestUnlocked ?? 1
+  const progressPct = Math.min(((highestLevel - 1) / 30) * 100, 100)
 
-        {/* Header */}
-        <div className="profile-header">
-          <button className="profile-back" onClick={() => navigate('/')}>← Volver</button>
-          <div className="profile-user">
-            <div className="profile-avatar">{user.email?.[0]?.toUpperCase()}</div>
-            <div>
-              <p className="profile-email">{user.email}</p>
-              <p className="profile-since">Miembro de EchoVerse</p>
+  const initial = user.email?.[0]?.toUpperCase()
+
+  return (
+    <div className="pp">
+      <div className="pp-grain" aria-hidden="true" />
+
+      {/* ── HERO ── */}
+      <div className="pp-hero">
+        <div className="pp-hero__inner">
+          <button className="pp-back" onClick={() => navigate('/')}>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 13L5 8l5-5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            Volver
+          </button>
+
+          <div className="pp-hero__profile">
+            <div className="pp-avatar">{initial}</div>
+            <div className="pp-hero__meta">
+              <h1 className="pp-username">{user.email}</h1>
+              <span className="pp-tag">EchoVerse · Explorador</span>
             </div>
           </div>
-          <button className="profile-logout" onClick={handleLogout}>Cerrar sesión</button>
+
+          {/* Stats strip */}
+          <div className="pp-stats">
+            <div className="pp-stat">
+              <span className="pp-stat__num">{activeAffinities.length}</span>
+              <span className="pp-stat__label">Personajes</span>
+            </div>
+            <div className="pp-stats__rule" />
+            <div className="pp-stat">
+              <span className="pp-stat__num">{totalMessages}</span>
+              <span className="pp-stat__label">Mensajes</span>
+            </div>
+            <div className="pp-stats__rule" />
+            <div className="pp-stat">
+              <span className="pp-stat__num">{completedLevels}</span>
+              <span className="pp-stat__label">Niveles</span>
+            </div>
+          </div>
+
+          <button className="pp-logout" onClick={handleLogout}>Cerrar sesión</button>
         </div>
+      </div>
+
+      <div className="pp-body">
 
         {loading ? (
-          <div className="profile-loading">Cargando perfil…</div>
+          <div className="pp-loading">
+            <div className="pp-spinner" />
+            <span>Cargando perfil…</span>
+          </div>
         ) : (
           <>
-            {/* Misión */}
-            <section className="profile-section">
-              <h2 className="profile-section-title">Campaña</h2>
-              {mission && mission.highestUnlocked > 1 ? (
-                <div className="profile-mission-card">
-                  <span className="profile-mission-level">Nivel {mission.highestUnlocked - 1} completado</span>
-                  <span className="profile-mission-sub">
-                    Siguiente: Nivel {mission.highestUnlocked} · {Object.keys(mission.completedLevels).length} niveles superados
-                  </span>
-                  <div className="profile-mission-bar">
-                    <div
-                      className="profile-mission-bar__fill"
-                      style={{ width: `${Math.min(((mission.highestUnlocked - 1) / 30) * 100, 100)}%` }}
-                    />
+            {/* ── CAMPAÑA ── */}
+            <section className="pp-section">
+              <div className="pp-section__header">
+                <span className="pp-section__eyebrow">PROGRESO</span>
+                <h2 className="pp-section__title">Campaña</h2>
+              </div>
+
+              {highestLevel > 1 ? (
+                <div className="pp-mission">
+                  <div className="pp-mission__top">
+                    <div>
+                      <span className="pp-mission__lvl">Nivel {highestLevel - 1}</span>
+                      <span className="pp-mission__sub">{completedLevels} de 30 niveles completados</span>
+                    </div>
+                    <button className="pp-mission__cta" onClick={() => navigate('/mission')}>
+                      Continuar →
+                    </button>
                   </div>
-                  <span className="profile-mission-pct">
-                    {mission.highestUnlocked - 1}/30 niveles
-                  </span>
+                  <div className="pp-bar">
+                    <div className="pp-bar__fill" style={{ width: `${progressPct}%` }} />
+                  </div>
+                  <div className="pp-mission__footer">
+                    <span className="pp-mission__pct">{Math.round(progressPct)}% completado</span>
+                    <span className="pp-mission__next">Siguiente: Nivel {highestLevel}</span>
+                  </div>
                 </div>
               ) : (
-                <p className="profile-empty">Todavía no completaste ningún nivel de campaña.</p>
+                <div className="pp-empty-cta" onClick={() => navigate('/mission')}>
+                  <span className="pp-empty-cta__icon">⚔️</span>
+                  <div>
+                    <p className="pp-empty-cta__title">Todavía no empezaste la campaña</p>
+                    <p className="pp-empty-cta__sub">30 niveles te esperan. Empezá ahora →</p>
+                  </div>
+                </div>
               )}
             </section>
 
-            {/* Afinidades */}
-            <section className="profile-section">
-              <h2 className="profile-section-title">Afinidades</h2>
+            {/* ── AFINIDADES ── */}
+            <section className="pp-section">
+              <div className="pp-section__header">
+                <span className="pp-section__eyebrow">VÍNCULOS</span>
+                <h2 className="pp-section__title">Afinidades</h2>
+              </div>
+
               {activeAffinities.length > 0 ? (
-                <div className="profile-affinity-grid">
+                <div className="pp-chars">
                   {activeAffinities.map(a => (
                     <button
                       key={a.character_id}
-                      className="profile-affinity-card"
-                      style={{ '--char-color': a.char.themeColor }}
+                      className="pp-char-card"
+                      style={{ '--cc': a.char.themeColor, '--cg': a.char.gradient }}
                       onClick={() => navigate(`/chat/${a.character_id}`)}
                     >
-                      <img src={a.char.image} alt={a.char.name} className="profile-affinity-card__img" />
-                      <div className="profile-affinity-card__info">
-                        <span className="profile-affinity-card__name">{a.char.name}</span>
-                        <span className="profile-affinity-card__badge">
-                          {getAffinityEmoji(a.level)} {getAffinityLabel(a.level)}
-                        </span>
-                        <span className="profile-affinity-card__count">{a.message_count} mensajes</span>
+                      <div className="pp-char-card__img-wrap">
+                        <img src={a.char.image} alt={a.char.name} className="pp-char-card__img" />
+                        <div className="pp-char-card__fade" />
                       </div>
+                      <div className="pp-char-card__body">
+                        <span className="pp-char-card__level">{getAffinityEmoji(a.level)} {getAffinityLabel(a.level)}</span>
+                        <span className="pp-char-card__name">{a.char.name}</span>
+                        <span className="pp-char-card__msgs">{a.message_count} mensajes</span>
+                      </div>
+                      <div className="pp-char-card__enter">Chatear →</div>
                     </button>
                   ))}
                 </div>
               ) : (
-                <p className="profile-empty">Todavía no tenés afinidad con ningún personaje. ¡Empezá a chatear!</p>
+                <div className="pp-empty-cta" onClick={() => navigate('/chat')}>
+                  <span className="pp-empty-cta__icon">💬</span>
+                  <div>
+                    <p className="pp-empty-cta__title">Todavía no tenés afinidad con ningún personaje</p>
+                    <p className="pp-empty-cta__sub">Chateá 5 mensajes con alguno para empezar →</p>
+                  </div>
+                </div>
               )}
             </section>
           </>
