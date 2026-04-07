@@ -6,6 +6,7 @@ import chatRouter          from './routes/chat.js'
 import interrogationRouter from './routes/interrogation.js'
 import dbRouter            from './routes/db.js'
 const app = express()
+app.set('trust proxy', 1)
 const PORT = process.env.PORT || 3001
 
 const ALLOWED_ORIGIN = process.env.FRONTEND_URL || 'http://localhost:5173'
