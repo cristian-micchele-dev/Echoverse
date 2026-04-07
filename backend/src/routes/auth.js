@@ -52,20 +52,22 @@ router.post('/register', async (req, res) => {
   const { email, password, username } = parsed.data
 
   try {
-    const { data, error } = await supabase.auth.signUp({
+    // admin.createUser es la API correcta para crear usuarios desde el servidor
+    const { data: created, error: createError } = await supabase.auth.admin.createUser({
       email,
       password,
-      options: { data: { username: username.trim() } }
+      email_confirm: true,
+      user_metadata: { username: username.trim() }
     })
 
-    if (error) return res.status(400).json({ error: translateError(error) })
+    if (createError) return res.status(400).json({ error: translateError(createError) })
 
-    // Supabase devuelve user sin id si el email ya existe (anti-enumeration)
-    if (!data.user?.id) {
-      return res.status(400).json({ error: 'Este email ya está registrado' })
-    }
+    // Hacer sign-in para obtener la sesión y devolverla al frontend
+    const { data: signIn, error: signInError } = await supabase.auth.signInWithPassword({ email, password })
 
-    res.json({ session: data.session })
+    if (signInError) return res.status(500).json({ error: 'Cuenta creada, pero no se pudo iniciar sesión automáticamente. Iniciá sesión manualmente.' })
+
+    res.json({ session: signIn.session })
   } catch (err) {
     console.error('[auth/register]', err)
     res.status(500).json({ error: 'Error al crear la cuenta. Intentá de nuevo más tarde' })
