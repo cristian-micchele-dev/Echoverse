@@ -107,7 +107,7 @@ export default function AuthPage() {
             <input
               className="auth-input"
               type="password"
-              placeholder="Mínimo 6 caracteres"
+              placeholder="Mínimo 8 caracteres, letras y números"
               value={password}
               onChange={e => setPassword(e.target.value)}
               required
