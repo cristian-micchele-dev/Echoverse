@@ -4,6 +4,7 @@ import cors from 'cors'
 import rateLimit from 'express-rate-limit'
 import chatRouter          from './routes/chat.js'
 import interrogationRouter from './routes/interrogation.js'
+import dbRouter            from './routes/db.js'
 const app = express()
 const PORT = process.env.PORT || 3001
 
@@ -22,6 +23,7 @@ app.use(express.json())
 
 app.use('/api', chatRouter)
 app.use('/api', interrogationRouter)
+app.use('/api/db', dbRouter)
 
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`)

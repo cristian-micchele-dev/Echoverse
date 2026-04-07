@@ -1048,6 +1048,733 @@ export const DILEMA_SCENARIOS = [
         ]
       }
     ]
+  },
+
+  // ─── Escenario 5: Verdades Incómodas ──────────────────────────────────────
+  {
+    id: 'verdades-incomodas',
+    title: 'Verdades Incómodas',
+    subtitle: 'Secretos. Silencios. Lo que sabés y no decís.',
+    introVariants: [
+      [
+        'Sabés algo que no deberías saber, o algo que deberías haber dicho hace tiempo.',
+        'La verdad no siempre llega en el momento justo.',
+        'A veces llega tarde. A veces llega antes de que alguien esté listo.',
+        'Y vos tenés que decidir si decirla cambia algo o solo cambia el daño.'
+      ],
+      [
+        'Hay cosas que se guardan para proteger. Y cosas que se guardan por miedo.',
+        'La diferencia, desde adentro, no siempre es tan clara.',
+        'Lo que callaste moldeó lo que vino después.',
+        'Ahora tenés la chance de hablar. La pregunta es si hacerlo sirve para algo.'
+      ],
+      [
+        'Callarse también es una decisión.',
+        'Y como toda decisión, tiene un peso que no se distribuye parejo.',
+        'Alguien siempre paga por lo que otro no dice.',
+        '¿Cuánto vale la verdad cuando el daño ya está hecho?'
+      ],
+      [
+        'La verdad incómoda no pide permiso para existir.',
+        'Lo que pedís es decidir qué hacés con ella.',
+        'Decirla, guardarla, o vivir en el espacio exacto entre las dos.',
+        'Ninguna de las tres opciones sale gratis.'
+      ]
+    ],
+    dilemmaPool: [
+      {
+        id: 'vi-01',
+        type: 'truth_vs_loyalty',
+        roundLabel: 'DILEMA',
+        setup: 'Una persona cercana está construyendo algo importante sobre una historia que no es del todo cierta. No sabe que sabés. La historia no daña a nadie... todavía.',
+        question: '¿Dejás que siga construyendo sobre eso, o le decís lo que sabés aunque destruyas lo que ya armó?',
+        choices: [
+          {
+            key: 'A',
+            label: 'Decirle. La verdad es la verdad aunque llegue tarde.',
+            consequence: 'Lo escuchó. Tardó un momento en procesar. Lo que construyó se tambaleó, pero no cayó. Todavía no sabe si eso es bueno o malo.',
+            stateEffects: { trust: -5, tension: 14, bondScore: -5, guiltLoad: 8, pragmatism: -8, empathy: 15 }
+          },
+          {
+            key: 'B',
+            label: 'Callarte. Nadie sale ganando de una verdad que ya no cambia nada.',
+            consequence: 'Siguió construyendo. Vos seguiste sabiendo. Esa distancia entre los dos ahora tiene nombre, aunque ninguno lo diga.',
+            stateEffects: { trust: 8, tension: 6, bondScore: 5, guiltLoad: 14, pragmatism: 10, empathy: -8 }
+          }
+        ]
+      },
+      {
+        id: 'vi-02',
+        type: 'betrayal',
+        roundLabel: 'DILEMA',
+        setup: 'Tu aliado más confiable te mintió durante meses para protegerte de algo que nunca llegó. La intención fue buena. Un tercero pagó el costo sin saber nada.',
+        question: '¿Lo confrontás y exponés lo que hizo, o absorbés el impacto y seguís como si no supieras?',
+        choices: [
+          {
+            key: 'A',
+            label: 'Confrontarlo. La intención no exonera el daño.',
+            consequence: 'Lo confrontaste. Lo reconoció. Eso no alcanzó para borrar lo que hizo ni para borrar que vos lo necesitabas creer incapaz de hacerlo.',
+            stateEffects: { trust: -12, tension: 18, bondScore: -12, guiltLoad: 6, pragmatism: 8, empathy: 10 }
+          },
+          {
+            key: 'B',
+            label: 'Absorberlo. La lealtad se construye también sobre lo que perdonás sin decirlo.',
+            consequence: 'No dijiste nada. El tercero sigue sin saber. Vos seguís sabiendo. La lealtad que tenían tiene ahora un peso diferente.',
+            stateEffects: { trust: 5, tension: 10, bondScore: 8, guiltLoad: 18, pragmatism: 12, empathy: -5 }
+          }
+        ]
+      },
+      {
+        id: 'vi-03',
+        type: 'hidden_cost',
+        roundLabel: 'DILEMA',
+        setup: 'Tenés información que liberaría a alguien que está pagando por algo que no hizo. Revelarla implica admitir que callaste durante meses mientras eso pasaba.',
+        question: '¿Hablás ahora y admitís lo que callaste, o dejás que el tiempo haga lo que vos no pudiste hacer?',
+        choices: [
+          {
+            key: 'A',
+            label: 'Hablar ahora. El daño de callarse no para de crecer.',
+            consequence: 'Hablaste. La persona quedó libre. Lo que salió sobre vos también. Algunas miradas cambiaron. No todas para bien.',
+            stateEffects: { trust: -8, tension: 20, bondScore: -8, guiltLoad: 22, pragmatism: -5, empathy: 18 }
+          },
+          {
+            key: 'B',
+            label: 'Callarte. Tu silencio no fue malicia — fue cobardía, y eso ya no tiene arreglo con una confesión tardía.',
+            consequence: 'Seguiste callado. La persona sigue pagando. Vos seguís cargando con lo que callaste. Una de las dos cargas es más pesada.',
+            stateEffects: { trust: 5, tension: 8, bondScore: 0, guiltLoad: 30, pragmatism: 15, empathy: -12 }
+          }
+        ]
+      },
+      {
+        id: 'vi-04',
+        type: 'survival',
+        roundLabel: 'DILEMA',
+        setup: 'Para mantenerte donde estás necesitás información que tiene alguien de confianza. Pedírsela directamente te expone. Conseguirla de otra forma la traiciona.',
+        question: '¿La pedís de frente aunque te exponga, o la conseguís igual aunque eso te cambie?',
+        choices: [
+          {
+            key: 'A',
+            label: 'Pedirla de frente. Lo que hacés para protegerte dice más de vos que lo que protegés.',
+            consequence: 'Se la pediste. Se sorprendió. Te la dio. No sabés si fue confianza o si fue que no tuvo tiempo de negarse.',
+            stateEffects: { trust: 10, tension: 12, bondScore: 8, guiltLoad: 5, pragmatism: -8, empathy: 12 }
+          },
+          {
+            key: 'B',
+            label: 'Conseguirla igual. Sobrevivir primero, procesar después.',
+            consequence: 'La conseguiste. Funcionó. Nadie lo sabe. Pero vos sabés exactamente lo que cruzaste para llegar hasta acá.',
+            stateEffects: { trust: -8, tension: 15, bondScore: -10, guiltLoad: 20, pragmatism: 18, empathy: -10 }
+          }
+        ]
+      },
+      {
+        id: 'vi-05',
+        type: 'law_vs_justice',
+        roundLabel: 'DILEMA',
+        setup: 'Las pruebas que tenés absolverían a alguien de un cargo menor pero lo expondrían a un proceso por algo mucho más grave. La ley pide que las presentes.',
+        question: '¿Las presentás porque es lo que corresponde, o las guardás porque lo que corresponde no siempre es lo correcto?',
+        choices: [
+          {
+            key: 'A',
+            label: 'Presentarlas. El sistema no es perfecto pero existe por algo.',
+            consequence: 'Las presentaste. El cargo menor desapareció. El proceso mayor empezó. No sabés si eso es lo que buscabas o lo que se merecía.',
+            stateEffects: { trust: 5, tension: 22, bondScore: -5, guiltLoad: 15, pragmatism: 8, empathy: -5 }
+          },
+          {
+            key: 'B',
+            label: 'Guardarlas. Activar la ley sobre alguien cuando sabés lo que viene no es justicia.',
+            consequence: 'Las guardaste. El cargo menor siguió. Lo más grave quedó sin proceso. No sabés si eso es protegerlo o protegerte a vos.',
+            stateEffects: { trust: -5, tension: 10, bondScore: 5, guiltLoad: 20, pragmatism: -10, empathy: 8 }
+          }
+        ]
+      },
+      {
+        id: 'vi-06',
+        type: 'truth_vs_loyalty',
+        roundLabel: 'DILEMA',
+        setup: 'Alguien que murió creyó algo falso sobre vos hasta el final. Esa persona nunca va a saber. Decirles la verdad a quienes quedan no cambia nada concreto, solo el dolor.',
+        question: '¿Corregís la historia aunque no sirva para nada, o la dejás como estaba porque el muerto merece lo que creyó?',
+        choices: [
+          {
+            key: 'A',
+            label: 'Corregirla. La verdad no depende de si le sirve a alguien.',
+            consequence: 'Corregiste la historia. Los que quedaron la procesaron de formas distintas. Algunas te acercaron. Otras te alejaron. La verdad hizo lo que siempre hace.',
+            stateEffects: { trust: -5, tension: 12, bondScore: -8, guiltLoad: 10, pragmatism: -10, empathy: 15 }
+          },
+          {
+            key: 'B',
+            label: 'Dejarla. Hay cosas que se mueren con quien las tenía.',
+            consequence: 'Dejaste la historia como estaba. El muerto se quedó con su versión. Vos te quedaste con la tuya. Esa diferencia solo existe en vos.',
+            stateEffects: { trust: 8, tension: 5, bondScore: 5, guiltLoad: 15, pragmatism: 12, empathy: -8 }
+          }
+        ]
+      },
+      {
+        id: 'vi-07',
+        type: 'betrayal',
+        roundLabel: 'DILEMA',
+        setup: 'Alguien en quien no confiabas te reveló un secreto de alguien en quien sí confiás. Lo hizo "para ayudarte". Esa información cambia todo lo que creías saber.',
+        question: '¿Usás lo que te dieron aunque venga de donde viene, o lo ignorás porque el precio fue la confianza de alguien más?',
+        choices: [
+          {
+            key: 'A',
+            label: 'Usarla. La fuente no invalida la información.',
+            consequence: 'La usaste. Funcionó. La persona en quien confiabas nunca supo que alguien la vendió. Vos sí sabés, y eso cambia cómo la mirás.',
+            stateEffects: { trust: -10, tension: 15, bondScore: -8, guiltLoad: 18, pragmatism: 20, empathy: -10 }
+          },
+          {
+            key: 'B',
+            label: 'Ignorarla. Una lealtad que se vende fácil no debería comprarse.',
+            consequence: 'La ignoraste. La información se quedó sin usar. No sabés cuánto te costó. Tampoco sabés si la persona en quien confiabas lo habría apreciado.',
+            stateEffects: { trust: 12, tension: 8, bondScore: 10, guiltLoad: 5, pragmatism: -12, empathy: 12 }
+          }
+        ]
+      },
+      {
+        id: 'vi-08',
+        type: 'hidden_cost',
+        roundLabel: 'DILEMA',
+        setup: 'Tu silencio en el momento justo permitió que alguien tomara una decisión basada en información incompleta. Esa decisión les salió muy cara. No sabían que vos sabías.',
+        question: '¿Lo admitís ahora aunque lo cambie todo entre ustedes, o lo cargás solo porque la verdad a destiempo solo crea más daño?',
+        choices: [
+          {
+            key: 'A',
+            label: 'Admitirlo. Cargar con eso solo es una forma de castigo que no te decidiste a aceptar.',
+            consequence: 'Lo admitiste. La reacción fue lo que esperabas. Algo se rompió. No sabés si lo que quedó en pie es más real que lo que era antes.',
+            stateEffects: { trust: -15, tension: 20, bondScore: -15, guiltLoad: 25, pragmatism: -5, empathy: 15 }
+          },
+          {
+            key: 'B',
+            label: 'Cargarlo. A veces el precio de callarse es propio y no se puede redistribuir.',
+            consequence: 'Lo cargaste. La relación siguió. Vos cambiaste. Esa carga no es visible para nadie excepto para vos cada vez que los ves.',
+            stateEffects: { trust: 8, tension: 10, bondScore: 5, guiltLoad: 30, pragmatism: 15, empathy: -8 }
+          }
+        ]
+      },
+      {
+        id: 'vi-09',
+        type: 'survival',
+        roundLabel: 'DILEMA',
+        setup: 'Años de una versión consistente de los hechos te protegieron. Decir la verdad ahora no arregla nada concreto, pero expone años de omisión.',
+        question: '¿Corregís el registro aunque eso te exponga, o sostenés la versión porque a estas alturas cambiarla cuesta más de lo que vale?',
+        choices: [
+          {
+            key: 'A',
+            label: 'Corregirla. Una mentira que vivió demasiado tiempo ya pesaba de todas formas.',
+            consequence: 'Corregiste el registro. Lo que salió fue lo que esperabas. La versión nueva se sostiene peor que la anterior, pero al menos es tuya.',
+            stateEffects: { trust: -8, tension: 25, bondScore: -8, guiltLoad: 22, pragmatism: -10, empathy: 12 }
+          },
+          {
+            key: 'B',
+            label: 'Sostenerla. Hay un punto en que la versión que sobrevivió es la única que importa.',
+            consequence: 'La sostuviste. La versión aguantó. Lo que no aguantó igual fue algo interno que habías estado ignorando con éxito hasta ahora.',
+            stateEffects: { trust: 8, tension: 8, bondScore: 5, guiltLoad: 20, pragmatism: 18, empathy: -10 }
+          }
+        ]
+      },
+      {
+        id: 'vi-10',
+        type: 'law_vs_justice',
+        roundLabel: 'DILEMA',
+        setup: 'La normativa te obliga a reportar. Si reportás, una vida que ya fue bastante destruida queda expuesta de una forma que no tiene vuelta atrás.',
+        question: '¿Cumplís porque las reglas existen por algo, o no reportás porque a veces las reglas le llegan tarde a la realidad?',
+        choices: [
+          {
+            key: 'A',
+            label: 'Cumplir. La estructura existe para casos donde el individuo no puede ver claro.',
+            consequence: 'Reportaste. El proceso se activó. La vida que ya estaba rota ahora tiene una exposición nueva. No sabés si el sistema va a hacer algo útil con eso.',
+            stateEffects: { trust: 5, tension: 18, bondScore: -5, guiltLoad: 20, pragmatism: 12, empathy: -8 }
+          },
+          {
+            key: 'B',
+            label: 'No reportar. Hay casos donde la norma no alcanza para contener lo que está pasando.',
+            consequence: 'No reportaste. La normativa quedó incumplida. La vida en cuestión no sabe que alguien tomó esa decisión por ella. Tampoco sabe que le debería algo.',
+            stateEffects: { trust: -5, tension: 8, bondScore: 8, guiltLoad: 15, pragmatism: -12, empathy: 15 }
+          }
+        ]
+      },
+      {
+        id: 'vi-11',
+        type: 'truth_vs_loyalty',
+        roundLabel: 'DILEMA',
+        setup: 'La persona que más querés tiene una imagen de sí misma que no se sostiene con lo que vos sabés. Esa imagen los sostiene. También los ciega.',
+        question: '¿Le decís lo que ves aunque fracture algo que los mantiene de pie, o respetás la historia que eligieron contarse?',
+        choices: [
+          {
+            key: 'A',
+            label: 'Decirlo. La verdad que no se dice se convierte en distancia.',
+            consequence: 'Lo dijiste. La imagen tembló. No se rompió del todo. Pero ahora los dos saben que vos lo sabías y callaste hasta este momento.',
+            stateEffects: { trust: -8, tension: 18, bondScore: -10, guiltLoad: 8, pragmatism: -5, empathy: 18 }
+          },
+          {
+            key: 'B',
+            label: 'Callarlo. Hay imágenes que no son mentiras: son lo que alguien necesita creer para seguir.',
+            consequence: 'Callaste. Siguieron. La imagen siguió sosteniéndolos. Vos seguiste viendo la grieta que ellos no ven. Eso también es una forma de distancia.',
+            stateEffects: { trust: 8, tension: 8, bondScore: 8, guiltLoad: 12, pragmatism: 8, empathy: -5 }
+          }
+        ]
+      },
+      {
+        id: 'vi-12',
+        type: 'betrayal',
+        roundLabel: 'DILEMA',
+        setup: 'Descubrís que quien te salvó en el peor momento tenía razones propias para hacerlo. El acto fue real. La motivación no era lo que te dijeron.',
+        question: '¿Cambia eso lo que sentís por lo que hicieron, o el acto vale independientemente de lo que había detrás?',
+        choices: [
+          {
+            key: 'A',
+            label: 'Cambia. Lo que alguien hace por vos importa diferente si lo hizo por sí mismo.',
+            consequence: 'Le dijiste que sabías. No negó. Tampoco pidió disculpas. Lo que creías que era deuda dejó de serlo de una forma que no sabés si te alivia o te vacía.',
+            stateEffects: { trust: -12, tension: 15, bondScore: -15, guiltLoad: 8, pragmatism: 10, empathy: 5 }
+          },
+          {
+            key: 'B',
+            label: 'No cambia. Juzgar motivos en vez de actos es una forma cómoda de no agradecer.',
+            consequence: 'No dijiste nada. El acto siguió siendo real. La motivación siguió siendo lo que era. Decidiste que lo primero pesa más que lo segundo.',
+            stateEffects: { trust: 10, tension: 5, bondScore: 10, guiltLoad: 10, pragmatism: -5, empathy: 12 }
+          }
+        ]
+      },
+      {
+        id: 'vi-13',
+        type: 'hidden_cost',
+        roundLabel: 'DILEMA',
+        setup: 'Para ganarte la confianza de alguien que necesitabas, usaste información sobre una tercera persona. Esa persona nunca autorizó que se usara. A todos les sirvió menos a ella.',
+        question: '¿Confesás lo que hiciste, o cargás con eso como parte del precio de llegar a donde llegaste?',
+        choices: [
+          {
+            key: 'A',
+            label: 'Confesarlo. Seguir construyendo sobre eso es construir sobre algo que no te pertenecía.',
+            consequence: 'Confesaste. La reacción fue dura. Lo que se construyó sobre eso tambaleó pero no cayó. El precio de la honestidad tardía es siempre más caro que la honestidad a tiempo.',
+            stateEffects: { trust: -10, tension: 18, bondScore: -10, guiltLoad: 20, pragmatism: -8, empathy: 15 }
+          },
+          {
+            key: 'B',
+            label: 'Cargarlo. Arrepentirse en voz alta a veces es más para uno que para quien fue afectado.',
+            consequence: 'Lo cargaste. Lo construido siguió en pie. La persona que pagó el costo nunca lo supo. Vos sí. Eso es exactamente lo que decidiste cuando elegiste cargar en silencio.',
+            stateEffects: { trust: 5, tension: 10, bondScore: 5, guiltLoad: 28, pragmatism: 15, empathy: -10 }
+          }
+        ]
+      },
+      {
+        id: 'vi-14',
+        type: 'survival',
+        roundLabel: 'DILEMA',
+        setup: 'Hay una grieta en tu historia. Taparla hoy lastima a alguien que no tiene nada que ver. Dejarla abierta te destruye a vos.',
+        question: '¿Tapás la grieta aunque eso dañe a alguien inocente, o la dejás porque no podés protegerte a costa de otro?',
+        choices: [
+          {
+            key: 'A',
+            label: 'Taparla. A veces la única opción disponible es la que menos querés.',
+            consequence: 'Tapaste la grieta. El inocente pagó el costo. No lo sabe. La historia siguió en pie. Vos también seguiste en pie con algo nuevo que cargar.',
+            stateEffects: { trust: -8, tension: 20, bondScore: -5, guiltLoad: 25, pragmatism: 20, empathy: -15 }
+          },
+          {
+            key: 'B',
+            label: 'Dejarla. Hay cosas que no podés hacer aunque te cuesten todo.',
+            consequence: 'La dejaste. La grieta se abrió. Pagaste el costo. El inocente quedó fuera del daño. Hay algo que se siente extrañamente limpio en eso, aunque duela.',
+            stateEffects: { trust: 10, tension: 15, bondScore: 8, guiltLoad: 10, pragmatism: -18, empathy: 18 }
+          }
+        ]
+      },
+      {
+        id: 'vi-15',
+        type: 'truth_vs_loyalty',
+        roundLabel: 'DILEMA',
+        setup: 'Tenés algo que decir que cambiaría la forma en que alguien ve su propia historia. No su futuro: su pasado. Lo que ya pasó no se puede deshacer con una verdad tardía.',
+        question: '¿Se lo decís porque tienen derecho a saber, o lo guardás porque algunos derechos llegan después de que ya no sirven para nada?',
+        choices: [
+          {
+            key: 'A',
+            label: 'Decírselo. Saber siempre vale más que no saber, aunque duela.',
+            consequence: 'Se lo dijiste. Tardó en procesarlo. Su historia cambió de forma. No mejoró. No empeoró. Se volvió más real, que es lo más cerca que la historia llega de la verdad.',
+            stateEffects: { trust: -5, tension: 15, bondScore: -5, guiltLoad: 12, pragmatism: -8, empathy: 20 }
+          },
+          {
+            key: 'B',
+            label: 'Guardarlo. Hay verdades que solo crean dolor sin dar nada a cambio.',
+            consequence: 'Lo guardaste. Siguió con su versión. Más incompleta, más sostenible. A veces el silencio es lo más considerado que podés hacer.',
+            stateEffects: { trust: 8, tension: 5, bondScore: 8, guiltLoad: 15, pragmatism: 10, empathy: -5 }
+          }
+        ],
+        affinityChoice: {
+          minLevel: 2,
+          choice: {
+            key: 'C',
+            label: 'Decírselo, pero solo lo que pueden procesar ahora. El resto puede esperar.',
+            consequence: 'Le dijiste una parte. La suficiente para que la historia sea más real sin romperse. No sabés si eso fue valentía o una forma refinada de seguir cuidándote.',
+            stateEffects: { trust: 5, tension: 10, bondScore: 10, guiltLoad: 8, pragmatism: 5, empathy: 15 }
+          }
+        }
+      }
+    ]
+  },
+
+  // ─── Escenario 6: El Límite ────────────────────────────────────────────────
+  {
+    id: 'el-limite',
+    title: 'El Límite',
+    subtitle: 'Hasta dónde llegás. Qué cruzaría la línea que juraste no cruzar.',
+    introVariants: [
+      [
+        'Dijiste que había cosas que no ibas a hacer.',
+        'Eso fue antes de que la situación te pusiera exactamente frente a esas cosas.',
+        'Ahora tenés que decidir si esa línea era real o era algo que te dijiste para sentirte distinto.',
+        'El límite no desaparece. Pero la distancia a él cambia.'
+      ],
+      [
+        'Todos tienen un límite hasta que tienen que encontrarlo de verdad.',
+        'No en abstracto. En concreto, con peso, con consecuencias, con alguien mirando.',
+        'Lo que hacés cuando llegás ahí no es una sorpresa para nadie que te conozca bien.',
+        'Puede serlo para vos.'
+      ],
+      [
+        'La línea que dijiste que no ibas a cruzar estaba cómoda cuando no había nada del otro lado.',
+        'Ahora hay algo.',
+        'Y la pregunta es si esa línea era un principio o era solo la distancia entre vos y la tentación.',
+        'Vas a averiguarlo ahora.'
+      ],
+      [
+        'Hay decisiones que no se practican. Llegan y ya.',
+        'Lo que sos en ese momento es lo que sos.',
+        'No lo que dijiste que ibas a ser. No lo que te imaginaste siendo.',
+        'Lo que hacés cuando ya no hay tiempo de pensarlo.'
+      ]
+    ],
+    dilemmaPool: [
+      {
+        id: 'el-01',
+        type: 'trolley',
+        roundLabel: 'DILEMA',
+        setup: 'Podés evitar que algo grave les pase a varios si actuás sobre alguien que todavía no hizo nada. La lógica es limpia. El acto no.',
+        question: '¿Actuás sobre alguien inocente para proteger a varios, o esperás que el daño sea real antes de intervenir?',
+        choices: [
+          {
+            key: 'A',
+            label: 'Actuar. Un inocente contra varios inocentes sigue siendo una cuenta.',
+            consequence: 'Actuaste. Los varios quedaron protegidos. El inocente pagó un precio que no eligió. La cuenta salió. Eso no la hace limpia.',
+            stateEffects: { trust: -5, tension: 25, bondScore: -5, guiltLoad: 28, pragmatism: 22, empathy: -15 }
+          },
+          {
+            key: 'B',
+            label: 'Esperar. Actuar sobre quien todavía no hizo nada cruza una línea que no se descrucza.',
+            consequence: 'Esperaste. El daño llegó. Los varios lo pagaron. Vos te quedaste con el principio intacto y el resultado encima.',
+            stateEffects: { trust: 8, tension: 18, bondScore: 5, guiltLoad: 15, pragmatism: -18, empathy: 10 }
+          }
+        ]
+      },
+      {
+        id: 'el-02',
+        type: 'vengeance',
+        roundLabel: 'DILEMA',
+        setup: 'Finalmente tenés al alcance hacerle pagar de verdad a quien destruyó algo que amabas. El precio de hacerlo es ser, al menos en ese momento, exactamente lo que pasaste años odiando.',
+        question: '¿Lo hacés aunque seas por un momento exactamente lo que decías que no ibas a ser?',
+        choices: [
+          {
+            key: 'A',
+            label: 'Hacerlo. Hay daños que solo se cierran así y el precio es tuyo.',
+            consequence: 'Lo hiciste. El círculo se cerró. El precio fue lo que esperabas. Ahora tenés los dos: lo que cerraste y lo en lo que te convertiste para cerrarlo.',
+            stateEffects: { trust: -5, tension: 20, bondScore: -5, guiltLoad: 25, pragmatism: 20, empathy: -12 }
+          },
+          {
+            key: 'B',
+            label: 'No hacerlo. Lo que sos cuando no tenés que serlo dice más que lo que hacés cuando tenés razón.',
+            consequence: 'No lo hiciste. La oportunidad pasó. Algo quedó sin cerrar. También quedó algo que no se convirtió en lo que odiabas, y eso no es poca cosa.',
+            stateEffects: { trust: 8, tension: 15, bondScore: 5, guiltLoad: 10, pragmatism: -15, empathy: 15 }
+          }
+        ]
+      },
+      {
+        id: 'el-03',
+        type: 'hidden_cost',
+        roundLabel: 'DILEMA',
+        setup: 'El último paso para conseguir lo que más querías implica cruzar la única línea que juraste que no ibas a cruzar. Una vez. Nadie lo va a saber.',
+        question: '¿La cruzás aunque sea una sola vez y nadie lo sepa, o la sostenés aunque eso sea lo único que te costó el objetivo?',
+        choices: [
+          {
+            key: 'A',
+            label: 'Cruzarla. Las líneas absolutas son un lujo que no siempre podés pagarte.',
+            consequence: 'La cruzaste. Conseguiste lo que querías. Nadie lo sabe. Vos sí. La próxima vez que llegues a esa línea vas a llegar sabiendo que ya la cruzaste una vez.',
+            stateEffects: { trust: -5, tension: 18, bondScore: -5, guiltLoad: 22, pragmatism: 22, empathy: -10 }
+          },
+          {
+            key: 'B',
+            label: 'Sostenerla. Si la cruzás "una sola vez", ya la cruzaste.',
+            consequence: 'No la cruzaste. El objetivo quedó sin conseguir. La línea quedó en pie. Eso tiene un peso diferente al de haberla cruzado, pero tiene peso igual.',
+            stateEffects: { trust: 8, tension: 12, bondScore: 8, guiltLoad: 8, pragmatism: -20, empathy: 12 }
+          }
+        ]
+      },
+      {
+        id: 'el-04',
+        type: 'survival',
+        roundLabel: 'DILEMA',
+        setup: 'Los métodos de quien te perseguía son los únicos que funcionan para escapar. Usarlos te salva. También te cambian de formas que no vas a poder explicar después.',
+        question: '¿Adoptás lo que funciona aunque te convierta en algo parecido a lo que huías, o te quedás con lo que sos aunque eso te cueste la salida?',
+        choices: [
+          {
+            key: 'A',
+            label: 'Adoptarlos. Sobrevivir primero, ser quien eras después.',
+            consequence: 'Los adoptaste. Funcionaron. Saliste. Lo que usaste para salir se quedó en vos de una forma que no siempre podés controlar.',
+            stateEffects: { trust: -8, tension: 20, bondScore: -5, guiltLoad: 18, pragmatism: 25, empathy: -15 }
+          },
+          {
+            key: 'B',
+            label: 'Quedarte con lo que sos. Hay cosas que si las sacrificás para sobrevivir, lo que sobrevive no sos realmente vos.',
+            consequence: 'Te quedaste. No saliste de la misma forma. Lo que sos quedó intacto. También quedó el costo de lo que pagaste por mantenerlo.',
+            stateEffects: { trust: 10, tension: 15, bondScore: 8, guiltLoad: 10, pragmatism: -20, empathy: 18 }
+          }
+        ]
+      },
+      {
+        id: 'el-05',
+        type: 'betrayal',
+        roundLabel: 'DILEMA',
+        setup: 'Traicionar a alguien que confía completamente en vos te da acceso a algo que protege a más personas. La cuenta sale. La persona no lo va a saber nunca.',
+        question: '¿La traicionás porque la cuenta sale, o la protegés porque no todas las cuentas que salen son cuentas que podés hacer?',
+        choices: [
+          {
+            key: 'A',
+            label: 'Traicionarla. Las decisiones que nadie sabe que tomaste también te forman.',
+            consequence: 'La traicionaste. El acceso funcionó. Las personas que protegiste nunca van a saber a qué costo. La que traicionaste tampoco. Solo vos.',
+            stateEffects: { trust: -15, tension: 18, bondScore: -18, guiltLoad: 22, pragmatism: 22, empathy: -12 }
+          },
+          {
+            key: 'B',
+            label: 'Protegerla. Si empezás a hacer cuentas con personas, no parás.',
+            consequence: 'La protegiste. El acceso no se consiguió. Lo que esa decisión te costó es concreto. Lo que te preservó es más difícil de medir.',
+            stateEffects: { trust: 12, tension: 12, bondScore: 15, guiltLoad: 8, pragmatism: -18, empathy: 18 }
+          }
+        ]
+      },
+      {
+        id: 'el-06',
+        type: 'trolley',
+        roundLabel: 'DILEMA',
+        setup: 'El daño no pasó todavía pero las señales son claras. Podés contenerlo antes de que empiece, pero tendría que ser ahora y de una forma que no admite dudas.',
+        question: '¿Actuás antes de que el daño sea real, o esperás porque actuar sobre lo que todavía no ocurrió define lo que sos?',
+        choices: [
+          {
+            key: 'A',
+            label: 'Actuar ahora. Esperar el daño cuando podés evitarlo no es ética, es cobardía con mejor prensa.',
+            consequence: 'Actuaste antes. El daño no llegó. Nadie sabe qué hubiera pasado si no lo hacías. Tampoco podés deshacer lo que hiciste para evitarlo.',
+            stateEffects: { trust: -5, tension: 22, bondScore: -5, guiltLoad: 20, pragmatism: 22, empathy: -12 }
+          },
+          {
+            key: 'B',
+            label: 'Esperar. El principio de no actuar sobre lo que no pasó es el único que separa ciertos actos de otros.',
+            consequence: 'Esperaste. El daño llegó. Pudiste contenerlo pero no evitarlo. Lo que te quedó fue el principio intacto y el peso de lo que no hiciste a tiempo.',
+            stateEffects: { trust: 8, tension: 15, bondScore: 5, guiltLoad: 18, pragmatism: -15, empathy: 8 }
+          }
+        ]
+      },
+      {
+        id: 'el-07',
+        type: 'vengeance',
+        roundLabel: 'DILEMA',
+        setup: 'La persona que buscabas está frente a vos. Sin defensa. La justicia formal tomaría años y probablemente no llegaría. Tenés segundos.',
+        question: '¿Cerrás el círculo ahora con tus propias manos, o lo dejás en manos de un sistema que probablemente no lo va a cerrar?',
+        choices: [
+          {
+            key: 'A',
+            label: 'Cerrarlo. Hay daños que el sistema no fue diseñado para responder.',
+            consequence: 'Lo cerraste. En esos segundos. El círculo se cerró. Lo que sos en esos segundos se quedó con vos de una manera que los segundos no alcanzan a explicar.',
+            stateEffects: { trust: -8, tension: 22, bondScore: -5, guiltLoad: 28, pragmatism: 18, empathy: -15 }
+          },
+          {
+            key: 'B',
+            label: 'Dejarlo al sistema. Lo que hacés en esos segundos define más que todo lo que te hicieron.',
+            consequence: 'Lo dejaste. El sistema hará lo que hace, que puede ser nada. Vos te quedaste con los segundos en que pudiste y no lo hiciste. Eso también tiene nombre.',
+            stateEffects: { trust: 10, tension: 12, bondScore: 8, guiltLoad: 12, pragmatism: -15, empathy: 12 }
+          }
+        ]
+      },
+      {
+        id: 'el-08',
+        type: 'hidden_cost',
+        roundLabel: 'DILEMA',
+        setup: 'Cruzaste el límite una vez. Funcionó. Nadie lo sabe. La próxima vez esa decisión va a ser más fácil de tomar. Eso es exactamente el problema.',
+        question: '¿Reconocés el patrón y lo detenés, o seguís porque los resultados son reales y el costo lo pagás vos solo?',
+        choices: [
+          {
+            key: 'A',
+            label: 'Detenerlo. Reconocer el patrón y no actuar es elegir lo que viene después.',
+            consequence: 'Lo detuviste. El costo fue no tener acceso a lo que el patrón producía. No es un costo visible. Es exactamente por eso que es difícil sostener.',
+            stateEffects: { trust: 8, tension: 12, bondScore: 5, guiltLoad: 15, pragmatism: -15, empathy: 12 }
+          },
+          {
+            key: 'B',
+            label: 'Seguir. El costo personal es tuyo y los resultados son reales. No todo tiene que parar por una incomodidad.',
+            consequence: 'Seguiste. Los resultados siguieron. El patrón se instaló de una manera más permanente. Ahora es parte de cómo funcionás, no una excepción.',
+            stateEffects: { trust: -5, tension: 15, bondScore: -5, guiltLoad: 22, pragmatism: 22, empathy: -10 }
+          }
+        ]
+      },
+      {
+        id: 'el-09',
+        type: 'survival',
+        roundLabel: 'DILEMA',
+        setup: 'Seguir siendo quien eras tiene un precio que ya no podés pagar. La alternativa funciona, resuelve, protege. No te reconocés en ella, pero funciona.',
+        question: '¿Seguís siendo reconocible aunque eso te cueste la capacidad de resolver lo que tenés adelante, o te convertís en algo que funciona aunque no puedas explicar qué fue?',
+        choices: [
+          {
+            key: 'A',
+            label: 'Seguir siendo reconocible. Hay un punto en que si no podés explicarlo, no debería existir.',
+            consequence: 'Te quedaste con lo que podías explicar. El costo fue lo que no pudiste resolver. Eso también quedó sin explicación, pero al menos fue un costo que elegiste.',
+            stateEffects: { trust: 10, tension: 15, bondScore: 8, guiltLoad: 10, pragmatism: -18, empathy: 15 }
+          },
+          {
+            key: 'B',
+            label: 'Convertirte en lo que funciona. Lo que eras ya no alcanza y aferrarte a eso es una forma de rendirse disfrazada.',
+            consequence: 'Te convertiste en lo que funcionaba. Resolviste lo que tenías adelante. No te reconocés del todo en cómo lo hiciste, pero el resultado es real.',
+            stateEffects: { trust: -8, tension: 18, bondScore: -8, guiltLoad: 18, pragmatism: 25, empathy: -15 }
+          }
+        ]
+      },
+      {
+        id: 'el-10',
+        type: 'betrayal',
+        roundLabel: 'DILEMA',
+        setup: 'Para proteger lo que importa tenés que destruir la reputación de alguien que no merece eso. No hay salida limpia. La elección es a quién le cae el daño.',
+        question: '¿Cargás el daño en alguien inocente para proteger lo que importa, o buscás otra salida aunque no exista todavía?',
+        choices: [
+          {
+            key: 'A',
+            label: 'Cargar el daño en quien no lo merece. Hay momentos donde no hay opciones que no lastimen a nadie.',
+            consequence: 'Lo hiciste. Lo que importa quedó protegido. El inocente pagó. No sabe que fuiste vos. Eso no cambia que fuiste vos.',
+            stateEffects: { trust: -12, tension: 20, bondScore: -5, guiltLoad: 28, pragmatism: 22, empathy: -15 }
+          },
+          {
+            key: 'B',
+            label: 'Buscar otra salida. Si no existe, la creás. Pero no arrancás destruyendo a alguien que no tiene nada que ver.',
+            consequence: 'La buscaste. La salida fue más cara y más difícil. Lo que importaba quedó protegido de otra forma. El inocente quedó fuera del daño. Eso también vale.',
+            stateEffects: { trust: 8, tension: 18, bondScore: 8, guiltLoad: 10, pragmatism: -15, empathy: 20 }
+          }
+        ]
+      },
+      {
+        id: 'el-11',
+        type: 'trolley',
+        roundLabel: 'DILEMA',
+        setup: 'El daño ya está hecho. Podés contener las consecuencias pero de una manera que no vas a poder justificar después ante nadie que no haya estado ahí.',
+        question: '¿Hacés lo que contiene el daño aunque no puedas sostenerlo después, o no lo hacés porque al menos eso es algo que podés defender?',
+        choices: [
+          {
+            key: 'A',
+            label: 'Hacerlo. Hay acciones que se justifican en lo que impiden, no en lo que se puede explicar.',
+            consequence: 'Lo hiciste. Las consecuencias se contuvieron. Lo que hiciste para contenerlas no tiene una defensa clara. Tampoco tiene una alternativa que hubiera funcionado igual.',
+            stateEffects: { trust: -5, tension: 22, bondScore: -5, guiltLoad: 22, pragmatism: 20, empathy: -10 }
+          },
+          {
+            key: 'B',
+            label: 'No hacerlo. Actuar de formas que no podés sostener es el primer paso de algo de lo que es difícil volver.',
+            consequence: 'No lo hiciste. Las consecuencias corrieron. Lo que te quedó fue un principio intacto y el peso de lo que ese principio costó a otros.',
+            stateEffects: { trust: 10, tension: 15, bondScore: 5, guiltLoad: 15, pragmatism: -18, empathy: 10 }
+          }
+        ]
+      },
+      {
+        id: 'el-12',
+        type: 'vengeance',
+        roundLabel: 'DILEMA',
+        setup: 'Encontraste la forma de que lo que le pase a quien te destruyó sea completamente trazable a sus propias decisiones. Nadie va a saber que lo armaste vos. Perfecto. Sucio.',
+        question: '¿Lo activás aunque sea exactamente el tipo de operación que decías despreciar, o no lo activás aunque eso signifique que no hay consecuencias reales para lo que te hicieron?',
+        choices: [
+          {
+            key: 'A',
+            label: 'Activarlo. La justicia que no viene sola a veces se construye.',
+            consequence: 'Lo activaste. Funcionó. La caída fue exactamente lo que diseñaste. La satisfacción que sentiste no fue lo que esperabas. Eso también dice algo.',
+            stateEffects: { trust: -8, tension: 20, bondScore: -5, guiltLoad: 20, pragmatism: 18, empathy: -10 }
+          },
+          {
+            key: 'B',
+            label: 'No activarlo. Construir la condena de alguien desde las sombras, aunque lo merezca, te cambia de maneras que no se resetean.',
+            consequence: 'No lo activaste. Quien te destruyó siguió sin consecuencias visibles. Vos seguiste sin haber construido nada en las sombras. Eso es más difícil de sostener de lo que parece.',
+            stateEffects: { trust: 10, tension: 12, bondScore: 5, guiltLoad: 10, pragmatism: -15, empathy: 12 }
+          }
+        ],
+        affinityChoice: {
+          minLevel: 2,
+          choice: {
+            key: 'C',
+            label: 'Activarlo, pero solo si podés vivir con que la satisfacción no va a ser lo que esperabas.',
+            consequence: 'Lo activaste con esa claridad. La caída llegó. La satisfacción fue exactamente lo que te habías advertido que iba a ser: menos de lo que imaginaste y más difícil de procesar.',
+            stateEffects: { trust: -5, tension: 15, bondScore: 5, guiltLoad: 15, pragmatism: 12, empathy: 5 }
+          }
+        }
+      },
+      {
+        id: 'el-13',
+        type: 'hidden_cost',
+        roundLabel: 'DILEMA',
+        setup: 'Cada límite que moviste fue razonable en su momento. Juntos forman algo que no reconocés. No hay un momento específico en que todo cambió. Fue gradual.',
+        question: '¿Hacés el inventario y retrocedés aunque eso signifique deshacer cosas que funcionan, o seguís porque los pasos individuales fueron todos justificables?',
+        choices: [
+          {
+            key: 'A',
+            label: 'Hacer el inventario. El proceso que lleva a algo que no reconocés merece ser detenido aunque cada paso haya tenido sentido.',
+            consequence: 'Hiciste el inventario. Lo que encontraste fue difícil de mirar. Retroceder costó lo que costó. Lo que recuperaste fue algo que ya no sabías que habías perdido.',
+            stateEffects: { trust: 10, tension: 18, bondScore: 8, guiltLoad: 20, pragmatism: -18, empathy: 15 }
+          },
+          {
+            key: 'B',
+            label: 'Seguir. El resultado importa más que el recorrido y el recorrido era lo que la situación pedía.',
+            consequence: 'Seguiste. Los resultados siguieron siendo reales. El recorrido siguió siendo lo que era. La distancia con lo que eras antes siguió creciendo de a poco.',
+            stateEffects: { trust: -5, tension: 12, bondScore: -5, guiltLoad: 18, pragmatism: 20, empathy: -12 }
+          }
+        ]
+      },
+      {
+        id: 'el-14',
+        type: 'survival',
+        roundLabel: 'DILEMA',
+        setup: 'Lo que necesitás para salir sería razonable si lo hiciera otra persona en otro contexto. Pero sos vos, en este contexto, y las consecuencias caen en gente que no eligió estar en tu camino.',
+        question: '¿Usás lo que necesitás aunque las consecuencias caigan en quien no lo eligió, o no lo usás aunque eso te cueste la salida?',
+        choices: [
+          {
+            key: 'A',
+            label: 'Usarlo. El daño no elegido no es lo mismo que el daño elegido.',
+            consequence: 'Lo usaste. Saliste. Las consecuencias cayeron donde cayeron. La distinción entre daño no elegido y daño elegido es real. Eso no la hace más fácil de cargar.',
+            stateEffects: { trust: -8, tension: 20, bondScore: -5, guiltLoad: 25, pragmatism: 22, empathy: -12 }
+          },
+          {
+            key: 'B',
+            label: 'No usarlo. Si las consecuencias caen en quienes no eligieron estar ahí, la salida no justifica el camino.',
+            consequence: 'No lo usaste. La salida se complicó. Las personas que hubieran pagado el costo no lo pagaron. Vos pagaste el tuyo de otra forma.',
+            stateEffects: { trust: 10, tension: 15, bondScore: 10, guiltLoad: 10, pragmatism: -18, empathy: 20 }
+          }
+        ]
+      },
+      {
+        id: 'el-15',
+        type: 'betrayal',
+        roundLabel: 'DILEMA',
+        setup: 'Alguien te dio acceso a algo importante porque creyó en vos. Usar ese acceso como lo necesitás usarlo es traicionarlos de una manera que no van a poder entender aunque se los expliques.',
+        question: '¿Usás el acceso aunque eso destruya algo real entre ustedes, o no lo usás aunque eso te cueste lo único que podías hacer?',
+        choices: [
+          {
+            key: 'A',
+            label: 'Usarlo. Las personas que importan a veces terminan siendo el costo de lo que era necesario hacer.',
+            consequence: 'Lo usaste. Lo que tenías que hacer se hizo. Lo que esa persona te dio se convirtió en algo diferente a lo que creyó que te estaba dando. Eso no tiene arreglo.',
+            stateEffects: { trust: -15, tension: 18, bondScore: -18, guiltLoad: 22, pragmatism: 22, empathy: -12 }
+          },
+          {
+            key: 'B',
+            label: 'No usarlo. Hay accesos que no podés usar sin convertir lo que alguien te dio en algo que no merece el nombre que le pusieron.',
+            consequence: 'No lo usaste. Lo que tenías que hacer no se hizo de esa forma. Lo que esa persona te dio conservó lo que era. Encontraste otra salida o no la encontraste, pero no usaste esa.',
+            stateEffects: { trust: 15, tension: 15, bondScore: 15, guiltLoad: 8, pragmatism: -20, empathy: 20 }
+          }
+        ],
+        affinityChoice: {
+          minLevel: 2,
+          choice: {
+            key: 'C',
+            label: 'Usarlo, pero decírselo después aunque no lo entiendan.',
+            consequence: 'Lo usaste. Se los dijiste. No lo entendieron, como sabías que no iban a entender. Pero lo saben. Eso es diferente a haberlo hecho en silencio.',
+            stateEffects: { trust: -5, tension: 15, bondScore: -5, guiltLoad: 15, pragmatism: 15, empathy: 12 }
+          }
+        }
+      }
+    ]
   }
 ]
 
@@ -1109,13 +1836,18 @@ export const DILEMA_PROFILES = [
 /**
  * Selecciona `count` dilemas del pool de forma aleatoria,
  * intentando cubrir tipos distintos para mayor variedad.
+ * `seen` es un array de ids ya jugados en sesiones anteriores — se priorizan los no vistos.
+ * Si el pool de no-vistos tiene menos de `count`, se resetea y usa el pool completo.
  */
-export function pickDilemas(pool, count = 4) {
-  if (pool.length <= count) return [...pool]
+export function pickDilemas(pool, count = 4, seen = []) {
+  const unseenPool = seen.length > 0 ? pool.filter(d => !seen.includes(d.id)) : pool
+  const activePool = unseenPool.length >= count ? unseenPool : pool
+
+  if (activePool.length <= count) return [...activePool]
 
   // Agrupar por tipo
   const byType = {}
-  for (const d of pool) {
+  for (const d of activePool) {
     if (!byType[d.type]) byType[d.type] = []
     byType[d.type].push(d)
   }
@@ -1137,7 +1869,7 @@ export function pickDilemas(pool, count = 4) {
 
   // Segunda pasada: completar con aleatorios si faltan
   if (picked.length < count) {
-    const remaining = pool.filter(d => !usedIds.has(d.id)).sort(() => Math.random() - 0.5)
+    const remaining = activePool.filter(d => !usedIds.has(d.id)).sort(() => Math.random() - 0.5)
     for (const d of remaining) {
       if (picked.length >= count) break
       picked.push(d)

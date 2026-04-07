@@ -12,6 +12,7 @@ import {
 import { getAffinityData, getAffinityLevel } from '../utils/affinity'
 import './DilemmaPage.css'
 import { API_URL } from '../config/api.js'
+import { useAuth } from '../context/AuthContext'
 
 const INITIAL_STATE = {
   trust: 50,
@@ -24,6 +25,7 @@ const INITIAL_STATE = {
 
 export default function DilemmaPage() {
   const navigate = useNavigate()
+  const { session } = useAuth()
 
   // ─── Phase machine ────────────────────────────────────────────────────────
   // select → scenario → intro → dilemma → reaction → profile
@@ -69,11 +71,24 @@ export default function DilemmaPage() {
   }
 
   // ─── Scenario select ──────────────────────────────────────────────────────
-  function handleScenarioSelect(sc) {
+  async function handleScenarioSelect(sc) {
     const variants = sc.introVariants ?? [sc.introLines]
     const introLines = variants[Math.floor(Math.random() * variants.length)]
     setScenario({ ...sc, introLines })
-    setSessionDilemas(pickDilemas(sc.dilemmaPool, 4))
+
+    let seen = []
+    if (session) {
+      try {
+        const r = await fetch(`${API_URL}/db/dilema-seen`, {
+          headers: { Authorization: `Bearer ${session.access_token}` }
+        })
+        seen = await r.json()
+      } catch { seen = [] }
+    } else {
+      try { seen = JSON.parse(localStorage.getItem('dilema-seen') || '[]') } catch { seen = [] }
+    }
+
+    setSessionDilemas(pickDilemas(sc.dilemmaPool, 4, seen))
     transitionTo('intro', 80)
   }
 
@@ -152,6 +167,20 @@ export default function DilemmaPage() {
     if (isLast) {
       const profile = calculateProfile(newState)
       setMoralProfile(profile)
+      // Persistir ids vistos para evitar repetición en próximas sesiones
+      const played = sessionDilemas.map(d => d.id)
+      if (session) {
+        fetch(`${API_URL}/db/dilema-seen`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+          body: JSON.stringify({ dilemaIds: played })
+        }).catch(() => {})
+      } else {
+        try {
+          const seen = JSON.parse(localStorage.getItem('dilema-seen') || '[]')
+          localStorage.setItem('dilema-seen', JSON.stringify([...new Set([...seen, ...played])]))
+        } catch { /* ignore */ }
+      }
       transitionTo('profile', 80)
       setTimeout(() => setProfileVisible(true), 400)
     } else {

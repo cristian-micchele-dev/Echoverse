@@ -8,6 +8,7 @@ import { saveSession } from '../utils/session'
 import './ChatPage.css'
 import { API_URL } from '../config/api.js'
 import { getAffinityData, getAffinityLevel, getAffinityLabel, getAffinityEmoji } from '../utils/affinity'
+import { useAuth } from '../context/AuthContext'
 const MAX_STORED_MESSAGES = 50
 
 function playNotificationSound(tone) {
@@ -93,6 +94,7 @@ export default function ChatPage() {
   const { characterId } = useParams()
   const navigate = useNavigate()
   const character = characters.find(c => c.id === characterId)
+  const { session } = useAuth()
 
   const storageKey = `chat-${characterId}`
 
@@ -118,6 +120,21 @@ export default function ChatPage() {
   useEffect(() => {
     requestAnimationFrame(() => setVisible(true))
   }, [])
+
+  // Cargar historial desde BD si el usuario está autenticado
+  useEffect(() => {
+    if (!session || !characterId) return
+    fetch(`${API_URL}/db/chat-history/${characterId}`, {
+      headers: { Authorization: `Bearer ${session.access_token}` }
+    })
+      .then(r => r.json())
+      .then(dbMessages => {
+        if (Array.isArray(dbMessages) && dbMessages.length > 0) {
+          setMessages(dbMessages)
+        }
+      })
+      .catch(() => {})
+  }, [session, characterId])
 
   // Aplicar tema al :root y restaurar al salir
   useEffect(() => {
@@ -160,10 +177,23 @@ export default function ChatPage() {
           route: `/chat/${characterId}`,
           lastMessage: lastMsg.content?.slice(0, 120) || '',
         })
+        if (session) {
+          const toSave = messages.slice(-MAX_STORED_MESSAGES)
+          fetch(`${API_URL}/db/chat-history`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+            body: JSON.stringify({ characterId, messages: toSave })
+          }).catch(() => {})
+          fetch(`${API_URL}/db/affinity`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+            body: JSON.stringify({ characterId, messageCount: messages.length })
+          }).catch(() => {})
+        }
       }
     }
     prevIsLoadingRef.current = isLoading
-  }, [isLoading, messages, character, characterId])
+  }, [isLoading, messages, character, characterId, session])
 
   useEffect(() => {
     const container = messagesContainerRef.current

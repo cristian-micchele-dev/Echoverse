@@ -1,4 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { AuthProvider } from './context/AuthContext'
+import AuthPage from './pages/AuthPage'
 import LandingPage from './pages/LandingPage'
 import HomePage from './pages/HomePage'
 import ChatPage from './pages/ChatPage'
@@ -22,8 +24,10 @@ import './App.css'
 
 export default function App() {
   return (
+    <AuthProvider>
     <BrowserRouter>
       <Routes>
+        <Route path="/auth" element={<AuthPage />} />
         <Route path="/" element={<LandingPage />} />
         <Route path="/home-v1" element={<HomePage />} />
         <Route path="/chat" element={<ChatModePage />} />
@@ -45,5 +49,6 @@ export default function App() {
         <Route path="/ultima-cena" element={<UltimaCenaPage />} />
       </Routes>
     </BrowserRouter>
+    </AuthProvider>
   )
 }
