@@ -269,6 +269,63 @@
   cursor: not-allowed;
 }
 
+/* ── Forgot password link (inline en label row) ── */
+.auth-field__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.auth-forgot-link {
+  background: none;
+  border: none;
+  color: #4a4768;
+  font-size: 0.72rem;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s;
+  letter-spacing: 0.01em;
+}
+
+.auth-forgot-link:hover { color: #9475f0; }
+
+/* ── Forgot hint ── */
+.auth-forgot-hint {
+  color: #524f70;
+  font-size: 0.85rem;
+  text-align: center;
+  margin: 0;
+  line-height: 1.5;
+  width: 100%;
+}
+
+/* ── Email sent confirmation ── */
+.auth-sent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  text-align: center;
+  padding: 0.5rem 0;
+}
+
+.auth-sent__icon { font-size: 2.5rem; }
+
+.auth-sent__title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #eeedf8;
+  margin: 0;
+}
+
+.auth-sent__sub {
+  color: #524f70;
+  font-size: 0.85rem;
+  margin: 0 0 0.5rem;
+  line-height: 1.5;
+}
+
 /* ── Skip ── */
 .auth-divider {
   display: flex;

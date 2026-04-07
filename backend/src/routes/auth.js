@@ -90,4 +90,24 @@ router.post('/register', async (req, res) => {
   }
 })
 
+// POST /api/auth/forgot-password
+router.post('/forgot-password', async (req, res) => {
+  const parsed = loginSchema.pick({ email: true }).safeParse(req.body)
+  if (!parsed.success) {
+    return res.status(400).json({ error: parsed.error.issues[0].message })
+  }
+
+  const { email } = parsed.data
+  const redirectTo = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password`
+
+  try {
+    await supabase.auth.resetPasswordForEmail(email, { redirectTo })
+    // Siempre OK para no revelar si el email existe o no
+    res.json({ ok: true })
+  } catch (err) {
+    console.error('[auth/forgot-password]', err)
+    res.status(500).json({ error: 'No se pudo enviar el email. Intentá de nuevo.' })
+  }
+})
+
 export default router

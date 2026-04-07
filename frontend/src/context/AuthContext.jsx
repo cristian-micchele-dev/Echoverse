@@ -53,13 +53,23 @@ export function AuthProvider({ children }) {
     }
   }
 
+  async function forgotPassword(email) {
+    const res = await fetch(`${API_URL}/auth/forgot-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    })
+    const data = await parseAuthResponse(res)
+    if (!res.ok) throw new Error(data.error)
+  }
+
   async function logout() {
     const { error } = await supabase.auth.signOut()
     if (error) throw error
   }
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, session, loading, login, register, logout, forgotPassword }}>
       {children}
     </AuthContext.Provider>
   )

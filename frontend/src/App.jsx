@@ -21,6 +21,7 @@ import StoryPage from './pages/StoryPage'
 import CriticalPage from './pages/CriticalPage'
 import OperacionPage from './pages/OperacionPage'
 import UltimaCenaPage from './pages/UltimaCenaPage'
+import ResetPasswordPage from './pages/ResetPasswordPage'
 import './App.css'
 
 export default function App() {
@@ -29,6 +30,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/auth" element={<AuthPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/perfil" element={<ProfilePage />} />
         <Route path="/" element={<LandingPage />} />
         <Route path="/home-v1" element={<HomePage />} />
