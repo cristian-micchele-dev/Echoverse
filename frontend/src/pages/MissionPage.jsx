@@ -164,7 +164,7 @@ export default function MissionPage() {
   const audioRef = useRef(null)
   const mutedRef = useRef(muted)
 
-  // Cargar progreso desde DB si hay sesión
+  // Cargar progreso desde DB si hay sesión; si DB está vacía pero localStorage tiene datos, sincronizar
   useEffect(() => {
     if (!session) return
     fetch(`${API_URL}/db/mission-progress`, {
@@ -174,6 +174,16 @@ export default function MissionPage() {
       .then(data => {
         if (data && data.highestUnlocked > 1) {
           setCampaignProgress(data)
+        } else {
+          // DB vacía — si localStorage tiene progreso, subirlo a la DB ahora
+          const local = getMissionProgress()
+          if (local.highestUnlocked > 1) {
+            fetch(`${API_URL}/db/mission-progress`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+              body: JSON.stringify({ highestUnlocked: local.highestUnlocked, completedLevels: local.completedLevels })
+            }).catch(() => {})
+          }
         }
       })
       .catch(() => {})

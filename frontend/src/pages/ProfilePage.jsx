@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { characters } from '../data/characters'
 import { getAffinityLevel, getAffinityLabel, getAffinityEmoji } from '../utils/affinity'
+import { getMissionProgress } from '../utils/missionProgress'
 import { API_URL } from '../config/api.js'
 import './ProfilePage.css'
 
@@ -23,6 +24,19 @@ export default function ProfilePage() {
       fetch(`${API_URL}/db/mission-progress`, { headers }).then(r => r.json()),
     ]).then(([aff, mis]) => {
       setAffinities(Array.isArray(aff) ? aff : [])
+      // Si DB está vacía pero localStorage tiene progreso, sincronizar y usar el local
+      if (!mis || mis.highestUnlocked <= 1) {
+        const local = getMissionProgress()
+        if (local.highestUnlocked > 1) {
+          fetch(`${API_URL}/db/mission-progress`, {
+            method: 'POST',
+            headers: { ...headers, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ highestUnlocked: local.highestUnlocked, completedLevels: local.completedLevels })
+          }).catch(() => {})
+          setMission(local)
+          return
+        }
+      }
       setMission(mis)
     }).catch(() => {}).finally(() => setLoading(false))
   }, [session, navigate, authLoading])
