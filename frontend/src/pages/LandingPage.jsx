@@ -35,17 +35,6 @@ const PROTAGONIST_MODES = [
     characterId: 'el-profesor',
   },
   {
-    id: 'interrogation',
-    label: 'Interrogatorio',
-    eyebrow: 'DETECCIÓN DE MENTIRAS',
-    desc: 'El personaje puede estar mintiendo. Detectá las contradicciones. Decidí si le creés.',
-    cta: 'Iniciar interrogatorio',
-    route: '/interrogation',
-    accent: '#6D4AFF',
-    tag: 'IA REACTIVA',
-    characterId: 'walter-white',
-  },
-  {
     id: 'dilema',
     label: 'Dilemas',
     eyebrow: 'FILOSOFÍA INTERACTIVA',
@@ -55,6 +44,17 @@ const PROTAGONIST_MODES = [
     accent: '#C9954A',
     tag: 'SIN RESPUESTA CORRECTA',
     characterId: 'gandalf',
+  },
+  {
+    id: 'interrogation',
+    label: 'Interrogatorio',
+    eyebrow: 'DETECCIÓN DE MENTIRAS',
+    desc: 'El personaje puede estar mintiendo. Detectá las contradicciones. Decidí si le creés.',
+    cta: 'Iniciar interrogatorio',
+    route: '/interrogation',
+    accent: '#6D4AFF',
+    tag: 'IA REACTIVA',
+    characterId: 'walter-white',
   },
 ]
 
@@ -347,9 +347,9 @@ export default function LandingPage() {
                       {mode.cta} <ArrowIcon size={13} />
                     </button>
                   </div>
-                  {char && (
-                    <div className="lp-mode-block__visual">
-                      <img src={char.image} alt={char.name} />
+                  {(char || mode.image) && (
+                    <div className="lp-mode-block__visual" style={mode.imgPosition ? { '--img-pos': mode.imgPosition } : undefined}>
+                      <img src={mode.image ?? char.image} alt={mode.label} />
                       <div className="lp-mode-block__visual-fade" />
                     </div>
                   )}

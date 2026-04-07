@@ -817,7 +817,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: top center;
+  object-position: var(--img-pos, top center);
   filter: grayscale(20%) brightness(0.65);
   transition: filter 0.4s ease, transform 0.5s ease;
   display: block;

@@ -6,7 +6,7 @@ import './ModeSelectorPage.css'
 const MAIN_MODES = [
   {
     id: 'mission',
-    characterId: 'el-profesor',
+    image: '/images/modomision.jfif',
     eyebrow: 'Historia Interactiva',
     label: 'Modo Misión',
     desc: 'Una misión real. Cada decisión tiene peso.',
@@ -16,7 +16,7 @@ const MAIN_MODES = [
   },
   {
     id: 'interrogation',
-    characterId: 'walter-white',
+    image: '/images/interrogatoriojpg.jpg',
     eyebrow: 'Detección de Mentiras',
     label: 'Interrogatorio',
     desc: 'El personaje puede estar mintiendo. Detectá las contradicciones.',
@@ -33,6 +33,16 @@ const MAIN_MODES = [
     route: '/dilema',
     accent: '#C9954A',
     tag: 'Sin respuesta correcta',
+  },
+  {
+    id: 'ultima-cena',
+    image: '/images/ultimacena2.jfif',
+    eyebrow: 'Multijugador Narrativo',
+    label: 'Última Cena',
+    desc: 'Elegís 3 o 4 personajes y los sentás a la misma mesa.',
+    route: '/ultima-cena',
+    accent: '#8B4A2A',
+    tag: 'Hasta 4 personajes',
   },
 ]
 
@@ -94,24 +104,6 @@ const SECONDARY_MODES = [
       </svg>
     ),
   },
-  {
-    id: 'ultima-cena',
-    eyebrow: 'Multijugador Narrativo',
-    label: 'Última Cena',
-    desc: 'Elegís 3 o 4 personajes y los sentás a la misma mesa.',
-    route: '/ultima-cena',
-    accent: '#8B4A2A',
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-        <circle cx="9" cy="7" r="2.5" stroke="currentColor" strokeWidth="1.7"/>
-        <circle cx="15" cy="7" r="2.5" stroke="currentColor" strokeWidth="1.7"/>
-        <circle cx="12" cy="14" r="2.5" stroke="currentColor" strokeWidth="1.7"/>
-        <path d="M4 20c0-2.5 2-4 5-4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/>
-        <path d="M20 20c0-2.5-2-4-5-4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/>
-        <path d="M9 20c0-1.5 1.3-3 3-3s3 1.5 3 3" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/>
-      </svg>
-    ),
-  },
 ]
 
 
@@ -156,9 +148,9 @@ export default function ModeSelectorPage() {
                 style={{ '--accent': mode.accent, animationDelay: `${i * 70}ms` }}
                 onClick={() => navigate(mode.route)}
               >
-                {char && (
+                {(char || mode.image) && (
                   <div className="ms-main-card__visual">
-                    <img src={char.image} alt="" />
+                    <img src={mode.image ?? char.image} alt="" />
                     <div className="ms-main-card__visual-fade" />
                   </div>
                 )}
