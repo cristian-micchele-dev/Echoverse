@@ -31,11 +31,15 @@ router.post('/login', async (req, res) => {
   }
 
   const { email, password } = parsed.data
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
-  if (error) return res.status(401).json({ error: translateError(error) })
-
-  res.json({ session: data.session })
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+    if (error) return res.status(401).json({ error: translateError(error) })
+    res.json({ session: data.session })
+  } catch (err) {
+    console.error('[auth/login]', err)
+    res.status(500).json({ error: 'Error al iniciar sesión. Intentá de nuevo más tarde' })
+  }
 })
 
 // POST /api/auth/register
@@ -46,20 +50,26 @@ router.post('/register', async (req, res) => {
   }
 
   const { email, password, username } = parsed.data
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: { data: { username: username.trim() } }
-  })
 
-  if (error) return res.status(400).json({ error: translateError(error) })
+  try {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { username: username.trim() } }
+    })
 
-  // Supabase devuelve user sin id si el email ya existe (anti-enumeration)
-  if (!data.user?.id) {
-    return res.status(400).json({ error: 'Este email ya está registrado' })
+    if (error) return res.status(400).json({ error: translateError(error) })
+
+    // Supabase devuelve user sin id si el email ya existe (anti-enumeration)
+    if (!data.user?.id) {
+      return res.status(400).json({ error: 'Este email ya está registrado' })
+    }
+
+    res.json({ session: data.session })
+  } catch (err) {
+    console.error('[auth/register]', err)
+    res.status(500).json({ error: 'Error al crear la cuenta. Intentá de nuevo más tarde' })
   }
-
-  res.json({ session: data.session })
 })
 
 export default router

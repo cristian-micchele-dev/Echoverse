@@ -19,13 +19,21 @@ export function AuthProvider({ children }) {
     return () => subscription.unsubscribe()
   }, [])
 
+  async function parseAuthResponse(res) {
+    const ct = res.headers.get('content-type') || ''
+    if (!ct.includes('application/json')) {
+      throw new Error('Error de servidor. Intentá de nuevo más tarde')
+    }
+    return res.json()
+  }
+
   async function login(email, password) {
     const res = await fetch(`${API_URL}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password })
     })
-    const data = await res.json()
+    const data = await parseAuthResponse(res)
     if (!res.ok) throw new Error(data.error)
     const { error } = await supabase.auth.setSession(data.session)
     if (error) throw error
@@ -37,7 +45,7 @@ export function AuthProvider({ children }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password, username })
     })
-    const data = await res.json()
+    const data = await parseAuthResponse(res)
     if (!res.ok) throw new Error(data.error)
     if (data.session) {
       const { error } = await supabase.auth.setSession(data.session)
