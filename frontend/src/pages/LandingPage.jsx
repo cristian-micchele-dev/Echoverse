@@ -4,6 +4,7 @@ import { characters } from '../data/characters'
 import { FEATURED_LIST } from '../data/featured'
 import { missions } from '../data/missions'
 import { loadSession, timeAgo } from '../utils/session'
+import { useAuth } from '../context/AuthContext'
 import './LandingPage.css'
 
 /* ─── DATA ──────────────────────────────────────────────────────────────── */
@@ -109,6 +110,7 @@ const ROTATE_INTERVAL = 6000 // ms entre slides
 
 export default function LandingPage() {
   const navigate = useNavigate()
+  const { user } = useAuth()
   const [visible, setVisible]         = useState(false)
   const [featuredIdx, setFeaturedIdx] = useState(0)
   const [featuredFade, setFeaturedFade] = useState(true)
@@ -220,6 +222,21 @@ export default function LandingPage() {
             <ArrowIcon size={12} />
           </button>
         )}
+
+        {/* Auth pill */}
+        <div className="lp-auth-pill">
+          {user ? (
+            <button className="lp-auth-pill__btn lp-auth-pill__btn--logged" onClick={() => navigate('/perfil')}>
+              <span className="lp-auth-pill__avatar">{user.email?.[0]?.toUpperCase()}</span>
+              <span>Mi perfil</span>
+            </button>
+          ) : (
+            <>
+              <span className="lp-auth-pill__nudge">Tu progreso solo se guarda en este dispositivo.</span>
+              <button className="lp-auth-pill__btn" onClick={() => navigate('/auth')}>Registrate</button>
+            </>
+          )}
+        </div>
 
         {/* Scroll hint */}
         <div className="lp-hero-scroll-hint" aria-hidden="true">

@@ -402,6 +402,64 @@
 }
 .lp-hero-resume__text strong { color: var(--lp-text); font-weight: 500; }
 
+/* ── Auth pill ── */
+.lp-auth-pill {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  z-index: 10;
+}
+
+.lp-auth-pill__nudge {
+  color: #666;
+  font-size: 0.78rem;
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .lp-auth-pill__nudge { display: block; }
+}
+
+.lp-auth-pill__btn {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #ccc;
+  padding: 0.4rem 0.9rem;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+  white-space: nowrap;
+}
+
+.lp-auth-pill__btn:hover {
+  background: rgba(108,99,255,0.15);
+  border-color: rgba(108,99,255,0.4);
+  color: #fff;
+}
+
+.lp-auth-pill__btn--logged {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.lp-auth-pill__avatar {
+  width: 22px;
+  height: 22px;
+  background: #6c63ff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #fff;
+}
+
 /* ── Scroll hint ── */
 
 .lp-hero-scroll-hint {

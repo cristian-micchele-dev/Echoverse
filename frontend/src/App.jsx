@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import AuthPage from './pages/AuthPage'
+import ProfilePage from './pages/ProfilePage'
 import LandingPage from './pages/LandingPage'
 import HomePage from './pages/HomePage'
 import ChatPage from './pages/ChatPage'
@@ -28,6 +29,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/auth" element={<AuthPage />} />
+        <Route path="/perfil" element={<ProfilePage />} />
         <Route path="/" element={<LandingPage />} />
         <Route path="/home-v1" element={<HomePage />} />
         <Route path="/chat" element={<ChatModePage />} />

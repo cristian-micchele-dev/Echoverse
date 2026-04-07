@@ -7,6 +7,7 @@ import './MissionPage.css'
 import { API_URL } from '../config/api.js'
 import { CAMPAIGN_ARCS } from '../data/missionLevels.js'
 import { getMissionProgress, isLevelUnlocked, saveLevelComplete, resetProgress } from '../utils/missionProgress.js'
+import { useAuth } from '../context/AuthContext'
 
 const MISSION_TRACKS = [
   '/sounds/ArcSound - Dark Suspense Cinematic.mp3',
@@ -154,6 +155,7 @@ export default function MissionPage() {
   const [missionResult, setMissionResult] = useState(null) // 'win' | 'lose' | null
   const [pendingStats,  setPendingStats]  = useState(null)
   const [muted, setMuted] = useState(false)
+  const { session } = useAuth()
   const [campaignMode, setCampaignMode] = useState(false)
   const [selectedLevel, setSelectedLevel] = useState(null)
   const [campaignProgress, setCampaignProgress] = useState(() => getMissionProgress())
@@ -161,6 +163,21 @@ export default function MissionPage() {
   const nameInputRef = useRef(null)
   const audioRef = useRef(null)
   const mutedRef = useRef(muted)
+
+  // Cargar progreso desde DB si hay sesión
+  useEffect(() => {
+    if (!session) return
+    fetch(`${API_URL}/db/mission-progress`, {
+      headers: { Authorization: `Bearer ${session.access_token}` }
+    })
+      .then(r => r.json())
+      .then(data => {
+        if (data && data.highestUnlocked > 1) {
+          setCampaignProgress(data)
+        }
+      })
+      .catch(() => {})
+  }, [session])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -352,7 +369,15 @@ export default function MissionPage() {
       setPhase('ended')
       if (campaignMode && selectedLevel) {
         saveLevelComplete(selectedLevel)
-        setCampaignProgress(getMissionProgress())
+        const updated = getMissionProgress()
+        setCampaignProgress(updated)
+        if (session) {
+          fetch(`${API_URL}/db/mission-progress`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+            body: JSON.stringify({ highestUnlocked: updated.highestUnlocked, completedLevels: updated.completedLevels })
+          }).catch(() => {})
+        }
       }
       fetchMission(selectedChar, newHistory, { vida: newVida, riesgo: newRiesgo, sigilo: newSigilo }, 'win')
       return

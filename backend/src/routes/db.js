@@ -85,6 +85,17 @@ router.post('/chat-history', requireAuth, async (req, res) => {
 
 // ─── Character Affinity (requiere auth) ──────────────────────────────────────
 
+// GET /api/db/affinity  — todas las afinidades del usuario
+router.get('/affinity', requireAuth, async (req, res) => {
+  const { data, error } = await supabase
+    .from('character_affinity')
+    .select('character_id, message_count, last_chat_at')
+    .eq('user_id', req.user.id)
+
+  if (error) return res.status(500).json({ error: error.message })
+  res.json(data ?? [])
+})
+
 // GET /api/db/affinity/:characterId
 router.get('/affinity/:characterId', requireAuth, async (req, res) => {
   const { data, error } = await supabase
