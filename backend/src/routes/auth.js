@@ -23,15 +23,22 @@ function translateError(error) {
   return 'Ocurrió un error. Intentá de nuevo más tarde'
 }
 
-// Llama al REST API de Supabase directamente para sign-in (más fiable con service role)
+// Llama al REST API de Supabase directamente para sign-in.
+// Usa la anon key como apikey (endpoint público de usuario) y la service key
+// solo para las operaciones admin (createUser).
 async function supabaseSignIn(email, password) {
+  const anonKey = process.env.SUPABASE_ANON_KEY
+  if (!anonKey) {
+    console.error('[supabaseSignIn] SUPABASE_ANON_KEY no configurada')
+    return { session: null, error: { message: 'server misconfiguration' } }
+  }
   const url = `${process.env.SUPABASE_URL}/auth/v1/token?grant_type=password`
   const response = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'apikey': process.env.SUPABASE_SERVICE_KEY,
-      'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_KEY}`
+      'apikey': anonKey,
+      'Authorization': `Bearer ${anonKey}`
     },
     body: JSON.stringify({ email, password })
   })
