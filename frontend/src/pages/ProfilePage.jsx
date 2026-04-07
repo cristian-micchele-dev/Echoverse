@@ -7,7 +7,7 @@ import { API_URL } from '../config/api.js'
 import './ProfilePage.css'
 
 export default function ProfilePage() {
-  const { user, session, logout } = useAuth()
+  const { user, session, loading: authLoading, logout } = useAuth()
   const navigate = useNavigate()
 
   const [affinities, setAffinities] = useState([])
@@ -15,6 +15,7 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    if (authLoading) return
     if (!session) { navigate('/auth'); return }
     const headers = { Authorization: `Bearer ${session.access_token}` }
     Promise.all([
@@ -24,14 +25,18 @@ export default function ProfilePage() {
       setAffinities(Array.isArray(aff) ? aff : [])
       setMission(mis)
     }).catch(() => {}).finally(() => setLoading(false))
-  }, [session, navigate])
+  }, [session, navigate, authLoading])
 
   async function handleLogout() {
-    await logout()
+    try {
+      await logout()
+    } catch {
+      // si falla el signOut remoto, igual limpiamos la sesion local
+    }
     navigate('/')
   }
 
-  if (!user) return null
+  if (authLoading || !user) return null
 
   const activeAffinities = affinities
     .map(a => {
@@ -49,7 +54,8 @@ export default function ProfilePage() {
   const highestLevel = mission?.highestUnlocked ?? 1
   const progressPct = Math.min(((highestLevel - 1) / 30) * 100, 100)
 
-  const initial = user.email?.[0]?.toUpperCase()
+  const displayName = user.user_metadata?.username || user.email
+  const initial = displayName?.[0]?.toUpperCase()
 
   return (
     <div className="pp">
@@ -66,7 +72,7 @@ export default function ProfilePage() {
           <div className="pp-hero__profile">
             <div className="pp-avatar">{initial}</div>
             <div className="pp-hero__meta">
-              <h1 className="pp-username">{user.email}</h1>
+              <h1 className="pp-username">{displayName}</h1>
               <span className="pp-tag">EchoVerse · Explorador</span>
             </div>
           </div>

@@ -9,15 +9,13 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-      setLoading(false)
-    })
-
+    // `loading` permanece true hasta que Supabase emite el primer evento de sesión
+    // (tanto si hay sesión activa como si no). Esto evita renderizar la UI antes
+    // de saber si el usuario está autenticado.
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session)
       setUser(session?.user ?? null)
+      setLoading(false)
     })
 
     return () => subscription.unsubscribe()
@@ -28,13 +26,18 @@ export function AuthProvider({ children }) {
     if (error) throw error
   }
 
-  async function register(email, password) {
-    const { error } = await supabase.auth.signUp({ email, password })
+  async function register(email, password, username) {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { username } }
+    })
     if (error) throw error
   }
 
   async function logout() {
-    await supabase.auth.signOut()
+    const { error } = await supabase.auth.signOut()
+    if (error) throw error
   }
 
   return (

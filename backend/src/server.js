@@ -10,6 +10,7 @@ const PORT = process.env.PORT || 3001
 
 const ALLOWED_ORIGIN = process.env.FRONTEND_URL || 'http://localhost:5173'
 app.use(cors({ origin: ALLOWED_ORIGIN }))
+app.use(express.json())
 
 const limiter = rateLimit({
   windowMs: 60 * 1000,
@@ -19,7 +20,6 @@ const limiter = rateLimit({
   message: { error: 'Demasiadas solicitudes. Intentá de nuevo en un minuto.' }
 })
 app.use('/api', limiter)
-app.use(express.json())
 
 app.use('/api', chatRouter)
 app.use('/api', interrogationRouter)

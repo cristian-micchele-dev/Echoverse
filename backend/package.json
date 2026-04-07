@@ -6,7 +6,15 @@
   "scripts": {
     "dev": "node --watch src/server.js",
     "start": "node src/server.js",
-    "test": "node --test src/data/characters.test.js src/routes/chat.test.js"
+    "test": "node --test src/data/characters.test.js src/routes/chat.test.js",
+    "test:jest": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/src/__tests__/**/*.test.js"
+    ],
+    "transform": {}
   },
   "dependencies": {
     "@elevenlabs/elevenlabs-js": "^2.39.0",
@@ -19,5 +27,10 @@
     "groq-sdk": "^0.9.1",
     "openai": "^6.32.0",
     "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@jest/globals": "^30.3.0",
+    "jest": "^30.3.0",
+    "supertest": "^7.2.2"
   }
 }
