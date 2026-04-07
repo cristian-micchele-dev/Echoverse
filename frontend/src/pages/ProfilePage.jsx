@@ -23,9 +23,33 @@ export default function ProfilePage() {
       fetch(`${API_URL}/db/affinity`, { headers }).then(r => r.json()),
       fetch(`${API_URL}/db/mission-progress`, { headers }).then(r => r.json()),
     ]).then(([aff, mis]) => {
-      setAffinities(Array.isArray(aff) ? aff : [])
-      // Si DB está vacía pero localStorage tiene progreso, sincronizar y usar el local
-      if (!mis || mis.highestUnlocked <= 1) {
+      // Afinidades: si DB está vacía pero localStorage tiene datos, sincronizar
+      if (!Array.isArray(aff) || aff.length === 0) {
+        try {
+          const meta = JSON.parse(localStorage.getItem('chat-history-meta') || '{}')
+          const entries = Object.entries(meta)
+          if (entries.length > 0) {
+            entries.forEach(([characterId, data]) => {
+              fetch(`${API_URL}/db/affinity`, {
+                method: 'POST',
+                headers: { ...headers, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ characterId, messageCount: data.messageCount })
+              }).catch(() => {})
+            })
+            setAffinities(entries.map(([character_id, data]) => ({
+              character_id,
+              message_count: data.messageCount
+            })))
+          } else {
+            setAffinities([])
+          }
+        } catch { setAffinities([]) }
+      } else {
+        setAffinities(aff)
+      }
+
+      // Misiones: si DB está vacía o devolvió error, usar localStorage
+      if (!mis || !mis.highestUnlocked || mis.highestUnlocked <= 1) {
         const local = getMissionProgress()
         if (local.highestUnlocked > 1) {
           fetch(`${API_URL}/db/mission-progress`, {
@@ -38,7 +62,11 @@ export default function ProfilePage() {
         }
       }
       setMission(mis)
-    }).catch(() => {}).finally(() => setLoading(false))
+    }).catch(() => {
+      // Fallback a localStorage si el fetch falla (backend caído, red, etc.)
+      setMission(getMissionProgress())
+      setAffinities([])
+    }).finally(() => setLoading(false))
   }, [session, navigate, authLoading])
 
   async function handleLogout() {
