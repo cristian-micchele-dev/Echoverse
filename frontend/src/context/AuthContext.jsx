@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { API_URL } from '../config/api.js'
 
 const AuthContext = createContext(null)
 
@@ -9,9 +10,6 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // `loading` permanece true hasta que Supabase emite el primer evento de sesión
-    // (tanto si hay sesión activa como si no). Esto evita renderizar la UI antes
-    // de saber si el usuario está autenticado.
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session)
       setUser(session?.user ?? null)
@@ -22,17 +20,29 @@ export function AuthProvider({ children }) {
   }, [])
 
   async function login(email, password) {
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    const res = await fetch(`${API_URL}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    })
+    const data = await res.json()
+    if (!res.ok) throw new Error(data.error)
+    const { error } = await supabase.auth.setSession(data.session)
     if (error) throw error
   }
 
   async function register(email, password, username) {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: { username } }
+    const res = await fetch(`${API_URL}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, username })
     })
-    if (error) throw error
+    const data = await res.json()
+    if (!res.ok) throw new Error(data.error)
+    if (data.session) {
+      const { error } = await supabase.auth.setSession(data.session)
+      if (error) throw error
+    }
   }
 
   async function logout() {

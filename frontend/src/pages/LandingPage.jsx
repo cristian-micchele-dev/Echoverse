@@ -227,8 +227,10 @@ export default function LandingPage() {
         <div className="lp-auth-pill">
           {user ? (
             <button className="lp-auth-pill__btn lp-auth-pill__btn--logged" onClick={() => navigate('/perfil')}>
-              <span className="lp-auth-pill__avatar">{user.email?.[0]?.toUpperCase()}</span>
-              <span>Mi perfil</span>
+              <span className="lp-auth-pill__avatar">
+                {(user.user_metadata?.username || user.email)?.[0]?.toUpperCase()}
+              </span>
+              <span>{user.user_metadata?.username || 'Mi perfil'}</span>
             </button>
           ) : (
             <>

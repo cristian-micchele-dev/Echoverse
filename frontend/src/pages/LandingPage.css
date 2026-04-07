@@ -444,20 +444,33 @@
 .lp-auth-pill__btn--logged {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.6rem;
+  background: rgba(114, 82, 232, 0.10);
+  border-color: rgba(114, 82, 232, 0.30);
+  color: #c4b5fd;
+  padding: 0.35rem 0.75rem 0.35rem 0.35rem;
+}
+
+.lp-auth-pill__btn--logged:hover {
+  background: rgba(114, 82, 232, 0.20);
+  border-color: rgba(114, 82, 232, 0.55);
+  color: #ede9fe;
+  box-shadow: 0 0 12px rgba(114, 82, 232, 0.20);
 }
 
 .lp-auth-pill__avatar {
-  width: 22px;
-  height: 22px;
-  background: #6c63ff;
+  width: 26px;
+  height: 26px;
+  background: linear-gradient(135deg, #7252e8 0%, #9d74ff 100%);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.75rem;
-  font-weight: 700;
+  font-size: 0.72rem;
+  font-weight: 800;
   color: #fff;
+  box-shadow: 0 0 8px rgba(114, 82, 232, 0.45);
+  flex-shrink: 0;
 }
 
 /* ── Scroll hint ── */

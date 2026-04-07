@@ -40,14 +40,21 @@ export default function AuthPage() {
     }
   }
 
-  const submitLabel = loading ? 'Cargando...' : tab === 'login' ? 'Entrar' : 'Crear cuenta'
+  const submitLabel = loading ? 'Cargando…' : tab === 'login' ? 'Entrar' : 'Crear cuenta'
 
   return (
     <div className="auth-page">
-      <div className="auth-card">
-        <h1 className="auth-title">EchoVerse</h1>
-        <p className="auth-subtitle">Chatea con personajes icónicos</p>
 
+      {/* ── Card ── */}
+      <div className="auth-card">
+
+        {/* Brand */}
+        <div className="auth-brand">
+          <h1 className="auth-title">EchoVerse</h1>
+          <p className="auth-subtitle">Chatea con personajes icónicos</p>
+        </div>
+
+        {/* Tabs */}
         <div className="auth-tabs">
           <button
             className={`auth-tab ${tab === 'login' ? 'active' : ''}`}
@@ -63,49 +70,65 @@ export default function AuthPage() {
           </button>
         </div>
 
-        <form className="auth-form" onSubmit={handleSubmit}>
-          <input
-            className="auth-input"
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            required
-            autoComplete="email"
-          />
-          {tab === 'register' && (
+        {/* Form */}
+        <form className="auth-form" onSubmit={handleSubmit} noValidate>
+          <div className="auth-field">
+            <label className="auth-label">Email</label>
             <input
               className="auth-input"
-              type="text"
-              placeholder="Nombre o usuario"
-              value={username}
-              onChange={e => setUsername(e.target.value)}
+              type="email"
+              placeholder="tu@email.com"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
               required
-              minLength={2}
-              maxLength={30}
-              autoComplete="username"
+              autoComplete="email"
             />
+          </div>
+
+          {tab === 'register' && (
+            <div className="auth-field">
+              <label className="auth-label">Nombre de usuario</label>
+              <input
+                className="auth-input"
+                type="text"
+                placeholder="¿Cómo te llamamos?"
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+                required
+                minLength={2}
+                maxLength={30}
+                autoComplete="username"
+              />
+            </div>
           )}
-          <input
-            className="auth-input"
-            type="password"
-            placeholder="Contraseña"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            required
-            autoComplete={tab === 'login' ? 'current-password' : 'new-password'}
-            minLength={6}
-          />
+
+          <div className="auth-field">
+            <label className="auth-label">Contraseña</label>
+            <input
+              className="auth-input"
+              type="password"
+              placeholder="Mínimo 6 caracteres"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              required
+              autoComplete={tab === 'login' ? 'current-password' : 'new-password'}
+              minLength={6}
+            />
+          </div>
+
           {error && <p className="auth-error">{error}</p>}
-          {info && <p className="auth-info">{info}</p>}
+          {info  && <p className="auth-info">{info}</p>}
+
           <button className="auth-btn" type="submit" disabled={loading}>
             {submitLabel}
           </button>
         </form>
 
+        <div className="auth-divider"><span>o</span></div>
         <button className="auth-skip" onClick={() => navigate('/')}>
           Continuar sin cuenta
         </button>
+
       </div>
     </div>
   )
