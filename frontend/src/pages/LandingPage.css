@@ -424,34 +424,24 @@
 }
 
 .lp-auth-pill__btn {
-  background: linear-gradient(135deg, #5438c2 0%, #7252e8 55%, #9475f0 100%);
-  border: none;
-  color: #fff;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.20);
+  color: #e2e0f0;
   padding: 0.42rem 1.1rem;
-  border-radius: 20px;
-  font-size: 0.82rem;
-  font-weight: 600;
+  border-radius: 5px;
+  font-size: 0.78rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: box-shadow 0.2s, transform 0.15s;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
   white-space: nowrap;
-  letter-spacing: 0.02em;
-  position: relative;
-  overflow: hidden;
-}
-
-.lp-auth-pill__btn::after {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 50%;
-  background: linear-gradient(to bottom, rgba(255,255,255,0.10), transparent);
-  pointer-events: none;
-  border-radius: 20px 20px 0 0;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .lp-auth-pill__btn:hover {
-  box-shadow: 0 0 18px rgba(114, 82, 232, 0.50), 0 4px 10px rgba(0,0,0,0.3);
-  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.45);
+  color: #fff;
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .lp-auth-pill__btn--logged {
