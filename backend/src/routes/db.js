@@ -49,6 +49,44 @@ router.post('/battle-votes/:matchupKey', async (req, res) => {
   res.json(votes)
 })
 
+// ─── Dilema Votes (público, sin auth) ────────────────────────────────────────
+
+// GET /api/db/dilema-votes/:dilemaId
+router.get('/dilema-votes/:dilemaId', async (req, res) => {
+  const { data, error } = await supabase
+    .from('dilema_votes')
+    .select('votes')
+    .eq('dilema_id', req.params.dilemaId)
+    .single()
+
+  if (error && error.code !== 'PGRST116') {
+    return res.status(500).json({ error: error.message })
+  }
+  res.json(data?.votes ?? {})
+})
+
+// POST /api/db/dilema-votes  { dilemaId, choiceKey }
+router.post('/dilema-votes', async (req, res) => {
+  const { dilemaId, choiceKey } = req.body
+  if (!dilemaId || !choiceKey) return res.status(400).json({ error: 'dilemaId and choiceKey required' })
+
+  const { data: existing } = await supabase
+    .from('dilema_votes')
+    .select('votes')
+    .eq('dilema_id', dilemaId)
+    .single()
+
+  const votes = existing?.votes ?? {}
+  votes[choiceKey] = (votes[choiceKey] ?? 0) + 1
+
+  const { error } = await supabase
+    .from('dilema_votes')
+    .upsert({ dilema_id: dilemaId, votes })
+
+  if (error) return res.status(500).json({ error: error.message })
+  res.json(votes)
+})
+
 // ─── Chat History (requiere auth) ────────────────────────────────────────────
 
 // GET /api/db/chat-history/:characterId

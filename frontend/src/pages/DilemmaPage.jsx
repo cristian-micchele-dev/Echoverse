@@ -43,6 +43,7 @@ export default function DilemmaPage() {
 
   // ─── Current round ────────────────────────────────────────────────────────
   const [pendingChoice, setPendingChoice] = useState(null) // { key, label, dilema }
+  const [globalVotes, setGlobalVotes] = useState(null)
   const [reaction, setReaction] = useState('')
   const [isStreaming, setIsStreaming] = useState(false)
   const [consequenceVisible, setConsequenceVisible] = useState(false)
@@ -100,11 +101,20 @@ export default function DilemmaPage() {
 
   // ─── Choice selection ─────────────────────────────────────────────────────
   function handleChoiceSelect(choice, dilema) {
-    setPendingChoice({ ...choice, dilemaId: dilema.id, dilemmaQuestion: dilema.question })
+    setPendingChoice({ ...choice, dilemaId: dilema.id, dilemmaQuestion: dilema.question, allChoices: dilema.choices })
     setReaction('')
+    setGlobalVotes(null)
     setConsequenceVisible(false)
     transitionTo('reaction', 60)
     fetchReaction(choice, dilema)
+    fetch(`${API_URL}/db/dilema-votes`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ dilemaId: dilema.id, choiceKey: choice.key })
+    })
+      .then(r => r.json())
+      .then(votes => { if (votes && !votes.error) setGlobalVotes(votes) })
+      .catch(() => {})
   }
 
   const fetchReaction = useCallback(async (choice, dilema) => {
@@ -201,6 +211,7 @@ export default function DilemmaPage() {
     setChoiceHistory([])
     setPendingChoice(null)
     setReaction('')
+    setGlobalVotes(null)
     setMoralProfile(null)
     setProfileVisible(false)
     setConsequenceVisible(false)
@@ -255,6 +266,7 @@ export default function DilemmaPage() {
           reaction={reaction}
           isStreaming={isStreaming}
           consequenceVisible={consequenceVisible}
+          globalVotes={globalVotes}
           reactionRef={reactionRef}
           roundIndex={roundIndex}
           totalRounds={totalRounds}
@@ -531,7 +543,7 @@ function DilemmaPhase({ dilema, roundIndex, totalRounds, narrativeState, affinit
 
 function ReactionPhase({
   choice, character,
-  reaction, isStreaming, consequenceVisible,
+  reaction, isStreaming, consequenceVisible, globalVotes,
   reactionRef, roundIndex, totalRounds, onNext, onExit
 }) {
   const isLast = roundIndex >= totalRounds - 1
@@ -582,12 +594,47 @@ function ReactionPhase({
         </div>
       )}
 
+      {/* Global votes */}
+      {consequenceVisible && globalVotes && choice.allChoices && (
+        <VoteBreakdown votes={globalVotes} choices={choice.allChoices} userChoiceKey={choice.key} />
+      )}
+
       {/* Next button */}
       {consequenceVisible && !isStreaming && (
         <button className="dilema-btn-primary dilema-btn-primary--reaction" onClick={onNext}>
           {isLast ? 'Ver mi perfil' : 'Continuar'}
         </button>
       )}
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// VOTE BREAKDOWN
+// ─────────────────────────────────────────────────────────────────────────────
+
+function VoteBreakdown({ votes, choices, userChoiceKey }) {
+  const total = Object.values(votes).reduce((a, b) => a + b, 0)
+  if (total === 0) return null
+
+  return (
+    <div className="dilema-votes">
+      <span className="dilema-votes__title">Así votó la comunidad</span>
+      {choices.map(c => {
+        const count = votes[c.key] ?? 0
+        const pct = Math.round((count / total) * 100)
+        const isUser = c.key === userChoiceKey
+        return (
+          <div key={c.key} className={`dilema-votes__row ${isUser ? 'dilema-votes__row--user' : ''}`}>
+            <span className="dilema-votes__key">{c.key}</span>
+            <div className="dilema-votes__bar-wrap">
+              <div className="dilema-votes__bar" style={{ width: `${pct}%` }} />
+              <span className="dilema-votes__label">{c.label}</span>
+            </div>
+            <span className="dilema-votes__pct">{pct}%</span>
+          </div>
+        )
+      })}
     </div>
   )
 }

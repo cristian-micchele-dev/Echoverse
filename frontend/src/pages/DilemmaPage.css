@@ -1066,6 +1066,99 @@
   margin-top: 0.5rem;
 }
 
+/* ─── Vote Breakdown ─────────────────────────────────────────────────────── */
+
+.dilema-votes {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto 1rem;
+  padding: 1rem 1.25rem;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.dilema-votes__title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 0.1rem;
+}
+
+.dilema-votes__row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.dilema-votes__key {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.35);
+  width: 1rem;
+  flex-shrink: 0;
+}
+
+.dilema-votes__row--user .dilema-votes__key {
+  color: var(--char-color, #c9a84c);
+}
+
+.dilema-votes__bar-wrap {
+  flex: 1;
+  position: relative;
+  height: 28px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+.dilema-votes__bar {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  background: rgba(255,255,255,0.10);
+  border-radius: 6px;
+  transition: width 0.6s ease;
+}
+
+.dilema-votes__row--user .dilema-votes__bar {
+  background: linear-gradient(90deg, rgba(var(--char-color-rgb, 201,168,76), 0.25), rgba(var(--char-color-rgb, 201,168,76), 0.10));
+}
+
+.dilema-votes__label {
+  position: relative;
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.55);
+  padding: 0 0.6rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.dilema-votes__row--user .dilema-votes__label {
+  color: rgba(255,255,255,0.85);
+}
+
+.dilema-votes__pct {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.4);
+  width: 2.5rem;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.dilema-votes__row--user .dilema-votes__pct {
+  color: var(--char-color, #c9a84c);
+}
+
 /* ─── Responsive ─────────────────────────────────────────────────────────── */
 
 @media (max-width: 480px) {
