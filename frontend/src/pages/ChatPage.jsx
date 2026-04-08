@@ -275,6 +275,12 @@ export default function ChatPage() {
     setMessages([])
     setReactions({})
     try { localStorage.removeItem(storageKey) } catch {}
+    if (session) {
+      fetch(`${API_URL}/db/chat-history/${characterId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${session.access_token}` }
+      }).catch(() => {})
+    }
   }
 
   if (!character) return null

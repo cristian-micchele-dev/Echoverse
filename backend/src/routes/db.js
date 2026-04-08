@@ -66,6 +66,18 @@ router.get('/chat-history/:characterId', requireAuth, async (req, res) => {
   res.json(data?.messages ?? [])
 })
 
+// DELETE /api/db/chat-history/:characterId
+router.delete('/chat-history/:characterId', requireAuth, async (req, res) => {
+  const { error } = await supabase
+    .from('chat_history')
+    .delete()
+    .eq('user_id', req.user.id)
+    .eq('character_id', req.params.characterId)
+
+  if (error) return res.status(500).json({ error: error.message })
+  res.json({ ok: true })
+})
+
 // POST /api/db/chat-history  { characterId, messages[] }
 router.post('/chat-history', requireAuth, async (req, res) => {
   const parsed = chatHistorySchema.safeParse(req.body)
