@@ -183,6 +183,7 @@ export default function MissionPage() {
               headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
               body: JSON.stringify({ highestUnlocked: local.highestUnlocked, completedLevels: local.completedLevels })
             }).catch(() => {})
+            resetProgress()
           }
         }
       })
