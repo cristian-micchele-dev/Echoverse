@@ -6,7 +6,6 @@ const emailField = z.string()
   .refine(v => !/\s/.test(v), { message: 'El email no puede contener espacios' })
 
 const passwordLoginField = z.string()
-  .min(1, 'La contraseña es requerida')
   .min(8, 'La contraseña debe tener al menos 8 caracteres')
   .refine(v => !/\s/.test(v), { message: 'La contraseña no puede contener espacios' })
 

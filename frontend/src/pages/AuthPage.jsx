@@ -35,11 +35,8 @@ export default function AuthPage() {
     setError('')
     setLoading(true)
     try {
-      if (tab === 'login') {
-        await login(email, password)
-      } else {
-        await register(email, password, username)
-      }
+      if (tab === 'login') await login(email, password)
+      else await register(email, password, username)
       navigate('/', { replace: true })
     } catch (err) {
       setError(err.message || 'Error inesperado')
@@ -62,7 +59,8 @@ export default function AuthPage() {
     }
   }
 
-  const submitLabel = loading ? 'Cargando…' : tab === 'login' ? 'Entrar' : 'Crear cuenta'
+  const SUBMIT_LABEL = { login: 'Entrar', register: 'Crear cuenta' }
+  const submitLabel = loading ? 'Cargando…' : SUBMIT_LABEL[tab]
 
   return (
     <div className="auth-page">
