@@ -22,6 +22,7 @@ import CriticalPage from './pages/CriticalPage'
 import OperacionPage from './pages/OperacionPage'
 import UltimaCenaPage from './pages/UltimaCenaPage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
+import ParecidoPage from './pages/ParecidoPage'
 import './App.css'
 
 export default function App() {
@@ -51,6 +52,7 @@ export default function App() {
         <Route path="/critical" element={<CriticalPage />} />
         <Route path="/operacion" element={<OperacionPage />} />
         <Route path="/ultima-cena" element={<UltimaCenaPage />} />
+        <Route path="/parecido" element={<ParecidoPage />} />
       </Routes>
     </BrowserRouter>
     </AuthProvider>

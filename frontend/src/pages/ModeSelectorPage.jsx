@@ -44,6 +44,16 @@ const MAIN_MODES = [
     accent: '#8B4A2A',
     tag: 'Hasta 4 personajes',
   },
+  {
+    id: 'parecido',
+    image: '/images/aquientepareces.jfif',
+    eyebrow: 'Test de Personalidad',
+    label: '¿A qué personaje te parecés?',
+    desc: '15 preguntas aleatorias. 52 personajes. Tu perfil al descubierto.',
+    route: '/parecido',
+    accent: '#9475F0',
+    tag: '50 preguntas en rotación',
+  },
 ]
 
 const SECONDARY_MODES = [
