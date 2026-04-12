@@ -1,0 +1,138 @@
+.dc {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  background: #0f0f1a;
+  border: 1px solid #1e1e2a;
+  border-radius: 16px;
+  overflow: hidden;
+  transition: border-color 0.3s;
+}
+
+.dc:hover {
+  border-color: color-mix(in srgb, var(--dc-color, #6c63ff) 40%, transparent);
+}
+
+/* Ambient glow */
+.dc__ambient {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 60% 80% at 0% 50%,
+    color-mix(in srgb, var(--dc-color, #6c63ff) 10%, transparent),
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+/* Character image panel */
+.dc__aside {
+  position: relative;
+  width: 100px;
+  flex-shrink: 0;
+}
+
+.dc__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  display: block;
+}
+
+.dc__img-fade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to right,
+    transparent 20%,
+    #0f0f1a 100%
+  );
+}
+
+/* Content */
+.dc__body {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  padding: 1.25rem 1.25rem 1.25rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.dc__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.15rem;
+}
+
+.dc__eyebrow {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--dc-color, #6c63ff);
+  text-transform: uppercase;
+}
+
+.dc__done-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.12);
+  border: 1px solid rgba(74, 222, 128, 0.25);
+  border-radius: 20px;
+  padding: 0.15rem 0.6rem;
+}
+
+.dc__mode {
+  font-size: 0.72rem;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.dc__title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 0;
+  line-height: 1.25;
+}
+
+.dc__char-name {
+  font-size: 0.78rem;
+  color: #444;
+  margin: 0 0 0.4rem;
+}
+
+.dc__cta {
+  margin-top: 0.2rem;
+  background: color-mix(in srgb, var(--dc-color, #6c63ff) 15%, transparent);
+  border: 1px solid color-mix(in srgb, var(--dc-color, #6c63ff) 30%, transparent);
+  color: var(--dc-color, #9d8fff);
+  padding: 0.5rem 1.1rem;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  width: fit-content;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.dc__cta:hover {
+  background: color-mix(in srgb, var(--dc-color, #6c63ff) 25%, transparent);
+  border-color: color-mix(in srgb, var(--dc-color, #6c63ff) 50%, transparent);
+}
+
+.dc--done .dc__aside {
+  filter: grayscale(0.3);
+}
+
+@media (max-width: 480px) {
+  .dc__aside { width: 80px; }
+  .dc__title { font-size: 0.95rem; }
+}

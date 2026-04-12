@@ -5,6 +5,7 @@ import { FEATURED_LIST } from '../data/featured'
 import { missions } from '../data/missions'
 import { loadSession, timeAgo } from '../utils/session'
 import { useAuth } from '../context/AuthContext'
+import DailyChallenge from '../components/DailyChallenge/DailyChallenge'
 import './LandingPage.css'
 
 /* ─── DATA ──────────────────────────────────────────────────────────────── */
@@ -189,6 +190,9 @@ export default function LandingPage() {
             <button className="lp-btn lp-btn--ghost" onClick={() => navigate('/mission')}>
               Ver misiones
             </button>
+            <button className="lp-btn lp-btn--ghost" onClick={() => navigate('/ranking')}>
+              🏆 Ranking
+            </button>
           </div>
 
           <div className="lp-hero-stats">
@@ -246,6 +250,15 @@ export default function LandingPage() {
           <div className="lp-hero-scroll-hint__bar" />
         </div>
       </section>
+
+      {/* ─── DAILY CHALLENGE ──────────────────────────────────────────── */}
+      {user && (
+        <section className="lp-daily">
+          <div className="lp-container">
+            <DailyChallenge />
+          </div>
+        </section>
+      )}
 
       {/* ─── FEATURED TODAY ───────────────────────────────────────────── */}
       {featured && featuredChar && (

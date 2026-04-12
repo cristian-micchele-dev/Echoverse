@@ -2,8 +2,11 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { characters } from '../data/characters'
+import { ACHIEVEMENTS } from '../data/achievements'
 import { getAffinityLevel, getAffinityLabel, getAffinityEmoji } from '../utils/affinity'
 import { getMissionProgress, resetProgress } from '../utils/missionProgress'
+import { useAchievements } from '../hooks/useAchievements'
+import AchievementToast from '../components/AchievementToast/AchievementToast'
 import { API_URL } from '../config/api.js'
 import './ProfilePage.css'
 
@@ -13,7 +16,10 @@ export default function ProfilePage() {
 
   const [affinities, setAffinities] = useState([])
   const [mission, setMission] = useState(null)
+  const [dilemasCount, setDilemasCount] = useState(0)
   const [loading, setLoading] = useState(true)
+  const [dailyCount, setDailyCount] = useState(0)
+  const { unlockedIds, checkAndUnlock, newlyUnlocked, dismissToast } = useAchievements()
 
   useEffect(() => {
     if (authLoading) return
@@ -22,7 +28,14 @@ export default function ProfilePage() {
     Promise.all([
       fetch(`${API_URL}/db/affinity`, { headers }).then(r => r.json()),
       fetch(`${API_URL}/db/mission-progress`, { headers }).then(r => r.json()),
-    ]).then(([aff, mis]) => {
+      fetch(`${API_URL}/db/dilema-seen`, { headers }).then(r => r.json()).catch(() => []),
+      fetch(`${API_URL}/db/daily-challenge`, { headers }).then(r => r.json()).catch(() => ({ completed: false })),
+    ]).then(([aff, mis, seen, dailyStatus]) => {
+      const seenCount = Array.isArray(seen) ? seen.length : 0
+      setDilemasCount(seenCount)
+      // Contar desafíos completados (aproximado: si completó hoy, al menos 1)
+      const dCount = dailyStatus?.completed ? 1 : 0
+      setDailyCount(dCount)
       // Afinidades: si DB está vacía pero localStorage tiene datos, sincronizar
       if (!Array.isArray(aff) || aff.length === 0) {
         try {
@@ -71,6 +84,16 @@ export default function ProfilePage() {
     }).finally(() => setLoading(false))
   }, [session, navigate, authLoading])
 
+  // Verificar logros cuando los datos están listos
+  useEffect(() => {
+    if (loading) return
+    const totalMessages = affinities.reduce((sum, a) => sum + (a.message_count || 0), 0)
+    const completedLevels = mission ? Object.keys(mission.completedLevels || {}).length : 0
+    const charactersCount = affinities.length
+    const guessScore = (() => { try { return parseInt(localStorage.getItem('guess-best-score') || '0') } catch { return 0 } })()
+    checkAndUnlock({ totalMessages, completedLevels, charactersCount, dilemasCount, guessScore, dailyCompleted: dailyCount })
+  }, [loading]) // eslint-disable-line react-hooks/exhaustive-deps
+
   async function handleLogout() {
     try {
       await logout()
@@ -103,6 +126,13 @@ export default function ProfilePage() {
 
   return (
     <div className="pp">
+      {/* Toasts de logros recién desbloqueados */}
+      {newlyUnlocked.length > 0 && (
+        <AchievementToast
+          achievement={newlyUnlocked[0]}
+          onDismiss={() => dismissToast(newlyUnlocked[0].id)}
+        />
+      )}
       <div className="pp-grain" aria-hidden="true" />
 
       {/* ── HERO ── */}
@@ -227,6 +257,29 @@ export default function ProfilePage() {
                   </div>
                 </div>
               )}
+            </section>
+            {/* ── LOGROS ── */}
+            <section className="pp-section">
+              <div className="pp-section__header">
+                <span className="pp-section__eyebrow">PROGRESIÓN</span>
+                <h2 className="pp-section__title">Logros</h2>
+              </div>
+
+              <div className="pp-achievements">
+                {ACHIEVEMENTS.map(a => {
+                  const unlocked = unlockedIds.has(a.id)
+                  return (
+                    <div
+                      key={a.id}
+                      className={`pp-badge ${unlocked ? 'pp-badge--unlocked' : 'pp-badge--locked'}`}
+                      title={a.desc}
+                    >
+                      <span className="pp-badge__emoji">{unlocked ? a.emoji : '🔒'}</span>
+                      <span className="pp-badge__name">{a.name}</span>
+                    </div>
+                  )
+                })}
+              </div>
             </section>
           </>
         )}

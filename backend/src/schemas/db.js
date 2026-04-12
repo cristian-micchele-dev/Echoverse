@@ -21,3 +21,7 @@ export const missionProgressSchema = z.object({
   highestUnlocked: z.number().int().min(1),
   completedLevels: z.record(z.string(), z.unknown())
 })
+
+export const guessScoreSchema = z.object({
+  score: z.number().int().min(0)
+})

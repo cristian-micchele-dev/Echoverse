@@ -510,6 +510,11 @@
    FEATURED TODAY
    ═══════════════════════════════════════════════════════════════════════════ */
 
+/* ─── Daily Challenge ── */
+.lp-daily {
+  padding: 3rem 0 0;
+}
+
 .lp-featured {
   padding: 6rem 0;
 }

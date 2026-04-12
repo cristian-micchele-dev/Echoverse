@@ -2,6 +2,8 @@ import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { characters } from '../data/characters'
 import { guessData }   from '../data/guessData'
+import { useAuth } from '../context/AuthContext'
+import { API_URL } from '../config/api'
 import './GuessPage.css'
 
 const ROUNDS     = 8
@@ -46,6 +48,7 @@ function calcRank(score) {
 
 export default function GuessPage() {
   const navigate = useNavigate()
+  const { session } = useAuth()
 
   const [phase, setPhase]             = useState('intro')
   const [target, setTarget]           = useState(null)
@@ -120,10 +123,24 @@ export default function GuessPage() {
     }, 600)
   }
 
+  // ── Save score to DB for leaderboard ─────────────────
+  const saveScoreToDb = (score) => {
+    if (!session) return
+    fetch(`${API_URL}/db/guess-score`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ score }),
+    }).catch(() => {})
+  }
+
   // ── Next round or summary ────────────────────────────
   const nextRound = () => {
     const nextIdx = round + 1
     if (nextIdx > ROUNDS) {
+      saveScoreToDb(totalScore)
       setPhase('summary')
       return
     }

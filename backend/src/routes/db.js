@@ -5,7 +5,8 @@ import {
   chatHistorySchema,
   affinitySchema,
   dilemaSeenSchema,
-  missionProgressSchema
+  missionProgressSchema,
+  guessScoreSchema
 } from '../schemas/db.js'
 
 const router = Router()
@@ -252,6 +253,139 @@ router.post('/mission-progress', requireAuth, async (req, res) => {
 
   if (error) return res.status(500).json({ error: error.message })
   res.json({ ok: true })
+})
+
+// ─── Achievements (requiere auth) ────────────────────────────────────────────
+
+// GET /api/db/achievements
+router.get('/achievements', requireAuth, async (req, res) => {
+  const { data, error } = await supabase
+    .from('achievements')
+    .select('achievement_id, unlocked_at')
+    .eq('user_id', req.user.id)
+
+  if (error) return res.status(500).json({ error: error.message })
+  res.json(data ?? [])
+})
+
+// POST /api/db/achievements  { achievementId }
+router.post('/achievements', requireAuth, async (req, res) => {
+  const { achievementId } = req.body
+  if (!achievementId) return res.status(400).json({ error: 'achievementId required' })
+
+  const { error } = await supabase
+    .from('achievements')
+    .insert({ user_id: req.user.id, achievement_id: achievementId })
+
+  // UNIQUE constraint violation = ya existía → isNew: false
+  const isNew = !error || error.code !== '23505'
+  if (error && error.code !== '23505') return res.status(500).json({ error: error.message })
+  res.json({ isNew })
+})
+
+// ─── Daily Challenge (requiere auth) ─────────────────────────────────────────
+
+// GET /api/db/daily-challenge
+router.get('/daily-challenge', requireAuth, async (req, res) => {
+  const today = new Date().toISOString().slice(0, 10)
+  const { data, error } = await supabase
+    .from('daily_challenge_completions')
+    .select('challenge_date')
+    .eq('user_id', req.user.id)
+    .eq('challenge_date', today)
+    .single()
+
+  if (error && error.code !== 'PGRST116') {
+    return res.status(500).json({ error: error.message })
+  }
+  res.json({ completed: !!data })
+})
+
+// POST /api/db/daily-challenge  { characterId, mode }
+router.post('/daily-challenge', requireAuth, async (req, res) => {
+  const { characterId, mode } = req.body
+  if (!characterId || !mode) return res.status(400).json({ error: 'characterId and mode required' })
+  const today = new Date().toISOString().slice(0, 10)
+
+  const { error } = await supabase
+    .from('daily_challenge_completions')
+    .upsert(
+      { user_id: req.user.id, challenge_date: today, character_id: characterId, mode },
+      { onConflict: 'user_id,challenge_date' }
+    )
+
+  if (error) return res.status(500).json({ error: error.message })
+  res.json({ ok: true })
+})
+
+// ─── Leaderboard (público) ────────────────────────────────────────────────────
+
+// GET /api/db/leaderboard/missions
+router.get('/leaderboard/missions', async (_req, res) => {
+  const { data, error } = await supabase
+    .from('mission_progress')
+    .select('user_id, highest_unlocked')
+    .order('highest_unlocked', { ascending: false })
+    .limit(10)
+
+  if (error) return res.status(500).json({ error: error.message })
+  if (!data || data.length === 0) return res.json([])
+
+  const rows = await Promise.all(data
+    .filter(r => r.highest_unlocked > 1)
+    .map(async (row) => {
+      const { data: { user } } = await supabase.auth.admin.getUserById(row.user_id)
+      const username = user?.user_metadata?.username || user?.email?.split('@')[0] || 'Jugador'
+      return { userId: row.user_id, username, level: row.highest_unlocked - 1 }
+    })
+  )
+  res.json(rows)
+})
+
+// GET /api/db/leaderboard/guess
+router.get('/leaderboard/guess', async (_req, res) => {
+  const { data, error } = await supabase
+    .from('guess_scores')
+    .select('user_id, best_score')
+    .order('best_score', { ascending: false })
+    .limit(10)
+
+  if (error) return res.status(500).json({ error: error.message })
+  if (!data || data.length === 0) return res.json([])
+
+  const rows = await Promise.all(data.map(async (row) => {
+    const { data: { user } } = await supabase.auth.admin.getUserById(row.user_id)
+    const username = user?.user_metadata?.username || user?.email?.split('@')[0] || 'Jugador'
+    return { userId: row.user_id, username, score: row.best_score }
+  }))
+  res.json(rows)
+})
+
+// POST /api/db/guess-score  { score }
+router.post('/guess-score', requireAuth, async (req, res) => {
+  const parsed = guessScoreSchema.safeParse(req.body)
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() })
+
+  const { score } = parsed.data
+  const { data: existing } = await supabase
+    .from('guess_scores')
+    .select('best_score')
+    .eq('user_id', req.user.id)
+    .single()
+
+  if (existing && existing.best_score >= score) {
+    return res.json({ ok: true, updated: false })
+  }
+
+  const { error } = await supabase
+    .from('guess_scores')
+    .upsert(
+      { user_id: req.user.id, best_score: score, updated_at: new Date().toISOString() },
+      { onConflict: 'user_id' }
+    )
+
+  if (error) return res.status(500).json({ error: error.message })
+  res.json({ ok: true, updated: true })
 })
 
 export default router
