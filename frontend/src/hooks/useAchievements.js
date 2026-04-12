@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { ACHIEVEMENTS } from '../data/achievements'
+
+const ALL_TRACKED_MODES = ['interrogation', 'swipe', 'story', 'confesionario', 'este-o-ese', 'parecido', 'guess']
 import { useAuth } from '../context/AuthContext'
 import { API_URL } from '../config/api'
 
@@ -41,8 +43,17 @@ export function useAchievements() {
     const toUnlock = ACHIEVEMENTS.filter(a => {
       if (unlockedIds.has(a.id)) return false
       const { type, threshold } = a.condition
+
+      if (type === 'mode_completions') {
+        const count = stats.modeCompletions?.[a.condition.mode] ?? 0
+        return count >= threshold
+      }
+      if (type === 'all_modes') {
+        return ALL_TRACKED_MODES.every(m => (stats.modeCompletions?.[m] ?? 0) >= 1)
+      }
+
       const map = {
-        messages_sent:     stats.totalMessages   ?? 0,
+        messages_sent:      stats.totalMessages   ?? 0,
         missions_completed: stats.completedLevels ?? 0,
         characters_chatted: stats.charactersCount ?? 0,
         dilemas_answered:   stats.dilemasCount    ?? 0,

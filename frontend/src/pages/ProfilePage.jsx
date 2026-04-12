@@ -19,6 +19,7 @@ export default function ProfilePage() {
   const [dilemasCount, setDilemasCount] = useState(0)
   const [loading, setLoading] = useState(true)
   const [dailyCount, setDailyCount] = useState(0)
+  const [modeCompletions, setModeCompletions] = useState({})
   const { unlockedIds, checkAndUnlock, newlyUnlocked, dismissToast } = useAchievements()
 
   useEffect(() => {
@@ -30,12 +31,14 @@ export default function ProfilePage() {
       fetch(`${API_URL}/db/mission-progress`, { headers }).then(r => r.json()),
       fetch(`${API_URL}/db/dilema-seen`, { headers }).then(r => r.json()).catch(() => []),
       fetch(`${API_URL}/db/daily-challenge`, { headers }).then(r => r.json()).catch(() => ({ completed: false })),
-    ]).then(([aff, mis, seen, dailyStatus]) => {
+      fetch(`${API_URL}/db/mode-completions`, { headers }).then(r => r.json()).catch(() => ({})),
+    ]).then(([aff, mis, seen, dailyStatus, modeComp]) => {
       const seenCount = Array.isArray(seen) ? seen.length : 0
       setDilemasCount(seenCount)
       // Contar desafíos completados (aproximado: si completó hoy, al menos 1)
       const dCount = dailyStatus?.completed ? 1 : 0
       setDailyCount(dCount)
+      setModeCompletions(typeof modeComp === 'object' && modeComp !== null ? modeComp : {})
       // Afinidades: si DB está vacía pero localStorage tiene datos, sincronizar
       if (!Array.isArray(aff) || aff.length === 0) {
         try {
@@ -91,8 +94,8 @@ export default function ProfilePage() {
     const completedLevels = mission ? Object.keys(mission.completedLevels || {}).length : 0
     const charactersCount = affinities.length
     const guessScore = (() => { try { return parseInt(localStorage.getItem('guess-best-score') || '0') } catch { return 0 } })()
-    checkAndUnlock({ totalMessages, completedLevels, charactersCount, dilemasCount, guessScore, dailyCompleted: dailyCount })
-  }, [loading]) // eslint-disable-line react-hooks/exhaustive-deps
+    checkAndUnlock({ totalMessages, completedLevels, charactersCount, dilemasCount, guessScore, dailyCompleted: dailyCount, modeCompletions })
+  }, [loading, modeCompletions]) // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleLogout() {
     try {

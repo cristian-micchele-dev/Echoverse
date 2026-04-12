@@ -93,6 +93,92 @@ export const ACHIEVEMENTS = [
     condition: { type: 'guess_score', threshold: 700 },
   },
 
+  // ── Modos de juego ────────────────────────────────────────────────────────
+  {
+    id: 'interrogation_first',
+    name: 'Primer sospechoso',
+    desc: 'Completaste tu primer interrogatorio',
+    emoji: '🔦',
+    condition: { type: 'mode_completions', mode: 'interrogation', threshold: 1 },
+  },
+  {
+    id: 'interrogation_5',
+    name: 'Polígrafo humano',
+    desc: '5 interrogatorios completados',
+    emoji: '🕵️',
+    condition: { type: 'mode_completions', mode: 'interrogation', threshold: 5 },
+  },
+  {
+    id: 'swipe_first',
+    name: 'Primera pasada',
+    desc: 'Completaste tu primer Swipe',
+    emoji: '👆',
+    condition: { type: 'mode_completions', mode: 'swipe', threshold: 1 },
+  },
+  {
+    id: 'swipe_10',
+    name: 'Experto en trivia',
+    desc: '10 partidas de Swipe completadas',
+    emoji: '⚡',
+    condition: { type: 'mode_completions', mode: 'swipe', threshold: 10 },
+  },
+  {
+    id: 'story_first',
+    name: 'Primer capítulo',
+    desc: 'Completaste tu primera historia interactiva',
+    emoji: '📖',
+    condition: { type: 'mode_completions', mode: 'story', threshold: 1 },
+  },
+  {
+    id: 'story_5',
+    name: 'Narrador',
+    desc: '5 historias completadas',
+    emoji: '✍️',
+    condition: { type: 'mode_completions', mode: 'story', threshold: 5 },
+  },
+  {
+    id: 'confesionario_first',
+    name: 'Primera confesión',
+    desc: 'Completaste tu primer confesionario',
+    emoji: '🎭',
+    condition: { type: 'mode_completions', mode: 'confesionario', threshold: 1 },
+  },
+  {
+    id: 'este_o_ese_first',
+    name: 'Decisiones claras',
+    desc: 'Completaste Este o Ese',
+    emoji: '⚖️',
+    condition: { type: 'mode_completions', mode: 'este-o-ese', threshold: 1 },
+  },
+  {
+    id: 'parecido_first',
+    name: 'Espejo roto',
+    desc: 'Descubriste a qué personaje te parecés',
+    emoji: '🪞',
+    condition: { type: 'mode_completions', mode: 'parecido', threshold: 1 },
+  },
+  {
+    id: 'guess_first',
+    name: 'Primera pista',
+    desc: 'Completaste tu primera partida de Adivina',
+    emoji: '🔍',
+    condition: { type: 'mode_completions', mode: 'guess', threshold: 1 },
+  },
+  {
+    id: 'guess_5',
+    name: 'Sabueso',
+    desc: '5 partidas de Adivina completadas',
+    emoji: '🏅',
+    condition: { type: 'mode_completions', mode: 'guess', threshold: 5 },
+  },
+  {
+    id: 'all_modes',
+    name: 'Explorador total',
+    desc: 'Completaste al menos una vez cada modo de juego',
+    emoji: '🌟',
+    condition: { type: 'all_modes', threshold: 1 },
+  },
+
   // ── Desafío diario ────────────────────────────────────────────────────────
   {
     id: 'daily_hero',

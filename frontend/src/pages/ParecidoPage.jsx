@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { characters } from '../data/characters'
 import { getRandomQuestions, MATCH_DESCRIPTIONS, computeUserProfile, rankCharacters } from '../data/parecidoQuiz'
+import { useAuth } from '../context/AuthContext'
+import { recordCompletion } from '../utils/recordCompletion'
 import './ParecidoPage.css'
 
 const OPTION_LETTERS = ['A', 'B', 'C', 'D']
@@ -11,6 +13,8 @@ const BG_CHARS = [...characters, ...characters].filter(c => c.image)
 
 export default function ParecidoPage() {
   const navigate = useNavigate()
+  const { session } = useAuth()
+  const recordedRef = useRef(false)
   const [bgVisible, setBgVisible] = useState(false)
 
   useEffect(() => { requestAnimationFrame(() => setBgVisible(true)) }, [])
@@ -22,6 +26,13 @@ export default function ParecidoPage() {
   const [selected, setSelected]          = useState(null)
   const [animating, setAnimating]        = useState(false)
   const [topMatches, setTopMatches]      = useState([])
+
+  useEffect(() => {
+    if (phase === 'result' && !recordedRef.current) {
+      recordedRef.current = true
+      recordCompletion(session, 'parecido')
+    }
+  }, [phase, session])
 
   const handleStart = () => {
     const questions = getRandomQuestions(15)

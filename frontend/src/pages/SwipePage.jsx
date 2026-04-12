@@ -1,13 +1,17 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { characters } from '../data/characters'
 import { readSSEStream } from '../utils/sse'
+import { useAuth } from '../context/AuthContext'
+import { recordCompletion } from '../utils/recordCompletion'
 import './SwipePage.css'
 import { API_URL } from '../config/api.js'
 const THRESHOLD = 80
 
 export default function SwipePage() {
   const navigate = useNavigate()
+  const { session } = useAuth()
+  const recordedRef = useRef(false)
   const [phase, setPhase] = useState('chars')
   const [selectedChar, setSelectedChar] = useState(null)
   const [cards, setCards] = useState([])
@@ -23,6 +27,13 @@ export default function SwipePage() {
   const startX = useRef(null)
   const advanceRef = useRef(null)   // función para avanzar a la siguiente carta
   const autoTimerRef = useRef(null) // id del setTimeout automático
+
+  useEffect(() => {
+    if (phase === 'result' && !recordedRef.current) {
+      recordedRef.current = true
+      recordCompletion(session, 'swipe')
+    }
+  }, [phase, session])
 
   const handleCharSelect = async (char) => {
     setSelectedChar(char)

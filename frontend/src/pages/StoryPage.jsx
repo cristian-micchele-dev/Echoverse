@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { characters } from '../data/characters'
 import { storyScenarios } from '../data/stories'
 import { readSSEStream } from '../utils/sse'
+import { useAuth } from '../context/AuthContext'
+import { recordCompletion } from '../utils/recordCompletion'
 import './StoryPage.css'
 import { API_URL } from '../config/api.js'
 
@@ -43,6 +45,8 @@ export function parseStoryResponse(text) {
 
 export default function StoryPage() {
   const navigate = useNavigate()
+  const { session } = useAuth()
+  const recordedRef = useRef(false)
   const [phase, setPhase] = useState('chars')
   const [selectedChar, setSelectedChar] = useState(null)
   const [selectedScenario, setSelectedScenario] = useState(null)
@@ -56,6 +60,13 @@ export default function StoryPage() {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [currentText, choices])
+
+  useEffect(() => {
+    if (phase === 'ended' && !recordedRef.current) {
+      recordedRef.current = true
+      recordCompletion(session, 'story')
+    }
+  }, [phase, session])
 
   const fetchStory = async (char, scenario, historyArray) => {
     setStreaming(true)

@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { characters } from '../data/characters'
 import { readSSEStream } from '../utils/sse'
+import { useAuth } from '../context/AuthContext'
+import { recordCompletion } from '../utils/recordCompletion'
 import './ConfesionarioPage.css'
 import { API_URL } from '../config/api.js'
 const MAX_QUESTIONS = 5
@@ -51,6 +53,8 @@ export function parseQuestion(rawText) {
 
 export default function ConfesionarioPage() {
   const navigate = useNavigate()
+  const { session } = useAuth()
+  const recordedRef = useRef(false)
   const [phase, setPhase] = useState('chars')
   const [selectedChar, setSelectedChar] = useState(null)
   const [exchanges, setExchanges] = useState([])
@@ -65,6 +69,13 @@ export default function ConfesionarioPage() {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [currentQuestion, exchanges, verdict])
+
+  useEffect(() => {
+    if (phase === 'verdict' && !recordedRef.current) {
+      recordedRef.current = true
+      recordCompletion(session, 'confesionario')
+    }
+  }, [phase, session])
 
   const startConfesionario = async (char) => {
     setSelectedChar(char)

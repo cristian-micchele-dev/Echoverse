@@ -2,6 +2,8 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { characters } from '../data/characters'
 import { INTERROGATION_CHAR_IDS, SCENARIOS } from '../data/interrogationData'
+import { useAuth } from '../context/AuthContext'
+import { recordCompletion } from '../utils/recordCompletion'
 import './InterrogationPage.css'
 import { API_URL } from '../config/api.js'
 const MAX_QUESTIONS = 8
@@ -32,6 +34,8 @@ const allIntChars = INTERROGATION_CHAR_IDS
 
 export default function InterrogationPage() {
   const navigate = useNavigate()
+  const { session } = useAuth()
+  const recordedRef = useRef(false)
 
   const [sessionSeed, setSessionSeed] = useState(0)
 
@@ -79,6 +83,14 @@ export default function InterrogationPage() {
       setTimeout(() => inputRef.current?.focus(), 400)
     }
   }, [phase])
+
+  // Registrar finalización
+  useEffect(() => {
+    if (phase === 'reveal' && !recordedRef.current) {
+      recordedRef.current = true
+      recordCompletion(session, 'interrogation')
+    }
+  }, [phase, session])
 
   // ── Start session ────────────────────────────────────────────
   const startSession = useCallback(async () => {

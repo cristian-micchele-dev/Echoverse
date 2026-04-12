@@ -317,4 +317,44 @@ router.post('/daily-challenge', requireAuth, async (req, res) => {
   res.json({ ok: true })
 })
 
+// ─── Mode Completions (requiere auth) ────────────────────────────────────────
+
+// GET /api/db/mode-completions  → { swipe: 3, story: 1, ... }
+router.get('/mode-completions', requireAuth, async (req, res) => {
+  const { data, error } = await supabase
+    .from('mode_completions')
+    .select('mode, count')
+    .eq('user_id', req.user.id)
+
+  if (error) return res.status(500).json({ error: error.message })
+  const result = {}
+  for (const row of data ?? []) result[row.mode] = row.count
+  res.json(result)
+})
+
+// POST /api/db/mode-completions  { mode }  → incrementa count en 1
+router.post('/mode-completions', requireAuth, async (req, res) => {
+  const { mode } = req.body
+  if (!mode) return res.status(400).json({ error: 'mode required' })
+
+  const { data: existing } = await supabase
+    .from('mode_completions')
+    .select('count')
+    .eq('user_id', req.user.id)
+    .eq('mode', mode)
+    .single()
+
+  const newCount = (existing?.count ?? 0) + 1
+
+  const { error } = await supabase
+    .from('mode_completions')
+    .upsert(
+      { user_id: req.user.id, mode, count: newCount, last_completed_at: new Date().toISOString() },
+      { onConflict: 'user_id,mode' }
+    )
+
+  if (error) return res.status(500).json({ error: error.message })
+  res.json({ ok: true, count: newCount })
+})
+
 export default router

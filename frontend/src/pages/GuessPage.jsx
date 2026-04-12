@@ -1,7 +1,9 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { characters } from '../data/characters'
 import { guessData }   from '../data/guessData'
+import { useAuth } from '../context/AuthContext'
+import { recordCompletion } from '../utils/recordCompletion'
 import './GuessPage.css'
 
 const ROUNDS     = 8
@@ -46,6 +48,8 @@ function calcRank(score) {
 
 export default function GuessPage() {
   const navigate = useNavigate()
+  const { session } = useAuth()
+  const recordedRef = useRef(false)
 
   const [phase, setPhase]             = useState('intro')
   const [target, setTarget]           = useState(null)
@@ -119,6 +123,13 @@ export default function GuessPage() {
       setPhase('reveal')
     }, 600)
   }
+
+  useEffect(() => {
+    if (phase === 'summary' && !recordedRef.current) {
+      recordedRef.current = true
+      recordCompletion(session, 'guess')
+    }
+  }, [phase, session])
 
   // ── Next round or summary ────────────────────────────
   const nextRound = () => {

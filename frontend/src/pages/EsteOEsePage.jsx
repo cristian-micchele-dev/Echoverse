@@ -1,12 +1,16 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { characters } from '../data/characters'
 import { readSSEStream } from '../utils/sse'
+import { useAuth } from '../context/AuthContext'
+import { recordCompletion } from '../utils/recordCompletion'
 import './EsteOEsePage.css'
 import { API_URL } from '../config/api.js'
 
 export default function EsteOEsePage() {
   const navigate = useNavigate()
+  const { session } = useAuth()
+  const recordedRef = useRef(false)
   const [phase, setPhase] = useState('chars') // chars | loading | playing | result
   const [selectedChar, setSelectedChar] = useState(null)
   const [questions, setQuestions] = useState([])
@@ -17,6 +21,13 @@ export default function EsteOEsePage() {
   const [result, setResult] = useState({ percent: null, analysis: '' })
   const [streaming, setStreaming] = useState(false)
   const [error, setError] = useState(null)
+
+  useEffect(() => {
+    if (phase === 'result' && !recordedRef.current) {
+      recordedRef.current = true
+      recordCompletion(session, 'este-o-ese')
+    }
+  }, [phase, session])
 
   const handleCharSelect = async (char) => {
     setSelectedChar(char)
