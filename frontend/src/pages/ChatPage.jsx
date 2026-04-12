@@ -191,9 +191,8 @@ export default function ChatPage() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
             body: JSON.stringify({ characterId, messageCount: messages.length })
-          }).then(() => {
-            checkAndUnlock({ totalMessages: messages.length })
           }).catch(() => {})
+          checkAndUnlock({ totalMessages: messages.length })
         }
       }
     }
