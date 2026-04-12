@@ -22,9 +22,11 @@ export function useAchievements() {
       .then(data => {
         if (Array.isArray(data)) {
           setUnlockedIds(new Set(data.map(a => a.achievement_id)))
+        } else {
+          console.error('[achievements] GET falló:', data)
         }
       })
-      .catch(() => {})
+      .catch(e => console.error('[achievements] GET error de red:', e))
   }, [session])
 
   /**
@@ -77,11 +79,12 @@ export function useAchievements() {
           body: JSON.stringify({ achievementId: achievement.id }),
         })
         const data = await res.json()
+        console.log('[achievements] POST', achievement.id, '->', data)
         if (data.isNew) {
           freshlyUnlocked.push(achievement)
           setUnlockedIds(prev => new Set([...prev, achievement.id]))
         }
-      } catch { /* failed silently */ }
+      } catch(e) { console.error('[achievements] POST error:', e) }
     }))
 
     if (freshlyUnlocked.length > 0) {
