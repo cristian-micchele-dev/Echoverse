@@ -9,6 +9,8 @@ import './ChatPage.css'
 import { API_URL } from '../config/api.js'
 import { getAffinityData, getAffinityLevel, getAffinityLabel, getAffinityEmoji } from '../utils/affinity'
 import { useAuth } from '../context/AuthContext'
+import { useAchievements } from '../hooks/useAchievements'
+import AchievementToast from '../components/AchievementToast/AchievementToast'
 const MAX_STORED_MESSAGES = 50
 
 function playNotificationSound(tone) {
@@ -95,6 +97,7 @@ export default function ChatPage() {
   const navigate = useNavigate()
   const character = characters.find(c => c.id === characterId)
   const { session } = useAuth()
+  const { checkAndUnlock, newlyUnlocked, dismissToast } = useAchievements()
 
   const storageKey = `chat-${characterId}`
 
@@ -188,12 +191,14 @@ export default function ChatPage() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
             body: JSON.stringify({ characterId, messageCount: messages.length })
+          }).then(() => {
+            checkAndUnlock({ totalMessages: messages.length })
           }).catch(() => {})
         }
       }
     }
     prevIsLoadingRef.current = isLoading
-  }, [isLoading, messages, character, characterId, session])
+  }, [isLoading, messages, character, characterId, session, checkAndUnlock])
 
   useEffect(() => {
     const container = messagesContainerRef.current
@@ -301,6 +306,12 @@ export default function ChatPage() {
         ...themeVars,
       }}
     >
+      {newlyUnlocked.length > 0 && (
+        <AchievementToast
+          achievement={newlyUnlocked[0]}
+          onDismiss={() => dismissToast(newlyUnlocked[0].id)}
+        />
+      )}
       {character.image && (
         <div className="chat-wallpaper" style={{ backgroundImage: `url(${character.image})` }} />
       )}

@@ -95,7 +95,7 @@ export default function ProfilePage() {
     const charactersCount = affinities.length
     const guessScore = (() => { try { return parseInt(localStorage.getItem('guess-best-score') || '0') } catch { return 0 } })()
     checkAndUnlock({ totalMessages, completedLevels, charactersCount, dilemasCount, guessScore, dailyCompleted: dailyCount, modeCompletions })
-  }, [loading, modeCompletions]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [loading, modeCompletions, affinities, mission, dilemasCount, dailyCount, checkAndUnlock])
 
   async function handleLogout() {
     try {
