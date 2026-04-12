@@ -190,9 +190,6 @@ export default function LandingPage() {
             <button className="lp-btn lp-btn--ghost" onClick={() => navigate('/mission')}>
               Ver misiones
             </button>
-            <button className="lp-btn lp-btn--ghost" onClick={() => navigate('/ranking')}>
-              🏆 Ranking
-            </button>
           </div>
 
           <div className="lp-hero-stats">

@@ -5,8 +5,7 @@ import {
   chatHistorySchema,
   affinitySchema,
   dilemaSeenSchema,
-  missionProgressSchema,
-  guessScoreSchema
+  missionProgressSchema
 } from '../schemas/db.js'
 
 const router = Router()
@@ -316,76 +315,6 @@ router.post('/daily-challenge', requireAuth, async (req, res) => {
 
   if (error) return res.status(500).json({ error: error.message })
   res.json({ ok: true })
-})
-
-// ─── Leaderboard (público) ────────────────────────────────────────────────────
-
-// GET /api/db/leaderboard/missions
-router.get('/leaderboard/missions', async (_req, res) => {
-  const { data, error } = await supabase
-    .from('mission_progress')
-    .select('user_id, highest_unlocked')
-    .order('highest_unlocked', { ascending: false })
-    .limit(10)
-
-  if (error) return res.status(500).json({ error: error.message })
-  if (!data || data.length === 0) return res.json([])
-
-  const rows = await Promise.all(data
-    .filter(r => r.highest_unlocked > 1)
-    .map(async (row) => {
-      const { data: { user } } = await supabase.auth.admin.getUserById(row.user_id)
-      const username = user?.user_metadata?.username || user?.email?.split('@')[0] || 'Jugador'
-      return { userId: row.user_id, username, level: row.highest_unlocked - 1 }
-    })
-  )
-  res.json(rows)
-})
-
-// GET /api/db/leaderboard/guess
-router.get('/leaderboard/guess', async (_req, res) => {
-  const { data, error } = await supabase
-    .from('guess_scores')
-    .select('user_id, best_score')
-    .order('best_score', { ascending: false })
-    .limit(10)
-
-  if (error) return res.status(500).json({ error: error.message })
-  if (!data || data.length === 0) return res.json([])
-
-  const rows = await Promise.all(data.map(async (row) => {
-    const { data: { user } } = await supabase.auth.admin.getUserById(row.user_id)
-    const username = user?.user_metadata?.username || user?.email?.split('@')[0] || 'Jugador'
-    return { userId: row.user_id, username, score: row.best_score }
-  }))
-  res.json(rows)
-})
-
-// POST /api/db/guess-score  { score }
-router.post('/guess-score', requireAuth, async (req, res) => {
-  const parsed = guessScoreSchema.safeParse(req.body)
-  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() })
-
-  const { score } = parsed.data
-  const { data: existing } = await supabase
-    .from('guess_scores')
-    .select('best_score')
-    .eq('user_id', req.user.id)
-    .single()
-
-  if (existing && existing.best_score >= score) {
-    return res.json({ ok: true, updated: false })
-  }
-
-  const { error } = await supabase
-    .from('guess_scores')
-    .upsert(
-      { user_id: req.user.id, best_score: score, updated_at: new Date().toISOString() },
-      { onConflict: 'user_id' }
-    )
-
-  if (error) return res.status(500).json({ error: error.message })
-  res.json({ ok: true, updated: true })
 })
 
 export default router

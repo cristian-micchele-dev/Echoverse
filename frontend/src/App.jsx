@@ -23,7 +23,6 @@ import OperacionPage from './pages/OperacionPage'
 import UltimaCenaPage from './pages/UltimaCenaPage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
 import ParecidoPage from './pages/ParecidoPage'
-import RankingPage from './pages/RankingPage'
 import './App.css'
 
 export default function App() {
@@ -54,7 +53,6 @@ export default function App() {
         <Route path="/operacion" element={<OperacionPage />} />
         <Route path="/ultima-cena" element={<UltimaCenaPage />} />
         <Route path="/parecido" element={<ParecidoPage />} />
-        <Route path="/ranking" element={<RankingPage />} />
       </Routes>
     </BrowserRouter>
     </AuthProvider>
