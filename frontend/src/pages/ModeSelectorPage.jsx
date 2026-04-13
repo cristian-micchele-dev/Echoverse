@@ -128,6 +128,23 @@ const SECONDARY_MODES = [
       </svg>
     ),
   },
+  {
+    id: 'salas',
+    eyebrow: 'Chat Multijugador',
+    label: 'Salas en vivo',
+    desc: 'Chateá con un personaje junto a otros usuarios en tiempo real.',
+    route: '/salas',
+    accent: '#C9954A',
+    badge: '🔴 Nuevo',
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <circle cx="9" cy="7" r="4" stroke="currentColor" strokeWidth="1.7"/>
+        <circle cx="17" cy="9" r="3" stroke="currentColor" strokeWidth="1.7"/>
+        <path d="M1 21c0-4 3.6-6 8-6s8 2 8 6" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/>
+        <path d="M17 15c2.8 0 5 1.5 5 4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/>
+      </svg>
+    ),
+  },
 ]
 
 

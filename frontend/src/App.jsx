@@ -23,6 +23,8 @@ import OperacionPage from './pages/OperacionPage'
 import UltimaCenaPage from './pages/UltimaCenaPage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
 import ParecidoPage from './pages/ParecidoPage'
+import RoomsPage from './pages/RoomsPage'
+import RoomChatPage from './pages/RoomChatPage'
 import './App.css'
 
 function AnimatedRoutes() {
@@ -53,6 +55,8 @@ function AnimatedRoutes() {
         <Route path="/operacion" element={<OperacionPage />} />
         <Route path="/ultima-cena" element={<UltimaCenaPage />} />
         <Route path="/parecido" element={<ParecidoPage />} />
+        <Route path="/salas" element={<RoomsPage />} />
+        <Route path="/salas/:roomId" element={<RoomChatPage />} />
       </Routes>
     </div>
   )
