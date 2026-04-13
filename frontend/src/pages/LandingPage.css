@@ -118,6 +118,22 @@
   border-radius: var(--lp-radius);
   cursor: pointer;
   transition: all 0.2s ease;
+  position: relative;
+}
+.lp-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.12);
+  border-radius: inherit;
+  opacity: 0;
+  transform: scale(0);
+  transition: opacity 0.3s, transform 0.3s;
+}
+.lp-btn:active::after {
+  opacity: 1;
+  transform: scale(1);
+  transition: none;
 }
 .lp-btn--primary {
   padding: 0.875rem 1.875rem;
@@ -130,6 +146,7 @@
   box-shadow: 0 0 36px rgba(109, 74, 255, 0.6);
   transform: translateY(-2px);
 }
+.lp-btn--primary:active { transform: translateY(0) scale(0.97); }
 .lp-btn--ghost {
   padding: 0.875rem 1.875rem;
   background: transparent;
@@ -141,6 +158,7 @@
   color: var(--lp-text);
   background: rgba(255,255,255,0.03);
 }
+.lp-btn--ghost:active { transform: scale(0.97); }
 .lp-btn--lg {
   padding: 1.1rem 2.5rem;
   font-size: 0.82rem;
@@ -1416,3 +1434,91 @@
   background: rgba(109, 74, 255, 0.28);
   box-shadow: 0 0 16px 3px rgba(109, 74, 255, 0.3);
 }
+
+/* ─── Scroll-reveal system ─────────────────────────────────────────────── */
+.lp-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity   0.55s ease var(--reveal-delay, 0s),
+    transform 0.55s ease var(--reveal-delay, 0s);
+}
+
+.lp-reveal--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-reveal,
+  .lp-reveal--visible {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* ─── Onboarding hint ──────────────────────────────────────────────────── */
+.lp-btn--onboarding {
+  box-shadow: 0 0 0 3px rgba(109, 74, 255, 0.5), 0 0 20px rgba(109, 74, 255, 0.3);
+  animation: onboarding-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes onboarding-pulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(109, 74, 255, 0.5), 0 0 20px rgba(109, 74, 255, 0.25); }
+  50%       { box-shadow: 0 0 0 6px rgba(109, 74, 255, 0.25), 0 0 32px rgba(109, 74, 255, 0.4); }
+}
+
+.lp-onboarding-hint {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  background: rgba(20, 16, 40, 0.95);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(109, 74, 255, 0.45);
+  border-radius: 8px;
+  padding: 0.55rem 0.85rem 0.55rem 0.75rem;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--lp-font-ui);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #c4b6ff;
+  z-index: 10;
+  animation: hint-drop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  pointer-events: auto;
+}
+
+/* Arrow up from hint to button */
+.lp-onboarding-hint::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 2rem;
+  transform: none;
+  width: 10px;
+  height: 6px;
+  background: rgba(20, 16, 40, 0.95);
+  border-left: 1px solid rgba(109, 74, 255, 0.45);
+  border-top: 1px solid rgba(109, 74, 255, 0.45);
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+}
+
+@keyframes hint-drop {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.lp-onboarding-hint__close {
+  background: none;
+  border: none;
+  color: rgba(196, 182, 255, 0.5);
+  cursor: pointer;
+  font-size: 0.65rem;
+  padding: 0;
+  line-height: 1;
+  transition: color 0.15s;
+}
+.lp-onboarding-hint__close:hover { color: #c4b6ff; }

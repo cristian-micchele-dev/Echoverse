@@ -16,7 +16,7 @@ async function fetchCharResponse(characterId, messages, duoMode = null) {
   return full
 }
 
-function buildHistory(msgs, myCharId, otherChar) {
+function buildHistory(msgs, myCharId) {
   return msgs.map(msg => {
     if (msg.role === 'user') return { role: 'user', content: msg.content }
     if (msg.char?.id === myCharId) return { role: 'assistant', content: msg.content }

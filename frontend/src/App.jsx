@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import AuthPage from './pages/AuthPage'
 import ProfilePage from './pages/ProfilePage'
@@ -25,11 +25,11 @@ import ResetPasswordPage from './pages/ResetPasswordPage'
 import ParecidoPage from './pages/ParecidoPage'
 import './App.css'
 
-export default function App() {
+function AnimatedRoutes() {
+  const location = useLocation()
   return (
-    <AuthProvider>
-    <BrowserRouter>
-      <Routes>
+    <div key={location.pathname} className="page-transition-wrapper">
+      <Routes location={location}>
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/perfil" element={<ProfilePage />} />
@@ -54,6 +54,15 @@ export default function App() {
         <Route path="/ultima-cena" element={<UltimaCenaPage />} />
         <Route path="/parecido" element={<ParecidoPage />} />
       </Routes>
+    </div>
+  )
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+    <BrowserRouter>
+      <AnimatedRoutes />
     </BrowserRouter>
     </AuthProvider>
   )

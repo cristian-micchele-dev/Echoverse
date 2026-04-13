@@ -13,6 +13,9 @@ const MAIN_MODES = [
     route: '/mission',
     accent: '#D4576B',
     tag: '4 misiones activas',
+    badge: '⭐ Popular',
+    difficulty: '🔴 Intenso',
+    duration: '~15 min',
   },
   {
     id: 'interrogation',
@@ -23,6 +26,8 @@ const MAIN_MODES = [
     route: '/interrogation',
     accent: '#6D4AFF',
     tag: 'IA reactiva',
+    difficulty: '🟡 Medio',
+    duration: '~8 min',
   },
   {
     id: 'dilema',
@@ -33,6 +38,8 @@ const MAIN_MODES = [
     route: '/dilema',
     accent: '#C9954A',
     tag: 'Sin respuesta correcta',
+    difficulty: '🟡 Medio',
+    duration: '~5 min',
   },
   {
     id: 'ultima-cena',
@@ -43,6 +50,9 @@ const MAIN_MODES = [
     route: '/ultima-cena',
     accent: '#8B4A2A',
     tag: 'Hasta 4 personajes',
+    badge: '✨ Nuevo',
+    difficulty: '🟢 Fácil',
+    duration: '~10 min',
   },
   {
     id: 'parecido',
@@ -53,6 +63,9 @@ const MAIN_MODES = [
     route: '/parecido',
     accent: '#9475F0',
     tag: '50 preguntas en rotación',
+    badge: '✨ Nuevo',
+    difficulty: '🟢 Fácil',
+    duration: '~4 min',
   },
 ]
 
@@ -64,6 +77,7 @@ const SECONDARY_MODES = [
     desc: 'Sin guión. Sin filtros. Solo ellos, tal cual son.',
     route: '/chat',
     accent: '#4A9B7B',
+    badge: '💬 Popular',
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
         <path d="M4 4h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H8l-5 4V5a1 1 0 0 1 1-1z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round"/>
@@ -165,10 +179,20 @@ export default function ModeSelectorPage() {
                   </div>
                 )}
                 <div className="ms-main-card__body">
+                  <div className="ms-main-card__badges">
+                    {mode.badge && <span className="ms-main-card__badge ms-badge--highlight">{mode.badge}</span>}
+                    <span className="ms-main-card__tag">{mode.tag}</span>
+                  </div>
                   <span className="ms-main-card__eyebrow">{mode.eyebrow}</span>
                   <span className="ms-main-card__label">{mode.label}</span>
                   <p className="ms-main-card__desc">{mode.desc}</p>
-                  <span className="ms-main-card__tag">{mode.tag}</span>
+                  {(mode.difficulty || mode.duration) && (
+                    <div className="ms-main-card__stats">
+                      {mode.difficulty && <span>{mode.difficulty}</span>}
+                      {mode.difficulty && mode.duration && <span className="ms-stat-dot" />}
+                      {mode.duration && <span>⏱ {mode.duration}</span>}
+                    </div>
+                  )}
                 </div>
                 <div className="ms-main-card__glow" aria-hidden="true" />
               </button>
@@ -193,7 +217,10 @@ export default function ModeSelectorPage() {
               <div className="ms-secondary-card__icon">{mode.icon}</div>
               <div className="ms-secondary-card__text">
                 <span className="ms-secondary-card__eyebrow">{mode.eyebrow}</span>
-                <span className="ms-secondary-card__label">{mode.label}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  <span className="ms-secondary-card__label">{mode.label}</span>
+                  {mode.badge && <span className="ms-badge--highlight ms-badge--sm">{mode.badge}</span>}
+                </div>
                 <p className="ms-secondary-card__desc">{mode.desc}</p>
               </div>
               <svg className="ms-secondary-card__arrow" width="14" height="14" viewBox="0 0 16 16" fill="none">

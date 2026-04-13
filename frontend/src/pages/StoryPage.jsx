@@ -20,6 +20,7 @@ function parseChoices(block) {
   return choices
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function parseStoryResponse(text) {
   const isFinal = text.includes('[FIN]')
 

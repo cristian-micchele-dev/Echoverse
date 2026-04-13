@@ -18,6 +18,7 @@ function parseChoices(block) {
   return choices
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function parseFightResponse(text) {
   let cleanText = text
   let playerDmg = 10

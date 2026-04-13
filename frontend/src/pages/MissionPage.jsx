@@ -60,13 +60,14 @@ function stripMd(str) {
   return str.replace(/\*\*/g, '').replace(/\*/g, '')
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function parseChoices(block) {
   const choices = []
   const pattern = /\[([ABC])\]\s*([\s\S]*?)(?=\s*\[[ABC]\]|EFECTOS:|$)/g
   let match
   while ((match = pattern.exec(block)) !== null) {
     let text = stripMd(match[2].replace(/,\s*$/, '').trim())
-    const typeMatch = text.match(/^(táctica|agresiva|sigilosa|creativa|social)\s*[—\-]\s*/i)
+    const typeMatch = text.match(/^(táctica|agresiva|sigilosa|creativa|social)\s*[—-]\s*/i)
     const type = typeMatch ? typeMatch[1].toLowerCase() : null
     if (typeMatch) text = text.slice(typeMatch[0].length).trim()
     if (text) choices.push({ key: match[1], text, type })
@@ -74,6 +75,7 @@ export function parseChoices(block) {
   return choices
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function parseEffects(text) {
   const effects = {}
   const pattern = /([ABC]):\s*vida([+-]?\d+)\s+riesgo([+-]?\d+)(?:\s+sigilo([+-]?\d+))?(?:\s+desc:([^\n]+))?/gi
@@ -89,6 +91,7 @@ export function parseEffects(text) {
   return Object.keys(effects).length > 0 ? effects : null
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function parseMissionResponse(text) {
   let title = null
   let cleanText = text
@@ -438,7 +441,7 @@ export default function MissionPage() {
       await navigator.clipboard.writeText(text)
       setCopied(true)
       setTimeout(() => setCopied(false), 2500)
-    } catch {}
+    } catch { /* clipboard unavailable */ }
   }
 
   const totalTurns = 5

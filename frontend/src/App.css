@@ -356,3 +356,13 @@ body::before {
 .animate-in--delay-2 { animation-delay: 0.12s; }
 .animate-in--delay-3 { animation-delay: 0.18s; }
 .animate-in--delay-4 { animation-delay: 0.24s; }
+
+/* ── Page transition wrapper ────────────────────────────── */
+.page-transition-wrapper {
+  animation: page-enter 0.2s ease-out both;
+}
+
+@keyframes page-enter {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}

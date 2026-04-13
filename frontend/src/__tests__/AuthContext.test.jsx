@@ -16,13 +16,11 @@ import { AuthProvider, useAuth } from '../context/AuthContext'
 // corre su factory (que se hoist al principio del archivo).
 
 const {
-  mockSignInWithPassword,
-  mockSignUp,
+  mockSetSession,
   mockSignOut,
   mockOnAuthStateChange,
 } = vi.hoisted(() => ({
-  mockSignInWithPassword: vi.fn(),
-  mockSignUp: vi.fn(),
+  mockSetSession: vi.fn(),
   mockSignOut: vi.fn(),
   mockOnAuthStateChange: vi.fn(),
 }))
@@ -30,13 +28,30 @@ const {
 vi.mock('../lib/supabase', () => ({
   supabase: {
     auth: {
-      signInWithPassword: mockSignInWithPassword,
-      signUp: mockSignUp,
+      setSession: mockSetSession,
       signOut: mockSignOut,
       onAuthStateChange: mockOnAuthStateChange,
     },
   },
 }))
+
+// ─── Mock de fetch ────────────────────────────────────────────────────────────
+
+function mockFetchOk(data) {
+  vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+    ok: true,
+    headers: { get: () => 'application/json' },
+    json: () => Promise.resolve(data),
+  }))
+}
+
+function mockFetchError(errorMsg) {
+  vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+    ok: false,
+    headers: { get: () => 'application/json' },
+    json: () => Promise.resolve({ error: errorMsg }),
+  }))
+}
 
 // ─── Helper ──────────────────────────────────────────────────────────────────
 
@@ -58,6 +73,7 @@ function renderProvider() {
   })
 
   function Consumer() {
+    // eslint-disable-next-line react-hooks/globals
     capturedCtx = useAuth()
     return null
   }
@@ -87,15 +103,14 @@ describe('AuthContext — estado inicial', () => {
     // No disparamos el callback de onAuthStateChange para simular el estado
     // previo a que Supabase responda.
     let capturedCtx = null
-    let onAuthChangeCb = null
 
-    mockOnAuthStateChange.mockImplementation((cb) => {
-      onAuthChangeCb = cb
-      // NO llamamos cb aquí — loading debe seguir en true
+    mockOnAuthStateChange.mockImplementation(() => {
+      // Callback not invoked — loading stays true
       return { data: { subscription: { unsubscribe: vi.fn() } } }
     })
 
     function Consumer() {
+      // eslint-disable-next-line react-hooks/globals
       capturedCtx = useAuth()
       return null
     }
@@ -143,13 +158,16 @@ describe('AuthContext — estado inicial', () => {
 describe('AuthContext — login()', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.unstubAllGlobals()
     mockOnAuthStateChange.mockReturnValue({
       data: { subscription: { unsubscribe: vi.fn() } },
     })
   })
 
-  it('llama signInWithPassword con email y password', async () => {
-    mockSignInWithPassword.mockResolvedValue({ error: null })
+  it('llama al endpoint /auth/login con email y password', async () => {
+    const fakeSession = { access_token: 'tok', user: { id: 'u1' } }
+    mockFetchOk({ session: fakeSession })
+    mockSetSession.mockResolvedValue({ error: null })
 
     const { getCtx } = renderProvider()
 
@@ -157,22 +175,21 @@ describe('AuthContext — login()', () => {
       await getCtx().login('user@example.com', 'password123')
     })
 
-    expect(mockSignInWithPassword).toHaveBeenCalledWith({
-      email: 'user@example.com',
-      password: 'password123',
-    })
-    expect(mockSignInWithPassword).toHaveBeenCalledTimes(1)
+    expect(fetch).toHaveBeenCalledTimes(1)
+    const [url, opts] = fetch.mock.calls[0]
+    expect(url).toContain('/auth/login')
+    expect(JSON.parse(opts.body)).toEqual({ email: 'user@example.com', password: 'password123' })
+    expect(mockSetSession).toHaveBeenCalledWith(fakeSession)
   })
 
-  it('lanza el error de Supabase cuando el login falla', async () => {
-    const supabaseError = new Error('Invalid login credentials')
-    mockSignInWithPassword.mockResolvedValue({ error: supabaseError })
+  it('lanza el error del backend cuando el login falla', async () => {
+    mockFetchError('Invalid login credentials')
 
     const { getCtx } = renderProvider()
 
     await expect(
       act(async () => {
-        await getCtx().login('bad@example.com', 'wrong')
+        await getCtx().login('bad@example.com', 'wrongpass1')
       })
     ).rejects.toThrow('Invalid login credentials')
   })
@@ -181,37 +198,38 @@ describe('AuthContext — login()', () => {
 describe('AuthContext — register()', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.unstubAllGlobals()
     mockOnAuthStateChange.mockReturnValue({
       data: { subscription: { unsubscribe: vi.fn() } },
     })
   })
 
-  it('llama signUp con email, password y username en user_metadata', async () => {
-    mockSignUp.mockResolvedValue({ error: null })
+  it('llama al endpoint /auth/register con email, password y username', async () => {
+    const fakeSession = { access_token: 'tok', user: { id: 'u2' } }
+    mockFetchOk({ session: fakeSession })
+    mockSetSession.mockResolvedValue({ error: null })
 
     const { getCtx } = renderProvider()
 
     await act(async () => {
-      await getCtx().register('new@example.com', 'pass456', 'TestUser')
+      await getCtx().register('new@example.com', 'pass456789', 'TestUser')
     })
 
-    expect(mockSignUp).toHaveBeenCalledWith({
-      email: 'new@example.com',
-      password: 'pass456',
-      options: { data: { username: 'TestUser' } },
-    })
-    expect(mockSignUp).toHaveBeenCalledTimes(1)
+    expect(fetch).toHaveBeenCalledTimes(1)
+    const [url, opts] = fetch.mock.calls[0]
+    expect(url).toContain('/auth/register')
+    expect(JSON.parse(opts.body)).toEqual({ email: 'new@example.com', password: 'pass456789', username: 'TestUser' })
+    expect(mockSetSession).toHaveBeenCalledWith(fakeSession)
   })
 
-  it('lanza el error de Supabase cuando el registro falla', async () => {
-    const supabaseError = new Error('Email already in use')
-    mockSignUp.mockResolvedValue({ error: supabaseError })
+  it('lanza el error del backend cuando el registro falla', async () => {
+    mockFetchError('Email already in use')
 
     const { getCtx } = renderProvider()
 
     await expect(
       act(async () => {
-        await getCtx().register('taken@example.com', 'pass', 'Name')
+        await getCtx().register('taken@example.com', 'password99', 'Name')
       })
     ).rejects.toThrow('Email already in use')
   })

@@ -315,6 +315,51 @@
   transform: translateX(0);
 }
 
+/* ─── Mode badges & stats ────────────────────────────── */
+.ms-main-card__badges {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.15rem;
+}
+
+.ms-badge--highlight {
+  display: inline-flex;
+  align-self: flex-start;
+  padding: 0.15rem 0.5rem;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.ms-badge--sm {
+  font-size: 0.58rem;
+  padding: 0.12rem 0.42rem;
+}
+
+.ms-main-card__stats {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.5);
+  margin-top: 0.2rem;
+}
+
+.ms-stat-dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.4;
+  flex-shrink: 0;
+}
+
 /* ─── Entrance animation ─────────────────────────────── */
 @keyframes ms-in {
   from { opacity: 0; transform: translateY(12px); }

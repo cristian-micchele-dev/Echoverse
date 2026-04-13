@@ -24,6 +24,7 @@ async function streamFetch(url, body, onChunk) {
 }
 
 // Separa el texto narrativo de las opciones — soporta [A], **[A]**, A), A.
+// eslint-disable-next-line react-refresh/only-export-components
 export function parseQuestion(rawText) {
   // Intentar con formato [A] (con o sin negrita markdown)
   const bracketPattern = /\*{0,2}\[([ABCD])\]\*{0,2}:?\s*([\s\S]*?)(?=\s*\*{0,2}\[[ABCD]\]|$)/g
@@ -163,7 +164,7 @@ export default function ConfesionarioPage() {
       await navigator.clipboard.writeText(text)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
-    } catch {}
+    } catch { /* clipboard unavailable */ }
   }
 
   const handleRetry = () => {

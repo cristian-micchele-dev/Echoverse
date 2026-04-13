@@ -146,27 +146,71 @@
   z-index: 1;
 }
 
-/* Loading */
-.pp-loading {
+/* ── Skeleton loaders ── */
+.pp-skeleton-layout {
   display: flex;
   flex-direction: column;
+  gap: 2rem;
+}
+
+.pp-skeleton-title {
+  height: 18px;
+  width: 120px;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+}
+
+.pp-skeleton-block {
+  height: 80px;
+  border-radius: 10px;
+}
+
+.pp-skeleton-cards {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.pp-skeleton-card {
+  width: 140px;
+  height: 180px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.pp-skeleton-ach {
+  height: 52px;
+  border-radius: 8px;
+  flex: 1 1 200px;
+}
+
+/* Error banner */
+.pp-error-banner {
+  display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 1rem;
-  padding: 4rem;
-  color: #444;
-  font-size: 0.9rem;
+  background: rgba(244, 63, 94, 0.08);
+  border: 1px solid rgba(244, 63, 94, 0.22);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  font-size: 0.82rem;
+  color: #FDA4AF;
 }
 
-.pp-spinner {
-  width: 28px;
-  height: 28px;
-  border: 2px solid #222;
-  border-top-color: #6c63ff;
-  border-radius: 50%;
-  animation: pp-spin 0.7s linear infinite;
+.pp-retry-btn {
+  background: rgba(244, 63, 94, 0.15);
+  border: 1px solid rgba(244, 63, 94, 0.3);
+  color: #FDA4AF;
+  border-radius: 6px;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s;
+  white-space: nowrap;
 }
-
-@keyframes pp-spin { to { transform: rotate(360deg); } }
+.pp-retry-btn:hover { background: rgba(244, 63, 94, 0.25); }
 
 /* ── Section ── */
 .pp-section {

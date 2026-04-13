@@ -64,17 +64,17 @@ describe('AuthPage — renderizado inicial', () => {
 
   it('el campo "Email" está presente en tab login', () => {
     render(<AuthPage />)
-    expect(screen.getByPlaceholderText('Email')).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('tu@email.com')).toBeInTheDocument()
   })
 
   it('el campo "Contraseña" está presente en tab login', () => {
     render(<AuthPage />)
-    expect(screen.getByPlaceholderText('Contraseña')).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('Mínimo 8 caracteres, letras y números')).toBeInTheDocument()
   })
 
   it('el campo "Nombre o usuario" NO aparece en tab login', () => {
     render(<AuthPage />)
-    expect(screen.queryByPlaceholderText('Nombre o usuario')).not.toBeInTheDocument()
+    expect(screen.queryByPlaceholderText('¿Cómo te llamamos?')).not.toBeInTheDocument()
   })
 
   it('muestra el botón de submit con texto "Entrar" en tab login', () => {
@@ -91,7 +91,7 @@ describe('AuthPage — tab registro', () => {
   it('el campo "Nombre o usuario" aparece al cambiar a tab registro', () => {
     render(<AuthPage />)
     fireEvent.click(screen.getByRole('button', { name: 'Registrarse' }))
-    expect(screen.getByPlaceholderText('Nombre o usuario')).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('¿Cómo te llamamos?')).toBeInTheDocument()
   })
 
   it('el tab "Registrarse" queda activo después del click', () => {
@@ -117,10 +117,10 @@ describe('AuthPage — cambio de tab limpia estado', () => {
     render(<AuthPage />)
 
     fireEvent.click(screen.getByRole('button', { name: 'Registrarse' }))
-    expect(screen.getByPlaceholderText('Nombre o usuario')).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('¿Cómo te llamamos?')).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: 'Iniciar sesión' }))
-    expect(screen.queryByPlaceholderText('Nombre o usuario')).not.toBeInTheDocument()
+    expect(screen.queryByPlaceholderText('¿Cómo te llamamos?')).not.toBeInTheDocument()
   })
 
   it('cambiar de tab limpia el mensaje de error visible', async () => {
@@ -129,10 +129,10 @@ describe('AuthPage — cambio de tab limpia estado', () => {
 
     render(<AuthPage />)
 
-    fireEvent.change(screen.getByPlaceholderText('Email'), {
+    fireEvent.change(screen.getByPlaceholderText('tu@email.com'), {
       target: { value: 'bad@test.com' },
     })
-    fireEvent.change(screen.getByPlaceholderText('Contraseña'), {
+    fireEvent.change(screen.getByPlaceholderText('Mínimo 8 caracteres, letras y números'), {
       target: { value: 'wrongpass' },
     })
     fireEvent.submit(screen.getByRole('button', { name: 'Entrar' }).closest('form'))
@@ -157,10 +157,10 @@ describe('AuthPage — manejo de errores', () => {
 
     render(<AuthPage />)
 
-    fireEvent.change(screen.getByPlaceholderText('Email'), {
+    fireEvent.change(screen.getByPlaceholderText('tu@email.com'), {
       target: { value: 'user@test.com' },
     })
-    fireEvent.change(screen.getByPlaceholderText('Contraseña'), {
+    fireEvent.change(screen.getByPlaceholderText('Mínimo 8 caracteres, letras y números'), {
       target: { value: 'badpass' },
     })
     fireEvent.submit(screen.getByRole('button', { name: 'Entrar' }).closest('form'))
@@ -175,10 +175,10 @@ describe('AuthPage — manejo de errores', () => {
 
     render(<AuthPage />)
 
-    fireEvent.change(screen.getByPlaceholderText('Email'), {
+    fireEvent.change(screen.getByPlaceholderText('tu@email.com'), {
       target: { value: 'user@test.com' },
     })
-    fireEvent.change(screen.getByPlaceholderText('Contraseña'), {
+    fireEvent.change(screen.getByPlaceholderText('Mínimo 8 caracteres, letras y números'), {
       target: { value: 'badpass' },
     })
     fireEvent.submit(screen.getByRole('button', { name: 'Entrar' }).closest('form'))
@@ -193,10 +193,10 @@ describe('AuthPage — manejo de errores', () => {
 
     render(<AuthPage />)
 
-    fireEvent.change(screen.getByPlaceholderText('Email'), {
+    fireEvent.change(screen.getByPlaceholderText('tu@email.com'), {
       target: { value: 'good@test.com' },
     })
-    fireEvent.change(screen.getByPlaceholderText('Contraseña'), {
+    fireEvent.change(screen.getByPlaceholderText('Mínimo 8 caracteres, letras y números'), {
       target: { value: 'goodpass' },
     })
     fireEvent.submit(screen.getByRole('button', { name: 'Entrar' }).closest('form'))

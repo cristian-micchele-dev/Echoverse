@@ -3,7 +3,6 @@
   align-items: flex-end;
   gap: 0.5rem;
   max-width: 78%;
-  animation: bubble-in 0.2s ease forwards;
 }
 
 .bubble-row--grouped {
@@ -14,18 +13,25 @@
   visibility: hidden;
 }
 
-@keyframes bubble-in {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
 .bubble-row--user {
   align-self: flex-end;
   flex-direction: row-reverse;
+  animation: bubble-in-user 0.22s ease-out forwards;
 }
 
 .bubble-row--char {
   align-self: flex-start;
+  animation: bubble-in-char 0.26s ease-out forwards;
+}
+
+@keyframes bubble-in-user {
+  from { opacity: 0; transform: translateX(14px) translateY(4px); }
+  to   { opacity: 1; transform: translateX(0) translateY(0); }
+}
+
+@keyframes bubble-in-char {
+  from { opacity: 0; transform: translateX(-14px) translateY(4px); }
+  to   { opacity: 1; transform: translateX(0) translateY(0); }
 }
 
 /* ─── Avatar ──────────────────────────────────────── */

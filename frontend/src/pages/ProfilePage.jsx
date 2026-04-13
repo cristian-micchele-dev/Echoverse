@@ -18,6 +18,7 @@ export default function ProfilePage() {
   const [mission, setMission] = useState(null)
   const [dilemasCount, setDilemasCount] = useState(0)
   const [loading, setLoading] = useState(true)
+  const [fetchError, setFetchError] = useState(false)
   const [dailyCount, setDailyCount] = useState(0)
   const [modeCompletions, setModeCompletions] = useState({})
   const { unlockedIds, checkAndUnlock, newlyUnlocked, dismissToast } = useAchievements()
@@ -81,7 +82,7 @@ export default function ProfilePage() {
       }
       setMission(mis)
     }).catch(() => {
-      // Fallback a localStorage si el fetch falla (backend caído, red, etc.)
+      setFetchError(true)
       setMission(getMissionProgress())
       setAffinities([])
     }).finally(() => setLoading(false))
@@ -179,9 +180,31 @@ export default function ProfilePage() {
       <div className="pp-body">
 
         {loading ? (
-          <div className="pp-loading">
-            <div className="pp-spinner" />
-            <span>Cargando perfil…</span>
+          <div className="pp-skeleton-layout">
+            <div className="pp-section">
+              <div className="skeleton pp-skeleton-title" />
+              <div className="skeleton pp-skeleton-block" />
+            </div>
+            <div className="pp-section">
+              <div className="skeleton pp-skeleton-title" />
+              <div className="pp-skeleton-cards">
+                {[1,2,3].map(i => <div key={i} className="skeleton pp-skeleton-card" />)}
+              </div>
+            </div>
+            <div className="pp-section">
+              <div className="skeleton pp-skeleton-title" />
+              <div className="pp-skeleton-cards">
+                {[1,2,3,4].map(i => <div key={i} className="skeleton pp-skeleton-ach" />)}
+              </div>
+            </div>
+            {fetchError && (
+              <div className="pp-error-banner">
+                <span>⚠️ No se pudieron cargar algunos datos.</span>
+                <button className="pp-retry-btn" onClick={() => { setFetchError(false); setLoading(true); window.location.reload() }}>
+                  Reintentar
+                </button>
+              </div>
+            )}
           </div>
         ) : (
           <>

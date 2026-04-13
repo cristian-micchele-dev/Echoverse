@@ -116,7 +116,9 @@ export default function LandingPage() {
   const [featuredIdx, setFeaturedIdx] = useState(0)
   const [featuredFade, setFeaturedFade] = useState(true)
   const [scrolled, setScrolled]       = useState(false)
+  const [showOnboarding, setShowOnboarding] = useState(false)
   const heroRef                       = useRef(null)
+  const lpRef                         = useRef(null)
 
   const featured     = FEATURED_LIST[featuredIdx]
   const featuredChar = featured ? characters.find(c => c.id === featured.characterId) : null
@@ -126,6 +128,29 @@ export default function LandingPage() {
 
   useEffect(() => {
     requestAnimationFrame(() => setVisible(true))
+    if (!localStorage.getItem('echoverse-visited')) {
+      const t = setTimeout(() => setShowOnboarding(true), 1200)
+      return () => clearTimeout(t)
+    }
+  }, [])
+
+  useEffect(() => {
+    const root = lpRef.current
+    if (!root) return
+    const targets = root.querySelectorAll('.lp-reveal')
+    const observer = new IntersectionObserver(
+      entries => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            e.target.classList.add('lp-reveal--visible')
+            observer.unobserve(e.target)
+          }
+        })
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -24px 0px' }
+    )
+    targets.forEach(el => observer.observe(el))
+    return () => observer.disconnect()
   }, [])
 
   useEffect(() => {
@@ -146,7 +171,7 @@ export default function LandingPage() {
   }, [])
 
   return (
-    <div className={`lp ${visible ? 'lp--visible' : ''}`}>
+    <div className={`lp ${visible ? 'lp--visible' : ''}`} ref={lpRef}>
 
       {/* Film grain overlay */}
       <div className="lp-grain" aria-hidden="true" />
@@ -182,14 +207,23 @@ export default function LandingPage() {
             <p className="lp-hero-tagline__b">Cada decisión, un precio.</p>
           </div>
 
-          <div className="lp-hero-actions">
-            <button className="lp-btn lp-btn--primary" onClick={() => navigate('/modos')}>
+          <div className="lp-hero-actions" style={{ position: 'relative' }}>
+            <button
+              className={`lp-btn lp-btn--primary${showOnboarding ? ' lp-btn--onboarding' : ''}`}
+              onClick={() => { localStorage.setItem('echoverse-visited', '1'); setShowOnboarding(false); navigate('/modos') }}
+            >
               Entrar al universo
               <ArrowIcon />
             </button>
             <button className="lp-btn lp-btn--ghost" onClick={() => navigate('/mission')}>
               Ver misiones
             </button>
+            {showOnboarding && (
+              <div className="lp-onboarding-hint">
+                <span>👋 Empezá por acá</span>
+                <button className="lp-onboarding-hint__close" onClick={() => { localStorage.setItem('echoverse-visited', '1'); setShowOnboarding(false) }} aria-label="Cerrar">✕</button>
+              </div>
+            )}
           </div>
 
           <div className="lp-hero-stats">
@@ -310,7 +344,7 @@ export default function LandingPage() {
       {/* ─── MODES ────────────────────────────────────────────────────── */}
       <section className="lp-modes">
         <div className="lp-container">
-          <div className="lp-section-header">
+          <div className="lp-section-header lp-reveal">
             <span className="lp-eyebrow lp-eyebrow--inline">
               MODOS DE JUEGO
               <span className="lp-eyebrow__rule lp-eyebrow__rule--right" />
@@ -327,8 +361,8 @@ export default function LandingPage() {
               return (
                 <article
                   key={mode.id}
-                  className={`lp-mode-block${i % 2 === 1 ? ' lp-mode-block--flip' : ''}`}
-                  style={{ '--accent': mode.accent }}
+                  className={`lp-mode-block${i % 2 === 1 ? ' lp-mode-block--flip' : ''} lp-reveal`}
+                  style={{ '--accent': mode.accent, '--reveal-delay': `${i * 0.1}s` }}
                   onClick={() => navigate(mode.route)}
                   role="button"
                   tabIndex={0}
@@ -380,13 +414,13 @@ export default function LandingPage() {
 
           {/* Secondary cards */}
           <div className="lp-mode-cards">
-            {SECONDARY_MODES.map(m => {
+            {SECONDARY_MODES.map((m, i) => {
               const char = characters.find(c => c.id === m.characterId)
               return (
                 <button
                   key={m.label}
-                  className="lp-mode-card"
-                  style={{ '--mc': m.color }}
+                  className="lp-mode-card lp-reveal"
+                  style={{ '--mc': m.color, '--reveal-delay': `${i * 0.1}s` }}
                   onClick={() => navigate(m.route)}
                 >
                   {char && (
@@ -419,7 +453,7 @@ export default function LandingPage() {
       {/* ─── CAST ─────────────────────────────────────────────────────── */}
       <section className="lp-cast">
         <div className="lp-container">
-          <div className="lp-section-header">
+          <div className="lp-section-header lp-reveal">
             <span className="lp-eyebrow lp-eyebrow--inline">
               ELENCO
               <span className="lp-eyebrow__rule lp-eyebrow__rule--right" />
@@ -430,7 +464,7 @@ export default function LandingPage() {
           </div>
         </div>
 
-        <div className="lp-cast-rail">
+        <div className="lp-cast-rail lp-reveal" style={{ '--reveal-delay': '0.1s' }}>
           {CAST.map(fc => {
             const char = characters.find(c => c.id === fc.id)
             if (!char) return null
@@ -467,7 +501,7 @@ export default function LandingPage() {
       {/* ─── WHY ──────────────────────────────────────────────────────── */}
       <section className="lp-why">
         <div className="lp-container">
-          <div className="lp-section-header">
+          <div className="lp-section-header lp-reveal">
             <span className="lp-eyebrow lp-eyebrow--inline">
               POR QUÉ ECHOVERSE
               <span className="lp-eyebrow__rule lp-eyebrow__rule--right" />
@@ -478,8 +512,8 @@ export default function LandingPage() {
           </div>
 
           <div className="lp-pillars">
-            {PILLARS.map(p => (
-              <div key={p.num} className="lp-pillar">
+            {PILLARS.map((p, i) => (
+              <div key={p.num} className="lp-pillar lp-reveal" style={{ '--reveal-delay': `${i * 0.09}s` }}>
                 <span className="lp-pillar__num">{p.num}</span>
                 <h3 className="lp-pillar__title">{p.title}</h3>
                 <p className="lp-pillar__desc">{p.desc}</p>

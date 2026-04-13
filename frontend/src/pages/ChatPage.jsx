@@ -55,9 +55,10 @@ function playNotificationSound(tone) {
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.45)
     osc.start(ctx.currentTime)
     osc.stop(ctx.currentTime + 0.45)
-  } catch {}
+  } catch { /* audio context not available */ }
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function detectReaction(content) {
   const t = content.toLowerCase()
   if (/gracias|te quiero|amor|hermoso|brillante|perfecto/.test(t)) return '❤️'
@@ -75,7 +76,7 @@ function updateHistoryMeta(characterId, messageCount) {
     const meta = JSON.parse(localStorage.getItem('chat-history-meta') || '{}')
     meta[characterId] = { messageCount, lastChat: Date.now() }
     localStorage.setItem('chat-history-meta', JSON.stringify(meta))
-  } catch {}
+  } catch { /* localStorage unavailable */ }
 }
 
 
@@ -159,7 +160,7 @@ export default function ChatPage() {
     try {
       const toSave = messages.slice(-MAX_STORED_MESSAGES)
       localStorage.setItem(storageKey, JSON.stringify(toSave))
-    } catch {}
+    } catch { /* localStorage unavailable */ }
   }, [messages, storageKey])
 
   // Sound + reactions + history on response complete
@@ -278,7 +279,7 @@ export default function ChatPage() {
   const clearChat = () => {
     setMessages([])
     setReactions({})
-    try { localStorage.removeItem(storageKey) } catch {}
+    try { localStorage.removeItem(storageKey) } catch { /* localStorage unavailable */ }
     if (session) {
       fetch(`${API_URL}/db/chat-history/${characterId}`, {
         method: 'DELETE',
@@ -323,6 +324,14 @@ export default function ChatPage() {
             <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
           Volver
+        </button>
+        <button className="change-char-btn" onClick={() => navigate('/chat')} title="Cambiar personaje">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+            <circle cx="6" cy="5" r="2.5" stroke="currentColor" strokeWidth="1.4"/>
+            <circle cx="11" cy="5" r="2.5" stroke="currentColor" strokeWidth="1.4"/>
+            <path d="M1 13c0-2.2 2.2-4 5-4M15 13c0-2.2-2.2-4-5-4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+          </svg>
+          <span>Cambiar</span>
         </button>
 
         <div className="chat-header__character">
@@ -386,6 +395,7 @@ export default function ChatPage() {
                   <button
                     key={i}
                     className="suggested-q"
+                    style={{ '--sq-i': i }}
                     onClick={() => { setInput(q); inputRef.current?.focus() }}
                   >
                     {q}
