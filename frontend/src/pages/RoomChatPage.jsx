@@ -424,10 +424,15 @@ export default function RoomChatPage() {
 
   // ── Enviar mensaje ─────────────────────────────────────────────────────────
 
+  function needsLogin() {
+    setSendError('Tenés que iniciar sesión para participar en la sala.')
+  }
+
   async function handleSend(e) {
     e?.preventDefault()
     const content = input.trim()
-    if (!content || sending || !session) return
+    if (!content || sending) return
+    if (!session) { needsLogin(); return }
 
     setSending(true)
     setSendError('')
@@ -444,7 +449,8 @@ export default function RoomChatPage() {
       })
       const data = await res.json()
       if (!res.ok) {
-        setSendError(data.error || 'Error al enviar')
+        const isAuthError = res.status === 401 || res.status === 403
+        setSendError(isAuthError ? 'Tu sesión expiró. Iniciá sesión de nuevo.' : (data.error || 'Error al enviar'))
         setInput(content)
       } else {
         setIsAiResponding(true)
@@ -461,7 +467,7 @@ export default function RoomChatPage() {
   // ── Enviar evento ─────────────────────────────────────────────────────────
 
   async function handleSendEvent(eventText) {
-    if (!session) return
+    if (!session) { needsLogin(); return }
     setSendError('')
     try {
       const res = await fetch(`${API_URL}/rooms/${roomId}/messages`, {
@@ -473,8 +479,12 @@ export default function RoomChatPage() {
         body: JSON.stringify({ content: eventText, type: 'event', participants: getParticipants() })
       })
       const data = await res.json()
-      if (!res.ok) setSendError(data.error || 'Error al enviar evento')
-      else setIsAiResponding(true)
+      if (!res.ok) {
+        const isAuthError = res.status === 401 || res.status === 403
+        setSendError(isAuthError ? 'Tu sesión expiró. Iniciá sesión de nuevo.' : (data.error || 'Error al enviar evento'))
+      } else {
+        setIsAiResponding(true)
+      }
     } catch {
       setSendError('Error de conexión')
     }
@@ -483,7 +493,7 @@ export default function RoomChatPage() {
   // ── Crear poll ────────────────────────────────────────────────────────────
 
   async function handleCreatePoll(question, options) {
-    if (!session) return
+    if (!session) { needsLogin(); return }
 
     // Persistir poll como mensaje especial
     const content = JSON.stringify({ question, options })
@@ -711,15 +721,25 @@ export default function RoomChatPage() {
         {!user ? (
           <div className="rchat-guest-bar">
             <p className="rchat-guest-bar__text">
+              Solo podés leer. Para participar,{' '}
               <button className="rchat-guest-bar__link" onClick={() => navigate('/auth')}>
-                Iniciá sesión
+                registrate o iniciá sesión
               </button>
-              {' '}para participar en la sala
+              .
             </p>
           </div>
         ) : (
           <form className="rchat-input-form" onSubmit={handleSend}>
-            {sendError && <p className="rchat-send-error">{sendError}</p>}
+            {sendError && (
+              <p className="rchat-send-error">
+                {sendError}{' '}
+                {(sendError.includes('sesión') || sendError.includes('registr')) && (
+                  <button className="rchat-send-error__link" onClick={() => navigate('/auth')}>
+                    Ir al login
+                  </button>
+                )}
+              </p>
+            )}
             <div className="rchat-input-row">
               <button
                 type="button"

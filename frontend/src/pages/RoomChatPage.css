@@ -354,6 +354,20 @@
   padding: 0 0.25rem;
 }
 
+.rchat-send-error__link {
+  background: none;
+  border: none;
+  color: var(--danger);
+  font-size: inherit;
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  padding: 0;
+}
+.rchat-send-error__link:hover { opacity: 0.8; }
+
 .rchat-input-row {
   display: flex;
   gap: 0.5rem;
