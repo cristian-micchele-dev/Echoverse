@@ -12,6 +12,11 @@ const mistral = new OpenAI({
   baseURL: 'https://api.mistral.ai/v1'
 })
 
+// Convierte 'john-wick' → 'John Wick' para usarlo como username del personaje
+function charIdToName(id) {
+  return id.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+}
+
 const MAX_CONTEXT_MESSAGES = 20
 const MAX_ROOM_TOKENS = 550
 
@@ -217,7 +222,7 @@ async function streamToRoom(roomId, character, latestContent = '', participants 
     await supabase.from('room_messages').insert({
       room_id: roomId,
       role: 'assistant',
-      username: character.name,
+      username: character.name || charIdToName(character.id),
       content: fullContent.trim() || '...'
     })
 

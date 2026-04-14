@@ -27,7 +27,7 @@ const PRESET_EVENTS = [
 
 // ─── Message bubble ───────────────────────────────────────────────────────────
 
-function RoomBubble({ msg, currentUserId, charColor }) {
+function RoomBubble({ msg, currentUserId, charColor, charName }) {
   const isMe = msg.user_id === currentUserId
   const isAI = msg.role === 'assistant'
 
@@ -67,7 +67,7 @@ function RoomBubble({ msg, currentUserId, charColor }) {
           className="rchat-bubble-sender"
           style={{ color: isAI ? charColor : usernameColor(msg.username || 'Usuario') }}
         >
-          {msg.username || 'Usuario'}
+          {isAI ? (charName || msg.username || 'Personaje') : (msg.username || 'Usuario')}
         </span>
       )}
       <div
@@ -693,6 +693,7 @@ export default function RoomChatPage() {
             msg={msg}
             currentUserId={user?.id}
             charColor={charColor}
+            charName={character.name}
           />
         ))}
 
