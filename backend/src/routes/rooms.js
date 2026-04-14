@@ -12,8 +12,8 @@ const mistral = new OpenAI({
   baseURL: 'https://api.mistral.ai/v1'
 })
 
-const MAX_CONTEXT_MESSAGES = 10
-const MAX_ROOM_TOKENS = 350
+const MAX_CONTEXT_MESSAGES = 20
+const MAX_ROOM_TOKENS = 550
 
 function buildRoomSystemPrompt(character, participants = []) {
   const names = participants.length
@@ -25,10 +25,11 @@ function buildRoomSystemPrompt(character, participants = []) {
 ${character.systemPrompt}
 
 CONTEXTO GRUPAL: Estás en una sala de chat en vivo con múltiples usuarios simultáneos. ${names}
-- Cada mensaje lleva el nombre del usuario entre corchetes.
-- Dirigite a los usuarios por su nombre cuando sea relevante.
-- Creá tensión y dinámicas entre los participantes: señalá contradicciones, confrontá a uno con lo que dijo otro, hacé preguntas dirigidas a alguien específico.
-- Respondés en español, en personaje, sin romper el rol. Máximo 3 oraciones.
+- Cada mensaje lleva el nombre del usuario entre corchetes. Usá esos nombres para dirigirte a ellos.
+- Seguí el hilo de la conversación: retomá puntos anteriores, recordá lo que dijo cada usuario y construí sobre eso. No repitas ideas que ya desarrollaste.
+- Creá dinámicas entre participantes: señalá contradicciones, confrontá a uno con lo que dijo otro, hacé preguntas dirigidas a alguien específico.
+- Si alguien cambió de tema, podés notarlo en personaje antes de responder.
+- Respondés en español, completamente en personaje, sin romper el rol. Desarrollá la respuesta lo necesario para que sea coherente con el hilo, sin ser redundante.
 - Cuando recibas un mensaje con el prefijo "⚡ EVENTO DRAMÁTICO:", reaccioná con intensidad narrativa total como si fuera real, en primera persona, dirigiéndote a todos los presentes.`
 }
 
