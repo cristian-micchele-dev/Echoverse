@@ -111,6 +111,36 @@
   white-space: nowrap;
 }
 
+/* ── Share button ────────────────────────────── */
+
+.rchat-share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: none;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  padding: 0.3rem 0.6rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: var(--text-xs);
+  font-family: var(--font-body);
+  flex-shrink: 0;
+  transition:
+    color        var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    background   var(--duration-fast) var(--ease-out);
+}
+.rchat-share-btn:hover {
+  color: var(--text-primary);
+  border-color: var(--border-default);
+}
+.rchat-share-btn--copied {
+  color: var(--success, #4caf50);
+  border-color: color-mix(in srgb, var(--success, #4caf50) 40%, transparent);
+  background: color-mix(in srgb, var(--success, #4caf50) 8%, transparent);
+}
+
 /* ── Presence ───────────────────────────────── */
 
 .rchat-header__presence {
@@ -409,6 +439,360 @@
 }
 .rchat-guest-bar__link:hover { filter: brightness(1.2); }
 
+/* ── Action buttons (⚡ 📊) ─────────────────── */
+
+.rchat-action-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-float);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    background   var(--duration-fast) var(--ease-out),
+    transform    var(--duration-fast) var(--ease-out);
+}
+.rchat-action-btn:hover:not(:disabled) {
+  border-color: var(--border-default);
+  background: var(--bg-raised);
+  transform: translateY(-1px);
+}
+.rchat-action-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* ── Overlay backdrop ────────────────────────── */
+
+.rchat-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 50;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0 0 0.75rem;
+  animation: fadeIn 0.15s ease-out;
+}
+
+/* ── Event Picker ────────────────────────────── */
+
+.rchat-event-picker {
+  background: var(--bg-raised);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl) var(--radius-xl) var(--radius-lg) var(--radius-lg);
+  width: 100%;
+  max-width: 480px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  animation: slideUp 0.2s var(--ease-out) both;
+}
+
+.rchat-event-picker__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+}
+
+.rchat-event-picker__close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0.1rem 0.3rem;
+  border-radius: var(--radius-sm);
+  transition: color var(--duration-fast);
+}
+.rchat-event-picker__close:hover { color: var(--text-primary); }
+
+.rchat-event-picker__presets {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.45rem;
+}
+
+.rchat-event-preset-btn {
+  background: var(--bg-float);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  font-family: var(--font-body);
+  padding: 0.55rem 0.65rem;
+  cursor: pointer;
+  text-align: left;
+  transition:
+    border-color var(--duration-fast),
+    color        var(--duration-fast),
+    background   var(--duration-fast);
+}
+.rchat-event-preset-btn:hover {
+  border-color: var(--char-color, var(--violet-500));
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--char-color, var(--violet-500)) 8%, transparent);
+}
+
+.rchat-event-picker__custom {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* ── Event bubble ────────────────────────────── */
+
+.rchat-event-bubble {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  align-self: stretch;
+  background: color-mix(in srgb, #D4576B 8%, var(--bg-raised));
+  border: 1px solid color-mix(in srgb, #D4576B 35%, transparent);
+  border-radius: var(--radius-md);
+  padding: 0.5rem 0.85rem;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  font-style: italic;
+  animation: bubble-appear 0.2s ease-out both;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.rchat-event-icon {
+  font-style: normal;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.rchat-event-text {
+  flex: 1;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.rchat-event-by {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+/* ── Poll Creator modal ───────────────────────── */
+
+.rchat-poll-creator {
+  background: var(--bg-raised);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl) var(--radius-xl) var(--radius-lg) var(--radius-lg);
+  width: 100%;
+  max-width: 480px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  animation: slideUp 0.2s var(--ease-out) both;
+}
+
+.rchat-poll-creator__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+}
+
+.rchat-poll-creator__form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.rchat-poll-creator__opts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.rchat-poll-add-opt {
+  background: none;
+  border: 1px dashed var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  font-family: var(--font-body);
+  padding: 0.45rem;
+  cursor: pointer;
+  transition: border-color var(--duration-fast), color var(--duration-fast);
+}
+.rchat-poll-add-opt:hover { border-color: var(--border-default); color: var(--text-secondary); }
+
+.rchat-poll-creator__submit {
+  width: 100%;
+  justify-content: center;
+  margin-top: 0.25rem;
+}
+
+/* ── Active Poll card ────────────────────────── */
+
+.rchat-poll-active {
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--bg-float);
+  padding: 0.75rem 1rem;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.rchat-poll-active__header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.rchat-poll-active__icon { font-size: 1rem; }
+
+.rchat-poll-active__q {
+  flex: 1;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.rchat-poll-active__count {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.rchat-poll-active__opts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.rchat-poll-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-align: left;
+  transition:
+    border-color var(--duration-fast),
+    color        var(--duration-fast);
+}
+.rchat-poll-option:not(:disabled):hover {
+  border-color: var(--char-color, var(--violet-500));
+  color: var(--text-primary);
+}
+.rchat-poll-option:disabled { cursor: not-allowed; }
+
+.rchat-poll-option--voted {
+  border-color: var(--char-color, var(--violet-500));
+  color: var(--text-primary);
+}
+.rchat-poll-option--dim { opacity: 0.55; }
+
+.rchat-poll-option__label { flex: 1; position: relative; z-index: 1; }
+
+.rchat-poll-option__bar-wrap {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.rchat-poll-option__bar {
+  height: 100%;
+  width: var(--pct, 0%);
+  background: color-mix(in srgb, var(--char-color, var(--violet-500)) 18%, transparent);
+  transition: width 0.4s var(--ease-out);
+}
+
+.rchat-poll-option__pct {
+  position: relative;
+  z-index: 1;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  min-width: 2.5rem;
+  text-align: right;
+}
+
+.rchat-poll-send-result {
+  background: none;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  font-family: var(--font-body);
+  padding: 0.4rem 0.75rem;
+  cursor: pointer;
+  align-self: flex-end;
+  transition: border-color var(--duration-fast), color var(--duration-fast);
+}
+.rchat-poll-send-result:hover { border-color: var(--border-default); color: var(--text-primary); }
+
+/* ── Poll snapshot (historial) ───────────────── */
+
+.rchat-poll-snapshot {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  align-self: flex-start;
+  background: var(--bg-float);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 0.6rem 0.85rem;
+  max-width: 72%;
+  animation: bubble-appear 0.2s ease-out both;
+  margin-top: 0.5rem;
+}
+
+.rchat-poll-snapshot__icon { font-size: 1rem; }
+
+.rchat-poll-snapshot__q {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.rchat-poll-snapshot__opts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.rchat-poll-snapshot__opt {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  background: var(--bg-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 0.15rem 0.4rem;
+}
+
+.rchat-poll-snapshot__by {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  font-style: italic;
+}
+
 /* ── Responsive ─────────────────────────────── */
 
 @media (max-width: 500px) {
@@ -417,4 +801,7 @@
 
   .rchat-messages { padding: 0.75rem 0.75rem 0.5rem; }
   .rchat-input-bar { padding: 0.6rem 0.75rem; }
+
+  .rchat-event-picker__presets { grid-template-columns: 1fr; }
+  .rchat-poll-snapshot { max-width: 88%; }
 }

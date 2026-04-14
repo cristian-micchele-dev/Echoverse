@@ -7,6 +7,7 @@ import interrogationRouter from './routes/interrogation.js'
 import dbRouter            from './routes/db.js'
 import authRouter          from './routes/auth.js'
 import roomsRouter         from './routes/rooms.js'
+import adminRouter         from './routes/admin.js'
 const app = express()
 app.set('trust proxy', 1)
 const PORT = process.env.PORT || 3001
@@ -30,6 +31,7 @@ app.use('/api', interrogationRouter)
 app.use('/api/db', dbRouter)
 app.use('/api/auth', authRouter)
 app.use('/api', roomsRouter)
+app.use('/api/admin', adminRouter)
 
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`)

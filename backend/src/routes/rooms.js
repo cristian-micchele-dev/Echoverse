@@ -3,7 +3,7 @@ import OpenAI from 'openai'
 import { supabase } from '../config/supabase.js'
 import { characters } from '../data/characters.js'
 import { BASE_PROMPT } from '../data/prompts.js'
-import { requireAuth } from '../middleware/auth.js'
+import { requireAuth, requireAdmin } from '../middleware/auth.js'
 
 const router = Router()
 
@@ -15,12 +15,21 @@ const mistral = new OpenAI({
 const MAX_CONTEXT_MESSAGES = 10
 const MAX_ROOM_TOKENS = 350
 
-function buildRoomSystemPrompt(character) {
+function buildRoomSystemPrompt(character, participants = []) {
+  const names = participants.length
+    ? `Los participantes actuales son: ${participants.join(', ')}.`
+    : 'Hay varios participantes en la sala.'
+
   return `${BASE_PROMPT}
 
 ${character.systemPrompt}
 
-CONTEXTO: Estás en una sala de chat grupal donde varios usuarios reales conversan contigo al mismo tiempo. Cada mensaje lleva el nombre del usuario entre corchetes. Respondé de forma natural y en carácter. Podés dirigirte al usuario por su nombre si es natural en la conversación. Respondé en 2-3 oraciones máximo. SIEMPRE en español.`
+CONTEXTO GRUPAL: Estás en una sala de chat en vivo con múltiples usuarios simultáneos. ${names}
+- Cada mensaje lleva el nombre del usuario entre corchetes.
+- Dirigite a los usuarios por su nombre cuando sea relevante.
+- Creá tensión y dinámicas entre los participantes: señalá contradicciones, confrontá a uno con lo que dijo otro, hacé preguntas dirigidas a alguien específico.
+- Respondés en español, en personaje, sin romper el rol. Máximo 3 oraciones.
+- Cuando recibas un mensaje con el prefijo "⚡ EVENTO DRAMÁTICO:", reaccioná con intensidad narrativa total como si fuera real, en primera persona, dirigiéndote a todos los presentes.`
 }
 
 // ─── GET /api/rooms ───────────────────────────────────────────────────────────
@@ -80,7 +89,7 @@ router.get('/rooms/:roomId', async (req, res) => {
 
 router.post('/rooms/:roomId/messages', requireAuth, async (req, res) => {
   const { roomId } = req.params
-  const { content } = req.body
+  const { content, type = 'message', participants = [] } = req.body
   const username = req.user.user_metadata?.username || req.user.email?.split('@')[0] || 'Usuario'
 
   if (!content?.trim()) return res.status(400).json({ error: 'content requerido' })
@@ -98,13 +107,14 @@ router.post('/rooms/:roomId/messages', requireAuth, async (req, res) => {
   const character = characters[room.character_id]
   if (!character) return res.status(500).json({ error: 'Personaje de la sala no encontrado' })
 
-  // Insertar mensaje del usuario
+  // Insertar mensaje del usuario con type
   await supabase.from('room_messages').insert({
     room_id: roomId,
     user_id: req.user.id,
     username,
     role: 'user',
-    content: content.trim()
+    content: content.trim(),
+    type
   })
 
   // Marcar que la IA está respondiendo
@@ -113,7 +123,12 @@ router.post('/rooms/:roomId/messages', requireAuth, async (req, res) => {
   // Responder al cliente inmediatamente — el streaming ocurre en background
   res.json({ ok: true })
 
-  streamToRoom(roomId, character).catch(err => {
+  // Para eventos, prefijamos el contenido para que la IA reaccione con intensidad
+  const aiContent = type === 'event'
+    ? `⚡ EVENTO DRAMÁTICO: ${content.trim()}`
+    : content.trim()
+
+  streamToRoom(roomId, character, aiContent, participants).catch(err => {
     console.error(`[rooms] Error streaming en sala ${roomId}:`, err.message)
     supabase.from('rooms').update({ is_ai_responding: false }).eq('id', roomId)
   })
@@ -137,9 +152,21 @@ router.patch('/rooms/:roomId/close', requireAuth, async (req, res) => {
   res.json({ ok: true })
 })
 
+// ─── DELETE /api/rooms/:roomId (admin) ────────────────────────────────────────
+
+router.delete('/rooms/:roomId', requireAuth, requireAdmin, async (req, res) => {
+  const { error } = await supabase
+    .from('rooms')
+    .delete()
+    .eq('id', req.params.roomId)
+
+  if (error) return res.status(500).json({ error: error.message })
+  res.json({ ok: true })
+})
+
 // ─── Background: Mistral → broadcast → persistir ─────────────────────────────
 
-async function streamToRoom(roomId, character) {
+async function streamToRoom(roomId, character, latestContent = '', participants = []) {
   // Obtener contexto reciente
   const { data: recentMsgs } = await supabase
     .from('room_messages')
@@ -153,7 +180,7 @@ async function streamToRoom(roomId, character) {
     content: m.role === 'user' ? `[${m.username}]: ${m.content}` : m.content
   }))
 
-  const systemPrompt = buildRoomSystemPrompt(character)
+  const systemPrompt = buildRoomSystemPrompt(character, participants)
 
   // Suscribir canal de broadcast para esta sala
   const channel = supabase.channel(`room-broadcast:${roomId}`, {
