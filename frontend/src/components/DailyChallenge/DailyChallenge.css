@@ -78,6 +78,29 @@
   text-transform: uppercase;
 }
 
+.dc__header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dc__streak {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.6);
+  white-space: nowrap;
+}
+
+@keyframes dc-fire-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.06); }
+}
+
+.dc__streak--hot {
+  color: #f97316;
+  animation: dc-fire-pulse 1.6s ease-in-out infinite;
+}
+
 .dc__done-badge {
   font-size: 0.68rem;
   font-weight: 700;

@@ -819,3 +819,26 @@
   .rchat-event-picker__presets { grid-template-columns: 1fr; }
   .rchat-poll-snapshot { max-width: 88%; }
 }
+
+/* ── Reconnect banner ────────────────────────── */
+
+.rchat-reconnect-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.35rem 1rem;
+  background: color-mix(in srgb, #D48C2A 15%, var(--bg-surface, #0d0d12));
+  border-bottom: 1px solid color-mix(in srgb, #D48C2A 35%, transparent);
+  font-size: var(--text-xs);
+  color: #D48C2A;
+  font-weight: 500;
+}
+
+.rchat-reconnect-banner__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulse-dot 1.4s ease-in-out infinite;
+}

@@ -41,6 +41,11 @@ export default function MessageBubble({ message, character, isStreaming, isGroup
           {message.content || (isStreaming ? '' : '...')}
           {isStreaming && <span className="typing-cursor">▋</span>}
         </div>
+        {message.ts && !isStreaming && (
+          <span className="msg-time">
+            {new Date(message.ts).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
+          </span>
+        )}
 
         {!isUser && message.content && !isStreaming && (
           <div className="bubble-actions">

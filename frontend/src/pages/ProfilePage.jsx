@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { characters } from '../data/characters'
@@ -6,6 +6,7 @@ import { ACHIEVEMENTS } from '../data/achievements'
 import { getAffinityLevel, getAffinityLabel, getAffinityEmoji } from '../utils/affinity'
 import { getMissionProgress, resetProgress } from '../utils/missionProgress'
 import { useAchievements } from '../hooks/useAchievements'
+import { useStreak } from '../hooks/useStreak'
 import AchievementToast from '../components/AchievementToast/AchievementToast'
 import { API_URL } from '../config/api.js'
 import './ProfilePage.css'
@@ -22,6 +23,11 @@ export default function ProfilePage() {
   const [dailyCount, setDailyCount] = useState(0)
   const [modeCompletions, setModeCompletions] = useState({})
   const { unlockedIds, checkAndUnlock, newlyUnlocked, dismissToast } = useAchievements()
+  const { streak } = useStreak()
+
+  const nextAchievement = useMemo(() => {
+    return ACHIEVEMENTS.find(a => !unlockedIds.has(a.id)) ?? null
+  }, [unlockedIds])
 
   useEffect(() => {
     if (authLoading) return
@@ -95,8 +101,8 @@ export default function ProfilePage() {
     const completedLevels = mission ? Object.keys(mission.completedLevels || {}).length : 0
     const charactersCount = affinities.length
     const guessScore = (() => { try { return parseInt(localStorage.getItem('guess-best-score') || '0') } catch { return 0 } })()
-    checkAndUnlock({ totalMessages, completedLevels, charactersCount, dilemasCount, guessScore, dailyCompleted: dailyCount, modeCompletions })
-  }, [loading, modeCompletions, affinities, mission, dilemasCount, dailyCount, checkAndUnlock])
+    checkAndUnlock({ totalMessages, completedLevels, charactersCount, dilemasCount, guessScore, dailyCompleted: dailyCount, modeCompletions, streakCurrent: streak.current })
+  }, [loading, modeCompletions, affinities, mission, dilemasCount, dailyCount, checkAndUnlock, streak])
 
   async function handleLogout() {
     try {
@@ -127,6 +133,28 @@ export default function ProfilePage() {
 
   const displayName = user.user_metadata?.username || user.email
   const initial = displayName?.[0]?.toUpperCase()
+
+  // ── CTA contextual "Próximo paso" ──
+  const SUGGESTED_MODES = [
+    { key: 'interrogation', label: 'Interrogatorio', desc: '¿Podés detectar la mentira?', route: '/interrogation', duration: '~8 min' },
+    { key: 'swipe',         label: 'Swipe',          desc: 'Verdad o mentira en segundos.',   route: '/swipe',         duration: '~2 min' },
+    { key: 'dilema',        label: 'Dilemas',         desc: 'Sin respuesta correcta.',          route: '/dilema',        duration: '~5 min' },
+    { key: 'story',         label: 'Historia',        desc: 'Una narrativa que cambia con vos.',route: '/story',         duration: '~10 min' },
+    { key: 'parecido',      label: '¿A quién te parecés?', desc: 'Descubrí tu personaje.',    route: '/parecido',      duration: '~4 min' },
+    { key: 'guess',         label: 'Adivina el Personaje', desc: 'Pistas de a una. Cada una baja tu puntaje.', route: '/guess', duration: '~3 min' },
+  ]
+
+  const nextStep = (() => {
+    if (!loading) {
+      if (streak.current > 0 && dailyCount === 0) {
+        return { type: 'daily', label: 'Desafío del día', desc: `No rompas tu racha de ${streak.current} ${streak.current === 1 ? 'día' : 'días'}`, route: '/', duration: null }
+      }
+      const untriedMode = SUGGESTED_MODES.find(m => !modeCompletions[m.key])
+      if (untriedMode) return { type: 'mode', ...untriedMode }
+      if (activeAffinities.length === 0) return { type: 'chat' }
+    }
+    return null
+  })()
 
   return (
     <div className="pp">
@@ -171,11 +199,45 @@ export default function ProfilePage() {
               <span className="pp-stat__num">{completedLevels}</span>
               <span className="pp-stat__label">Niveles</span>
             </div>
+            <div className="pp-stats__rule" />
+            <div className="pp-stat pp-stat--streak">
+              <span className="pp-stat__num">
+                {streak.current > 0 ? `🔥 ${streak.current}` : streak.current}
+              </span>
+              <span className="pp-stat__label">Racha</span>
+            </div>
           </div>
 
           <button className="pp-logout" onClick={handleLogout}>Cerrar sesión</button>
         </div>
       </div>
+
+      {/* ── PRÓXIMO PASO ── */}
+      {!loading && nextStep && (
+        <div className="pp-next-step-wrap">
+          <div
+            className="pp-next-step"
+            onClick={() => navigate(nextStep.type === 'chat' ? '/chat' : nextStep.route)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={e => e.key === 'Enter' && navigate(nextStep.type === 'chat' ? '/chat' : nextStep.route)}
+          >
+            <div className="pp-next-step__left">
+              <span className="pp-next-step__eyebrow">
+                {nextStep.type === 'daily' ? '🔥 Racha en riesgo' : 'Próximo paso'}
+              </span>
+              <span className="pp-next-step__title">
+                {nextStep.type === 'chat' ? 'Empezá a chatear con un personaje' : nextStep.label}
+              </span>
+              <span className="pp-next-step__desc">
+                {nextStep.type === 'chat' ? 'Todavía no tenés afinidad con nadie. Empezá ahora.' : nextStep.desc}
+                {nextStep.duration && <span className="pp-next-step__dur"> · {nextStep.duration}</span>}
+              </span>
+            </div>
+            <span className="pp-next-step__arrow">→</span>
+          </div>
+        </div>
+      )}
 
       <div className="pp-body">
 
@@ -290,6 +352,17 @@ export default function ProfilePage() {
                 <span className="pp-section__eyebrow">PROGRESIÓN</span>
                 <h2 className="pp-section__title">Logros</h2>
               </div>
+
+              {nextAchievement && (
+                <div className="pp-next-achievement">
+                  <span className="pp-next-achievement__icon">{nextAchievement.emoji}</span>
+                  <div className="pp-next-achievement__info">
+                    <span className="pp-next-achievement__label">Próximo logro</span>
+                    <span className="pp-next-achievement__name">{nextAchievement.name}</span>
+                    <p className="pp-next-achievement__desc">{nextAchievement.desc}</p>
+                  </div>
+                </div>
+              )}
 
               <div className="pp-achievements">
                 {ACHIEVEMENTS.map(a => {

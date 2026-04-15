@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { characters } from '../data/characters'
+import { getMissionProgress } from '../utils/missionProgress'
+import { useAuth } from '../context/AuthContext'
+import { API_URL } from '../config/api'
 import './ModeSelectorPage.css'
 
 const MAIN_MODES = [
@@ -150,11 +153,26 @@ const SECONDARY_MODES = [
 
 export default function ModeSelectorPage() {
   const navigate = useNavigate()
+  const { session } = useAuth()
   const [visible, setVisible] = useState(false)
+  const [missionLevel] = useState(() => {
+    const local = getMissionProgress()
+    return local.highestUnlocked > 1 ? local.highestUnlocked : 1
+  })
+  const [modeCompletions, setModeCompletions] = useState({})
 
   useEffect(() => {
     requestAnimationFrame(() => setVisible(true))
   }, [])
+
+  useEffect(() => {
+    if (!session) return
+    fetch(`${API_URL}/db/mode-completions`, {
+      headers: { Authorization: `Bearer ${session.access_token}` }
+    }).then(r => r.json()).then(data => {
+      if (data && typeof data === 'object') setModeCompletions(data)
+    }).catch(() => {})
+  }, [session])
 
   return (
     <div className={`ms ${visible ? 'ms--visible' : ''}`}>
@@ -199,6 +217,9 @@ export default function ModeSelectorPage() {
                   <div className="ms-main-card__badges">
                     {mode.badge && <span className="ms-main-card__badge ms-badge--highlight">{mode.badge}</span>}
                     <span className="ms-main-card__tag">{mode.tag}</span>
+                    {mode.id === 'mission' && missionLevel > 1 && (
+                      <span className="ms-main-card__badge ms-badge--progress">📍 Nivel {missionLevel - 1}/30</span>
+                    )}
                   </div>
                   <span className="ms-main-card__eyebrow">{mode.eyebrow}</span>
                   <span className="ms-main-card__label">{mode.label}</span>
@@ -237,6 +258,9 @@ export default function ModeSelectorPage() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
                   <span className="ms-secondary-card__label">{mode.label}</span>
                   {mode.badge && <span className="ms-badge--highlight ms-badge--sm">{mode.badge}</span>}
+                  {modeCompletions[mode.id] > 0 && (
+                    <span className="ms-badge--played ms-badge--sm">✓ {modeCompletions[mode.id]}×</span>
+                  )}
                 </div>
                 <p className="ms-secondary-card__desc">{mode.desc}</p>
               </div>

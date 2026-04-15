@@ -158,6 +158,7 @@ export default function MissionPage() {
   const [missionResult, setMissionResult] = useState(null) // 'win' | 'lose' | null
   const [pendingStats,  setPendingStats]  = useState(null)
   const [muted, setMuted] = useState(false)
+  const [victoryDismissed, setVictoryDismissed] = useState(false)
   const { session } = useAuth()
   const [campaignMode, setCampaignMode] = useState(false)
   const [selectedLevel, setSelectedLevel] = useState(null)
@@ -341,6 +342,7 @@ export default function MissionPage() {
     setChoiceFeedback(null)
     setCurrentEffects(null)
     setMissionResult(null)
+    setVictoryDismissed(false)
     setPendingStats(stats)
     setPhase('intro')   // ← mostrar intro antes de jugar
   }
@@ -963,6 +965,51 @@ export default function MissionPage() {
 
         <div ref={bottomRef} />
       </div>
+
+      {/* ── Victory overlay ──────────────────────────────── */}
+      {isEnded && missionResult === 'win' && !streaming && !victoryDismissed && (
+        <div className="mission-victory" onClick={() => setVictoryDismissed(true)}>
+          <div className="mission-victory__card" onClick={e => e.stopPropagation()}>
+            <div className="mission-victory__icon">✔</div>
+            <p className="mission-victory__eyebrow">
+              {campaignMode && selectedLevel ? `Nivel ${selectedLevel} superado` : 'Misión completada'}
+            </p>
+            <h2 className="mission-victory__title">{missionTitle || 'Operación exitosa'}</h2>
+            {campaignMode && selectedLevel && (
+              <p className="mission-victory__unlock">
+                🔓 Nivel {selectedLevel + 1} desbloqueado
+              </p>
+            )}
+            <div className="mission-victory__stats">
+              <div className="mission-victory__stat">
+                <span className="mission-victory__stat-val">{vida}<span className="mission-victory__stat-max">/5</span></span>
+                <span className="mission-victory__stat-lbl">{vidaName}</span>
+              </div>
+              <div className="mission-victory__stat">
+                <span className="mission-victory__stat-val">{history.length}<span className="mission-victory__stat-max">/5</span></span>
+                <span className="mission-victory__stat-lbl">Decisiones</span>
+              </div>
+              <div className="mission-victory__stat">
+                <span className="mission-victory__stat-val">{riesgo}<span className="mission-victory__stat-max">/5</span></span>
+                <span className="mission-victory__stat-lbl">Riesgo</span>
+              </div>
+            </div>
+            <div className="mission-victory__actions">
+              {campaignMode && missionResult === 'win' && selectedLevel !== 30 && (
+                <button className="mission-victory__btn mission-victory__btn--next" onClick={handleNextLevel}>
+                  Siguiente nivel →
+                </button>
+              )}
+              <button className="mission-victory__btn mission-victory__btn--secondary" onClick={() => setVictoryDismissed(true)}>
+                Ver análisis
+              </button>
+              <button className="mission-victory__btn mission-victory__btn--ghost" onClick={handleRestart}>
+                {campaignMode ? 'Ver campaña' : 'Nuevo personaje'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

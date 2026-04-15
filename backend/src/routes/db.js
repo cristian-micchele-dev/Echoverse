@@ -300,6 +300,55 @@ router.get('/daily-challenge', requireAuth, async (req, res) => {
   res.json({ completed: !!data })
 })
 
+// GET /api/db/streak  → { current: N, longest: M }
+router.get('/streak', requireAuth, async (req, res) => {
+  const { data, error } = await supabase
+    .from('daily_challenge_completions')
+    .select('challenge_date')
+    .eq('user_id', req.user.id)
+    .order('challenge_date', { ascending: false })
+
+  if (error) return res.status(500).json({ error: error.message })
+
+  const dates = (data ?? []).map(r => r.challenge_date) // ['2026-04-15', '2026-04-14', ...]
+
+  if (dates.length === 0) return res.json({ current: 0, longest: 0 })
+
+  const todayStr = new Date().toISOString().slice(0, 10)
+
+  // Calcular racha actual: días consecutivos desde hoy (o ayer si hoy no está)
+  function dayDiff(a, b) {
+    return Math.round((new Date(a) - new Date(b)) / 86_400_000)
+  }
+
+  let current = 0
+  const diffFromToday = dayDiff(todayStr, dates[0])
+  if (diffFromToday <= 1) {
+    current = 1
+    for (let i = 1; i < dates.length; i++) {
+      if (dayDiff(dates[i - 1], dates[i]) === 1) {
+        current++
+      } else {
+        break
+      }
+    }
+  }
+
+  // Calcular racha más larga histórica
+  let longest = current
+  let run = 1
+  for (let i = 1; i < dates.length; i++) {
+    if (dayDiff(dates[i - 1], dates[i]) === 1) {
+      run++
+      longest = Math.max(longest, run)
+    } else {
+      run = 1
+    }
+  }
+
+  res.json({ current, longest })
+})
+
 // POST /api/db/daily-challenge  { characterId, mode }
 router.post('/daily-challenge', requireAuth, async (req, res) => {
   const { characterId, mode } = req.body

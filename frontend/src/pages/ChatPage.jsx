@@ -231,7 +231,7 @@ export default function ChatPage() {
     const trimmed = text.trim()
     if (!trimmed || isLoading) return
 
-    const userMessage = { role: 'user', content: trimmed }
+    const userMessage = { role: 'user', content: trimmed, ts: Date.now() }
     const updatedMessages = [...messages, userMessage]
     setMessages(updatedMessages)
     setInput('')
@@ -245,11 +245,17 @@ export default function ChatPage() {
         body: JSON.stringify({ characterId, messages: updatedMessages, affinityLevel: getAffinityLevel(getAffinityData(characterId).messageCount) })
       })
 
+      if (!response.ok) {
+        const err = new Error('HTTP error')
+        err.status = response.status
+        throw err
+      }
+
       let firstChunk = true
       await readSSEStream(response, content => {
         if (firstChunk) {
           setIsTyping(false)
-          setMessages(prev => [...prev, { role: 'assistant', content }])
+          setMessages(prev => [...prev, { role: 'assistant', content, ts: Date.now() }])
           firstChunk = false
         } else {
           setMessages(prev => {
@@ -259,9 +265,17 @@ export default function ChatPage() {
           })
         }
       })
-    } catch {
+    } catch (err) {
       setIsTyping(false)
-      setMessages(prev => [...prev, { role: 'assistant', content: 'Error al conectar con el servidor.' }])
+      let msg = 'Error al conectar con el servidor.'
+      if (err?.name === 'AbortError') {
+        msg = 'La respuesta tardó demasiado. Intentá de nuevo.'
+      } else if (err?.status === 429 || String(err?.message).includes('429')) {
+        msg = 'Demasiados mensajes seguidos. Esperá un momento.'
+      } else if (!navigator.onLine) {
+        msg = 'Sin conexión a internet.'
+      }
+      setMessages(prev => [...prev, { role: 'assistant', content: msg }])
     } finally {
       setIsLoading(false)
       setIsTyping(false)

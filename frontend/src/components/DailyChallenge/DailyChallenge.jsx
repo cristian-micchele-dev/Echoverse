@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom'
 import { characters } from '../../data/characters'
 import { getTodayChallenge, MODE_LABELS } from '../../data/dailyChallenges'
 import { useAuth } from '../../context/AuthContext'
+import { useStreak } from '../../hooks/useStreak'
 import { API_URL } from '../../config/api'
 import './DailyChallenge.css'
 
 export default function DailyChallenge() {
   const navigate = useNavigate()
   const { session } = useAuth()
+  const { streak } = useStreak()
   const [completed, setCompleted] = useState(false)
 
   const challenge = getTodayChallenge()
@@ -41,7 +43,14 @@ export default function DailyChallenge() {
       <div className="dc__body">
         <div className="dc__header">
           <span className="dc__eyebrow">HOY · DESAFÍO DEL DÍA</span>
-          {completed && <span className="dc__done-badge">✓ Completado</span>}
+          <div className="dc__header-right">
+            {streak.current > 0 && (
+              <span className={`dc__streak ${streak.current >= 3 ? 'dc__streak--hot' : ''}`}>
+                🔥 {streak.current} {streak.current === 1 ? 'día' : 'días'}
+              </span>
+            )}
+            {completed && <span className="dc__done-badge">✓ Completado</span>}
+          </div>
         </div>
 
         <span className="dc__mode">{modeLabel}</span>

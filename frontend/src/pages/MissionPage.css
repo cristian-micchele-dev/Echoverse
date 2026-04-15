@@ -1223,3 +1223,156 @@
   .mission-stat__pip { width: 9px; height: 6px; }
   .mission-stats { gap: 0.7rem; }
 }
+
+
+/* ─── Victory Overlay ─────────────────────────────── */
+@keyframes mv-in {
+  from { opacity: 0; transform: scale(0.92) translateY(16px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0); }
+}
+
+.mission-victory {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(6px);
+}
+
+.mission-victory__card {
+  width: 100%;
+  max-width: 400px;
+  background: #0f0f1a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 2px solid var(--char-color, #6D4AFF);
+  border-radius: 16px;
+  padding: 2rem 1.75rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  text-align: center;
+  animation: mv-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6), 0 0 40px color-mix(in srgb, var(--char-color, #6D4AFF) 12%, transparent);
+}
+
+.mission-victory__icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--char-color, #6D4AFF) 18%, transparent);
+  border: 1.5px solid color-mix(in srgb, var(--char-color, #6D4AFF) 40%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  color: var(--char-color, #6D4AFF);
+  margin-bottom: 0.4rem;
+}
+
+.mission-victory__eyebrow {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--char-color, #6D4AFF);
+  opacity: 0.85;
+  margin: 0;
+}
+
+.mission-victory__title {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.15;
+  margin: 0;
+}
+
+.mission-victory__unlock {
+  font-size: 0.78rem;
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.1);
+  border: 1px solid rgba(74, 222, 128, 0.2);
+  border-radius: 20px;
+  padding: 0.2rem 0.8rem;
+  margin: 0.2rem 0;
+}
+
+.mission-victory__stats {
+  display: flex;
+  gap: 1.5rem;
+  margin: 0.75rem 0 0.5rem;
+}
+
+.mission-victory__stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.mission-victory__stat-val {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+}
+
+.mission-victory__stat-max {
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.35);
+  font-weight: 400;
+}
+
+.mission-victory__stat-lbl {
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+}
+
+.mission-victory__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  width: 100%;
+  margin-top: 0.75rem;
+}
+
+.mission-victory__btn {
+  width: 100%;
+  padding: 0.7rem 1rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: var(--font-body);
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.18s, transform 0.18s;
+}
+.mission-victory__btn:hover { opacity: 0.88; transform: translateY(-1px); }
+
+.mission-victory__btn--next {
+  background: var(--char-color, #6D4AFF);
+  color: #fff;
+}
+
+.mission-victory__btn--secondary {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.75);
+}
+
+.mission-victory__btn--ghost {
+  background: transparent;
+  color: rgba(255,255,255,0.35);
+  font-size: 0.78rem;
+  padding: 0.3rem;
+}
+.mission-victory__btn--ghost:hover { color: rgba(255,255,255,0.6); transform: none; }

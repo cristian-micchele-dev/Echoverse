@@ -329,6 +329,16 @@ export default function SwipePage() {
   const score = result.score ?? 0
   const total = cards.length
   const pct = Math.round((score / total) * 100)
+
+  const bestKey = `swipe-best-${selectedChar?.id}`
+  const prevBest = parseInt(localStorage.getItem(bestKey) || '0', 10)
+  const isNewBest = score > prevBest
+  if (isNewBest && total > 0) localStorage.setItem(bestKey, String(score))
+
+  const scoreBadge = pct >= 80 ? { label: '⭐ Maestro', cls: 'swipe-badge--master' }
+    : pct >= 50 ? { label: '👍 Buen intento', cls: 'swipe-badge--ok' }
+    : { label: '📚 A repasar', cls: 'swipe-badge--low' }
+
   return (
     <div className="swipe-page swipe-page--result" style={{ '--char-color': selectedChar.themeColor }}>
       <div className="swipe-result">
@@ -345,6 +355,14 @@ export default function SwipePage() {
           <div className="swipe-result__bar" style={{ '--pct': `${pct}%` }} />
         </div>
         <p className="swipe-result__pct">{pct}% correcto</p>
+
+        <div className="swipe-result__badges">
+          <span className={`swipe-badge ${scoreBadge.cls}`}>{scoreBadge.label}</span>
+          {isNewBest && total > 0 && <span className="swipe-badge swipe-badge--best">🏆 Nuevo récord</span>}
+          {!isNewBest && prevBest > 0 && (
+            <span className="swipe-badge swipe-badge--prev">Mejor: {prevBest}/{total}</span>
+          )}
+        </div>
 
         {result.analysis && (
           <p className="swipe-result__analysis">

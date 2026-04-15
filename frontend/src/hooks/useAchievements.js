@@ -38,6 +38,7 @@ export function useAchievements() {
    *   - dilemasCount: number
    *   - guessScore: number
    *   - dailyCompleted: number
+   *   - streakCurrent: number
    */
   const checkAndUnlock = useCallback(async (stats) => {
     if (!session) return
@@ -61,6 +62,7 @@ export function useAchievements() {
         dilemas_answered:   stats.dilemasCount    ?? 0,
         guess_score:        stats.guessScore      ?? 0,
         daily_completed:    stats.dailyCompleted  ?? 0,
+        streak:             stats.streakCurrent   ?? 0,
       }
       return (map[type] ?? 0) >= threshold
     })

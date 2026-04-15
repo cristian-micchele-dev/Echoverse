@@ -342,6 +342,25 @@
   padding: 0.12rem 0.42rem;
 }
 
+.ms-badge--progress {
+  background: rgba(109, 74, 255, 0.15);
+  border-color: rgba(109, 74, 255, 0.35);
+  color: #a78bfa;
+}
+
+.ms-badge--played {
+  display: inline-flex;
+  align-self: flex-start;
+  padding: 0.12rem 0.42rem;
+  border-radius: 99px;
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+  color: rgba(74, 222, 128, 0.8);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
 .ms-main-card__stats {
   display: flex;
   align-items: center;

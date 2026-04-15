@@ -4,6 +4,8 @@ import { characters } from '../data/characters'
 import { FEATURED_LIST } from '../data/featured'
 import { missions } from '../data/missions'
 import { loadSession, timeAgo } from '../utils/session'
+import { pickByDay } from '../utils/daily'
+import { useStreak } from '../hooks/useStreak'
 import { useAuth } from '../context/AuthContext'
 import DailyChallenge from '../components/DailyChallenge/DailyChallenge'
 import './LandingPage.css'
@@ -125,6 +127,7 @@ export default function LandingPage() {
   const heroChars    = HERO_CHAR_IDS.map(id => characters.find(c => c.id === id)).filter(Boolean)
   const session      = loadSession()
   const sessionChar  = session ? characters.find(c => c.id === session.characterId) : null
+  const { streak }   = useStreak()
 
   useEffect(() => {
     requestAnimationFrame(() => setVisible(true))
@@ -286,6 +289,14 @@ export default function LandingPage() {
       {user && (
         <section className="lp-daily">
           <div className="lp-container">
+            {streak.current > 0 && (
+              <div className="lp-streak-badge">
+                <span className="lp-streak-badge__fire">🔥</span>
+                <span className="lp-streak-badge__text">
+                  Racha de <strong>{streak.current} {streak.current === 1 ? 'día' : 'días'}</strong> · No la rompas
+                </span>
+              </div>
+            )}
             <DailyChallenge />
           </div>
         </section>
@@ -325,6 +336,11 @@ export default function LandingPage() {
                   <em className="lp-featured-card__accent"> {featured.hookAccent}</em>
                 </h2>
                 <p className="lp-featured-card__charname">{featuredChar.name}</p>
+                {featuredChar.quotes?.length > 0 && (
+                  <blockquote className="lp-featured-quote">
+                    "{pickByDay(featuredChar.quotes)}"
+                  </blockquote>
+                )}
                 <button
                   className="lp-featured-card__cta"
                   onClick={e => { e.stopPropagation(); navigate(featured.route) }}

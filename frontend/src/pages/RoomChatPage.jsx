@@ -291,6 +291,8 @@ export default function RoomChatPage() {
   const [sending, setSending] = useState(false)
   const [sendError, setSendError] = useState('')
   const [copied, setCopied] = useState(false)
+  const [connStatus, setConnStatus] = useState('connected') // 'connected' | 'reconnecting'
+  const [retryCount, setRetryCount] = useState(0)
 
   // Mecánicas grupales
   const [showEventPicker, setShowEventPicker] = useState(false)
@@ -387,7 +389,17 @@ export default function RoomChatPage() {
       setOnlineUsers(users)
     })
 
-    channel.subscribe()
+    channel.subscribe(status => {
+      if (status === 'SUBSCRIBED') {
+        setConnStatus('connected')
+      } else if (status === 'CHANNEL_ERROR' || status === 'CLOSED' || status === 'TIMED_OUT') {
+        setConnStatus('reconnecting')
+        setTimeout(() => {
+          supabase.removeChannel(channel)
+          setRetryCount(n => n + 1)
+        }, 4000)
+      }
+    })
     channelRef.current = channel
 
     // Trackear presencia del usuario actual
@@ -402,7 +414,7 @@ export default function RoomChatPage() {
       supabase.removeChannel(channel)
       channelRef.current = null
     }
-  }, [loading, error, roomId, user, scrollToBottom])
+  }, [loading, error, roomId, user, scrollToBottom, retryCount])
 
   // ── Scroll al cargar mensajes iniciales ───────────────────────────────────
 
@@ -673,6 +685,14 @@ export default function RoomChatPage() {
           onSendResult={handleSendPollResult}
           isRoomCreator={isRoomCreator}
         />
+      )}
+
+      {/* Reconnect banner */}
+      {connStatus === 'reconnecting' && (
+        <div className="rchat-reconnect-banner">
+          <span className="rchat-reconnect-banner__dot" />
+          Reconectando...
+        </div>
       )}
 
       {/* Messages */}

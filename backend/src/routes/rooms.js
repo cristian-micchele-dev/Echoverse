@@ -198,13 +198,19 @@ async function streamToRoom(roomId, character, latestContent = '', participants 
 
   let fullContent = ''
 
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), 45000)
+
   try {
-    const stream = await mistral.chat.completions.create({
-      model: 'mistral-small-latest',
-      messages: [{ role: 'system', content: systemPrompt }, ...context],
-      stream: true,
-      max_tokens: MAX_ROOM_TOKENS
-    })
+    const stream = await mistral.chat.completions.create(
+      {
+        model: 'mistral-small-latest',
+        messages: [{ role: 'system', content: systemPrompt }, ...context],
+        stream: true,
+        max_tokens: MAX_ROOM_TOKENS,
+      },
+      { signal: controller.signal }
+    )
 
     for await (const chunk of stream) {
       const text = chunk.choices[0]?.delta?.content || ''
@@ -218,6 +224,7 @@ async function streamToRoom(roomId, character, latestContent = '', participants 
       }
     }
   } finally {
+    clearTimeout(timeoutId)
     // Persistir respuesta completa
     await supabase.from('room_messages').insert({
       room_id: roomId,
