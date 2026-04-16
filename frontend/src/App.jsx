@@ -24,6 +24,8 @@ import ParecidoPage from './pages/ParecidoPage'
 import RoomsPage from './pages/RoomsPage'
 import RoomChatPage from './pages/RoomChatPage'
 import AdminPage from './pages/AdminPage'
+import SpeedPage from './pages/SpeedPage'
+import EntrenamientoPage from './pages/EntrenamientoPage'
 import './App.css'
 
 function AnimatedRoutes() {
@@ -55,6 +57,8 @@ function AnimatedRoutes() {
         <Route path="/salas" element={<RoomsPage />} />
         <Route path="/salas/:roomId" element={<RoomChatPage />} />
         <Route path="/admin" element={<AdminPage />} />
+        <Route path="/speed" element={<SpeedPage />} />
+        <Route path="/entrenamiento" element={<EntrenamientoPage />} />
       </Routes>
     </div>
   )

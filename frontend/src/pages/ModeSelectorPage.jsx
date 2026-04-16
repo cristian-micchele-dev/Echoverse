@@ -74,6 +74,36 @@ const MAIN_MODES = [
 
 const SECONDARY_MODES = [
   {
+    id: 'speed',
+    eyebrow: 'Preguntas Rápidas',
+    label: 'Speed Round',
+    desc: '60 segundos. Todo lo que puedas preguntar.',
+    route: '/speed',
+    accent: '#FF6B35',
+    badge: '⚡ Nuevo',
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round"/>
+      </svg>
+    ),
+  },
+  {
+    id: 'entrenamiento',
+    eyebrow: 'Sesión Personal',
+    label: 'Entrenamiento',
+    desc: 'El personaje te enseña lo que mejor sabe. 5 fases.',
+    route: '/entrenamiento',
+    accent: '#C07A3A',
+    badge: '🥋 Nuevo',
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <path d="M12 2a5 5 0 1 1 0 10A5 5 0 0 1 12 2z" stroke="currentColor" strokeWidth="1.7"/>
+        <path d="M6 21v-1a6 6 0 0 1 12 0v1" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/>
+        <path d="M9 13l3 4 3-4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    ),
+  },
+  {
     id: 'chat',
     eyebrow: 'Chat con Personaje',
     label: 'Chat 1 a 1',

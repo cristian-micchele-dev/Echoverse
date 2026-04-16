@@ -97,10 +97,14 @@ La conversación es libre, sin guión.${temaContext}${eventoContext}${remateCont
 }
 
 const AFFINITY_CONTEXT = {
-  1: 'El usuario ya ha hablado contigo antes. Reconócelo sutilmente como alguien conocido.',
-  2: 'El usuario y tú tenéis historia juntos. Trátalo con la confianza de un aliado.',
-  3: 'Es alguien en quien confías profundamente. Puedes mostrarte más abierto y personal.',
-  4: 'Es una leyenda entre quienes te conocen. Recíbelo con el máximo respeto dentro de tu personaje.',
+  1: 'El usuario ya ha hablado contigo antes. Reconócelo sutilmente como alguien conocido, sin exagerar.',
+  2: 'Hay algo de historia entre vosotros. Tratalo con la familiaridad de alguien que ya pasó una prueba.',
+  3: 'Es un contacto de confianza. Podés ser un poco más directo y menos guardado de lo habitual.',
+  4: 'Es un aliado real. Tratalo con la confianza que le darías a alguien que ya demostró estar del lado correcto.',
+  5: 'Es un confidente — de los pocos con quienes hablarías de cosas que no le dirías a cualquiera. Podés mostrarte un poco más personal.',
+  6: 'Es un cómplice. Han hecho cosas juntos que nadie más sabe. El vínculo es real y denso.',
+  7: 'Es como un hermano de armas — el tipo de persona con quien irías al límite sin pensarlo dos veces. Tratalo como igual.',
+  8: 'Es una leyenda para vos. Alguien que se ganó un lugar único en tu historia. Tratalo con el respeto más auténtico que podés ofrecer dentro de tu personaje.',
 }
 
 function buildChatSystemPrompt(character, body) {
@@ -654,6 +658,77 @@ router.post('/esteoese/result', async (req, res) => {
   } catch (error) {
     console.error('Error Mistral /esteoese/result:', error.message)
     sendSseError(res, 'Error al generar resultado')
+  }
+})
+
+// ─── Speed Round ─────────────────────────────────────────────────────────────
+
+router.post('/speed', async (req, res) => {
+  const { characterId, messages: rawMessages = [] } = req.body
+  const character = characters[characterId]
+  if (!character) return res.status(404).json({ error: 'Personaje no encontrado' })
+
+  initSseResponse(res)
+
+  const systemPrompt = `${character.systemPrompt}
+
+MODO SPEED ROUND:
+El usuario está en una sesión de preguntas rápidas de 60 segundos contigo.
+REGLA ABSOLUTA: Respondé en MÁXIMO 2 oraciones cortas. NUNCA más.
+Sé directo, contundente y en tu voz más característica.
+Sin introducción, sin contexto. Solo la respuesta.
+Respondé siempre en español.`
+
+  const messages = rawMessages.slice(-6)
+  try {
+    await streamMistral(res, systemPrompt, messages, 80)
+  } catch (error) {
+    console.error('Error Mistral /speed:', error.message)
+    sendSseError(res, 'Error al contactar la IA')
+  }
+})
+
+// ─── Entrenamiento ───────────────────────────────────────────────────────────
+
+router.post('/entrenamiento', async (req, res) => {
+  const { characterId, messages: rawMessages = [], turn = 1, isFinal = false } = req.body
+  const character = characters[characterId]
+  if (!character) return res.status(404).json({ error: 'Personaje no encontrado' })
+
+  initSseResponse(res)
+
+  const especialidad = character.especialidad || 'tu habilidad más característica'
+
+  const systemPrompt = `${character.systemPrompt}
+
+MODO ENTRENAMIENTO:
+Estás entrenando al usuario en: ${especialidad}.
+El entrenamiento tiene 5 fases progresivas.
+
+${isFinal
+    ? `FASE FINAL (Turno ${turn}/5):
+Emitís tu juicio final sobre el progreso del usuario. Serio, honesto, en tu voz.
+¿Aprendió algo real? ¿Tiene lo que hace falta? Sin condescendencia fácil.
+2-4 oraciones. Terminá con [FIN].`
+    : turn === 1
+      ? `FASE 1 — EVALUACIÓN INICIAL:
+Antes de empezar, evaluá al usuario. ¿Por qué quiere aprender? ¿Tiene lo que hace falta?
+Hacele UNA pregunta directa que revele algo de su carácter o motivación.
+Respondé en 2-3 oraciones en tu voz más característica.`
+      : `FASE ${turn}/5 — EJERCICIO PROGRESIVO:
+Proponé un ejercicio o desafío concreto relacionado con ${especialidad}.
+Debe ser más exigente que el anterior. Pedile que lo ejecute o reflexione sobre algo específico.
+Respondé en 2-4 oraciones. Si el usuario respondió al ejercicio anterior, evalualo brevemente antes de avanzar.`
+  }
+
+Respondé siempre en español.`
+
+  const messages = rawMessages.slice(-8)
+  try {
+    await streamMistral(res, systemPrompt, messages, isFinal ? 300 : 200)
+  } catch (error) {
+    console.error('Error Mistral /entrenamiento:', error.message)
+    sendSseError(res, 'Error al contactar la IA')
   }
 })
 
