@@ -1492,3 +1492,56 @@
   padding: 0.3rem;
 }
 .mission-victory__btn--ghost:hover { color: rgba(255,255,255,0.6); transform: none; }
+
+/* ── Nivel 31 — Cuenta Regresiva ─────────────────────────────────────────── */
+
+.mission-countdown {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #facc15;
+  letter-spacing: 0.02em;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  background: rgba(250, 204, 21, 0.1);
+  border: 1px solid rgba(250, 204, 21, 0.25);
+  transition: color 0.3s, background 0.3s, border-color 0.3s;
+}
+
+.mission-countdown--urgent {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.35);
+  animation: countdown-pulse 0.55s ease-in-out infinite alternate;
+}
+
+@keyframes countdown-pulse {
+  from { opacity: 1; transform: scale(1); }
+  to   { opacity: 0.75; transform: scale(1.06); }
+}
+
+.mission-countdown__icon { font-size: 0.9rem; }
+.mission-countdown__value { font-variant-numeric: tabular-nums; }
+
+/* Tarjeta especial nivel 31 en el grid de campaña */
+.campaign-card--special {
+  border: 1px solid rgba(239, 68, 68, 0.45) !important;
+}
+
+.campaign-card--special .campaign-card__diff {
+  color: #ef4444 !important;
+  border-color: rgba(239, 68, 68, 0.35) !important;
+}
+
+.campaign-card__special-bg {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 5rem;
+  opacity: 0.12;
+  pointer-events: none;
+}

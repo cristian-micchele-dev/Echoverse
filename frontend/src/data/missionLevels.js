@@ -23,16 +23,27 @@ export function getDifficultyForLevel(level) {
   return 'hard'
 }
 
-export const MISSION_LEVELS = Array.from({ length: 30 }, (_, i) => {
-  const level = i + 1
-  const arc = ARCS.find(a => level >= a.levels[0] && level <= a.levels[1])
-  return {
-    level,
-    character: arc.character,
-    arcName: arc.arcName,
-    difficulty: getDifficultyForLevel(level),
-  }
-})
+const SPECIAL_LEVEL = {
+  level: 31,
+  character: null,
+  arcName: 'Protocolo de Emergencia',
+  difficulty: 'hard',
+  type: 'countdown',
+}
+
+export const MISSION_LEVELS = [
+  ...Array.from({ length: 30 }, (_, i) => {
+    const level = i + 1
+    const arc = ARCS.find(a => level >= a.levels[0] && level <= a.levels[1])
+    return {
+      level,
+      character: arc.character,
+      arcName: arc.arcName,
+      difficulty: getDifficultyForLevel(level),
+    }
+  }),
+  SPECIAL_LEVEL,
+]
 
 export const CAMPAIGN_ARCS = MISSION_LEVELS.reduce((acc, lvl) => {
   const existing = acc.find(a => a.arcName === lvl.arcName)

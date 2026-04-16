@@ -162,6 +162,8 @@ export default function MissionPage() {
   const { session } = useAuth()
   const [campaignMode, setCampaignMode] = useState(false)
   const [selectedLevel, setSelectedLevel] = useState(null)
+  const [countdown, setCountdown] = useState(null)
+  const [timerActive, setTimerActive] = useState(false)
   const [campaignProgress, setCampaignProgress] = useState(() => getMissionProgress())
   const bottomRef = useRef(null)
   const nameInputRef = useRef(null)
@@ -245,6 +247,41 @@ export default function MissionPage() {
     }
   }, [phase])
 
+  const isCountdownLevel = selectedLevel?.type === 'countdown'
+
+  // ── Timer de cuenta regresiva (nivel 31) ─────────────────────────────────
+  useEffect(() => {
+    if (!isCountdownLevel) return
+    if (choices.length > 0 && !streaming) {
+      setCountdown(30)
+      setTimerActive(true)
+    }
+  }, [choices, streaming, isCountdownLevel])
+
+  useEffect(() => {
+    if (!timerActive || countdown === null) return
+    if (countdown <= 0) {
+      setTimerActive(false)
+      // Elige automáticamente la opción con peor score
+      if (currentEffects && choices.length > 0) {
+        let worstKey = choices[0].key
+        let worstScore = Infinity
+        for (const ch of choices) {
+          const eff = currentEffects[ch.key]
+          if (eff) {
+            const score = (eff.vida || 0) - (eff.riesgo || 0) + (eff.sigilo ?? 0)
+            if (score < worstScore) { worstScore = score; worstKey = ch.key }
+          }
+        }
+        const worstChoice = choices.find(c => c.key === worstKey) || choices[0]
+        handleChoice(worstChoice)
+      }
+      return
+    }
+    const t = setTimeout(() => setCountdown(c => c - 1), 1000)
+    return () => clearTimeout(t)
+  }, [timerActive, countdown]) // eslint-disable-line react-hooks/exhaustive-deps
+
   const surname = selectedChar ? (CHAR_SURNAMES[selectedChar.id] || '') : ''
   const playerAlias = playerName.trim() ? `${playerName.trim()} ${surname}`.trim() : ''
 
@@ -303,13 +340,22 @@ export default function MissionPage() {
 
   const handleCharSelect = (char) => {
     setSelectedChar(char)
+    if (isCountdownLevel) {
+      setPlayerName(char.name)
+    }
     setPhase('setup')
   }
 
   const handleCampaignLevelSelect = (levelConfig) => {
+    if (levelConfig.type === 'countdown') {
+      setSelectedLevel(levelConfig)
+      setDifficulty('hard')
+      setPhase('chars') // el usuario elige el personaje
+      return
+    }
     const char = characters.find(c => c.id === levelConfig.character)
     if (!char) return
-    setSelectedLevel(levelConfig.level)
+    setSelectedLevel(levelConfig)
     setSelectedChar(char)
     setDifficulty(levelConfig.difficulty)
     setPlayerName(char.name)
@@ -317,7 +363,7 @@ export default function MissionPage() {
   }
 
   const handleNextLevel = () => {
-    const nextConfig = CAMPAIGN_ARCS.flatMap(a => a.levels).find(l => l.level === selectedLevel + 1)
+    const nextConfig = CAMPAIGN_ARCS.flatMap(a => a.levels).find(l => l.level === selectedLevel?.level + 1)
     if (nextConfig) {
       handleCampaignLevelSelect(nextConfig)
     } else {
@@ -353,6 +399,8 @@ export default function MissionPage() {
   }, [pendingStats, selectedChar]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleChoice = (choice) => {
+    setTimerActive(false)
+    setCountdown(null)
     const fx = currentEffects?.[choice.key]
     const newVida   = fx ? Math.max(0, Math.min(5, vida   + fx.vida))            : vida
     const newRiesgo = fx ? Math.max(0, Math.min(5, riesgo + fx.riesgo))          : riesgo
@@ -384,7 +432,7 @@ export default function MissionPage() {
       setMissionResult('win')
       setPhase('ended')
       if (campaignMode && selectedLevel) {
-        saveLevelComplete(selectedLevel)
+        saveLevelComplete(selectedLevel?.level ?? selectedLevel)
         const updated = getMissionProgress()
         setCampaignProgress(updated)
         if (session) {
@@ -403,6 +451,8 @@ export default function MissionPage() {
   }
 
   const handleRestart = () => {
+    setTimerActive(false)
+    setCountdown(null)
     setPhase('chars')
     setSelectedChar(null)
     setSelectedLevel(null)
@@ -479,7 +529,7 @@ export default function MissionPage() {
         <div className="mission-intro">
           <span className="mission-intro__eyebrow">⚔ Modo Misión</span>
           <h1 className="mission-intro__title">
-            {campaignMode ? 'Campaña — 30 Niveles' : 'Entrá al Universo'}
+            {campaignMode ? 'Campaña — 31 Niveles' : 'Entrá al Universo'}
           </h1>
           <p className="mission-intro__sub">
             {campaignMode
@@ -529,7 +579,8 @@ export default function MissionPage() {
           <div className="campaign-grid-wrapper">
             <div className="campaign-grid">
               {CAMPAIGN_ARCS.map((arc, arcIdx) => {
-                const arcChar = characters.find(c => c.id === arc.character)
+                const isSpecial = arc.levels[0].type === 'countdown'
+                const arcChar = isSpecial ? null : characters.find(c => c.id === arc.character)
                 const allLevelsCompleted = arc.levels.every(lvl => !!campaignProgress.completedLevels[lvl.level])
                 const firstUnlocked = isLevelUnlocked(arc.levels[0].level)
                 const arcLocked = !firstUnlocked
@@ -539,12 +590,13 @@ export default function MissionPage() {
                 return (
                   <div
                     key={arc.arcName}
-                    className={`campaign-card ${arcLocked ? 'campaign-card--locked' : allLevelsCompleted ? 'campaign-card--done' : 'campaign-card--open'}`}
-                    style={{ '--char-color': arcChar?.themeColor || '#888', '--card-delay': `${arcIdx * 0.04}s` }}
+                    className={`campaign-card ${arcLocked ? 'campaign-card--locked' : allLevelsCompleted ? 'campaign-card--done' : 'campaign-card--open'} ${isSpecial ? 'campaign-card--special' : ''}`}
+                    style={{ '--char-color': isSpecial ? '#ef4444' : (arcChar?.themeColor || '#888'), '--card-delay': `${arcIdx * 0.04}s` }}
                   >
                     {/* Background image */}
                     <div className="campaign-card__bg">
                       {arcChar?.image && <img src={arcChar.image} alt={arcChar.name} className="campaign-card__img" />}
+                      {isSpecial && <div className="campaign-card__special-bg">⏱</div>}
                       <div className="campaign-card__overlay" />
                     </div>
 
@@ -572,7 +624,7 @@ export default function MissionPage() {
                     {/* Content */}
                     <div className="campaign-card__content">
                       <div className="campaign-card__meta">
-                        <span className="campaign-card__char">{arcChar?.name}</span>
+                        <span className="campaign-card__char">{isSpecial ? 'Cualquier personaje' : arcChar?.name}</span>
                         <h3 className="campaign-card__title">{arc.arcName}</h3>
                       </div>
                       <div className="campaign-card__levels">
@@ -588,7 +640,7 @@ export default function MissionPage() {
                             >
                               <span className="campaign-card-lvl__num">{lvl.level}</span>
                               <span className="campaign-card-lvl__icon">
-                                {completed ? '✔' : unlocked ? '▶' : '🔒'}
+                                {completed ? '✔' : unlocked ? (isSpecial ? '⏱' : '▶') : '🔒'}
                               </span>
                             </button>
                           )
@@ -805,6 +857,12 @@ export default function MissionPage() {
           </div>
         </div>
         <div className="mission-stats">
+          {isCountdownLevel && countdown !== null && (
+            <div className={`mission-countdown ${countdown <= 10 ? 'mission-countdown--urgent' : ''}`}>
+              <span className="mission-countdown__icon">⏱</span>
+              <span className="mission-countdown__value">{countdown}s</span>
+            </div>
+          )}
           <div className={`mission-stat mission-stat--${vidaState}${vidaFlash ? ` mission-stat--flash-${vidaFlash}` : ''}`} title={vidaName}>
             <span className="mission-stat__icon mission-stat__icon--vida">❤</span>
             <div className="mission-stat__bar">
@@ -1005,12 +1063,12 @@ export default function MissionPage() {
           <div className="mission-victory__card" onClick={e => e.stopPropagation()}>
             <div className="mission-victory__icon">✔</div>
             <p className="mission-victory__eyebrow">
-              {campaignMode && selectedLevel ? `Nivel ${selectedLevel} superado` : 'Misión completada'}
+              {campaignMode && selectedLevel ? `Nivel ${selectedLevel?.level} superado` : 'Misión completada'}
             </p>
             <h2 className="mission-victory__title">{missionTitle || 'Operación exitosa'}</h2>
             {campaignMode && selectedLevel && (
               <p className="mission-victory__unlock">
-                🔓 Nivel {selectedLevel + 1} desbloqueado
+                🔓 Nivel {selectedLevel?.level + 1} desbloqueado
               </p>
             )}
             <div className="mission-victory__stats">
@@ -1028,7 +1086,7 @@ export default function MissionPage() {
               </div>
             </div>
             <div className="mission-victory__actions">
-              {campaignMode && missionResult === 'win' && selectedLevel !== 30 && (
+              {campaignMode && missionResult === 'win' && selectedLevel?.level !== 30 && (
                 <button className="mission-victory__btn mission-victory__btn--next" onClick={handleNextLevel}>
                   Siguiente nivel →
                 </button>
