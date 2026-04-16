@@ -5,44 +5,9 @@ import { storyScenarios } from '../data/stories'
 import { readSSEStream } from '../utils/sse'
 import { useAuth } from '../context/AuthContext'
 import { recordCompletion } from '../utils/recordCompletion'
+import { parseStoryResponse } from '../utils/aiResponseParser'
 import './StoryPage.css'
 import { API_URL } from '../config/api.js'
-
-function parseChoices(block) {
-  const choices = []
-  // Captura [A/B/C] seguido de texto hasta el próximo [A/B/C] o fin — maneja una o múltiples líneas
-  const pattern = /\[([ABC])\]\s*([\s\S]*?)(?=\s*\[[ABC]\]|$)/g
-  let match
-  while ((match = pattern.exec(block)) !== null) {
-    const text = match[2].replace(/,\s*$/, '').trim()
-    if (text) choices.push({ key: match[1], text })
-  }
-  return choices
-}
-
-// eslint-disable-next-line react-refresh/only-export-components
-export function parseStoryResponse(text) {
-  const isFinal = text.includes('[FIN]')
-
-  // Buscar el separador --- (con o sin newline antes)
-  const sepMatch = text.match(/\n?\s*---\s*\n/)
-
-  if (sepMatch) {
-    const narrative = text.slice(0, sepMatch.index).trim()
-    const choiceBlock = text.slice(sepMatch.index + sepMatch[0].length)
-    return { narrative, choices: parseChoices(choiceBlock), isFinal }
-  }
-
-  // Fallback: buscar [A] directamente en el texto aunque no haya separador
-  const firstChoice = text.search(/\[A\]/)
-  if (firstChoice !== -1) {
-    const narrative = text.slice(0, firstChoice).replace(/---/g, '').trim()
-    const choiceBlock = text.slice(firstChoice)
-    return { narrative, choices: parseChoices(choiceBlock), isFinal }
-  }
-
-  return { narrative: text.replace('[FIN]', '').trim(), choices: [], isFinal }
-}
 
 export default function StoryPage() {
   const navigate = useNavigate()
@@ -68,6 +33,8 @@ export default function StoryPage() {
       recordCompletion(session, 'story')
     }
   }, [phase, session])
+
+  const turnLimitRef = useRef(5)
 
   const fetchStory = async (char, scenario, historyArray) => {
     setStreaming(true)
@@ -97,8 +64,18 @@ export default function StoryPage() {
       if (fullText) {
         const { narrative, choices: parsed, isFinal } = parseStoryResponse(fullText)
         setCurrentText(narrative)
-        if (isFinal) setPhase('ended')
-        else setChoices(parsed)
+        if (isFinal) {
+          // Si no llegamos al límite absoluto, ofrecer continuar
+          if (historyArray.length + 1 < turnLimitRef.current) {
+            setChoices(parsed)
+          } else if (historyArray.length + 1 < MAX_TOTAL_TURNS) {
+            setPhase('extendable')
+          } else {
+            setPhase('ended')
+          }
+        } else {
+          setChoices(parsed)
+        }
       }
     } catch {
       setFetchError(true)
@@ -130,6 +107,7 @@ export default function StoryPage() {
   }
 
   const handleRestart = () => {
+    turnLimitRef.current = 5
     setPhase('chars')
     setSelectedChar(null)
     setSelectedScenario(null)
@@ -140,8 +118,15 @@ export default function StoryPage() {
     setFetchError(false)
   }
 
-  const turnNumber = history.length + (phase === 'ended' ? 0 : 1)
-  const totalTurns = 5
+  const MAX_TOTAL_TURNS = 11
+  const turnNumber = history.length + (phase === 'ended' || phase === 'extendable' ? 0 : 1)
+  const totalTurns = turnLimitRef.current
+
+  const handleExtend = () => {
+    turnLimitRef.current = Math.min(MAX_TOTAL_TURNS, turnLimitRef.current + 3)
+    setPhase('playing')
+    fetchStory(selectedChar, selectedScenario, history)
+  }
 
   /* ── FASE: selección de personaje ─────────────────── */
   if (phase === 'chars') {
@@ -243,6 +228,7 @@ export default function StoryPage() {
 
   /* ── FASE: jugando / desenlace ────────────────────── */
   const isEnded = phase === 'ended'
+  const isExtendable = phase === 'extendable'
 
   return (
     <div
@@ -336,7 +322,7 @@ export default function StoryPage() {
         )}
 
         {/* Fallback: sin opciones y no es el final */}
-        {!streaming && choices.length === 0 && !isEnded && (fetchError || currentText) && (
+        {!streaming && choices.length === 0 && !isEnded && !isExtendable && (fetchError || currentText) && (
           <div className="story-choices">
             <p className="story-choices__label story-choices__label--warn">
               {fetchError ? 'Error de conexión — puede ser un límite de la API' : 'No se generaron opciones correctamente'}
@@ -347,6 +333,18 @@ export default function StoryPage() {
             >
               <span className="story-choice-btn__key">↺</span>
               <span className="story-choice-btn__text">Reintentar este turno</span>
+            </button>
+          </div>
+        )}
+
+        {/* Continuar historia */}
+        {isExtendable && !streaming && (
+          <div className="story-end-actions">
+            <button className="story-end-btn story-end-btn--extend" onClick={handleExtend}>
+              ➕ Continuar historia
+            </button>
+            <button className="story-end-btn story-end-btn--home" onClick={() => setPhase('ended')}>
+              Terminar aquí
             </button>
           </div>
         )}

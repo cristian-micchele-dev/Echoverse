@@ -3,7 +3,6 @@ import { AuthProvider } from './context/AuthContext'
 import AuthPage from './pages/AuthPage'
 import ProfilePage from './pages/ProfilePage'
 import LandingPage from './pages/LandingPage'
-import HomePage from './pages/HomePage'
 import ChatPage from './pages/ChatPage'
 import ChatModePage from './pages/ChatModePage'
 import DuoPage from './pages/DuoPage'
@@ -19,7 +18,6 @@ import ConfesionarioPage from './pages/ConfesionarioPage'
 import EsteOEsePage from './pages/EsteOEsePage'
 import StoryPage from './pages/StoryPage'
 import CriticalPage from './pages/CriticalPage'
-import OperacionPage from './pages/OperacionPage'
 import UltimaCenaPage from './pages/UltimaCenaPage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
 import ParecidoPage from './pages/ParecidoPage'
@@ -37,7 +35,6 @@ function AnimatedRoutes() {
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/perfil" element={<ProfilePage />} />
         <Route path="/" element={<LandingPage />} />
-        <Route path="/home-v1" element={<HomePage />} />
         <Route path="/chat" element={<ChatModePage />} />
         <Route path="/chat/:characterId" element={<ChatPage />} />
         <Route path="/duo" element={<DuoPage />} />
@@ -53,7 +50,6 @@ function AnimatedRoutes() {
         <Route path="/este-o-ese" element={<EsteOEsePage />} />
         <Route path="/story" element={<StoryPage />} />
         <Route path="/critical" element={<CriticalPage />} />
-        <Route path="/operacion" element={<OperacionPage />} />
         <Route path="/ultima-cena" element={<UltimaCenaPage />} />
         <Route path="/parecido" element={<ParecidoPage />} />
         <Route path="/salas" element={<RoomsPage />} />

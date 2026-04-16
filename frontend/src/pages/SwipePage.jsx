@@ -61,7 +61,7 @@ export default function SwipePage() {
     if (leaving || feedbackData) return
     const card = cards[currentIndex]
     const correct = userSaysTrue === card.answer
-    const newAnswers = [...answers, { correct }]
+    const newAnswers = [...answers, { correct, difficulty: card.difficulty || 'easy' }]
     const isLast = currentIndex + 1 >= cards.length
     const dir = userSaysTrue ? 'right' : 'left'
     setLeaving(dir)
@@ -77,7 +77,8 @@ export default function SwipePage() {
         advanceRef.current = null
         setFeedbackData(null)
         if (isLast) {
-          const score = newAnswers.filter(a => a.correct).length
+          const diffPts = { hard: 200, medium: 150, easy: 100 }
+          const score = newAnswers.reduce((acc, a) => acc + (a.correct ? (diffPts[a.difficulty] ?? 100) : 0), 0)
           setAnswers(newAnswers)
           setPhase('result')
           fetchResult(score, newAnswers.length)
@@ -328,7 +329,8 @@ export default function SwipePage() {
   /* ── Resultado ── */
   const score = result.score ?? 0
   const total = cards.length
-  const pct = Math.round((score / total) * 100)
+  const correctCount = answers.filter(a => a.correct).length
+  const pct = Math.round((correctCount / total) * 100)
 
   const bestKey = `swipe-best-${selectedChar?.id}`
   const prevBest = parseInt(localStorage.getItem(bestKey) || '0', 10)
@@ -349,8 +351,9 @@ export default function SwipePage() {
         </div>
         <div className="swipe-result__score">
           <span className="swipe-result__num">{score}</span>
-          <span className="swipe-result__denom">/ {total}</span>
+          <span className="swipe-result__denom">pts</span>
         </div>
+        <p className="swipe-result__correct">{correctCount} / {total} correctas</p>
         <div className="swipe-result__bar-wrap">
           <div className="swipe-result__bar" style={{ '--pct': `${pct}%` }} />
         </div>
@@ -360,7 +363,7 @@ export default function SwipePage() {
           <span className={`swipe-badge ${scoreBadge.cls}`}>{scoreBadge.label}</span>
           {isNewBest && total > 0 && <span className="swipe-badge swipe-badge--best">🏆 Nuevo récord</span>}
           {!isNewBest && prevBest > 0 && (
-            <span className="swipe-badge swipe-badge--prev">Mejor: {prevBest}/{total}</span>
+            <span className="swipe-badge swipe-badge--prev">Mejor: {prevBest} pts</span>
           )}
         </div>
 

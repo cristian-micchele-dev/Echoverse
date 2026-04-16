@@ -577,6 +577,15 @@
   color: var(--text-muted);
   border: 1px solid var(--border-faint);
 }
+.story-end-btn--extend {
+  background: color-mix(in srgb, var(--char-color) 22%, var(--ink-700));
+  color: var(--char-color);
+  border: 1px solid color-mix(in srgb, var(--char-color) 40%, transparent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--char-color) 15%, transparent);
+}
+.story-end-btn--extend:hover {
+  box-shadow: 0 6px 20px -4px color-mix(in srgb, var(--char-color) 35%, transparent);
+}
 
 /* ─── Mobile ──────────────────────────────────────── */
 @media (max-width: 600px) {

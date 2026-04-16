@@ -4,6 +4,7 @@ import { characters } from '../data/characters'
 import { readSSEStream } from '../utils/sse'
 import { useAuth } from '../context/AuthContext'
 import { recordCompletion } from '../utils/recordCompletion'
+import { parseQuestion } from '../utils/aiResponseParser'
 import './ConfesionarioPage.css'
 import { API_URL } from '../config/api.js'
 const MAX_QUESTIONS = 5
@@ -23,34 +24,6 @@ async function streamFetch(url, body, onChunk) {
   return full
 }
 
-// Separa el texto narrativo de las opciones — soporta [A], **[A]**, A), A.
-// eslint-disable-next-line react-refresh/only-export-components
-export function parseQuestion(rawText) {
-  // Intentar con formato [A] (con o sin negrita markdown)
-  const bracketPattern = /\*{0,2}\[([ABCD])\]\*{0,2}:?\s*([\s\S]*?)(?=\s*\*{0,2}\[[ABCD]\]|$)/g
-  let options = []
-  let match
-  while ((match = bracketPattern.exec(rawText)) !== null) {
-    const text = match[2].replace(/\n+$/, '').trim()
-    if (text) options.push({ key: match[1], text })
-  }
-
-  // Fallback: formato A) o A.
-  if (options.length < 2) {
-    const letterPattern = /^([ABCD])[).]\s+(.+)$/gm
-    options = []
-    while ((match = letterPattern.exec(rawText)) !== null) {
-      options.push({ key: match[1], text: match[2].trim() })
-    }
-  }
-
-  if (options.length < 2) return { narrative: rawText, options: [] }
-
-  // Encontrar dónde empiezan las opciones
-  const firstOptIdx = rawText.search(/\*{0,2}\[A\]|\bA[).]\s/)
-  const narrative = firstOptIdx > 0 ? rawText.slice(0, firstOptIdx).trim() : rawText
-  return { narrative, options }
-}
 
 export default function ConfesionarioPage() {
   const navigate = useNavigate()

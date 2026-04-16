@@ -8,6 +8,7 @@ import { pickByDay } from '../utils/daily'
 import { useStreak } from '../hooks/useStreak'
 import { useAuth } from '../context/AuthContext'
 import DailyChallenge from '../components/DailyChallenge/DailyChallenge'
+import OnboardingModal from '../components/OnboardingModal/OnboardingModal'
 import './LandingPage.css'
 
 /* ─── DATA ──────────────────────────────────────────────────────────────── */
@@ -210,10 +211,10 @@ export default function LandingPage() {
             <p className="lp-hero-tagline__b">Cada decisión, un precio.</p>
           </div>
 
-          <div className="lp-hero-actions" style={{ position: 'relative' }}>
+          <div className="lp-hero-actions">
             <button
-              className={`lp-btn lp-btn--primary${showOnboarding ? ' lp-btn--onboarding' : ''}`}
-              onClick={() => { localStorage.setItem('echoverse-visited', '1'); setShowOnboarding(false); navigate('/modos') }}
+              className="lp-btn lp-btn--primary"
+              onClick={() => navigate('/modos')}
             >
               Entrar al universo
               <ArrowIcon />
@@ -221,12 +222,6 @@ export default function LandingPage() {
             <button className="lp-btn lp-btn--ghost" onClick={() => navigate('/mission')}>
               Ver misiones
             </button>
-            {showOnboarding && (
-              <div className="lp-onboarding-hint">
-                <span>👋 Empezá por acá</span>
-                <button className="lp-onboarding-hint__close" onClick={() => { localStorage.setItem('echoverse-visited', '1'); setShowOnboarding(false) }} aria-label="Cerrar">✕</button>
-              </div>
-            )}
           </div>
 
           <div className="lp-hero-stats">
@@ -574,6 +569,11 @@ export default function LandingPage() {
           <path d="M8 12V4M4 7l4-4 4 4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       </button>
+
+      {/* ─── ONBOARDING ────────────────────────────────────────────────── */}
+      {showOnboarding && (
+        <OnboardingModal onClose={() => setShowOnboarding(false)} />
+      )}
 
     </div>
   )

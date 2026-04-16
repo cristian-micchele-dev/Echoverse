@@ -2,56 +2,11 @@ import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { characters } from '../data/characters'
 import { readSSEStream } from '../utils/sse'
+import { parseFightResponse } from '../utils/aiResponseParser'
 import './FightPage.css'
 import { API_URL } from '../config/api.js'
 const MAX_ROUNDS = 3
 const INITIAL_HP = 100
-
-function parseChoices(block) {
-  const choices = []
-  const pattern = /\[([A-D])\]\s*([\s\S]*?)(?=\s*\[[A-D]\]|$)/g
-  let match
-  while ((match = pattern.exec(block)) !== null) {
-    const text = match[2].replace(/,\s*$/, '').replace(/\n\[[A-Z]\][\s\S]*/g, '').trim()
-    if (text) choices.push({ key: match[1], text })
-  }
-  return choices
-}
-
-// eslint-disable-next-line react-refresh/only-export-components
-export function parseFightResponse(text) {
-  let cleanText = text
-  let playerDmg = 10
-  let enemyDmg = 10
-
-  const dmgMatch = text.match(/DAÑO_JUGADOR:\s*(\d+)\s*\|\s*DAÑO_RIVAL:\s*(\d+)/i)
-  if (dmgMatch) {
-    playerDmg = Math.min(45, parseInt(dmgMatch[1]))
-    enemyDmg = Math.min(45, parseInt(dmgMatch[2]))
-    cleanText = text.slice(0, dmgMatch.index).trim()
-  }
-
-  const isFinal = cleanText.includes('[FIN]')
-  if (isFinal) cleanText = cleanText.replace('[FIN]', '').trim()
-
-  const sepMatch = cleanText.match(/\n?\s*---\s*\n/)
-  if (sepMatch) {
-    return {
-      narrative: cleanText.slice(0, sepMatch.index).trim(),
-      choices: parseChoices(cleanText.slice(sepMatch.index + sepMatch[0].length)),
-      playerDmg, enemyDmg, isFinal
-    }
-  }
-  const firstChoice = cleanText.search(/\[A\]/)
-  if (firstChoice !== -1) {
-    return {
-      narrative: cleanText.slice(0, firstChoice).replace(/---/g, '').trim(),
-      choices: parseChoices(cleanText.slice(firstChoice)),
-      playerDmg, enemyDmg, isFinal
-    }
-  }
-  return { narrative: cleanText, choices: [], playerDmg, enemyDmg, isFinal }
-}
 
 function HPBar({ hp, side }) {
   const color = hp > 60 ? '#4ade80' : hp > 30 ? '#facc15' : '#f87171'
@@ -80,12 +35,14 @@ export default function FightPage() {
   const [flashEnemy, setFlashEnemy] = useState(false)
   const [lastDmg, setLastDmg] = useState({ player: null, enemy: null })
   const bottomRef = useRef(null)
+  const lastCallRef = useRef(null) // guarda los args del último fetchRound para reintentar
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [currentText, choices])
 
   const fetchRound = async (pChar, eChar, pHP, eHP, historyArr, action = null) => {
+    lastCallRef.current = { pChar, eChar, pHP, eHP, historyArr, action }
     setStreaming(true)
     setCurrentText('')
     setChoices([])
@@ -338,7 +295,10 @@ export default function FightPage() {
 
         {!streaming && fetchError && (
           <div className="fight-moves">
-            <button className="fight-move-btn" onClick={() => fetchRound(playerChar, enemyChar, playerHP, enemyHP, history, null)}>
+            <button className="fight-move-btn" onClick={() => {
+              const c = lastCallRef.current
+              if (c) fetchRound(c.pChar, c.eChar, c.pHP, c.eHP, c.historyArr, c.action)
+            }}>
               <span className="fight-move-btn__key">↺</span>
               <span className="fight-move-btn__text">Reintentar</span>
             </button>

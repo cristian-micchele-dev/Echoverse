@@ -1,0 +1,213 @@
+/* ─── Backdrop ──────────────────────────────────────────────────────────── */
+.onb-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: onb-fade-in 0.3s ease;
+}
+
+@keyframes onb-fade-in {
+  from { opacity: 0 }
+  to   { opacity: 1 }
+}
+
+/* ─── Modal ─────────────────────────────────────────────────────────────── */
+.onb-modal {
+  background: #0e0e12;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 780px;
+  padding: 2.5rem 2.5rem 2rem;
+  animation: onb-slide-up 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  overflow: hidden;
+  position: relative;
+}
+
+/* ambient glow top */
+.onb-modal::before {
+  content: '';
+  position: absolute;
+  top: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 300px;
+  height: 120px;
+  background: radial-gradient(ellipse, rgba(212, 87, 107, 0.18) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+@keyframes onb-slide-up {
+  from { opacity: 0; transform: translateY(24px) }
+  to   { opacity: 1; transform: translateY(0) }
+}
+
+/* ─── Header ────────────────────────────────────────────────────────────── */
+.onb-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.onb-eyebrow {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: rgba(255, 255, 255, 0.35);
+  margin-bottom: 0.6rem;
+}
+
+.onb-title {
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 0.5rem;
+  line-height: 1.15;
+}
+.onb-title em {
+  font-style: normal;
+  color: #D4576B;
+}
+
+.onb-sub {
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.45);
+  margin: 0;
+}
+
+/* ─── Modes grid ────────────────────────────────────────────────────────── */
+.onb-modes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 600px) {
+  .onb-modal {
+    padding: 1.75rem 1.25rem 1.5rem;
+  }
+  .onb-modes {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ─── Mode card ─────────────────────────────────────────────────────────── */
+.onb-mode {
+  position: relative;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  text-align: left;
+  padding: 0;
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+  min-height: 230px;
+  display: flex;
+  flex-direction: column;
+}
+
+.onb-mode:hover {
+  border-color: var(--accent);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.35), 0 0 0 1px var(--accent);
+}
+
+/* character image background */
+.onb-mode__img-wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.onb-mode__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  opacity: 0.28;
+}
+.onb-mode__img-fade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, #0e0e12 30%, transparent 100%);
+}
+
+/* content */
+.onb-mode__body {
+  position: relative;
+  z-index: 1;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: auto;
+}
+
+.onb-mode__top {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.1rem;
+}
+
+.onb-mode__icon {
+  font-size: 1.1rem;
+}
+
+.onb-mode__badge {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: rgba(255,255,255,0.07);
+  padding: 0.2em 0.55em;
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.onb-mode__label {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+}
+
+.onb-mode__desc {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.45;
+  margin: 0;
+}
+
+.onb-mode__cta {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--accent);
+  margin-top: 0.3rem;
+}
+
+/* ─── Footer ────────────────────────────────────────────────────────────── */
+.onb-footer {
+  text-align: center;
+}
+
+.onb-skip {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0.4rem 1rem;
+  transition: color 0.2s;
+}
+.onb-skip:hover {
+  color: rgba(255, 255, 255, 0.6);
+}
