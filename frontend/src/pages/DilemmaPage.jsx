@@ -14,6 +14,17 @@ import './DilemmaPage.css'
 import { API_URL } from '../config/api.js'
 import { useAuth } from '../context/AuthContext'
 
+const PROFILE_RECS = {
+  pragmatico:       ['walter-white', 'hannibal', 'tony-stark'],
+  'idealista-roto': ['gandalf', 'katniss', 'frodo'],
+  ajusticiador:     ['john-wick', 'la-novia', 'the-punisher'],
+  guardian:         ['aragorn', 'ip-man', 'lara-croft'],
+  testigo:          ['sherlock', 'el-profesor', 'jon-snow'],
+  rebelde:          ['tyler-durden', 'jax-teller', 'ragnar-lothbrok'],
+  sacrificado:      ['eleven', 'geralt', 'tommy-shelby'],
+  superviviente:    ['jack-sparrow', 'geralt', 'ethan-hunt'],
+}
+
 const INITIAL_STATE = {
   trust: 50,
   tension: 0,
@@ -263,6 +274,7 @@ export default function DilemmaPage() {
         <ReactionPhase
           choice={pendingChoice}
           character={character}
+          narrativeState={narrativeState}
           reaction={reaction}
           isStreaming={isStreaming}
           consequenceVisible={consequenceVisible}
@@ -283,6 +295,7 @@ export default function DilemmaPage() {
           visible={profileVisible}
           onRestart={handleRestart}
           onHome={() => navigate('/')}
+          allCharacters={characters}
         />
       )}
     </div>
@@ -502,16 +515,33 @@ function DilemmaPhase({ dilema, roundIndex, totalRounds, narrativeState, affinit
 
       {/* Choices */}
       <div className="dilema-choices">
-        {dilema.choices.map(choice => (
-          <button
-            key={choice.key}
-            className="dilema-choice-btn"
-            onClick={() => onChoose(choice, dilema)}
-          >
-            <span className="dilema-choice-btn__key">{choice.key}</span>
-            <span className="dilema-choice-btn__label">{choice.label}</span>
-          </button>
-        ))}
+        {dilema.choices.map(choice => {
+          const fx = choice.stateEffects || {}
+          const hints = []
+          if (fx.tension && Math.abs(fx.tension) >= 5)
+            hints.push({ icon: '⚡', val: fx.tension, cls: fx.tension > 0 ? 'tension-up' : 'tension-down' })
+          if (fx.bondScore && Math.abs(fx.bondScore) >= 3)
+            hints.push({ icon: '🔗', val: fx.bondScore, cls: fx.bondScore > 0 ? 'bond-up' : 'bond-down' })
+          return (
+            <button
+              key={choice.key}
+              className="dilema-choice-btn"
+              onClick={() => onChoose(choice, dilema)}
+            >
+              <span className="dilema-choice-btn__key">{choice.key}</span>
+              <span className="dilema-choice-btn__label">{choice.label}</span>
+              {hints.length > 0 && (
+                <div className="dilema-choice-hints">
+                  {hints.map((h, i) => (
+                    <span key={i} className={`dilema-hint dilema-hint--${h.cls}`}>
+                      {h.icon} {h.val > 0 ? '+' : ''}{h.val}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </button>
+          )
+        })}
 
         {/* Affinity unlocked choice */}
         {affinityUnlocked && (
@@ -542,11 +572,16 @@ function DilemmaPhase({ dilema, roundIndex, totalRounds, narrativeState, affinit
 // ─────────────────────────────────────────────────────────────────────────────
 
 function ReactionPhase({
-  choice, character,
+  choice, character, narrativeState,
   reaction, isStreaming, consequenceVisible, globalVotes,
   reactionRef, roundIndex, totalRounds, onNext, onExit
 }) {
   const isLast = roundIndex >= totalRounds - 1
+
+  const charState =
+    narrativeState.bondScore <= -15 ? 'broken' :
+    narrativeState.bondScore < 0    ? 'distant' :
+    narrativeState.tension >= 60    ? 'tense' : ''
 
   return (
     <div className="dilema-phase dilema-reaction">
@@ -560,7 +595,7 @@ function ReactionPhase({
           <img
             src={character.image}
             alt={character.name}
-            className="dilema-reaction__char-img"
+            className={`dilema-reaction__char-img${charState ? ` dilema-char--${charState}` : ''}`}
             onError={e => { e.currentTarget.style.opacity = '0' }}
           />
           <div className="dilema-reaction__char-glow" />
@@ -643,7 +678,7 @@ function VoteBreakdown({ votes, choices, userChoiceKey }) {
 // PROFILE PHASE
 // ─────────────────────────────────────────────────────────────────────────────
 
-function ProfilePhase({ profile, character, choices, narrativeState, visible, onRestart, onHome }) {
+function ProfilePhase({ profile, character, choices, narrativeState, visible, onRestart, onHome, allCharacters }) {
   const bondLabel = narrativeState.bondScore >= 15
     ? 'Vínculo fuerte'
     : narrativeState.bondScore >= 1
@@ -699,6 +734,26 @@ function ProfilePhase({ profile, character, choices, narrativeState, visible, on
           </div>
         ))}
       </div>
+
+      {/* Personajes recomendados */}
+      {(() => {
+        const recIds = PROFILE_RECS[profile.id] || []
+        const recs = recIds.map(id => (allCharacters || []).find(c => c.id === id)).filter(Boolean)
+        if (!recs.length) return null
+        return (
+          <div className="dilema-recs">
+            <span className="dilema-eyebrow">Con este perfil, estos personajes te van a desafiar</span>
+            <div className="dilema-recs__grid">
+              {recs.map(char => (
+                <div key={char.id} className="dilema-rec-card" style={{ '--char-color': char.themeColor }}>
+                  {char.image && <img src={char.image} alt={char.name} className="dilema-rec-card__img" />}
+                  <span className="dilema-rec-card__name">{char.name}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )
+      })()}
 
       {/* CTAs */}
       <div className="dilema-profile__ctas">
