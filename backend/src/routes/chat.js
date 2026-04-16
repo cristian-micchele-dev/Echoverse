@@ -690,6 +690,34 @@ Respondé siempre en español.`
 
 // ─── Entrenamiento ───────────────────────────────────────────────────────────
 
+const ENTRENAMIENTO_PHASES = {
+  1: {
+    name: 'Evaluación',
+    prompt: (esp) => `FASE 1 — EVALUACIÓN:
+Antes de empezar, mirá a quién tenés enfrente. Hacele UNA pregunta directa que revele su motivación real o algo de su carácter — no algo genérico. ¿Por qué quiere aprender ${esp}? ¿Tiene lo que hace falta? Respondé en 2-3 oraciones en tu voz más característica.`,
+  },
+  2: {
+    name: 'Calentamiento',
+    prompt: (esp) => `FASE 2 — CALENTAMIENTO:
+Primer ejercicio real. Concreto, accesible, pero que establezca el tono de lo que viene. Evaluá brevemente la respuesta anterior si la hay, y proponé algo específico relacionado con ${esp}. Que sienta que empezó en serio. 2-3 oraciones.`,
+  },
+  3: {
+    name: 'El Desafío',
+    prompt: (esp) => `FASE 3 — EL DESAFÍO:
+Subís la exigencia. Evaluá brevemente lo que respondió antes y proponé un ejercicio más difícil sobre ${esp}. Sin condescendencia — si estuvo bien, decílo brevemente y empujalo más lejos. Si estuvo mal, señalalo con precisión. 3-4 oraciones.`,
+  },
+  4: {
+    name: 'Al Límite',
+    prompt: (esp) => `FASE 4 — AL LÍMITE:
+El ejercicio más duro. Presionalo. ¿Hasta dónde llega de verdad con ${esp}? Evaluá lo anterior sin suavizar y proponé algo que lo lleve al borde de lo que sabe hacer. Sin facilidades. Si flaquea, que lo sienta. 3-4 oraciones.`,
+  },
+  5: {
+    name: 'Veredicto',
+    prompt: () => `FASE 5 — VEREDICTO FINAL:
+Es el momento de la verdad. Mirá todo lo que hizo y decí lo que ves realmente: ¿tiene lo que hace falta o no? Serio, honesto, en tu voz más característica. Sin piedad fácil pero tampoco crueldad gratuita. 3-5 oraciones. Terminá con [FIN].`,
+  },
+}
+
 router.post('/entrenamiento', async (req, res) => {
   const { characterId, messages: rawMessages = [], turn = 1, isFinal = false } = req.body
   const character = characters[characterId]
@@ -698,34 +726,21 @@ router.post('/entrenamiento', async (req, res) => {
   initSseResponse(res)
 
   const especialidad = character.especialidad || 'tu habilidad más característica'
+  const phaseKey = isFinal ? 5 : Math.min(turn, 4)
+  const phase = ENTRENAMIENTO_PHASES[phaseKey]
 
   const systemPrompt = `${character.systemPrompt}
 
-MODO ENTRENAMIENTO:
+MODO ENTRENAMIENTO — ${phase.name.toUpperCase()}:
 Estás entrenando al usuario en: ${especialidad}.
-El entrenamiento tiene 5 fases progresivas.
 
-${isFinal
-    ? `FASE FINAL (Turno ${turn}/5):
-Emitís tu juicio final sobre el progreso del usuario. Serio, honesto, en tu voz.
-¿Aprendió algo real? ¿Tiene lo que hace falta? Sin condescendencia fácil.
-2-4 oraciones. Terminá con [FIN].`
-    : turn === 1
-      ? `FASE 1 — EVALUACIÓN INICIAL:
-Antes de empezar, evaluá al usuario. ¿Por qué quiere aprender? ¿Tiene lo que hace falta?
-Hacele UNA pregunta directa que revele algo de su carácter o motivación.
-Respondé en 2-3 oraciones en tu voz más característica.`
-      : `FASE ${turn}/5 — EJERCICIO PROGRESIVO:
-Proponé un ejercicio o desafío concreto relacionado con ${especialidad}.
-Debe ser más exigente que el anterior. Pedile que lo ejecute o reflexione sobre algo específico.
-Respondé en 2-4 oraciones. Si el usuario respondió al ejercicio anterior, evalualo brevemente antes de avanzar.`
-  }
+${phase.prompt(especialidad)}
 
 Respondé siempre en español.`
 
   const messages = rawMessages.slice(-8)
   try {
-    await streamMistral(res, systemPrompt, messages, isFinal ? 300 : 200)
+    await streamMistral(res, systemPrompt, messages, isFinal ? 350 : 220)
   } catch (error) {
     console.error('Error Mistral /entrenamiento:', error.message)
     sendSseError(res, 'Error al contactar la IA')
