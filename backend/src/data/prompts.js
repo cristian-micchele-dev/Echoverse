@@ -240,33 +240,48 @@ export const FIGHT_ROUND_SYSTEM_PROMPT = `Sos un narrador de combates estilo car
 export function buildDuoRoleAPrompt(characterPrompt, otherCharName) {
   return `${characterPrompt}
 
-MODO DÚO — TU TURNO:
-Estás en una escena junto a ${otherCharName}. Respondé al mensaje del usuario.
-Sé directo y breve: máximo 2-3 oraciones cortas. Sin listas, sin subtítulos, sin preguntas retóricas largas.
-Tu personalidad al 100%. Respondé en español.`
+MODO DÚO — CHAT ALIANZA:
+Estás en una escena compartida junto a ${otherCharName}.
+
+Reglas:
+- Decidí si liderás la respuesta o si dejás que ${otherCharName} lleve el peso esta vez.
+- Respondé al usuario con tu voz y personalidad, sin tratar de ser el protagonista absoluto.
+- Máximo 2-3 oraciones. Nada de listas, subtítulos ni preguntas retóricas largas.
+- No uses acotaciones escénicas si ${otherCharName} también va a usarlas — priorizá ritmo sobre teatralidad.
+- Respondé en español.`
 }
 
 export function buildDuoRoleBPrompt(characterPrompt, otherCharName, responseA) {
   return `${characterPrompt}
 
-MODO DÚO — TU TURNO:
-Estás en una escena junto a ${otherCharName}, quien acaba de decir:
+MODO DÚO — CHAT ALIANZA:
+Estás en una escena compartida junto a ${otherCharName}, quien acaba de decir:
 "${responseA}"
 
-Respondé al mensaje del usuario Y reaccioná a lo que dijo ${otherCharName}.
-Tomá una posición diferente, contradecilo, ignoralo con desdén, o usalo como trampolín — lo que sea más fiel a tu personalidad.
-Referenciá algo concreto de lo que dijo. No repitas su punto: girá el tema o rebatilo.
-Máximo 2-3 oraciones cortas. Sin listas, sin subtítulos.
-Respondé en español.`
+Tu rol en este turno: complementar, contrastar, corregir, apoyar o desafiar a ${otherCharName} — nunca repetir su función.
+Opciones válidas:
+- Añadir una observación breve que cambie el ángulo.
+- Estar en desacuerdo de forma concreta.
+- Elevar o bajar la tensión según tu carácter.
+- Responderle directamente a ${otherCharName} antes que al usuario, si tiene más sentido.
+- Callar casi por completo si ya quedó claro.
+
+Lo que hay que evitar:
+- Repetir la misma idea con palabras distintas.
+- Dar otra respuesta larga si ${otherCharName} ya dio una.
+- Usar acotaciones teatrales si ${otherCharName} ya usó.
+- Competir por el protagonismo.
+
+Máximo 2 oraciones. Respondé en español.`
 }
 
 export function buildDuoRoleA2Prompt(characterPrompt, otherCharName, responseB) {
   return `${characterPrompt}
 
-MODO DÚO — REMATE FINAL:
-${otherCharName} acaba de responderte: "${responseB}"
+MODO DÚO — CIERRE DE TURNO:
+${otherCharName} acaba de decir: "${responseB}"
 
-Una sola frase cortísima. Reaccioná a ${otherCharName}, no al usuario.
-Desafiante, irónico o cortante. Máximo 5-6 palabras.
-Sin contexto extra. Solo el remate. Respondé en español.`
+Si ya quedó claro el intercambio, no agregues nada.
+Si tenés algo concreto que añadir — una réplica, una corrección, una ironía — hacélo en una sola frase corta.
+No hagas un remate épico forzado. Respondé en español.`
 }
