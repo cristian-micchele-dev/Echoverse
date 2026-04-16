@@ -526,46 +526,79 @@ export default function MissionPage() {
         )}
 
         {campaignMode && (
-          <div className="campaign-arcs">
-            {CAMPAIGN_ARCS.map(arc => {
-              const arcChar = characters.find(c => c.id === arc.character)
-              return (
-                <div key={arc.arcName} className="campaign-arc">
-                  <div className="campaign-arc__header" style={{ '--char-color': arcChar?.themeColor || '#888' }}>
-                    {arcChar?.image && (
-                      <img src={arcChar.image} alt={arcChar.name} className="campaign-arc__avatar" />
-                    )}
-                    <div className="campaign-arc__info">
-                      <span className="campaign-arc__name">{arc.arcName}</span>
-                      <span className="campaign-arc__char">{arcChar?.name}</span>
+          <div className="campaign-grid-wrapper">
+            <div className="campaign-grid">
+              {CAMPAIGN_ARCS.map((arc, arcIdx) => {
+                const arcChar = characters.find(c => c.id === arc.character)
+                const allLevelsCompleted = arc.levels.every(lvl => !!campaignProgress.completedLevels[lvl.level])
+                const firstUnlocked = isLevelUnlocked(arc.levels[0].level)
+                const arcLocked = !firstUnlocked
+                const diff = arc.levels[0].difficulty
+                const diffColor = diff === 'easy' ? '#4ade80' : diff === 'normal' ? '#facc15' : '#f87171'
+                const diffLabel = diff === 'easy' ? 'Fácil' : diff === 'normal' ? 'Normal' : 'Difícil'
+                return (
+                  <div
+                    key={arc.arcName}
+                    className={`campaign-card ${arcLocked ? 'campaign-card--locked' : allLevelsCompleted ? 'campaign-card--done' : 'campaign-card--open'}`}
+                    style={{ '--char-color': arcChar?.themeColor || '#888', '--card-delay': `${arcIdx * 0.04}s` }}
+                  >
+                    {/* Background image */}
+                    <div className="campaign-card__bg">
+                      {arcChar?.image && <img src={arcChar.image} alt={arcChar.name} className="campaign-card__img" />}
+                      <div className="campaign-card__overlay" />
                     </div>
-                    <span className="campaign-arc__diff-badge">
-                      {arc.levels[0].difficulty === 'easy' ? '🟢 Fácil' : arc.levels[0].difficulty === 'normal' ? '🟡 Normal' : '🔴 Difícil'}
-                    </span>
+
+                    {/* Difficulty badge — top right */}
+                    <div className="campaign-card__diff" style={{ color: diffColor, borderColor: `color-mix(in srgb, ${diffColor} 35%, transparent)` }}>
+                      <span className="campaign-card__diff-dot" style={{ background: diffColor }} />
+                      {diffLabel}
+                    </div>
+
+                    {/* Completed ribbon */}
+                    {allLevelsCompleted && (
+                      <div className="campaign-card__ribbon">✔ Completado</div>
+                    )}
+
+                    {/* Lock overlay */}
+                    {arcLocked && (
+                      <div className="campaign-card__lock-overlay">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                      </div>
+                    )}
+
+                    {/* Content */}
+                    <div className="campaign-card__content">
+                      <div className="campaign-card__meta">
+                        <span className="campaign-card__char">{arcChar?.name}</span>
+                        <h3 className="campaign-card__title">{arc.arcName}</h3>
+                      </div>
+                      <div className="campaign-card__levels">
+                        {arc.levels.map(lvl => {
+                          const unlocked = isLevelUnlocked(lvl.level)
+                          const completed = !!campaignProgress.completedLevels[lvl.level]
+                          return (
+                            <button
+                              key={lvl.level}
+                              className={`campaign-card-lvl ${completed ? 'campaign-card-lvl--done' : unlocked ? 'campaign-card-lvl--open' : 'campaign-card-lvl--locked'}`}
+                              disabled={!unlocked}
+                              onClick={() => handleCampaignLevelSelect(lvl)}
+                            >
+                              <span className="campaign-card-lvl__num">{lvl.level}</span>
+                              <span className="campaign-card-lvl__icon">
+                                {completed ? '✔' : unlocked ? '▶' : '🔒'}
+                              </span>
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
                   </div>
-                  <div className="campaign-levels">
-                    {arc.levels.map(lvl => {
-                      const unlocked = isLevelUnlocked(lvl.level)
-                      const completed = !!campaignProgress.completedLevels[lvl.level]
-                      return (
-                        <button
-                          key={lvl.level}
-                          className={`campaign-level-btn ${completed ? 'campaign-level-btn--done' : unlocked ? 'campaign-level-btn--open' : 'campaign-level-btn--locked'}`}
-                          style={{ '--char-color': arcChar?.themeColor || '#888' }}
-                          disabled={!unlocked}
-                          onClick={() => handleCampaignLevelSelect(lvl)}
-                        >
-                          <span className="campaign-level-btn__num">{lvl.level}</span>
-                          <span className="campaign-level-btn__state">
-                            {completed ? '✔' : unlocked ? '▶' : '🔒'}
-                          </span>
-                        </button>
-                      )
-                    })}
-                  </div>
-                </div>
-              )
-            })}
+                )
+              })}
+            </div>
             <div className="campaign-reset">
               <button className="campaign-reset-btn" onClick={() => { resetProgress(); setCampaignProgress(getMissionProgress()) }}>
                 Reiniciar progreso

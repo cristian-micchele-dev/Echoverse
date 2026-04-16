@@ -91,17 +91,23 @@ router.post('/dilema-votes', async (req, res) => {
 
 // GET /api/db/chat-history/:characterId
 router.get('/chat-history/:characterId', requireAuth, async (req, res) => {
-  const { data, error } = await supabase
-    .from('chat_history')
-    .select('messages')
-    .eq('user_id', req.user.id)
-    .eq('character_id', req.params.characterId)
-    .single()
+  try {
+    const { data, error } = await supabase
+      .from('chat_history')
+      .select('messages')
+      .eq('user_id', req.user.id)
+      .eq('character_id', req.params.characterId)
+      .single()
 
-  if (error && error.code !== 'PGRST116') {
-    return res.status(500).json({ error: error.message })
+    if (error && error.code !== 'PGRST116') {
+      console.error('[GET chat-history] supabase error:', error.code, error.message)
+      return res.status(500).json({ error: error.message })
+    }
+    res.json(data?.messages ?? [])
+  } catch (err) {
+    console.error('[GET chat-history] unexpected throw:', err.message)
+    res.status(500).json({ error: 'Error inesperado' })
   }
-  res.json(data?.messages ?? [])
 })
 
 // DELETE /api/db/chat-history/:characterId
@@ -122,14 +128,31 @@ router.post('/chat-history', requireAuth, async (req, res) => {
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() })
 
   const { characterId, messages } = parsed.data
-  const { error } = await supabase
-    .from('chat_history')
-    .upsert(
-      { user_id: req.user.id, character_id: characterId, messages, updated_at: new Date().toISOString() },
-      { onConflict: 'user_id,character_id' }
-    )
 
-  if (error) return res.status(500).json({ error: error.message })
+  // Intentar update primero; si no existe el registro, insertar
+  const { data: updated, error: updateErr } = await supabase
+    .from('chat_history')
+    .update({ messages, updated_at: new Date().toISOString() })
+    .eq('user_id', req.user.id)
+    .eq('character_id', characterId)
+    .select('user_id')
+
+  if (updateErr) {
+    console.error('[POST chat-history] update error:', updateErr.code, updateErr.message)
+    return res.status(500).json({ error: updateErr.message })
+  }
+
+  if (!updated || updated.length === 0) {
+    const { error: insertErr } = await supabase
+      .from('chat_history')
+      .insert({ user_id: req.user.id, character_id: characterId, messages, updated_at: new Date().toISOString() })
+
+    if (insertErr) {
+      console.error('[POST chat-history] insert error:', insertErr.code, insertErr.message)
+      return res.status(500).json({ error: insertErr.message })
+    }
+  }
+
   res.json({ ok: true })
 })
 

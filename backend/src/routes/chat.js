@@ -25,9 +25,10 @@ const mistral = new OpenAI({
 })
 
 async function streamMistral(res, systemPrompt, messages, maxTokens = 512) {
+  const cleanMessages = messages.map(({ role, content }) => ({ role, content }))
   const stream = await mistral.chat.completions.create({
     model: 'mistral-small-latest',
-    messages: [{ role: 'system', content: systemPrompt }, ...messages],
+    messages: [{ role: 'system', content: systemPrompt }, ...cleanMessages],
     stream: true,
     max_tokens: maxTokens
   })

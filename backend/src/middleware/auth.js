@@ -6,11 +6,20 @@ export async function requireAuth(req, res, next) {
   const token = req.headers.authorization?.split(' ')[1]
   if (!token) return res.status(401).json({ error: 'Token requerido' })
 
-  const { data: { user }, error } = await supabase.auth.getUser(token)
-  if (error || !user) return res.status(401).json({ error: 'Token inválido' })
-
-  req.user = user
-  next()
+  try {
+    const result = await supabase.auth.getUser(token)
+    const user = result?.data?.user
+    const error = result?.error
+    if (error || !user) {
+      console.error('[requireAuth] getUser error:', error?.code, error?.message, '| user:', user)
+      return res.status(401).json({ error: 'Token inválido' })
+    }
+    req.user = user
+    next()
+  } catch (err) {
+    console.error('[requireAuth] unexpected throw:', err.message)
+    return res.status(500).json({ error: 'Error de autenticación' })
+  }
 }
 
 export function requireAdmin(req, res, next) {
