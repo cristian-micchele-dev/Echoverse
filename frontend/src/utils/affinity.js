@@ -79,12 +79,23 @@ export function addModeXP(characterId, modeId) {
   const modesPlayed = data.modesPlayed || {}
   const base = XP_VALUES[modeId] ?? 10
   const bonus = modesPlayed[modeId] ? 0 : FIRST_TIME_BONUS
-  data.xp = (data.xp || 0) + base + bonus
+  const prevXP = data.xp || 0
+  const prevLevel = getAffinityLevel(prevXP)
+  data.xp = prevXP + base + bonus
   modesPlayed[modeId] = (modesPlayed[modeId] || 0) + 1
   data.modesPlayed = modesPlayed
   meta[characterId] = data
   saveMeta(meta)
-  return { xp: data.xp, gained: base + bonus }
+  const newLevel = getAffinityLevel(data.xp)
+  const levelUp = newLevel > prevLevel
+  return {
+    xp: data.xp,
+    gained: base + bonus,
+    levelUp,
+    newLevel,
+    newLabel: LEVELS[newLevel]?.label ?? '',
+    newEmoji: LEVELS[newLevel]?.emoji ?? '',
+  }
 }
 
 // Compatibilidad con el campo messageCount (chat)

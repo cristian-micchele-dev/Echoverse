@@ -266,6 +266,39 @@
   transition: color 0.2s, transform 0.2s;
 }
 
+.story-scenario-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.story-scenario-card__saved {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--scenario-color, var(--accent));
+  border: 1px solid var(--scenario-color, var(--accent));
+  border-radius: 4px;
+  padding: 2px 6px;
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
+.story-scenario-continue {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  color: var(--scenario-color, var(--accent));
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 2px 4px 2px 8px;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+.story-scenario-continue:hover { opacity: 1; }
+
 /* ─── Fase jugando ────────────────────────────────── */
 .story-page--playing {
   background: radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--char-color) 6%, transparent) 0%, transparent 60%), var(--ink-950);

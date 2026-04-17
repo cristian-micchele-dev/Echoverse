@@ -4,6 +4,9 @@ import { characters } from '../data/characters'
 import { readSSEStream } from '../utils/sse'
 import { useAuth } from '../context/AuthContext'
 import { recordCompletion } from '../utils/recordCompletion'
+import { addModeXP } from '../utils/affinity'
+import { useLevelUpToast } from '../hooks/useLevelUpToast'
+import AchievementToast from '../components/AchievementToast/AchievementToast'
 import './SwipePage.css'
 import { API_URL } from '../config/api.js'
 const THRESHOLD = 80
@@ -15,6 +18,7 @@ export default function SwipePage() {
   const [phase, setPhase] = useState('chars')
   const [selectedChar, setSelectedChar] = useState(null)
   const [cards, setCards] = useState([])
+  const { levelUpToast, dismissLevelUp, notifyLevelUp } = useLevelUpToast()
   const [currentIndex, setCurrentIndex] = useState(0)
   const [answers, setAnswers] = useState([]) // { correct: bool }[]
   const [leaving, setLeaving] = useState(null) // 'left' | 'right'
@@ -32,8 +36,12 @@ export default function SwipePage() {
     if (phase === 'result' && !recordedRef.current) {
       recordedRef.current = true
       recordCompletion(session, 'swipe')
+      if (selectedChar) {
+        const result = addModeXP(selectedChar.id, 'swipe')
+        notifyLevelUp(result, selectedChar.name)
+      }
     }
-  }, [phase, session])
+  }, [phase, session, selectedChar, notifyLevelUp])
 
   const handleCharSelect = async (char) => {
     setSelectedChar(char)
@@ -410,6 +418,9 @@ export default function SwipePage() {
           </div>
         )}
       </div>
+      {levelUpToast && (
+        <AchievementToast achievement={levelUpToast} onDismiss={dismissLevelUp} />
+      )}
     </div>
   )
 }

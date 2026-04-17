@@ -6,8 +6,37 @@ import { readSSEStream } from '../utils/sse'
 import { useAuth } from '../context/AuthContext'
 import { recordCompletion } from '../utils/recordCompletion'
 import { parseStoryResponse } from '../utils/aiResponseParser'
+import { addModeXP } from '../utils/affinity'
+import { useLevelUpToast } from '../hooks/useLevelUpToast'
+import AchievementToast from '../components/AchievementToast/AchievementToast'
 import './StoryPage.css'
 import { API_URL } from '../config/api.js'
+
+const MAX_TOTAL_TURNS = 11
+
+function getStorySaveKey(charId, scenarioId) {
+  return `story-save-${charId}-${scenarioId}`
+}
+
+function loadStorySave(charId, scenarioId) {
+  try {
+    const raw = localStorage.getItem(getStorySaveKey(charId, scenarioId))
+    return raw ? JSON.parse(raw) : null
+  } catch { return null }
+}
+
+function saveStoryProgress(charId, scenarioId, history, currentText) {
+  try {
+    localStorage.setItem(
+      getStorySaveKey(charId, scenarioId),
+      JSON.stringify({ history, currentText, savedAt: Date.now() })
+    )
+  } catch { /* storage unavailable */ }
+}
+
+function clearStorySave(charId, scenarioId) {
+  try { localStorage.removeItem(getStorySaveKey(charId, scenarioId)) } catch { /* noop */ }
+}
 
 export default function StoryPage() {
   const navigate = useNavigate()
@@ -22,6 +51,7 @@ export default function StoryPage() {
   const [streaming, setStreaming] = useState(false)
   const [fetchError, setFetchError] = useState(false)
   const bottomRef = useRef(null)
+  const { levelUpToast, dismissLevelUp, notifyLevelUp } = useLevelUpToast()
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -31,8 +61,13 @@ export default function StoryPage() {
     if (phase === 'ended' && !recordedRef.current) {
       recordedRef.current = true
       recordCompletion(session, 'story')
+      if (selectedChar) {
+        clearStorySave(selectedChar.id, selectedScenario?.id)
+        const result = addModeXP(selectedChar.id, 'story')
+        notifyLevelUp(result, selectedChar.name)
+      }
     }
-  }, [phase, session])
+  }, [phase, session, selectedChar, selectedScenario, notifyLevelUp])
 
   const turnLimitRef = useRef(5)
 
@@ -64,6 +99,8 @@ export default function StoryPage() {
       if (fullText) {
         const { narrative, choices: parsed, isFinal } = parseStoryResponse(fullText)
         setCurrentText(narrative)
+        // Guardar progreso en localStorage después de cada turno
+        saveStoryProgress(char.id, scenario.id, historyArray, narrative)
         if (isFinal) {
           // Si no llegamos al límite absoluto, ofrecer continuar
           if (historyArray.length + 1 < turnLimitRef.current) {
@@ -89,9 +126,20 @@ export default function StoryPage() {
     setPhase('scenarios')
   }
 
-  const handleScenarioSelect = (scenario) => {
+  const handleScenarioSelect = (scenario, resume = false) => {
     setSelectedScenario(scenario)
+    if (resume) {
+      const saved = loadStorySave(selectedChar.id, scenario.id)
+      if (saved) {
+        setHistory(saved.history)
+        setCurrentText(saved.currentText)
+        setPhase('playing')
+        fetchStory(selectedChar, scenario, saved.history)
+        return
+      }
+    }
     setHistory([])
+    setCurrentText('')
     setPhase('playing')
     fetchStory(selectedChar, scenario, [])
   }
@@ -107,7 +155,11 @@ export default function StoryPage() {
   }
 
   const handleRestart = () => {
+    if (selectedChar && selectedScenario) {
+      clearStorySave(selectedChar.id, selectedScenario.id)
+    }
     turnLimitRef.current = 5
+    recordedRef.current = false
     setPhase('chars')
     setSelectedChar(null)
     setSelectedScenario(null)
@@ -118,7 +170,6 @@ export default function StoryPage() {
     setFetchError(false)
   }
 
-  const MAX_TOTAL_TURNS = 11
   const turnNumber = history.length + (phase === 'ended' || phase === 'extendable' ? 0 : 1)
   const totalTurns = turnLimitRef.current
 
@@ -203,23 +254,37 @@ export default function StoryPage() {
         <div className="story-scenarios-wrap">
           <p className="story-scenarios-label">¿Qué historia querés explorar?</p>
           <div className="story-scenarios-list">
-            {storyScenarios.map(scenario => (
-              <button
-                key={scenario.id}
-                className="story-scenario-card"
-                style={{ '--scenario-color': scenario.color }}
-                onClick={() => handleScenarioSelect(scenario)}
-              >
-                <span className="story-scenario-card__emoji">{scenario.emoji}</span>
-                <div className="story-scenario-card__body">
-                  <span className="story-scenario-card__title">{scenario.title}</span>
-                  <span className="story-scenario-card__desc">{scenario.description}</span>
+            {storyScenarios.map(scenario => {
+              const saved = loadStorySave(selectedChar.id, scenario.id)
+              return (
+                <div key={scenario.id} className="story-scenario-row">
+                  <button
+                    className="story-scenario-card"
+                    style={{ '--scenario-color': scenario.color }}
+                    onClick={() => handleScenarioSelect(scenario)}
+                  >
+                    <span className="story-scenario-card__emoji">{scenario.emoji}</span>
+                    <div className="story-scenario-card__body">
+                      <span className="story-scenario-card__title">{scenario.title}</span>
+                      <span className="story-scenario-card__desc">{scenario.description}</span>
+                    </div>
+                    {saved && <span className="story-scenario-card__saved">Guardado</span>}
+                    <svg className="story-scenario-card__arrow" width="18" height="18" viewBox="0 0 18 18" fill="none">
+                      <path d="M4 9h10M10 5l4 4-4 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+                  {saved && (
+                    <button
+                      className="story-scenario-continue"
+                      style={{ '--scenario-color': scenario.color }}
+                      onClick={() => handleScenarioSelect(scenario, true)}
+                    >
+                      ▶ Continuar ({saved.history.length} turno{saved.history.length !== 1 ? 's' : ''})
+                    </button>
+                  )}
                 </div>
-                <svg className="story-scenario-card__arrow" width="18" height="18" viewBox="0 0 18 18" fill="none">
-                  <path d="M4 9h10M10 5l4 4-4 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </button>
-            ))}
+              )
+            })}
           </div>
         </div>
       </div>
@@ -371,6 +436,9 @@ export default function StoryPage() {
 
         <div ref={bottomRef} />
       </div>
+      {levelUpToast && (
+        <AchievementToast achievement={levelUpToast} onDismiss={dismissLevelUp} />
+      )}
     </div>
   )
 }

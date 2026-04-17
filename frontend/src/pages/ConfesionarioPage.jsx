@@ -5,6 +5,9 @@ import { readSSEStream } from '../utils/sse'
 import { useAuth } from '../context/AuthContext'
 import { recordCompletion } from '../utils/recordCompletion'
 import { parseQuestion } from '../utils/aiResponseParser'
+import { addModeXP } from '../utils/affinity'
+import { useLevelUpToast } from '../hooks/useLevelUpToast'
+import AchievementToast from '../components/AchievementToast/AchievementToast'
 import './ConfesionarioPage.css'
 import { API_URL } from '../config/api.js'
 const MAX_QUESTIONS = 5
@@ -39,6 +42,7 @@ export default function ConfesionarioPage() {
   const [copied, setCopied] = useState(false)
   const [selectedOption, setSelectedOption] = useState(null)
   const bottomRef = useRef(null)
+  const { levelUpToast, dismissLevelUp, notifyLevelUp } = useLevelUpToast()
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -48,8 +52,12 @@ export default function ConfesionarioPage() {
     if (phase === 'verdict' && !recordedRef.current) {
       recordedRef.current = true
       recordCompletion(session, 'confesionario')
+      if (selectedChar) {
+        const result = addModeXP(selectedChar.id, 'confesionario')
+        notifyLevelUp(result, selectedChar.name)
+      }
     }
-  }, [phase, session])
+  }, [phase, session, selectedChar, notifyLevelUp])
 
   const startConfesionario = async (char) => {
     setSelectedChar(char)
@@ -331,6 +339,9 @@ export default function ConfesionarioPage() {
 
         <div ref={bottomRef} />
       </div>
+      {levelUpToast && (
+        <AchievementToast achievement={levelUpToast} onDismiss={dismissLevelUp} />
+      )}
     </div>
   )
 }
