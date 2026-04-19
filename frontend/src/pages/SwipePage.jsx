@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { characters } from '../data/characters'
-import { readSSEStream } from '../utils/sse'
+import { useStreaming } from '../hooks/useStreaming'
+import { ROUTES } from '../utils/constants'
 import { useAuth } from '../context/AuthContext'
 import { recordCompletion } from '../utils/recordCompletion'
 import { addModeXP } from '../utils/affinity'
@@ -26,8 +27,8 @@ export default function SwipePage() {
   const [isDragging, setIsDragging] = useState(false)
   const [feedbackData, setFeedbackData] = useState(null) // { correct, text, difficulty, showExplanation }
   const [result, setResult] = useState({ score: null, analysis: '' })
-  const [streaming, setStreaming] = useState(false)
   const [error, setError] = useState(null)
+  const { isLoading: streaming, streamChat } = useStreaming()
   const startX = useRef(null)
   const advanceRef = useRef(null)   // función para avanzar a la siguiente carta
   const autoTimerRef = useRef(null) // id del setTimeout automático
@@ -121,39 +122,33 @@ export default function SwipePage() {
   }
 
   const fetchResult = async (score, total) => {
-    setStreaming(true)
     setResult({ score, analysis: '' })
+    let fullText = ''
     try {
-      const res = await fetch(`${API_URL}/swipe/result`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ characterId: selectedChar.id, score, total })
-      })
-      if (!res.ok) throw new Error(`Error ${res.status}`)
-      let fullText = ''
-
-      await readSSEStream(res, content => {
-        fullText += content
-        setResult(r => ({ ...r, analysis: fullText }))
-      })
+      await streamChat(
+        `${API_URL}/swipe/result`,
+        { characterId: selectedChar.id, score, total },
+        content => {
+          fullText += content
+          setResult(r => ({ ...r, analysis: fullText }))
+        }
+      )
     } catch {
       setError('Error al generar el resultado.')
-    } finally {
-      setStreaming(false)
     }
   }
 
   const handleRestart = () => {
     setPhase('chars'); setSelectedChar(null); setCards([]); setCurrentIndex(0)
     setAnswers([]); setLeaving(null); setDragX(0); setIsDragging(false)
-    setFeedbackData(null); setResult({ score: null, analysis: '' }); setStreaming(false); setError(null)
+    setFeedbackData(null); setResult({ score: null, analysis: '' }); setError(null)
   }
 
   /* ── Chars ── */
   if (phase === 'chars') return (
     <div className="swipe-page">
       <div className="swipe-top-bar">
-        <button className="swipe-back-btn" onClick={() => navigate('/')}>
+        <button className="swipe-back-btn" onClick={() => navigate(ROUTES.HOME)}>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
@@ -414,7 +409,7 @@ export default function SwipePage() {
               Jugar de nuevo
             </button>
             <button className="swipe-result-btn" onClick={handleRestart}>Otro personaje</button>
-            <button className="swipe-result-btn" onClick={() => navigate('/')}>Inicio</button>
+            <button className="swipe-result-btn" onClick={() => navigate(ROUTES.HOME)}>Inicio</button>
           </div>
         )}
       </div>

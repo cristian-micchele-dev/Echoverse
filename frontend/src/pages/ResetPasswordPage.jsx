@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { ROUTES } from '../utils/constants'
 import './AuthPage.css'
 
 export default function ResetPasswordPage() {
@@ -41,7 +42,7 @@ export default function ResetPasswordPage() {
       const { error } = await supabase.auth.updateUser({ password })
       if (error) throw error
       await supabase.auth.signOut()
-      navigate('/auth', { replace: true, state: { info: 'Contraseña actualizada. Iniciá sesión.' } })
+      navigate(ROUTES.AUTH, { replace: true, state: { info: 'Contraseña actualizada. Iniciá sesión.' } })
     } catch (err) {
       setError(err.message || 'Error al actualizar la contraseña')
     } finally {

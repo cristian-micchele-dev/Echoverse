@@ -9,6 +9,7 @@ import { useStreak } from '../hooks/useStreak'
 import { useAuth } from '../context/AuthContext'
 import DailyChallenge from '../components/DailyChallenge/DailyChallenge'
 import OnboardingModal from '../components/OnboardingModal/OnboardingModal'
+import { ROUTES } from '../utils/constants'
 import './LandingPage.css'
 
 /* ─── DATA ──────────────────────────────────────────────────────────────── */
@@ -214,12 +215,12 @@ export default function LandingPage() {
           <div className="lp-hero-actions">
             <button
               className="lp-btn lp-btn--primary"
-              onClick={() => navigate('/modos')}
+              onClick={() => navigate(ROUTES.MODOS)}
             >
               Entrar al universo
               <ArrowIcon />
             </button>
-            <button className="lp-btn lp-btn--ghost" onClick={() => navigate('/mission')}>
+            <button className="lp-btn lp-btn--ghost" onClick={() => navigate(ROUTES.MISSION)}>
               Ver misiones
             </button>
           </div>
@@ -246,7 +247,7 @@ export default function LandingPage() {
         {session && sessionChar && (
           <button
             className="lp-hero-resume"
-            onClick={() => navigate(session.route || `/chat/${sessionChar.id}`)}
+            onClick={() => navigate(session.route || ROUTES.CHAT_CHARACTER(sessionChar.id))}
           >
             <img src={sessionChar.image} alt={sessionChar.name} className="lp-hero-resume__avatar" />
             <span className="lp-hero-resume__text">
@@ -259,7 +260,7 @@ export default function LandingPage() {
         {/* Auth pill */}
         <div className="lp-auth-pill">
           {user ? (
-            <button className="lp-auth-pill__btn lp-auth-pill__btn--logged" onClick={() => navigate('/perfil')}>
+            <button className="lp-auth-pill__btn lp-auth-pill__btn--logged" onClick={() => navigate(ROUTES.PERFIL)}>
               <span className="lp-auth-pill__avatar">
                 {(user.user_metadata?.username || user.email)?.[0]?.toUpperCase()}
               </span>
@@ -268,7 +269,7 @@ export default function LandingPage() {
           ) : (
             <>
               <span className="lp-auth-pill__nudge">Tu progreso solo se guarda en este dispositivo.</span>
-              <button className="lp-auth-pill__btn" onClick={() => navigate('/auth')}>Registrate</button>
+              <button className="lp-auth-pill__btn" onClick={() => navigate(ROUTES.AUTH)}>Registrate</button>
             </>
           )}
         </div>
@@ -484,7 +485,7 @@ export default function LandingPage() {
                 key={fc.id}
                 className="lp-cast-card"
                 style={{ '--char-color': char.themeColor }}
-                onClick={() => navigate(`/chat/${fc.id}`)}
+                onClick={() => navigate(ROUTES.CHAT_CHARACTER(fc.id))}
               >
                 <div className="lp-cast-card__portrait">
                   <img src={char.image} alt={char.name} />
@@ -502,7 +503,7 @@ export default function LandingPage() {
             )
           })}
 
-          <button className="lp-cast-card lp-cast-card--more" onClick={() => navigate('/chat')}>
+          <button className="lp-cast-card lp-cast-card--more" onClick={() => navigate(ROUTES.CHAT)}>
             <span className="lp-cast-card--more__num">+{characters.length - CAST.length}</span>
             <span className="lp-cast-card--more__label">Ver todos<br />los personajes</span>
           </button>
@@ -544,7 +545,7 @@ export default function LandingPage() {
             <em>Viniste a decidir.</em>
           </h2>
           <p className="lp-end__sub">El universo te espera. Los personajes, también.</p>
-          <button className="lp-btn lp-btn--primary lp-btn--lg" onClick={() => navigate('/modos')}>
+          <button className="lp-btn lp-btn--primary lp-btn--lg" onClick={() => navigate(ROUTES.MODOS)}>
             Entrar ahora <ArrowIcon size={17} />
           </button>
         </div>

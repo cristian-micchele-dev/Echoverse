@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { characters } from '../data/characters'
 import { getMissionProgress } from '../utils/missionProgress'
 import { useAuth } from '../context/AuthContext'
+import { ROUTES } from '../utils/constants'
 import { API_URL } from '../config/api'
 import './ModeSelectorPage.css'
 
@@ -183,7 +184,7 @@ export default function ModeSelectorPage() {
 
         {/* Header */}
         <header className="ms-header">
-          <button className="ms-back" onClick={() => navigate('/')}>
+          <button className="ms-back" onClick={() => navigate(ROUTES.HOME)}>
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
               <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>

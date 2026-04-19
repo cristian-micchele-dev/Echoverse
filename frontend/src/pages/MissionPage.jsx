@@ -1,13 +1,15 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { characters } from '../data/characters'
-import { readSSEStream } from '../utils/sse'
+import { useStreaming } from '../hooks/useStreaming'
 import CinematicIntro from '../components/CinematicIntro/CinematicIntro'
+import MissionVictory from '../components/MissionVictory/MissionVictory'
 import './MissionPage.css'
 import { API_URL } from '../config/api.js'
 import { CAMPAIGN_ARCS } from '../data/missionLevels.js'
 import { getMissionProgress, isLevelUnlocked, saveLevelComplete, resetProgress } from '../utils/missionProgress.js'
 import { useAuth } from '../context/AuthContext'
+import { ROUTES } from '../utils/constants'
 
 const MISSION_TRACKS = [
   '/sounds/ArcSound - Dark Suspense Cinematic.mp3',
@@ -147,7 +149,6 @@ export default function MissionPage() {
   const [currentText, setCurrentText] = useState('')
   const [choices, setChoices] = useState([])
   const [currentEffects, setCurrentEffects] = useState(null)
-  const [streaming, setStreaming] = useState(false)
   const [fetchError, setFetchError] = useState(false)
   const [copied, setCopied] = useState(false)
   const [vida, setVida] = useState(4)
@@ -160,6 +161,7 @@ export default function MissionPage() {
   const [muted, setMuted] = useState(false)
   const [victoryDismissed, setVictoryDismissed] = useState(false)
   const { session } = useAuth()
+  const { isLoading: streaming, streamChat } = useStreaming()
   const [campaignMode, setCampaignMode] = useState(false)
   const [selectedLevel, setSelectedLevel] = useState(null)
   const [countdown, setCountdown] = useState(null)
@@ -286,7 +288,6 @@ export default function MissionPage() {
   const playerAlias = playerName.trim() ? `${playerName.trim()} ${surname}`.trim() : ''
 
   const fetchMission = async (char, historyArray, currentStats, finalResult = null) => {
-    setStreaming(true)
     setCurrentText('')
     setChoices([])
     setCurrentEffects(null)
@@ -295,10 +296,9 @@ export default function MissionPage() {
     let feedbackCleared = false
 
     try {
-      const res = await fetch(`${API_URL}/mission`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      await streamChat(
+        `${API_URL}/mission`,
+        {
           characterId: char.id,
           history: historyArray,
           playerName: playerAlias,
@@ -307,22 +307,19 @@ export default function MissionPage() {
           stats: currentStats,
           finalResult,
           isCampaign: campaignMode
-        })
-      })
-
-      if (!res.ok) throw new Error(`Error ${res.status}`)
-
-      await readSSEStream(res, content => {
-        if (!feedbackCleared) { setChoiceFeedback(null); feedbackCleared = true }
-        fullText += content
-        let display = fullText
-          .replace(/^\*{0,2}(?:MISIÓN|TITULO):\*{0,2}[^\n]*\n(?:[^\n]+\n)?/i, '')
-          .replace(/^\*{0,2}ESCENA:\*{0,2}\s*\n?/im, '')
-          .replace(/\n\*{0,2}(?:OPCIONES|EFECTOS):\*{0,2}[\s\S]*$/, '')
-          .replace(/\[FIN\]/g, '')
-        const sepIdx = display.search(/\n?\s*---\s*\n/)
-        setCurrentText(stripMd((sepIdx !== -1 ? display.slice(0, sepIdx) : display).trim()))
-      })
+        },
+        content => {
+          if (!feedbackCleared) { setChoiceFeedback(null); feedbackCleared = true }
+          fullText += content
+          let display = fullText
+            .replace(/^\*{0,2}(?:MISIÓN|TITULO):\*{0,2}[^\n]*\n(?:[^\n]+\n)?/i, '')
+            .replace(/^\*{0,2}ESCENA:\*{0,2}\s*\n?/im, '')
+            .replace(/\n\*{0,2}(?:OPCIONES|EFECTOS):\*{0,2}[\s\S]*$/, '')
+            .replace(/\[FIN\]/g, '')
+          const sepIdx = display.search(/\n?\s*---\s*\n/)
+          setCurrentText(stripMd((sepIdx !== -1 ? display.slice(0, sepIdx) : display).trim()))
+        }
+      )
 
       if (fullText) {
         const { narrative, choices: parsed, title, effects } = parseMissionResponse(fullText)
@@ -333,8 +330,6 @@ export default function MissionPage() {
       }
     } catch {
       setFetchError(true)
-    } finally {
-      setStreaming(false)
     }
   }
 
@@ -463,7 +458,6 @@ export default function MissionPage() {
     setChoices([])
     setCurrentEffects(null)
     setMissionResult(null)
-    setStreaming(false)
     setFetchError(false)
     setMissionTitle('')
     setCopied(false)
@@ -519,7 +513,7 @@ export default function MissionPage() {
     return (
       <div className="mission-page">
         <div className="mission-top-bar">
-          <button className="mission-back-btn" onClick={() => navigate('/')}>
+          <button className="mission-back-btn" onClick={() => navigate(ROUTES.HOME)}>
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
               <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
@@ -721,6 +715,7 @@ export default function MissionPage() {
                 onChange={e => setPlayerName(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleStartMission()}
                 maxLength={24}
+                aria-label="Tu nombre de agente"
               />
               {playerAlias && (
                 <div className="mission-setup__alias-block">
@@ -824,6 +819,8 @@ export default function MissionPage() {
               className="mission-mute-btn"
               onClick={() => setMuted(m => !m)}
               title={muted ? 'Activar música' : 'Silenciar música'}
+              aria-label={muted ? 'Activar música' : 'Silenciar música'}
+              aria-pressed={muted}
             >
               {muted
                 ? <svg width="16" height="16" viewBox="0 0 22 22" fill="none"><path d="M3 9v4h4l5 5V4L7 9H3z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/><line x1="17" y1="9" x2="21" y2="13" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/><line x1="21" y1="9" x2="17" y2="13" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
@@ -1006,7 +1003,7 @@ export default function MissionPage() {
                   <button className="mission-end-btn mission-end-btn--chars" onClick={handleRestart}>
                     Campaña
                   </button>
-                  <button className="mission-end-btn mission-end-btn--home" onClick={() => navigate('/')}>
+                  <button className="mission-end-btn mission-end-btn--home" onClick={() => navigate(ROUTES.HOME)}>
                     Inicio
                   </button>
                 </div>
@@ -1024,7 +1021,7 @@ export default function MissionPage() {
                   <button className="mission-end-btn mission-end-btn--chars" onClick={handleRestart}>
                     Campaña
                   </button>
-                  <button className="mission-end-btn mission-end-btn--home" onClick={() => navigate('/')}>
+                  <button className="mission-end-btn mission-end-btn--home" onClick={() => navigate(ROUTES.HOME)}>
                     Inicio
                   </button>
                 </div>
@@ -1045,7 +1042,7 @@ export default function MissionPage() {
                   <button className="mission-end-btn mission-end-btn--chars" onClick={handleRestart}>
                     Otro personaje
                   </button>
-                  <button className="mission-end-btn mission-end-btn--home" onClick={() => navigate('/')}>
+                  <button className="mission-end-btn mission-end-btn--home" onClick={() => navigate(ROUTES.HOME)}>
                     Inicio
                   </button>
                 </div>
@@ -1059,47 +1056,19 @@ export default function MissionPage() {
 
       {/* ── Victory overlay ──────────────────────────────── */}
       {isEnded && missionResult === 'win' && !streaming && !victoryDismissed && (
-        <div className="mission-victory" onClick={() => setVictoryDismissed(true)}>
-          <div className="mission-victory__card" onClick={e => e.stopPropagation()}>
-            <div className="mission-victory__icon">✔</div>
-            <p className="mission-victory__eyebrow">
-              {campaignMode && selectedLevel ? `Nivel ${selectedLevel?.level} superado` : 'Misión completada'}
-            </p>
-            <h2 className="mission-victory__title">{missionTitle || 'Operación exitosa'}</h2>
-            {campaignMode && selectedLevel && (
-              <p className="mission-victory__unlock">
-                🔓 Nivel {selectedLevel?.level + 1} desbloqueado
-              </p>
-            )}
-            <div className="mission-victory__stats">
-              <div className="mission-victory__stat">
-                <span className="mission-victory__stat-val">{vida}<span className="mission-victory__stat-max">/5</span></span>
-                <span className="mission-victory__stat-lbl">{vidaName}</span>
-              </div>
-              <div className="mission-victory__stat">
-                <span className="mission-victory__stat-val">{history.length}<span className="mission-victory__stat-max">/5</span></span>
-                <span className="mission-victory__stat-lbl">Decisiones</span>
-              </div>
-              <div className="mission-victory__stat">
-                <span className="mission-victory__stat-val">{riesgo}<span className="mission-victory__stat-max">/5</span></span>
-                <span className="mission-victory__stat-lbl">Riesgo</span>
-              </div>
-            </div>
-            <div className="mission-victory__actions">
-              {campaignMode && missionResult === 'win' && selectedLevel?.level !== 30 && (
-                <button className="mission-victory__btn mission-victory__btn--next" onClick={handleNextLevel}>
-                  Siguiente nivel →
-                </button>
-              )}
-              <button className="mission-victory__btn mission-victory__btn--secondary" onClick={() => setVictoryDismissed(true)}>
-                Ver análisis
-              </button>
-              <button className="mission-victory__btn mission-victory__btn--ghost" onClick={handleRestart}>
-                {campaignMode ? 'Ver campaña' : 'Nuevo personaje'}
-              </button>
-            </div>
-          </div>
-        </div>
+        <MissionVictory
+          missionTitle={missionTitle}
+          campaignMode={campaignMode}
+          selectedLevel={selectedLevel}
+          vida={vida}
+          sigilo={sigilo}
+          riesgo={riesgo}
+          vidaName={vidaName}
+          history={history}
+          onDismiss={() => setVictoryDismissed(true)}
+          onNextLevel={handleNextLevel}
+          onRestart={handleRestart}
+        />
       )}
     </div>
   )

@@ -8,6 +8,7 @@ import { getMissionProgress, resetProgress } from '../utils/missionProgress'
 import { useAchievements } from '../hooks/useAchievements'
 import { useStreak } from '../hooks/useStreak'
 import AchievementToast from '../components/AchievementToast/AchievementToast'
+import { ROUTES } from '../utils/constants'
 import { API_URL } from '../config/api.js'
 import './ProfilePage.css'
 
@@ -31,7 +32,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (authLoading) return
-    if (!session) { navigate('/auth'); return }
+    if (!session) { navigate(ROUTES.AUTH); return }
     const headers = { Authorization: `Bearer ${session.access_token}` }
     Promise.all([
       fetch(`${API_URL}/db/affinity`, { headers }).then(r => r.json()),
@@ -110,7 +111,7 @@ export default function ProfilePage() {
     } catch {
       // si falla el signOut remoto, igual limpiamos la sesion local
     }
-    navigate('/')
+    navigate(ROUTES.HOME)
   }
 
   if (authLoading || !user) return null
@@ -170,7 +171,7 @@ export default function ProfilePage() {
       {/* ── HERO ── */}
       <div className="pp-hero">
         <div className="pp-hero__inner">
-          <button className="pp-back" onClick={() => navigate('/')}>
+          <button className="pp-back" onClick={() => navigate(ROUTES.HOME)}>
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 13L5 8l5-5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/></svg>
             Volver
           </button>
@@ -217,10 +218,10 @@ export default function ProfilePage() {
         <div className="pp-next-step-wrap">
           <div
             className="pp-next-step"
-            onClick={() => navigate(nextStep.type === 'chat' ? '/chat' : nextStep.route)}
+            onClick={() => navigate(nextStep.type === 'chat' ? ROUTES.CHAT : nextStep.route)}
             role="button"
             tabIndex={0}
-            onKeyDown={e => e.key === 'Enter' && navigate(nextStep.type === 'chat' ? '/chat' : nextStep.route)}
+            onKeyDown={e => e.key === 'Enter' && navigate(nextStep.type === 'chat' ? ROUTES.CHAT : nextStep.route)}
           >
             <div className="pp-next-step__left">
               <span className="pp-next-step__eyebrow">
@@ -284,7 +285,7 @@ export default function ProfilePage() {
                       <span className="pp-mission__lvl">Nivel {highestLevel - 1}</span>
                       <span className="pp-mission__sub">{completedLevels} de 30 niveles completados</span>
                     </div>
-                    <button className="pp-mission__cta" onClick={() => navigate('/mission')}>
+                    <button className="pp-mission__cta" onClick={() => navigate(ROUTES.MISSION)}>
                       Continuar →
                     </button>
                   </div>
@@ -297,7 +298,7 @@ export default function ProfilePage() {
                   </div>
                 </div>
               ) : (
-                <div className="pp-empty-cta" onClick={() => navigate('/mission')}>
+                <div className="pp-empty-cta" onClick={() => navigate(ROUTES.MISSION)}>
                   <span className="pp-empty-cta__icon">⚔️</span>
                   <div>
                     <p className="pp-empty-cta__title">Todavía no empezaste la campaña</p>
@@ -321,7 +322,7 @@ export default function ProfilePage() {
                       key={a.character_id}
                       className="pp-char-card"
                       style={{ '--cc': a.char.themeColor, '--cg': a.char.gradient }}
-                      onClick={() => navigate(`/chat/${a.character_id}`)}
+                      onClick={() => navigate(ROUTES.CHAT_CHARACTER(a.character_id))}
                     >
                       <div className="pp-char-card__img-wrap">
                         <img src={a.char.image} alt={a.char.name} className="pp-char-card__img" />
@@ -337,7 +338,7 @@ export default function ProfilePage() {
                   ))}
                 </div>
               ) : (
-                <div className="pp-empty-cta" onClick={() => navigate('/chat')}>
+                <div className="pp-empty-cta" onClick={() => navigate(ROUTES.CHAT)}>
                   <span className="pp-empty-cta__icon">💬</span>
                   <div>
                     <p className="pp-empty-cta__title">Todavía no tenés afinidad con ningún personaje</p>

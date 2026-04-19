@@ -2,6 +2,8 @@ import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { characters } from '../data/characters'
 import { readSSEStream } from '../utils/sse'
+import { useStreaming } from '../hooks/useStreaming'
+import { ROUTES } from '../utils/constants'
 import './BattlePage.css'
 import { API_URL } from '../config/api.js'
 const sleep = ms => new Promise(r => setTimeout(r, ms))
@@ -46,6 +48,8 @@ export default function BattlePage() {
   const [userVote, setUserVote] = useState(null)
   const [voteData, setVoteData] = useState(null)
   const bottomRef = useRef(null)
+
+  const { streamChat: streamVerdict } = useStreaming()
 
   const getVoteKey = (a, b) => [a.id, b.id].sort().join('-')
 
@@ -128,25 +132,24 @@ export default function BattlePage() {
   const fetchVerdict = async (log) => {
     setVerdictStatus('loading')
     setVerdict('')
+    let full = ''
     try {
-      const response = await fetch(`${API_URL}/battle/verdict`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      await streamVerdict(
+        `${API_URL}/battle/verdict`,
+        {
           topic,
           charA: { name: charA.name, universe: charA.universe },
           charB: { name: charB.name, universe: charB.universe },
           battleLog: log.map(e => ({ charName: e.char.name, content: e.content }))
-        })
-      })
-      let full = ''
-      await readSSEStream(response, content => {
-        full += content
-        setVerdict(full)
-      })
-      setVerdictStatus('done')
+        },
+        content => {
+          full += content
+          setVerdict(full)
+        }
+      )
     } catch {
       setVerdict('Error al obtener el veredicto.')
+    } finally {
       setVerdictStatus('done')
     }
   }
@@ -167,8 +170,8 @@ export default function BattlePage() {
   return (
     <div className="battle-page">
       <header className="battle-header">
-        <button className="battle-back-btn" onClick={() => navigate('/')}>
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <button className="battle-back-btn" onClick={() => navigate(ROUTES.HOME)} aria-label="Volver al inicio">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
           Volver
@@ -216,13 +219,14 @@ export default function BattlePage() {
               placeholder="Buscar personaje..."
               value={search}
               onChange={e => setSearch(e.target.value)}
+              aria-label="Buscar personaje"
             />
             {search && (
               <button className="battle-search-clear" onClick={() => setSearch('')}>✕</button>
             )}
           </div>
 
-          <div className="battle-char-grid">
+          <div className="battle-char-grid" role="list">
             {characters.filter(c =>
               c.name.toLowerCase().includes(search.toLowerCase()) ||
               c.universe.toLowerCase().includes(search.toLowerCase())
@@ -232,6 +236,9 @@ export default function BattlePage() {
                 className={`battle-char-btn ${isSelected(char) ? 'battle-char-btn--selected' : ''}`}
                 style={{ '--char-color': char.themeColor, '--char-gradient': char.gradient }}
                 onClick={() => selectChar(char)}
+                aria-label={`${isSelected(char) ? 'Quitar' : 'Seleccionar'} ${char.name}`}
+                aria-pressed={isSelected(char)}
+                role="listitem"
               >
                 {getSlot(char) && <span className="battle-char-slot">{getSlot(char)}</span>}
                 <div className="battle-char-img">
@@ -243,8 +250,9 @@ export default function BattlePage() {
           </div>
 
           <div className="battle-topic-wrap">
-            <label className="battle-topic-label">Tema del debate o pregunta inicial</label>
+            <label className="battle-topic-label" htmlFor="battle-topic">Tema del debate o pregunta inicial</label>
             <input
+              id="battle-topic"
               className="battle-topic-input"
               type="text"
               placeholder='Ej: "¿Quién es más poderoso?" o "Convenceme de unirme a tu lado"'
@@ -255,13 +263,15 @@ export default function BattlePage() {
           </div>
 
           <div className="battle-rounds-wrap">
-            <span className="battle-rounds-label">Rondas por personaje:</span>
-            <div className="battle-rounds-selector">
+            <span className="battle-rounds-label" id="rounds-label">Rondas por personaje:</span>
+            <div className="battle-rounds-selector" role="group" aria-labelledby="rounds-label">
               {[1, 2, 3].map(n => (
                 <button
                   key={n}
                   className={`battle-round-btn ${rounds === n ? 'battle-round-btn--active' : ''}`}
                   onClick={() => setRounds(n)}
+                  aria-pressed={rounds === n}
+                  aria-label={`${n} ronda${n > 1 ? 's' : ''}`}
                 >
                   {n}
                 </button>
@@ -295,7 +305,7 @@ export default function BattlePage() {
             </div>
           </div>
 
-          <div className="battle-log">
+          <div className="battle-log" aria-live="polite" aria-atomic="false" aria-label="Registro de la batalla">
             {battleLog.map((entry, i) => (
               <div
                 key={i}
@@ -356,21 +366,23 @@ export default function BattlePage() {
                 <div className="battle-vote">
                   <p className="battle-vote__title">🗳️ ¿Quién ganó según vos?</p>
                   {!userVote ? (
-                    <div className="battle-vote__btns">
+                    <div className="battle-vote__btns" role="group" aria-label="Votar por el ganador">
                       <button
                         className="battle-vote__btn"
                         style={{ '--char-color': charA.themeColor }}
                         onClick={() => castVote(charA.id)}
+                        aria-label={`Votar por ${charA.name}`}
                       >
-                        <img src={charA.image} alt={charA.name} onError={e => e.target.style.display='none'} />
+                        <img src={charA.image} alt="" onError={e => e.target.style.display='none'} />
                         {charA.name}
                       </button>
                       <button
                         className="battle-vote__btn"
                         style={{ '--char-color': charB.themeColor }}
                         onClick={() => castVote(charB.id)}
+                        aria-label={`Votar por ${charB.name}`}
                       >
-                        <img src={charB.image} alt={charB.name} onError={e => e.target.style.display='none'} />
+                        <img src={charB.image} alt="" onError={e => e.target.style.display='none'} />
                         {charB.name}
                       </button>
                     </div>
@@ -410,7 +422,7 @@ export default function BattlePage() {
                 <p>⚔️ Batalla finalizada</p>
                 <div className="battle-done-actions">
                   <button className="battle-new-btn" onClick={reset}>Nueva Batalla</button>
-                  <button className="battle-home-btn" onClick={() => navigate('/')}>Volver al inicio</button>
+                  <button className="battle-home-btn" onClick={() => navigate(ROUTES.HOME)}>Volver al inicio</button>
                 </div>
               </div>
             </>

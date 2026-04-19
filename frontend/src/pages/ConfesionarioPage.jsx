@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { characters } from '../data/characters'
-import { readSSEStream } from '../utils/sse'
+import { useStreaming } from '../hooks/useStreaming'
+import { ROUTES } from '../utils/constants'
 import { useAuth } from '../context/AuthContext'
 import { recordCompletion } from '../utils/recordCompletion'
 import { parseQuestion } from '../utils/aiResponseParser'
@@ -12,21 +13,6 @@ import './ConfesionarioPage.css'
 import { API_URL } from '../config/api.js'
 const MAX_QUESTIONS = 5
 
-async function streamFetch(url, body, onChunk) {
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  })
-  if (!res.ok) throw new Error(`Error ${res.status}`)
-  let full = ''
-  await readSSEStream(res, content => {
-    full += content
-    onChunk(full)
-  })
-  return full
-}
-
 
 export default function ConfesionarioPage() {
   const navigate = useNavigate()
@@ -36,8 +22,8 @@ export default function ConfesionarioPage() {
   const [selectedChar, setSelectedChar] = useState(null)
   const [exchanges, setExchanges] = useState([])
   const [currentQuestion, setCurrentQuestion] = useState('')
-  const [streaming, setStreaming] = useState(false)
   const [verdict, setVerdict] = useState('')
+  const { isLoading: streaming, streamChat } = useStreaming()
   const [fetchError, setFetchError] = useState(null)
   const [copied, setCopied] = useState(false)
   const [selectedOption, setSelectedOption] = useState(null)
@@ -62,22 +48,20 @@ export default function ConfesionarioPage() {
   const startConfesionario = async (char) => {
     setSelectedChar(char)
     setPhase('playing')
-    setStreaming(true)
     setFetchError(null)
 
     const trigger = [{ role: 'user', content: 'Comenzá la sesión. Presentate con una frase en tu estilo y hacé tu primera pregunta con las 4 opciones.' }]
     try {
-      await streamFetch(
+      let full = ''
+      await streamChat(
         `${API_URL}/chat`,
         { characterId: char.id, messages: trigger, confesionarioMode: true },
-        (text) => setCurrentQuestion(text)
+        chunk => { full += chunk; setCurrentQuestion(full) }
       )
     } catch (err) {
-      setFetchError(err.message?.includes('429') || err.message?.includes('Rate limit')
+      setFetchError(err.status === 429 || err.message?.includes('Rate limit')
         ? 'Límite de la API alcanzado. Esperá unos minutos y reintentá.'
         : 'Error al conectar con la IA. Reintentá.')
-    } finally {
-      setStreaming(false)
     }
   }
 
@@ -93,16 +77,16 @@ export default function ConfesionarioPage() {
     setExchanges(newExchanges)
     setCurrentQuestion('')
     setSelectedOption(null)
-    setStreaming(true)
     setFetchError(null)
 
     try {
+      let full = ''
       if (isLast) {
         setPhase('verdict')
-        await streamFetch(
+        await streamChat(
           `${API_URL}/confesionario/verdict`,
           { characterId: selectedChar.id, exchanges: newExchanges },
-          (text) => setVerdict(text)
+          chunk => { full += chunk; setVerdict(full) }
         )
       } else {
         const messages = [
@@ -112,18 +96,16 @@ export default function ConfesionarioPage() {
             { role: 'user', content: e.answer }
           ])
         ]
-        await streamFetch(
+        await streamChat(
           `${API_URL}/chat`,
           { characterId: selectedChar.id, messages, confesionarioMode: true },
-          (text) => setCurrentQuestion(text)
+          chunk => { full += chunk; setCurrentQuestion(full) }
         )
       }
     } catch (err) {
-      setFetchError(err.message?.includes('429') || err.message?.includes('Rate limit')
+      setFetchError(err.status === 429 || err.message?.includes('Rate limit')
         ? 'Límite de la API alcanzado. Esperá unos minutos y reintentá.'
         : 'Error al conectar con la IA. Reintentá.')
-    } finally {
-      setStreaming(false)
     }
   }
 
@@ -132,7 +114,6 @@ export default function ConfesionarioPage() {
     setSelectedChar(null)
     setExchanges([])
     setCurrentQuestion('')
-    setStreaming(false)
     setVerdict('')
     setFetchError(null)
     setCopied(false)
@@ -158,7 +139,7 @@ export default function ConfesionarioPage() {
     return (
       <div className="conf-page">
         <div className="conf-top-bar">
-          <button className="conf-back-btn" onClick={() => navigate('/')}>
+          <button className="conf-back-btn" onClick={() => navigate(ROUTES.HOME)}>
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
               <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
@@ -329,7 +310,7 @@ export default function ConfesionarioPage() {
                 <button className="conf-verdict__btn conf-verdict__btn--new" onClick={handleRestart}>
                   👤 Otro personaje
                 </button>
-                <button className="conf-verdict__btn" onClick={() => navigate('/')}>
+                <button className="conf-verdict__btn" onClick={() => navigate(ROUTES.HOME)}>
                   🏠 Inicio
                 </button>
               </div>

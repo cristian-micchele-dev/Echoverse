@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { characters } from '../data/characters'
-import { readSSEStream } from '../utils/sse'
 import { parseFightResponse } from '../utils/aiResponseParser'
+import { useStreaming } from '../hooks/useStreaming'
+import { ROUTES } from '../utils/constants'
 import './FightPage.css'
 import { API_URL } from '../config/api.js'
+
 const MAX_ROUNDS = 3
 const INITIAL_HP = 100
 
@@ -19,6 +21,7 @@ function HPBar({ hp, side }) {
 
 export default function FightPage() {
   const navigate = useNavigate()
+  const { isLoading: streaming, streamChat } = useStreaming()
   const [phase, setPhase] = useState('pick-player')
   const [playerChar, setPlayerChar] = useState(null)
   const [enemyChar, setEnemyChar] = useState(null)
@@ -28,14 +31,13 @@ export default function FightPage() {
   const [history, setHistory] = useState([])
   const [currentText, setCurrentText] = useState('')
   const [choices, setChoices] = useState([])
-  const [streaming, setStreaming] = useState(false)
   const [winner, setWinner] = useState(null)
   const [fetchError, setFetchError] = useState(false)
   const [flashPlayer, setFlashPlayer] = useState(false)
   const [flashEnemy, setFlashEnemy] = useState(false)
   const [lastDmg, setLastDmg] = useState({ player: null, enemy: null })
   const bottomRef = useRef(null)
-  const lastCallRef = useRef(null) // guarda los args del último fetchRound para reintentar
+  const lastCallRef = useRef(null)
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -43,7 +45,6 @@ export default function FightPage() {
 
   const fetchRound = async (pChar, eChar, pHP, eHP, historyArr, action = null) => {
     lastCallRef.current = { pChar, eChar, pHP, eHP, historyArr, action }
-    setStreaming(true)
     setCurrentText('')
     setChoices([])
     setFetchError(false)
@@ -51,10 +52,9 @@ export default function FightPage() {
     let fullText = ''
 
     try {
-      const res = await fetch(`${API_URL}/fight/round`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      await streamChat(
+        `${API_URL}/fight/round`,
+        {
           playerCharId: pChar.id,
           enemyCharId: eChar.id,
           playerHP: pHP, enemyHP: eHP,
@@ -62,17 +62,15 @@ export default function FightPage() {
           totalRounds: MAX_ROUNDS,
           history: historyArr,
           action
-        })
-      })
-      if (!res.ok) throw new Error(`Error ${res.status}`)
-
-      await readSSEStream(res, content => {
-        fullText += content
-        const dmgIdx = fullText.search(/DAÑO_JUGADOR:/i)
-        const display = dmgIdx !== -1 ? fullText.slice(0, dmgIdx).trim() : fullText
-        const sepIdx = display.search(/\n?\s*---\s*\n/)
-        setCurrentText(sepIdx !== -1 ? display.slice(0, sepIdx).trim() : display)
-      })
+        },
+        content => {
+          fullText += content
+          const dmgIdx = fullText.search(/DAÑO_JUGADOR:/i)
+          const display = dmgIdx !== -1 ? fullText.slice(0, dmgIdx).trim() : fullText
+          const sepIdx = display.search(/\n?\s*---\s*\n/)
+          setCurrentText(sepIdx !== -1 ? display.slice(0, sepIdx).trim() : display)
+        }
+      )
 
       const { narrative, choices: parsed, playerDmg, enemyDmg, isFinal } = parseFightResponse(fullText)
       setCurrentText(narrative)
@@ -98,7 +96,6 @@ export default function FightPage() {
         setChoices(parsed)
       }
     } catch { setFetchError(true) }
-    finally { setStreaming(false) }
   }
 
   const startFight = (pChar, eChar) => {
@@ -120,15 +117,15 @@ export default function FightPage() {
     setPhase('pick-player'); setPlayerChar(null); setEnemyChar(null)
     setPlayerHP(INITIAL_HP); setEnemyHP(INITIAL_HP)
     setRound(1); setHistory([]); setCurrentText('')
-    setChoices([]); setStreaming(false); setWinner(null); setFetchError(false)
+    setChoices([]); setWinner(null); setFetchError(false)
   }
 
   /* ── Pick player ── */
   if (phase === 'pick-player') return (
     <div className="fight-page">
       <div className="fight-top-bar">
-        <button className="fight-back-btn" onClick={() => navigate('/')}>
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <button className="fight-back-btn" onClick={() => navigate(ROUTES.HOME)} aria-label="Volver al inicio">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
           Volver
@@ -139,13 +136,18 @@ export default function FightPage() {
         <h1 className="fight-intro__title">Tu personaje</h1>
         <p className="fight-intro__sub">¿Con quién vas a pelear?</p>
       </div>
-      <div className="fight-chars-grid">
+      <div className="fight-chars-grid" role="list">
         {characters.map((char, i) => (
-          <button key={char.id} className="fight-char-card"
+          <button
+            key={char.id}
+            className="fight-char-card"
             style={{ '--char-color': char.themeColor, '--char-gradient': char.gradient, '--card-delay': `${i * 0.03}s` }}
-            onClick={() => { setPlayerChar(char); setPhase('pick-enemy') }}>
+            onClick={() => { setPlayerChar(char); setPhase('pick-enemy') }}
+            aria-label={`Elegir ${char.name} (${char.universe})`}
+            role="listitem"
+          >
             <div className="fight-char-card__bg" style={{ background: char.gradient }}>
-              {char.image && <img src={char.image} alt={char.name} className="fight-char-card__img" />}
+              {char.image && <img src={char.image} alt="" className="fight-char-card__img" />}
             </div>
             <div className="fight-char-card__overlay" />
             <div className="fight-char-card__info">
@@ -162,8 +164,8 @@ export default function FightPage() {
   if (phase === 'pick-enemy') return (
     <div className="fight-page">
       <div className="fight-top-bar">
-        <button className="fight-back-btn" onClick={() => setPhase('pick-player')}>
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <button className="fight-back-btn" onClick={() => setPhase('pick-player')} aria-label="Volver a selección de personaje">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
           Volver
@@ -179,13 +181,18 @@ export default function FightPage() {
         <h1 className="fight-intro__title">El rival</h1>
         <p className="fight-intro__sub">¿A quién vas a enfrentar?</p>
       </div>
-      <div className="fight-chars-grid">
+      <div className="fight-chars-grid" role="list">
         {characters.filter(c => c.id !== playerChar.id).map((char, i) => (
-          <button key={char.id} className="fight-char-card"
+          <button
+            key={char.id}
+            className="fight-char-card"
             style={{ '--char-color': char.themeColor, '--char-gradient': char.gradient, '--card-delay': `${i * 0.03}s` }}
-            onClick={() => { setEnemyChar(char); startFight(playerChar, char) }}>
+            onClick={() => { setEnemyChar(char); startFight(playerChar, char) }}
+            aria-label={`Enfrentar a ${char.name} (${char.universe})`}
+            role="listitem"
+          >
             <div className="fight-char-card__bg" style={{ background: char.gradient }}>
-              {char.image && <img src={char.image} alt={char.name} className="fight-char-card__img" />}
+              {char.image && <img src={char.image} alt="" className="fight-char-card__img" />}
             </div>
             <div className="fight-char-card__overlay" />
             <div className="fight-char-card__info">
@@ -204,19 +211,20 @@ export default function FightPage() {
   const eColor = enemyChar?.themeColor || '#f87171'
 
   return (
-    <div className="fight-page fight-page--arena"
-      style={{ '--pc': pColor, '--ec': eColor }}>
+    <div className="fight-page fight-page--arena" style={{ '--pc': pColor, '--ec': eColor }}>
 
-      {/* Cards VS */}
-      <div className="fight-vs-section">
+      <div className="fight-vs-section" aria-label="Estado del combate">
         {/* Player card */}
-        <div className={`fcard fcard--player ${flashPlayer ? 'fcard--hit' : ''} ${isEnded && winner === 'enemy' ? 'fcard--loser' : ''} ${isEnded && winner === 'player' ? 'fcard--winner' : ''}`}
-          style={{ '--cc': pColor }}>
-          {lastDmg.player && <span className="fcard__dmg fcard__dmg--player">{lastDmg.player}</span>}
+        <div
+          className={`fcard fcard--player ${flashPlayer ? 'fcard--hit' : ''} ${isEnded && winner === 'enemy' ? 'fcard--loser' : ''} ${isEnded && winner === 'player' ? 'fcard--winner' : ''}`}
+          style={{ '--cc': pColor }}
+          aria-label={`${playerChar.name}: ${playerHP} HP`}
+        >
+          {lastDmg.player && <span className="fcard__dmg fcard__dmg--player" aria-live="polite">{lastDmg.player}</span>}
           <div className="fcard__img-wrap">
             {playerChar.image
               ? <img src={playerChar.image} alt={playerChar.name} className="fcard__img" />
-              : <span className="fcard__emoji">{playerChar.emoji}</span>}
+              : <span className="fcard__emoji" aria-hidden="true">{playerChar.emoji}</span>}
           </div>
           <div className="fcard__footer">
             <HPBar hp={playerHP} side="player" />
@@ -225,11 +233,11 @@ export default function FightPage() {
               <span className="fcard__hp-num" style={{ color: playerHP > 60 ? '#4ade80' : playerHP > 30 ? '#facc15' : '#f87171' }}>{playerHP}</span>
             </div>
           </div>
-          {isEnded && winner === 'player' && <div className="fcard__crown">👑</div>}
+          {isEnded && winner === 'player' && <div className="fcard__crown" aria-label="Ganador">👑</div>}
         </div>
 
         {/* VS */}
-        <div className="fight-vs-badge">
+        <div className="fight-vs-badge" aria-label={isEnded ? 'Fin del combate' : `Ronda ${round} de ${MAX_ROUNDS}`}>
           {isEnded ? <span className="fight-vs-badge__fin">FIN</span> : <>
             <span className="fight-vs-badge__vs">VS</span>
             <span className="fight-vs-badge__round">R{round}/{MAX_ROUNDS}</span>
@@ -237,13 +245,16 @@ export default function FightPage() {
         </div>
 
         {/* Enemy card */}
-        <div className={`fcard fcard--enemy ${flashEnemy ? 'fcard--hit' : ''} ${isEnded && winner === 'player' ? 'fcard--loser' : ''} ${isEnded && winner === 'enemy' ? 'fcard--winner' : ''}`}
-          style={{ '--cc': eColor }}>
-          {lastDmg.enemy && <span className="fcard__dmg fcard__dmg--enemy">{lastDmg.enemy}</span>}
+        <div
+          className={`fcard fcard--enemy ${flashEnemy ? 'fcard--hit' : ''} ${isEnded && winner === 'player' ? 'fcard--loser' : ''} ${isEnded && winner === 'enemy' ? 'fcard--winner' : ''}`}
+          style={{ '--cc': eColor }}
+          aria-label={`${enemyChar.name}: ${enemyHP} HP`}
+        >
+          {lastDmg.enemy && <span className="fcard__dmg fcard__dmg--enemy" aria-live="polite">{lastDmg.enemy}</span>}
           <div className="fcard__img-wrap">
             {enemyChar.image
               ? <img src={enemyChar.image} alt={enemyChar.name} className="fcard__img" />
-              : <span className="fcard__emoji">{enemyChar.emoji}</span>}
+              : <span className="fcard__emoji" aria-hidden="true">{enemyChar.emoji}</span>}
           </div>
           <div className="fcard__footer">
             <HPBar hp={enemyHP} side="enemy" />
@@ -252,7 +263,7 @@ export default function FightPage() {
               <span className="fcard__hp-num" style={{ color: enemyHP > 60 ? '#4ade80' : enemyHP > 30 ? '#facc15' : '#f87171' }}>{enemyHP}</span>
             </div>
           </div>
-          {isEnded && winner === 'enemy' && <div className="fcard__crown">👑</div>}
+          {isEnded && winner === 'enemy' && <div className="fcard__crown" aria-label="Ganador">👑</div>}
         </div>
       </div>
 
@@ -266,26 +277,31 @@ export default function FightPage() {
           </div>
         ))}
 
-        <div className="fight-log__current">
+        <div className="fight-log__current" aria-live="polite" aria-atomic="false">
           {isEnded && winner && (
-            <div className={`fight-winner-label ${winner === 'player' ? 'fight-winner-label--player' : winner === 'enemy' ? 'fight-winner-label--enemy' : ''}`}>
+            <div className={`fight-winner-label ${winner === 'player' ? 'fight-winner-label--player' : winner === 'enemy' ? 'fight-winner-label--enemy' : ''}`} role="status">
               {winner === 'draw' ? '⚔ EMPATE' : `🏆 ${winner === 'player' ? playerChar.name : enemyChar.name} GANA`}
             </div>
           )}
           <p className="fight-log__narrative">
             {currentText}
-            {streaming && <span className="fight-cursor">▋</span>}
+            {streaming && <span className="fight-cursor" aria-hidden="true">▋</span>}
           </p>
         </div>
 
         {/* Acciones */}
         {!streaming && choices.length > 0 && (
-          <div className="fight-moves">
+          <div className="fight-moves" role="group" aria-label="Elegí tu movimiento">
             <p className="fight-moves__label">— Tu movimiento —</p>
             <div className="fight-moves__list">
               {choices.map(c => (
-                <button key={c.key} className="fight-move-btn" onClick={() => handleAction(c)}>
-                  <span className="fight-move-btn__key">{c.key}</span>
+                <button
+                  key={c.key}
+                  className="fight-move-btn"
+                  onClick={() => handleAction(c)}
+                  aria-label={`Movimiento ${c.key}: ${c.text}`}
+                >
+                  <span className="fight-move-btn__key" aria-hidden="true">{c.key}</span>
                   <span className="fight-move-btn__text">{c.text}</span>
                 </button>
               ))}
@@ -295,11 +311,15 @@ export default function FightPage() {
 
         {!streaming && fetchError && (
           <div className="fight-moves">
-            <button className="fight-move-btn" onClick={() => {
-              const c = lastCallRef.current
-              if (c) fetchRound(c.pChar, c.eChar, c.pHP, c.eHP, c.historyArr, c.action)
-            }}>
-              <span className="fight-move-btn__key">↺</span>
+            <button
+              className="fight-move-btn"
+              onClick={() => {
+                const c = lastCallRef.current
+                if (c) fetchRound(c.pChar, c.eChar, c.pHP, c.eHP, c.historyArr, c.action)
+              }}
+              aria-label="Reintentar la ronda"
+            >
+              <span className="fight-move-btn__key" aria-hidden="true">↺</span>
               <span className="fight-move-btn__text">Reintentar</span>
             </button>
           </div>
@@ -309,7 +329,7 @@ export default function FightPage() {
           <div className="fight-end-actions">
             <button className="fight-end-btn fight-end-btn--rematch" onClick={() => startFight(playerChar, enemyChar)}>⚔ Revancha</button>
             <button className="fight-end-btn" onClick={handleReset}>👥 Nuevo combate</button>
-            <button className="fight-end-btn" onClick={() => navigate('/')}>🏠 Inicio</button>
+            <button className="fight-end-btn" onClick={() => navigate(ROUTES.HOME)}>🏠 Inicio</button>
           </div>
         )}
 

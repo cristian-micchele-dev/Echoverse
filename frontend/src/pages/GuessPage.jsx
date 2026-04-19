@@ -4,6 +4,7 @@ import { characters } from '../data/characters'
 import { guessData }   from '../data/guessData'
 import { useAuth } from '../context/AuthContext'
 import { recordCompletion } from '../utils/recordCompletion'
+import { ROUTES } from '../utils/constants'
 import './GuessPage.css'
 
 const ROUNDS     = 8
@@ -177,7 +178,7 @@ export default function GuessPage() {
           ))}
         </div>
 
-        <button className="gp-back-btn" onClick={() => navigate('/')}>← Volver</button>
+        <button className="gp-back-btn" onClick={() => navigate(ROUTES.HOME)}>← Volver</button>
 
         <div className="gp-intro-content">
           <span className="gp-eyebrow">Modo</span>
@@ -439,7 +440,7 @@ export default function GuessPage() {
 
           <div className="gp-summary__actions">
             <button className="gp-start-btn" onClick={startGame}>Jugar de nuevo</button>
-            <button className="gp-back-btn" onClick={() => navigate('/')}>Inicio</button>
+            <button className="gp-back-btn" onClick={() => navigate(ROUTES.HOME)}>Inicio</button>
           </div>
         </div>
       </div>

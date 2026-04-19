@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { characters } from '../data/characters'
-import { readSSEStream } from '../utils/sse'
+import { useStreaming } from '../hooks/useStreaming'
+import { ROUTES } from '../utils/constants'
 import { useAuth } from '../context/AuthContext'
 import { recordCompletion } from '../utils/recordCompletion'
 import './EsteOEsePage.css'
@@ -19,8 +20,8 @@ export default function EsteOEsePage() {
   const [selected, setSelected] = useState(null)
   const [animating, setAnimating] = useState(false)
   const [result, setResult] = useState({ percent: null, analysis: '' })
-  const [streaming, setStreaming] = useState(false)
   const [error, setError] = useState(null)
+  const { isLoading: streaming, streamChat } = useStreaming()
 
   useEffect(() => {
     if (phase === 'result' && !recordedRef.current) {
@@ -77,27 +78,21 @@ export default function EsteOEsePage() {
   }
 
   const fetchResult = async (answersArray) => {
-    setStreaming(true)
     setResult({ percent: null, analysis: '' })
+    let fullText = ''
     try {
-      const res = await fetch(`${API_URL}/esteoese/result`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ characterId: selectedChar.id, answers: answersArray })
-      })
-      if (!res.ok) throw new Error(`Error ${res.status}`)
-      let fullText = ''
-
-      await readSSEStream(res, content => {
-        fullText += content
-        const percentMatch = fullText.match(/RESULTADO:\s*(\d+)%/i)
-        const analysis = fullText.replace(/RESULTADO:\s*\d+%\s*/i, '').trim()
-        setResult({ percent: percentMatch ? parseInt(percentMatch[1]) : null, analysis })
-      })
+      await streamChat(
+        `${API_URL}/esteoese/result`,
+        { characterId: selectedChar.id, answers: answersArray },
+        content => {
+          fullText += content
+          const percentMatch = fullText.match(/RESULTADO:\s*(\d+)%/i)
+          const analysis = fullText.replace(/RESULTADO:\s*\d+%\s*/i, '').trim()
+          setResult({ percent: percentMatch ? parseInt(percentMatch[1]) : null, analysis })
+        }
+      )
     } catch {
       setError('Error al generar el resultado.')
-    } finally {
-      setStreaming(false)
     }
   }
 
@@ -110,7 +105,6 @@ export default function EsteOEsePage() {
     setSelected(null)
     setAnimating(false)
     setResult({ percent: null, analysis: '' })
-    setStreaming(false)
     setError(null)
   }
 
@@ -119,7 +113,7 @@ export default function EsteOEsePage() {
     return (
       <div className="eoe-page">
         <div className="eoe-top-bar">
-          <button className="eoe-back-btn" onClick={() => navigate('/')}>
+          <button className="eoe-back-btn" onClick={() => navigate(ROUTES.HOME)}>
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
               <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
@@ -256,7 +250,7 @@ export default function EsteOEsePage() {
             <button className="eoe-result-btn" onClick={handleRestart}>
               👤 Otro personaje
             </button>
-            <button className="eoe-result-btn" onClick={() => navigate('/')}>
+            <button className="eoe-result-btn" onClick={() => navigate(ROUTES.HOME)}>
               🏠 Inicio
             </button>
           </div>

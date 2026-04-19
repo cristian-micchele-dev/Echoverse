@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { characters } from '../data/characters'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
+import { ROUTES } from '../utils/constants'
 import { API_URL } from '../config/api.js'
 import './RoomChatPage.css'
 
@@ -593,7 +594,7 @@ export default function RoomChatPage() {
     return (
       <div className="rchat-error">
         <p>{error || 'Sala no encontrada'}</p>
-        <button className="btn-ghost" onClick={() => navigate('/salas')}>Volver a salas</button>
+        <button className="btn-ghost" onClick={() => navigate(ROUTES.SALAS)}>Volver a salas</button>
       </div>
     )
   }
@@ -625,7 +626,7 @@ export default function RoomChatPage() {
 
       {/* Header */}
       <header className="rchat-header">
-        <button className="rchat-header__back" onClick={() => navigate('/salas')}>
+        <button className="rchat-header__back" onClick={() => navigate(ROUTES.SALAS)}>
           <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
@@ -743,7 +744,7 @@ export default function RoomChatPage() {
           <div className="rchat-guest-bar">
             <p className="rchat-guest-bar__text">
               Solo podés leer. Para participar,{' '}
-              <button className="rchat-guest-bar__link" onClick={() => navigate('/auth')}>
+              <button className="rchat-guest-bar__link" onClick={() => navigate(ROUTES.AUTH)}>
                 registrate o iniciá sesión
               </button>
               .
@@ -755,7 +756,7 @@ export default function RoomChatPage() {
               <p className="rchat-send-error">
                 {sendError}{' '}
                 {(sendError.includes('sesión') || sendError.includes('registr')) && (
-                  <button className="rchat-send-error__link" onClick={() => navigate('/auth')}>
+                  <button className="rchat-send-error__link" onClick={() => navigate(ROUTES.AUTH)}>
                     Ir al login
                   </button>
                 )}

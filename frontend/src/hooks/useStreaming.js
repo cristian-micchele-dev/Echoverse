@@ -1,0 +1,55 @@
+import { useState } from 'react'
+import { readSSEStream } from '../utils/sse'
+
+/**
+ * Encapsula la lógica de consumo de SSE streaming.
+ *
+ * Devuelve:
+ *  - isTyping: true mientras llega el primer token (indicador de "escribiendo...")
+ *  - isLoading: true durante toda la duración del stream
+ *  - streamChat: función que inicia el stream y llama callbacks por token
+ */
+export function useStreaming() {
+  const [isTyping, setIsTyping] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+
+  /**
+   * @param {string} url - Endpoint a llamar
+   * @param {object} payload - Body del POST
+   * @param {(content: string, isFirst: boolean) => void} onChunk - Callback por token
+   * @returns {Promise<void>}
+   */
+  async function streamChat(url, payload, onChunk) {
+    setIsLoading(true)
+    setIsTyping(true)
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+
+      if (!response.ok) {
+        const err = new Error('HTTP error')
+        err.status = response.status
+        throw err
+      }
+
+      let firstChunk = true
+      await readSSEStream(response, content => {
+        const isFirst = firstChunk
+        if (firstChunk) {
+          setIsTyping(false)
+          firstChunk = false
+        }
+        onChunk(content, isFirst)
+      })
+    } finally {
+      setIsLoading(false)
+      setIsTyping(false)
+    }
+  }
+
+  return { isTyping, isLoading, streamChat }
+}

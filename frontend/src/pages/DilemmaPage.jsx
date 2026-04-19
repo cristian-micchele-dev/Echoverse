@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { characters } from '../data/characters'
-import { readSSEStream } from '../utils/sse'
+import { useStreaming } from '../hooks/useStreaming'
+import { ROUTES } from '../utils/constants'
 import {
   DILEMA_SCENARIOS,
   RECOMMENDED_CHAR_IDS,
@@ -56,8 +57,9 @@ export default function DilemmaPage() {
   const [pendingChoice, setPendingChoice] = useState(null) // { key, label, dilema }
   const [globalVotes, setGlobalVotes] = useState(null)
   const [reaction, setReaction] = useState('')
-  const [isStreaming, setIsStreaming] = useState(false)
   const [consequenceVisible, setConsequenceVisible] = useState(false)
+
+  const { isLoading: isStreaming, streamChat } = useStreaming()
 
   // ─── Profile ──────────────────────────────────────────────────────────────
   const [moralProfile, setMoralProfile] = useState(null)
@@ -129,38 +131,33 @@ export default function DilemmaPage() {
   }
 
   const fetchReaction = useCallback(async (choice, dilema) => {
-    setIsStreaming(true)
-
     const historyPayload = choiceHistory.map(c => ({
       dilemmaQuestion: c.dilemmaQuestion,
       choiceLabel: c.label
     }))
 
     try {
-      const res = await fetch(`${API_URL}/dilema`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      await streamChat(
+        `${API_URL}/dilema`,
+        {
           characterId: character.id,
           dilemmaQuestion: dilema.question,
           choiceLabel: choice.label,
           choiceKey: choice.key,
           choiceHistory: historyPayload,
           affinityLevel
-        })
-      })
-
-      await readSSEStream(res, chunk => {
-        setReaction(prev => prev + chunk)
-        reactionRef.current?.scrollTo({ top: reactionRef.current.scrollHeight, behavior: 'smooth' })
-      })
+        },
+        chunk => {
+          setReaction(prev => prev + chunk)
+          reactionRef.current?.scrollTo({ top: reactionRef.current.scrollHeight, behavior: 'smooth' })
+        }
+      )
     } catch {
       setReaction('El silencio también es una respuesta.')
     } finally {
-      setIsStreaming(false)
       setTimeout(() => setConsequenceVisible(true), 400)
     }
-  }, [character, choiceHistory, affinityLevel])
+  }, [character, choiceHistory, affinityLevel, streamChat])
 
   // ─── Advance from reaction ────────────────────────────────────────────────
   function handleReactionNext() {
@@ -251,7 +248,7 @@ export default function DilemmaPage() {
         </div>
       )}
 
-      {phase === 'select'   && <SelectPhase onSelect={handleCharSelect} onBack={() => navigate('/')} />}
+      {phase === 'select'   && <SelectPhase onSelect={handleCharSelect} onBack={() => navigate(ROUTES.HOME)} />}
       {phase === 'scenario' && character && (
         <ScenarioPhase character={character} onSelect={handleScenarioSelect} onBack={() => setPhase('select')} />
       )}
@@ -294,7 +291,7 @@ export default function DilemmaPage() {
           narrativeState={narrativeState}
           visible={profileVisible}
           onRestart={handleRestart}
-          onHome={() => navigate('/')}
+          onHome={() => navigate(ROUTES.HOME)}
           allCharacters={characters}
         />
       )}
@@ -323,29 +320,33 @@ function SelectPhase({ onSelect, onBack }) {
           <p className="dilema-subtitle-hero">No todas las decisiones tienen una respuesta correcta.<br />Algunas solo tienen un precio.</p>
         </div>
 
-        <div className="dilema-filter-tabs">
+        <div className="dilema-filter-tabs" role="group" aria-label="Filtrar personajes">
           <button
             className={`dilema-filter-tab ${filter === 'recommended' ? 'dilema-filter-tab--active' : ''}`}
             onClick={() => setFilter('recommended')}
+            aria-pressed={filter === 'recommended'}
           >
             Recomendados
           </button>
           <button
             className={`dilema-filter-tab ${filter === 'all' ? 'dilema-filter-tab--active' : ''}`}
             onClick={() => setFilter('all')}
+            aria-pressed={filter === 'all'}
           >
             Todos
           </button>
         </div>
       </div>
 
-      <div className="dilema-char-grid">
+      <div className="dilema-char-grid" role="list">
         {displayed.map(char => (
           <button
             key={char.id}
             className="dilema-char-card"
             style={{ '--card-color': char.themeColor }}
             onClick={() => onSelect(char)}
+            aria-label={`Jugar dilemas con ${char.name} (${char.universe})`}
+            role="listitem"
           >
             <div className="dilema-char-card__img-wrap">
               <img
@@ -495,8 +496,8 @@ function DilemmaPhase({ dilema, roundIndex, totalRounds, narrativeState, affinit
       </div>
 
       {/* Round indicator */}
-      <div className="dilema-round-indicator">
-        <div className="dilema-round-dots">
+      <div className="dilema-round-indicator" aria-label={`Dilema ${roundIndex + 1} de ${totalRounds}`}>
+        <div className="dilema-round-dots" aria-hidden="true">
           {Array.from({ length: totalRounds }).map((_, i) => (
             <span
               key={i}
@@ -514,7 +515,7 @@ function DilemmaPhase({ dilema, roundIndex, totalRounds, narrativeState, affinit
       </div>
 
       {/* Choices */}
-      <div className="dilema-choices">
+      <div className="dilema-choices" role="group" aria-label="Elegí tu decisión">
         {dilema.choices.map(choice => {
           const fx = choice.stateEffects || {}
           const hints = []
@@ -527,6 +528,7 @@ function DilemmaPhase({ dilema, roundIndex, totalRounds, narrativeState, affinit
               key={choice.key}
               className="dilema-choice-btn"
               onClick={() => onChoose(choice, dilema)}
+              aria-label={`Opción ${choice.key}: ${choice.label}`}
             >
               <span className="dilema-choice-btn__key">{choice.key}</span>
               <span className="dilema-choice-btn__label">{choice.label}</span>
@@ -607,7 +609,7 @@ function ReactionPhase({
       </div>
 
       {/* Reaction text */}
-      <div className="dilema-reaction__text-wrap" ref={reactionRef}>
+      <div className="dilema-reaction__text-wrap" ref={reactionRef} aria-live="polite" aria-atomic="false">
         {reaction && (
           <p className="dilema-reaction__text">
             {reaction}

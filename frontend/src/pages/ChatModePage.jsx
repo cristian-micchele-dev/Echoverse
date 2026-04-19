@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { characters } from '../data/characters'
 import CharacterCard from '../components/CharacterCard/CharacterCard'
+import { ROUTES } from '../utils/constants'
 import './ChatModePage.css'
 
 export default function ChatModePage() {
@@ -22,19 +23,19 @@ export default function ChatModePage() {
 
   function handleSelect(characterId) {
     setExiting(true)
-    setTimeout(() => navigate(`/chat/${characterId}`), 260)
+    setTimeout(() => navigate(ROUTES.CHAT_CHARACTER(characterId)), 260)
   }
 
   function goToDuo() {
     setExiting(true)
-    setTimeout(() => navigate('/duo'), 260)
+    setTimeout(() => navigate(ROUTES.DUO), 260)
   }
 
   return (
     <div className={`chat-mode ${visible ? 'chat-mode--visible' : ''} ${exiting ? 'chat-mode--exiting' : ''}`}>
 
       <header className="chat-mode-header">
-        <button className="chat-mode-back" onClick={() => navigate('/')}>
+        <button className="chat-mode-back" onClick={() => navigate(ROUTES.HOME)}>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>

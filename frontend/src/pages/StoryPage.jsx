@@ -2,7 +2,8 @@ import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { characters } from '../data/characters'
 import { storyScenarios } from '../data/stories'
-import { readSSEStream } from '../utils/sse'
+import { useStreaming } from '../hooks/useStreaming'
+import { ROUTES } from '../utils/constants'
 import { useAuth } from '../context/AuthContext'
 import { recordCompletion } from '../utils/recordCompletion'
 import { parseStoryResponse } from '../utils/aiResponseParser'
@@ -48,8 +49,8 @@ export default function StoryPage() {
   const [history, setHistory] = useState([])
   const [currentText, setCurrentText] = useState('')
   const [choices, setChoices] = useState([])
-  const [streaming, setStreaming] = useState(false)
   const [fetchError, setFetchError] = useState(false)
+  const { isLoading: streaming, streamChat } = useStreaming()
   const bottomRef = useRef(null)
   const { levelUpToast, dismissLevelUp, notifyLevelUp } = useLevelUpToast()
 
@@ -69,10 +70,9 @@ export default function StoryPage() {
     }
   }, [phase, session, selectedChar, selectedScenario, notifyLevelUp])
 
-  const turnLimitRef = useRef(5)
+  const [turnLimit, setTurnLimit] = useState(5)
 
-  const fetchStory = async (char, scenario, historyArray) => {
-    setStreaming(true)
+  const fetchStory = async (char, scenario, historyArray, maxTurns = turnLimit) => {
     setCurrentText('')
     setChoices([])
     setFetchError(false)
@@ -80,30 +80,26 @@ export default function StoryPage() {
     let fullText = ''
 
     try {
-      const res = await fetch(`${API_URL}/story`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      await streamChat(
+        `${API_URL}/story`,
+        {
           characterId: char.id,
           scenarioPrompt: scenario.prompt,
           history: historyArray
-        })
-      })
-
-      await readSSEStream(res, content => {
-        fullText += content
-        const sepIdx = fullText.search(/\n?\s*---\s*\n/)
-        setCurrentText(sepIdx !== -1 ? fullText.slice(0, sepIdx).trim() : fullText)
-      })
+        },
+        content => {
+          fullText += content
+          const sepIdx = fullText.search(/\n?\s*---\s*\n/)
+          setCurrentText(sepIdx !== -1 ? fullText.slice(0, sepIdx).trim() : fullText)
+        }
+      )
 
       if (fullText) {
         const { narrative, choices: parsed, isFinal } = parseStoryResponse(fullText)
         setCurrentText(narrative)
-        // Guardar progreso en localStorage después de cada turno
         saveStoryProgress(char.id, scenario.id, historyArray, narrative)
         if (isFinal) {
-          // Si no llegamos al límite absoluto, ofrecer continuar
-          if (historyArray.length + 1 < turnLimitRef.current) {
+          if (historyArray.length + 1 < maxTurns) {
             setChoices(parsed)
           } else if (historyArray.length + 1 < MAX_TOTAL_TURNS) {
             setPhase('extendable')
@@ -116,8 +112,6 @@ export default function StoryPage() {
       }
     } catch {
       setFetchError(true)
-    } finally {
-      setStreaming(false)
     }
   }
 
@@ -158,7 +152,7 @@ export default function StoryPage() {
     if (selectedChar && selectedScenario) {
       clearStorySave(selectedChar.id, selectedScenario.id)
     }
-    turnLimitRef.current = 5
+    setTurnLimit(5)
     recordedRef.current = false
     setPhase('chars')
     setSelectedChar(null)
@@ -166,17 +160,17 @@ export default function StoryPage() {
     setHistory([])
     setCurrentText('')
     setChoices([])
-    setStreaming(false)
     setFetchError(false)
   }
 
   const turnNumber = history.length + (phase === 'ended' || phase === 'extendable' ? 0 : 1)
-  const totalTurns = turnLimitRef.current
+  const totalTurns = turnLimit
 
   const handleExtend = () => {
-    turnLimitRef.current = Math.min(MAX_TOTAL_TURNS, turnLimitRef.current + 3)
+    const newLimit = Math.min(MAX_TOTAL_TURNS, turnLimit + 3)
+    setTurnLimit(newLimit)
     setPhase('playing')
-    fetchStory(selectedChar, selectedScenario, history)
+    fetchStory(selectedChar, selectedScenario, history, newLimit)
   }
 
   /* ── FASE: selección de personaje ─────────────────── */
@@ -184,8 +178,8 @@ export default function StoryPage() {
     return (
       <div className="story-page">
         <div className="story-top-bar">
-          <button className="story-back-btn" onClick={() => navigate('/')}>
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <button className="story-back-btn" onClick={() => navigate(ROUTES.HOME)} aria-label="Volver al inicio">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
               <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
             Volver
@@ -428,7 +422,7 @@ export default function StoryPage() {
             <button className="story-end-btn story-end-btn--chars" onClick={handleRestart}>
               👤 Otro personaje
             </button>
-            <button className="story-end-btn story-end-btn--home" onClick={() => navigate('/')}>
+            <button className="story-end-btn story-end-btn--home" onClick={() => navigate(ROUTES.HOME)}>
               🏠 Inicio
             </button>
           </div>

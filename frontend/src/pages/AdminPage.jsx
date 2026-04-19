@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { ROUTES } from '../utils/constants'
 import { API_URL } from '../config/api.js'
 import './AdminPage.css'
 
@@ -66,7 +67,7 @@ export default function AdminPage() {
     return (
       <div className="admin-denied">
         <p>Acceso denegado.</p>
-        <button className="btn-ghost" onClick={() => navigate('/')}>Volver</button>
+        <button className="btn-ghost" onClick={() => navigate(ROUTES.HOME)}>Volver</button>
       </div>
     )
   }
@@ -74,7 +75,7 @@ export default function AdminPage() {
   return (
     <div className="admin-page">
       <header className="admin-header">
-        <button className="admin-header__back btn-ghost" onClick={() => navigate('/')}>
+        <button className="admin-header__back btn-ghost" onClick={() => navigate(ROUTES.HOME)}>
           <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>

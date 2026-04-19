@@ -4,6 +4,7 @@ import { characters } from '../data/characters'
 import { missions } from '../data/missions'
 import MissionRunner from '../components/mission/MissionRunner'
 import CharacterSelector from '../components/CharacterSelector/CharacterSelector'
+import { ROUTES } from '../utils/constants'
 import './OperacionPage.css'
 
 export default function OperacionPage() {
@@ -36,7 +37,7 @@ export default function OperacionPage() {
     return (
       <div className="operacion-page">
         <div className="operacion-page__top-bar">
-          <button className="operacion-page__back" onClick={() => navigate('/')}>
+          <button className="operacion-page__back" onClick={() => navigate(ROUTES.HOME)}>
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
               <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
@@ -129,7 +130,7 @@ export default function OperacionPage() {
         mission={mission}
         character={character}
         onReplay={handleReplay}
-        onHome={() => navigate('/')}
+        onHome={() => navigate(ROUTES.HOME)}
       />
     </div>
   )

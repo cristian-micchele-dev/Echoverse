@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { ROUTES } from '../utils/constants'
 import './AuthPage.css'
 
 export default function AuthPage() {
@@ -37,7 +38,7 @@ export default function AuthPage() {
     try {
       if (tab === 'login') await login(email, password)
       else await register(email, password, username)
-      navigate('/', { replace: true })
+      navigate(ROUTES.HOME, { replace: true })
     } catch (err) {
       setError(err.message || 'Error inesperado')
     } finally {
@@ -175,7 +176,7 @@ export default function AuthPage() {
             </form>
 
             <div className="auth-divider"><span>o</span></div>
-            <button className="auth-skip" onClick={() => navigate('/')}>
+            <button className="auth-skip" onClick={() => navigate(ROUTES.HOME)}>
               Continuar sin cuenta
             </button>
           </>

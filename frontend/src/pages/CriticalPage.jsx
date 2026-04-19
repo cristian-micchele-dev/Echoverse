@@ -5,6 +5,7 @@ import { missions } from '../data/missions'
 import { getSituationById } from '../data/situations'
 import CriticalSituation from '../components/critical/CriticalSituation'
 import CharacterSelector from '../components/CharacterSelector/CharacterSelector'
+import { ROUTES } from '../utils/constants'
 import './CriticalPage.css'
 
 const RESULT_META = {
@@ -70,7 +71,7 @@ export default function CriticalPage() {
     return (
       <div className="critical-page">
         <div className="critical-page__top-bar">
-          <button className="critical-page__back" onClick={() => navigate('/')}>
+          <button className="critical-page__back" onClick={() => navigate(ROUTES.HOME)}>
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
               <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
@@ -314,7 +315,7 @@ export default function CriticalPage() {
         </button>
         <button
           className="critical-summary__btn critical-summary__btn--home"
-          onClick={() => navigate('/')}
+          onClick={() => navigate(ROUTES.HOME)}
         >
           🏠 Inicio
         </button>

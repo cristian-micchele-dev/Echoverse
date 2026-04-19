@@ -4,6 +4,7 @@ import { characters } from '../data/characters'
 import { getRandomQuestions, MATCH_DESCRIPTIONS, computeUserProfile, rankCharacters } from '../data/parecidoQuiz'
 import { useAuth } from '../context/AuthContext'
 import { recordCompletion } from '../utils/recordCompletion'
+import { ROUTES } from '../utils/constants'
 import './ParecidoPage.css'
 
 const OPTION_LETTERS = ['A', 'B', 'C', 'D']
@@ -103,7 +104,7 @@ export default function ParecidoPage() {
     return (
       <div className="par-page par-page--intro">
         {AnimatedBg}
-        <button className="par-back-btn" onClick={() => navigate('/modos')}>
+        <button className="par-back-btn" onClick={() => navigate(ROUTES.MODOS)}>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
@@ -203,7 +204,7 @@ export default function ParecidoPage() {
             </p>
             <button
               className="par-chat-btn"
-              onClick={() => navigate(`/chat/${first.id}`)}
+              onClick={() => navigate(ROUTES.CHAT_CHARACTER(first.id))}
               style={{ background: first.char.themeColor }}
             >
               Chatear con {first.char.name}
@@ -221,7 +222,7 @@ export default function ParecidoPage() {
                   key={match.id}
                   className="par-also-card"
                   style={{ '--char-color': match.char.themeColor }}
-                  onClick={() => navigate(`/chat/${match.id}`)}
+                  onClick={() => navigate(ROUTES.CHAT_CHARACTER(match.id))}
                 >
                   <div className="par-also-card__avatar-wrap">
                     {match.char.image
@@ -243,7 +244,7 @@ export default function ParecidoPage() {
           <button className="par-action-btn par-action-btn--secondary" onClick={handleRestart}>
             Volver a intentar
           </button>
-          <button className="par-action-btn par-action-btn--ghost" onClick={() => navigate('/')}>
+          <button className="par-action-btn par-action-btn--ghost" onClick={() => navigate(ROUTES.HOME)}>
             Inicio
           </button>
         </div>

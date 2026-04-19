@@ -2,6 +2,7 @@ import { useState, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { characters } from '../data/characters'
 import { readSSEStream } from '../utils/sse'
+import { ROUTES } from '../utils/constants'
 import './DuoPage.css'
 import { API_URL } from '../config/api.js'
 
@@ -150,8 +151,8 @@ export default function DuoPage() {
     return (
       <div className="duo-page">
         <header className="duo-header">
-          <button className="duo-back-btn" onClick={() => navigate('/')}>
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <button className="duo-back-btn" onClick={() => navigate(ROUTES.HOME)} aria-label="Volver al inicio">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
               <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
             Volver
@@ -195,17 +196,21 @@ export default function DuoPage() {
               placeholder="Buscar personaje..."
               value={search}
               onChange={e => setSearch(e.target.value)}
+              aria-label="Buscar personaje"
             />
             {search && <button className="duo-search-clear" onClick={() => setSearch('')}>✕</button>}
           </div>
 
-          <div className="duo-char-grid">
+          <div className="duo-char-grid" role="list">
             {filtered.map(char => (
               <button
                 key={char.id}
                 className={`duo-char-btn ${isSelected(char) ? 'duo-char-btn--selected' : ''}`}
                 style={{ '--char-color': char.themeColor, '--char-gradient': char.gradient }}
                 onClick={() => selectChar(char)}
+                aria-label={`${isSelected(char) ? 'Quitar' : 'Agregar'} ${char.name}`}
+                aria-pressed={isSelected(char)}
+                role="listitem"
               >
                 {getSlot(char) && <span className="duo-char-slot">{getSlot(char)}</span>}
                 <div className="duo-char-img">
@@ -319,11 +324,13 @@ export default function DuoPage() {
           placeholder="Provocá, preguntá, desafiá..."
           rows={1}
           disabled={isLoading}
+          aria-label="Mensaje para los personajes"
         />
         <button
           className="duo-send-btn"
           onClick={sendMessage}
           disabled={!input.trim() || isLoading}
+          aria-label="Enviar mensaje"
         >
           {isLoading
             ? <span className="duo-send-loading" />

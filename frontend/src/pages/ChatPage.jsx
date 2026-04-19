@@ -3,15 +3,15 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { characters } from '../data/characters'
 import { UI_THEMES } from '../data/uiThemes'
 import MessageBubble from '../components/MessageBubble/MessageBubble'
-import { readSSEStream } from '../utils/sse'
 import { saveSession } from '../utils/session'
+import { chatHistoryKey, MAX_STORED_MESSAGES, ROUTES } from '../utils/constants'
 import './ChatPage.css'
 import { API_URL } from '../config/api.js'
 import { getAffinityData, getAffinityLevel, getAffinityLabel, getAffinityEmoji } from '../utils/affinity'
 import { useAuth } from '../context/AuthContext'
 import { useAchievements } from '../hooks/useAchievements'
+import { useStreaming } from '../hooks/useStreaming'
 import AchievementToast from '../components/AchievementToast/AchievementToast'
-const MAX_STORED_MESSAGES = 50
 
 function playNotificationSound(tone) {
   try {
@@ -79,7 +79,6 @@ function updateHistoryMeta(characterId, messageCount) {
   } catch { /* localStorage unavailable */ }
 }
 
-
 function BgParticles({ effect }) {
   if (!effect || effect === 'none') return null
   const counts = { stars: 22, rain: 16, particles: 14, embers: 12, lightning: 5, sparks: 14, smoke: 10, snow: 18 }
@@ -99,8 +98,9 @@ export default function ChatPage() {
   const character = characters.find(c => c.id === characterId)
   const { session } = useAuth()
   const { checkAndUnlock, newlyUnlocked, dismissToast } = useAchievements()
+  const { isTyping, isLoading, streamChat } = useStreaming()
 
-  const storageKey = `chat-${characterId}`
+  const storageKey = chatHistoryKey(characterId)
 
   const [messages, setMessages] = useState(() => {
     try {
@@ -109,8 +109,6 @@ export default function ChatPage() {
     } catch { return [] }
   })
   const [input, setInput] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [isTyping, setIsTyping] = useState(false)
   const [showScrollBtn, setShowScrollBtn] = useState(false)
   const [headerImgError, setHeaderImgError] = useState(false)
   const [emptyImgError, setEmptyImgError] = useState(false)
@@ -152,7 +150,7 @@ export default function ChatPage() {
   }, [character])
 
   useEffect(() => {
-    if (!character) navigate('/')
+    if (!character) navigate(ROUTES.HOME)
   }, [character, navigate])
 
   useEffect(() => {
@@ -235,38 +233,24 @@ export default function ChatPage() {
     const updatedMessages = [...messages, userMessage]
     setMessages(updatedMessages)
     setInput('')
-    setIsLoading(true)
-    setIsTyping(true)
 
     try {
-      const response = await fetch(`${API_URL}/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ characterId, messages: updatedMessages, affinityLevel: getAffinityLevel(getAffinityData(characterId).messageCount) })
-      })
-
-      if (!response.ok) {
-        const err = new Error('HTTP error')
-        err.status = response.status
-        throw err
-      }
-
-      let firstChunk = true
-      await readSSEStream(response, content => {
-        if (firstChunk) {
-          setIsTyping(false)
-          setMessages(prev => [...prev, { role: 'assistant', content, ts: Date.now() }])
-          firstChunk = false
-        } else {
-          setMessages(prev => {
-            const copy = [...prev]
-            copy[copy.length - 1] = { ...copy[copy.length - 1], content: copy[copy.length - 1].content + content }
-            return copy
-          })
+      await streamChat(
+        `${API_URL}/chat`,
+        { characterId, messages: updatedMessages, affinityLevel: getAffinityLevel(getAffinityData(characterId).messageCount) },
+        (content, isFirst) => {
+          if (isFirst) {
+            setMessages(prev => [...prev, { role: 'assistant', content, ts: Date.now() }])
+          } else {
+            setMessages(prev => {
+              const copy = [...prev]
+              copy[copy.length - 1] = { ...copy[copy.length - 1], content: copy[copy.length - 1].content + content }
+              return copy
+            })
+          }
         }
-      })
+      )
     } catch (err) {
-      setIsTyping(false)
       let msg = 'Error al conectar con el servidor.'
       if (err?.name === 'AbortError') {
         msg = 'La respuesta tardó demasiado. Intentá de nuevo.'
@@ -277,11 +261,9 @@ export default function ChatPage() {
       }
       setMessages(prev => [...prev, { role: 'assistant', content: msg }])
     } finally {
-      setIsLoading(false)
-      setIsTyping(false)
       inputRef.current?.focus()
     }
-  }, [input, isLoading, messages, characterId])
+  }, [input, isLoading, messages, characterId, streamChat])
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -333,13 +315,13 @@ export default function ChatPage() {
       <BgParticles effect={character.bgEffect} />
 
       <header className="chat-header">
-        <button className="back-btn" onClick={() => navigate('/')}>
+        <button className="back-btn" onClick={() => navigate(ROUTES.HOME)}>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
           Volver
         </button>
-        <button className="change-char-btn" onClick={() => navigate('/chat')} title="Cambiar personaje">
+        <button className="change-char-btn" onClick={() => navigate(ROUTES.CHAT)} title="Cambiar personaje">
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
             <circle cx="6" cy="5" r="2.5" stroke="currentColor" strokeWidth="1.4"/>
             <circle cx="11" cy="5" r="2.5" stroke="currentColor" strokeWidth="1.4"/>

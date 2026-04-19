@@ -4,6 +4,7 @@ import { characters } from '../data/characters'
 import { INTERROGATION_CHAR_IDS, SCENARIOS } from '../data/interrogationData'
 import { useAuth } from '../context/AuthContext'
 import { recordCompletion } from '../utils/recordCompletion'
+import { ROUTES } from '../utils/constants'
 import './InterrogationPage.css'
 import { API_URL } from '../config/api.js'
 const MAX_QUESTIONS = 8
@@ -283,7 +284,7 @@ export default function InterrogationPage() {
           <div className="ip-bg__vignette" />
         </div>
 
-        <button className="ip-back ip-back--intro" onClick={() => navigate('/')}>← Volver</button>
+        <button className="ip-back ip-back--intro" onClick={() => navigate(ROUTES.HOME)}>← Volver</button>
 
         <div className="ip-intro">
           <div className="ip-intro__badge">MODO</div>
@@ -803,7 +804,7 @@ export default function InterrogationPage() {
             <button className="ip-start-btn" onClick={resetGame}>
               Jugar de nuevo
             </button>
-            <button className="ip-back" onClick={() => navigate('/')}>
+            <button className="ip-back" onClick={() => navigate(ROUTES.HOME)}>
               Inicio
             </button>
           </div>

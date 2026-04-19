@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { characters } from '../data/characters'
 import { useAuth } from '../context/AuthContext'
+import { ROUTES } from '../utils/constants'
 import { API_URL } from '../config/api.js'
 import './RoomsPage.css'
 
@@ -124,7 +125,7 @@ function RoomCard({ room, isAdmin, session, onDelete }) {
     <article
       className="rm-card"
       style={{ '--room-color': char.themeColor, '--room-gradient': char.gradient }}
-      onClick={() => navigate(`/salas/${room.id}`)}
+      onClick={() => navigate(ROUTES.SALA(room.id))}
     >
       <div className="rm-card__bg" />
 
@@ -208,7 +209,7 @@ export default function RoomsPage() {
   }, [])
 
   async function handleCreate(characterId, name) {
-    if (!session) { navigate('/auth'); return }
+    if (!session) { navigate(ROUTES.AUTH); return }
     const res = await fetch(`${API_URL}/rooms`, {
       method: 'POST',
       headers: {
@@ -222,14 +223,14 @@ export default function RoomsPage() {
       throw new Error(error)
     }
     const room = await res.json()
-    navigate(`/salas/${room.id}`)
+    navigate(ROUTES.SALA(room.id))
   }
 
   return (
     <div className="rm-page">
       <header className="rm-page__header">
         <div className="rm-page__header-top">
-          <button className="rm-page__back btn-ghost" onClick={() => navigate('/modos')}>
+          <button className="rm-page__back btn-ghost" onClick={() => navigate(ROUTES.MODOS)}>
             <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
               <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
@@ -237,7 +238,7 @@ export default function RoomsPage() {
           </button>
           <button
             className="btn-primary rm-page__create-btn"
-            onClick={() => user ? setShowModal(true) : navigate('/auth')}
+            onClick={() => user ? setShowModal(true) : navigate(ROUTES.AUTH)}
           >
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
               <path d="M8 2v12M2 8h12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
@@ -285,7 +286,7 @@ export default function RoomsPage() {
             <p className="rm-empty__text">Sé el primero en crear una sala y chatear con un personaje.</p>
             <button
               className="btn-primary"
-              onClick={() => user ? setShowModal(true) : navigate('/auth')}
+              onClick={() => user ? setShowModal(true) : navigate(ROUTES.AUTH)}
             >
               Crear la primera sala
             </button>
