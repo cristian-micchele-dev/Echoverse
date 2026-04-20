@@ -100,6 +100,16 @@
   gap: 0.2rem;
 }
 
+.pp-stat__icon {
+  color: #9B7BFF;
+  opacity: 0.85;
+  margin-bottom: 0.1rem;
+}
+
+.pp-stat__icon--streak {
+  color: #f97316;
+}
+
 .pp-stat__num {
   font-size: 1.5rem;
   font-weight: 800;
