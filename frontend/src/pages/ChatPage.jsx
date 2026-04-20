@@ -112,6 +112,7 @@ export default function ChatPage() {
   const { isTyping, isLoading, streamChat } = useStreaming()
 
   const storageKey = chatHistoryKey(characterId)
+  const userReactionsKey = `reactions-${characterId}`
 
   const [messages, setMessages] = useState(() => {
     try {
@@ -129,6 +130,9 @@ export default function ChatPage() {
   const errorTimerRef = useRef(null)
   const [visible, setVisible] = useState(false)
   const [reactions, setReactions] = useState({})
+  const [userReactions, setUserReactions] = useState(() => {
+    try { return JSON.parse(localStorage.getItem(userReactionsKey) || '{}') } catch { return {} }
+  })
   const messagesEndRef = useRef(null)
   const messagesContainerRef = useRef(null)
   const inputRef = useRef(null)
@@ -175,6 +179,22 @@ export default function ChatPage() {
       localStorage.setItem(storageKey, JSON.stringify(toSave))
     } catch { /* localStorage unavailable */ }
   }, [messages, storageKey])
+
+  // Persistir reacciones del usuario en localStorage
+  useEffect(() => {
+    try { localStorage.setItem(userReactionsKey, JSON.stringify(userReactions)) } catch { /* localStorage unavailable */ }
+  }, [userReactions, userReactionsKey])
+
+  const handleUserReact = useCallback((msgIndex, emoji) => {
+    setUserReactions(prev => {
+      if (prev[msgIndex] === emoji) {
+        const next = { ...prev }
+        delete next[msgIndex]
+        return next
+      }
+      return { ...prev, [msgIndex]: emoji }
+    })
+  }, [])
 
   // Sound + reactions + history on response complete
   useEffect(() => {
@@ -297,7 +317,11 @@ export default function ChatPage() {
     if (!window.confirm('¿Borrar toda la conversación? Esta acción no se puede deshacer.')) return
     setMessages([])
     setReactions({})
-    try { localStorage.removeItem(storageKey) } catch { /* localStorage unavailable */ }
+    setUserReactions({})
+    try {
+      localStorage.removeItem(storageKey)
+      localStorage.removeItem(userReactionsKey)
+    } catch { /* localStorage unavailable */ }
     if (session) {
       fetch(`${API_URL}/db/chat-history/${characterId}`, {
         method: 'DELETE',
@@ -454,6 +478,8 @@ export default function ChatPage() {
                 isStreaming={isLoading && i === messages.length - 1 && msg.role === 'assistant'}
                 isGrouped={i > 0 && !showDateSep && messages[i - 1].role === msg.role}
                 reaction={reactions[i]}
+                userReaction={userReactions[i]}
+                onReact={(emoji) => handleUserReact(i, emoji)}
               />
             </div>
           )
