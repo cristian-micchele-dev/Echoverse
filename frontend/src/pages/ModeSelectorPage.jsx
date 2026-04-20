@@ -230,7 +230,7 @@ export default function ModeSelectorPage() {
           {SECONDARY_MODES.map((mode, i) => (
             <button
               key={mode.id}
-              className="ms-main-card ms-main-card--sm"
+              className="ms-main-card"
               style={{ '--accent': mode.accent, animationDelay: `${(MAIN_MODES.length + i) * 70}ms` }}
               onClick={() => navigate(mode.route)}
             >
