@@ -1597,3 +1597,30 @@
   transition: color 0.15s;
 }
 .lp-onboarding-hint__close:hover { color: #c4b6ff; }
+
+/* ─── ONLINE COUNTER ───────────────────────────────────────────────────── */
+.lp-online {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 0 16px;
+  font-size: 0.7rem;
+  color: rgba(196, 182, 255, 0.4);
+  letter-spacing: 0.04em;
+}
+
+.lp-online__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 6px #4ade80;
+  animation: online-pulse 2.5s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes online-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.35; }
+}

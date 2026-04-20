@@ -11,6 +11,7 @@ import { useAuth } from '../context/AuthContext'
 import DailyChallenge from '../components/DailyChallenge/DailyChallenge'
 import OnboardingModal from '../components/OnboardingModal/OnboardingModal'
 import { ROUTES } from '../utils/constants'
+import { API_URL } from '../config/api.js'
 import './LandingPage.css'
 
 /* ─── DATA ──────────────────────────────────────────────────────────────── */
@@ -122,6 +123,8 @@ export default function LandingPage() {
   const [featuredFade, setFeaturedFade] = useState(true)
   const [scrolled, setScrolled]       = useState(false)
   const [showOnboarding, setShowOnboarding] = useState(false)
+  const [onlineCount, setOnlineCount] = useState(null)
+  const sidRef = useRef(null)
   const heroRef                       = useRef(null)
   const lpRef                         = useRef(null)
   const carouselPaused                = useRef(false)
@@ -175,6 +178,26 @@ export default function LandingPage() {
         setFeaturedFade(true)
       }, 750)
     }, ROTATE_INTERVAL)
+    return () => clearInterval(id)
+  }, [])
+
+  // Online counter — ping every 20s
+  useEffect(() => {
+    if (!sidRef.current) {
+      sidRef.current = Math.random().toString(36).slice(2, 18)
+    }
+    const ping = () => {
+      fetch(`${API_URL}/online/ping`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sid: sidRef.current }),
+      })
+        .then(r => r.json())
+        .then(d => setOnlineCount(d.online))
+        .catch(() => {})
+    }
+    ping()
+    const id = setInterval(ping, 20_000)
     return () => clearInterval(id)
   }, [])
 
@@ -577,6 +600,14 @@ export default function LandingPage() {
           <span className="lp-footer__year">© 2025</span>
         </div>
       </footer>
+
+      {/* ─── ONLINE COUNTER ───────────────────────────────────────────── */}
+      {onlineCount !== null && (
+        <div className="lp-online">
+          <span className="lp-online__dot" />
+          {onlineCount} {onlineCount === 1 ? 'persona online' : 'personas online'}
+        </div>
+      )}
 
       {/* ─── SCROLL TO TOP ────────────────────────────────────────────── */}
       <button
