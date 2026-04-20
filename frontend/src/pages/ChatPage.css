@@ -401,6 +401,26 @@
 .messages-container::-webkit-scrollbar-track { background: transparent; }
 .messages-container::-webkit-scrollbar-thumb { background: var(--surface-4); border-radius: 2px; }
 
+/* ─── Date separator ─────────────────────────────── */
+.date-separator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0.5rem 0;
+}
+.date-separator span {
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border-ghost);
+  border-radius: 99px;
+  padding: 0.2rem 0.75rem;
+  opacity: 0.7;
+}
+
 /* ─── Empty state ─────────────────────────────────── */
 .empty-chat {
   flex: 1;
@@ -687,6 +707,101 @@
 }
 
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ─── Typing label ───────────────────────────────── */
+.typing-label {
+  font-size: 0.72rem;
+  color: var(--char-color, var(--text-muted));
+  opacity: 0.7;
+  margin-left: 0.25rem;
+  letter-spacing: 0.02em;
+  animation: typing-label-pulse 1.8s ease-in-out infinite;
+}
+@keyframes typing-label-pulse {
+  0%, 100% { opacity: 0.5; }
+  50%       { opacity: 0.9; }
+}
+
+/* Ocultar label en estilos especiales que son puramente visuales */
+.bubble--typing.typing--tremble .typing-label,
+.bubble--typing.typing--glitch .typing-label,
+.bubble--typing.typing--viking .typing-label {
+  display: none;
+}
+
+/* Glow sutil al bubble de typing */
+.bubble--typing {
+  box-shadow: 0 0 14px -4px var(--char-color, transparent);
+}
+
+/* ─── Cloud saved indicator ──────────────────────── */
+.cloud-saved-indicator {
+  font-size: 0.68rem;
+  color: var(--success, #22C55E);
+  opacity: 0;
+  animation: cloud-saved-pop 2.5s ease forwards;
+  margin-left: 0.4rem;
+}
+@keyframes cloud-saved-pop {
+  0%   { opacity: 0; transform: translateY(3px); }
+  15%  { opacity: 1; transform: translateY(0); }
+  75%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* ─── Chat error banner ──────────────────────────── */
+.chat-error-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.65rem 1.25rem;
+  background: rgba(244, 63, 94, 0.12);
+  border-top: 1px solid rgba(244, 63, 94, 0.3);
+  color: #f87171;
+  font-size: 0.82rem;
+  font-family: var(--font-body);
+  animation: banner-slide-in 0.2s ease;
+  z-index: 5;
+  position: relative;
+}
+@keyframes banner-slide-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.chat-error-banner__msg {
+  flex: 1;
+  min-width: 0;
+}
+.chat-error-banner__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+.chat-error-banner__retry {
+  background: rgba(244, 63, 94, 0.18);
+  border: 1px solid rgba(244, 63, 94, 0.35);
+  border-radius: 99px;
+  color: #f87171;
+  font-size: 0.75rem;
+  font-family: var(--font-body);
+  padding: 0.25rem 0.75rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.chat-error-banner__retry:hover { background: rgba(244, 63, 94, 0.28); }
+.chat-error-banner__close {
+  background: none;
+  border: none;
+  color: rgba(244, 63, 94, 0.6);
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 0.15rem 0.25rem;
+  line-height: 1;
+  transition: color 0.15s ease;
+}
+.chat-error-banner__close:hover { color: #f87171; }
 
 /* ─── Mobile responsive ───────────────────────────── */
 @media (max-width: 480px) {

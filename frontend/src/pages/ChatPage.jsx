@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import { characters } from '../data/characters'
 import { UI_THEMES } from '../data/uiThemes'
 import MessageBubble from '../components/MessageBubble/MessageBubble'
@@ -71,6 +72,16 @@ export function detectReaction(content) {
   return null
 }
 
+function formatDateSeparator(ts) {
+  const d = new Date(ts)
+  const today = new Date()
+  const yesterday = new Date(today)
+  yesterday.setDate(today.getDate() - 1)
+  if (d.toDateString() === today.toDateString()) return 'Hoy'
+  if (d.toDateString() === yesterday.toDateString()) return 'Ayer'
+  return d.toLocaleDateString('es-AR', { day: 'numeric', month: 'long' })
+}
+
 function updateHistoryMeta(characterId, messageCount) {
   try {
     const meta = JSON.parse(localStorage.getItem('chat-history-meta') || '{}')
@@ -112,6 +123,10 @@ export default function ChatPage() {
   const [showScrollBtn, setShowScrollBtn] = useState(false)
   const [headerImgError, setHeaderImgError] = useState(false)
   const [emptyImgError, setEmptyImgError] = useState(false)
+  const [chatError, setChatError] = useState(null)
+  const [cloudSaved, setCloudSaved] = useState(false)
+  const lastFailedInputRef = useRef('')
+  const errorTimerRef = useRef(null)
   const [visible, setVisible] = useState(false)
   const [reactions, setReactions] = useState({})
   const messagesEndRef = useRef(null)
@@ -185,6 +200,9 @@ export default function ChatPage() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
             body: JSON.stringify({ characterId, messages: toSave })
+          }).then(() => {
+            setCloudSaved(true)
+            setTimeout(() => setCloudSaved(false), 2500)
           }).catch(() => {})
           fetch(`${API_URL}/db/affinity`, {
             method: 'POST',
@@ -202,7 +220,7 @@ export default function ChatPage() {
     const container = messagesContainerRef.current
     if (!container) return
     const isAtBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 120
-    if (isAtBottom || isTyping) {
+    if (isAtBottom) {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
     }
   }, [messages, isTyping])
@@ -259,7 +277,10 @@ export default function ChatPage() {
       } else if (!navigator.onLine) {
         msg = 'Sin conexión a internet.'
       }
-      setMessages(prev => [...prev, { role: 'assistant', content: msg }])
+      lastFailedInputRef.current = trimmed
+      clearTimeout(errorTimerRef.current)
+      setChatError(msg)
+      errorTimerRef.current = setTimeout(() => setChatError(null), 5000)
     } finally {
       inputRef.current?.focus()
     }
@@ -273,6 +294,7 @@ export default function ChatPage() {
   }
 
   const clearChat = () => {
+    if (!window.confirm('¿Borrar toda la conversación? Esta acción no se puede deshacer.')) return
     setMessages([])
     setReactions({})
     try { localStorage.removeItem(storageKey) } catch { /* localStorage unavailable */ }
@@ -302,6 +324,14 @@ export default function ChatPage() {
         ...themeVars,
       }}
     >
+      <Helmet>
+        <title>{character.name} — EchoVerse</title>
+        <meta name="description" content={`Chateá con ${character.name} de ${character.universe}. ${character.description}`} />
+        <link rel="canonical" href={`https://echoverse-jet.vercel.app/chat/${characterId}`} />
+        <meta property="og:title" content={`${character.name} — EchoVerse`} />
+        <meta property="og:description" content={`Chateá con ${character.name} de ${character.universe} usando IA.`} />
+        {character.image && <meta property="og:image" content={`https://echoverse-jet.vercel.app${character.image}`} />}
+      </Helmet>
       {newlyUnlocked.length > 0 && (
         <AchievementToast
           achievement={newlyUnlocked[0]}
@@ -355,6 +385,9 @@ export default function ChatPage() {
           <div className="chat-header__status">
             <span className="status-dot" />
             <span>{isTyping ? 'Escribiendo...' : 'En línea'}</span>
+            {cloudSaved && (
+              <span className="cloud-saved-indicator">✓ Guardado</span>
+            )}
           </div>
           {messages.length > 0 && (
             <button className="clear-btn" onClick={clearChat} title="Nueva conversación">
@@ -402,16 +435,29 @@ export default function ChatPage() {
           </div>
         )}
 
-        {messages.map((msg, i) => (
-          <MessageBubble
-            key={i}
-            message={msg}
-            character={character}
-            isStreaming={isLoading && i === messages.length - 1 && msg.role === 'assistant'}
-            isGrouped={i > 0 && messages[i - 1].role === msg.role}
-            reaction={reactions[i]}
-          />
-        ))}
+        {messages.map((msg, i) => {
+          const prevMsg = messages[i - 1]
+          const showDateSep = msg.ts && (
+            !prevMsg?.ts ||
+            new Date(msg.ts).toDateString() !== new Date(prevMsg.ts).toDateString()
+          )
+          return (
+            <div key={i}>
+              {showDateSep && (
+                <div className="date-separator">
+                  <span>{formatDateSeparator(msg.ts)}</span>
+                </div>
+              )}
+              <MessageBubble
+                message={msg}
+                character={character}
+                isStreaming={isLoading && i === messages.length - 1 && msg.role === 'assistant'}
+                isGrouped={i > 0 && !showDateSep && messages[i - 1].role === msg.role}
+                reaction={reactions[i]}
+              />
+            </div>
+          )
+        })}
 
         {isTyping && (
           <div className="bubble-row bubble-row--char">
@@ -425,6 +471,7 @@ export default function ChatPage() {
               <span className="typing-dot" />
               <span className="typing-dot" />
               <span className="typing-dot" />
+              <span className="typing-label">Escribiendo...</span>
             </div>
           </div>
         )}
@@ -438,6 +485,21 @@ export default function ChatPage() {
             <path d="M3 6l5 5 5-5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </button>
+      )}
+
+      {chatError && (
+        <div className="chat-error-banner">
+          <span className="chat-error-banner__msg">{chatError}</span>
+          <div className="chat-error-banner__actions">
+            <button
+              className="chat-error-banner__retry"
+              onClick={() => { setChatError(null); sendMessage(lastFailedInputRef.current) }}
+            >
+              Reintentar
+            </button>
+            <button className="chat-error-banner__close" onClick={() => setChatError(null)}>✕</button>
+          </div>
+        </div>
       )}
 
       <div className="input-area">

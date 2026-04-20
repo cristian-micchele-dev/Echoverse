@@ -4,7 +4,7 @@ import CharacterBioModal from '../CharacterBioModal/CharacterBioModal'
 import { getAffinityData, getAffinityLevel, getAffinityLabel, getAffinityEmoji } from '../../utils/affinity'
 import './CharacterCard.css'
 
-export default function CharacterCard({ character, index = 0, onSelect }) {
+export default function CharacterCard({ character, index = 0, onSelect, selected = false }) {
   const navigate = useNavigate()
   const [imgLoaded, setImgLoaded] = useState(false)
   const [imgError, setImgError] = useState(false)
@@ -28,7 +28,7 @@ export default function CharacterCard({ character, index = 0, onSelect }) {
   return (
     <>
       <div
-        className="char-card"
+        className={`char-card${selected ? ' char-card--selected' : ''}`}
         style={{
           '--char-color': character.themeColor,
           '--char-gradient': character.gradient,
@@ -42,6 +42,9 @@ export default function CharacterCard({ character, index = 0, onSelect }) {
       >
         {/* Fondo: imagen o gradiente */}
         <div className="char-card__bg" style={{ background: character.gradient }}>
+          {showImage && !imgLoaded && (
+            <div className="char-card__img-skeleton skeleton" />
+          )}
           {showImage && (
             <img
               src={character.image}
@@ -66,7 +69,7 @@ export default function CharacterCard({ character, index = 0, onSelect }) {
 
         {/* Badge de afinidad */}
         {affinityLevel >= 1 && (
-          <div className="char-card__badge">
+          <div className="char-card__badge" title="Tu nivel de afinidad — chateá más para subir">
             {getAffinityEmoji(affinityLevel)} {getAffinityLabel(affinityLevel)}
           </div>
         )}

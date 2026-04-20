@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /perfil
+Disallow: /reset-password
+
+Sitemap: https://echoverse-jet.vercel.app/sitemap.xml

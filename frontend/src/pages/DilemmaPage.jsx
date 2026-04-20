@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import { characters } from '../data/characters'
 import { useStreaming } from '../hooks/useStreaming'
 import { ROUTES } from '../utils/constants'
@@ -240,6 +241,11 @@ export default function DilemmaPage() {
         '--char-gradient': character?.gradient ?? 'none'
       }}
     >
+      <Helmet>
+        <title>Dilemas Morales — EchoVerse</title>
+        <meta name="description" content="Sin salida limpia. Decidí en dilemas filosóficos junto a los personajes más icónicos del cine y la TV." />
+        <link rel="canonical" href="https://echoverse-jet.vercel.app/dilema" />
+      </Helmet>
       {/* Background */}
       <div className="dilema-ambient" />
       {character && (

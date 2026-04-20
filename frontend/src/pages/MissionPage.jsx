@@ -172,6 +172,11 @@ export default function MissionPage() {
   const audioRef = useRef(null)
   const mutedRef = useRef(muted)
 
+  useEffect(() => {
+    document.title = 'Modo Misión — EchoVerse'
+    return () => { document.title = 'EchoVerse' }
+  }, [])
+
   // Cargar progreso desde DB si hay sesión; si DB está vacía pero localStorage tiene datos, sincronizar
   useEffect(() => {
     if (!session) return

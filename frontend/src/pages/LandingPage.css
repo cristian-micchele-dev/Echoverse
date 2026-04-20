@@ -391,34 +391,66 @@
   left: max(2rem, calc((100vw - 1100px) / 2 + 2rem));
   display: inline-flex;
   align-items: center;
-  gap: 0.65rem;
-  padding: 0.5rem 0.9rem 0.5rem 0.5rem;
+  gap: 0.75rem;
+  padding: 0.6rem 1rem 0.6rem 0.6rem;
   background: rgba(255,255,255,0.04);
   border: 1px solid var(--lp-border);
-  border-radius: 99px;
+  border-radius: 14px;
   color: var(--lp-muted);
   font-family: var(--lp-font-body);
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   cursor: pointer;
-  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
   z-index: 2;
   text-align: left;
+  max-width: 320px;
+}
+.lp-hero-resume--active {
+  border-color: rgba(109,74,255,0.35);
+  background: rgba(109,74,255,0.06);
+  animation: resume-pulse 3s ease-in-out infinite;
+}
+@keyframes resume-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(109,74,255,0); }
+  50%       { box-shadow: 0 0 0 4px rgba(109,74,255,0.12); }
 }
 .lp-hero-resume:hover {
-  border-color: rgba(109,74,255,0.45);
+  border-color: rgba(109,74,255,0.6);
   color: var(--lp-text);
-  background: rgba(109,74,255,0.07);
+  background: rgba(109,74,255,0.1);
+  box-shadow: 0 4px 20px rgba(109,74,255,0.15);
 }
 .lp-hero-resume__avatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
   object-fit: cover;
   object-position: top;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid rgba(109,74,255,0.3);
   flex-shrink: 0;
 }
-.lp-hero-resume__text strong { color: var(--lp-text); font-weight: 500; }
+.lp-hero-resume__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+.lp-hero-resume__label {
+  color: var(--lp-muted);
+  font-size: 0.78rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lp-hero-resume__label strong { color: var(--lp-text); font-weight: 600; }
+.lp-hero-resume__last {
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.3);
+  font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
 /* ── Auth pill ── */
 .lp-auth-pill {

@@ -10,7 +10,7 @@ export default function MessageBubble({ message, character, isStreaming, isGroup
   const handleCopy = () => {
     navigator.clipboard.writeText(message.content).then(() => {
       setCopied(true)
-      setTimeout(() => setCopied(false), 1800)
+      setTimeout(() => setCopied(false), 2500)
     })
   }
 
@@ -18,7 +18,7 @@ export default function MessageBubble({ message, character, isStreaming, isGroup
     const quote = `"${message.content}"\n— ${character.name}, ChatPersonajes`
     navigator.clipboard.writeText(quote).then(() => {
       setShared(true)
-      setTimeout(() => setShared(false), 1800)
+      setTimeout(() => setShared(false), 2500)
     })
   }
 
@@ -43,7 +43,7 @@ export default function MessageBubble({ message, character, isStreaming, isGroup
         </div>
         {message.ts && !isStreaming && (
           <span className="msg-time">
-            {new Date(message.ts).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
+            {new Date(message.ts).toLocaleTimeString(navigator.language, { hour: '2-digit', minute: '2-digit' })}
           </span>
         )}
 

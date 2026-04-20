@@ -33,6 +33,12 @@
   inset: 0;
 }
 
+.char-card__img-skeleton {
+  position: absolute;
+  inset: 0;
+  border-radius: 0;
+}
+
 .char-card__img {
   width: 100%;
   height: 100%;
@@ -233,6 +239,21 @@
 @keyframes badge-pop {
   from { transform: scale(0); opacity: 0; }
   to   { transform: scale(1); opacity: 1; }
+}
+
+/* ─── Estado seleccionado (navegación en curso) ──── */
+.char-card--selected {
+  opacity: 0.6;
+  pointer-events: none;
+  transform: scale(0.98);
+}
+.char-card--selected::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  z-index: 10;
+  border-radius: inherit;
 }
 
 /* ─── Borde glow ─────────────────────────────────── */

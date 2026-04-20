@@ -40,6 +40,11 @@ export default function InterrogationPage() {
 
   const [sessionSeed, setSessionSeed] = useState(0)
 
+  useEffect(() => {
+    document.title = 'Interrogatorio — EchoVerse'
+    return () => { document.title = 'EchoVerse' }
+  }, [])
+
   // Pick a fresh random selection of POOL_SIZE characters each game
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const intChars = useMemo(() => pickRandom(allIntChars, POOL_SIZE), [sessionSeed])

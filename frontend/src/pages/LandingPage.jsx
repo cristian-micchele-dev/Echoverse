@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import { characters } from '../data/characters'
 import { FEATURED_LIST } from '../data/featured'
 import { missions } from '../data/missions'
@@ -123,6 +124,7 @@ export default function LandingPage() {
   const [showOnboarding, setShowOnboarding] = useState(false)
   const heroRef                       = useRef(null)
   const lpRef                         = useRef(null)
+  const carouselPaused                = useRef(false)
 
   const featured     = FEATURED_LIST[featuredIdx]
   const featuredChar = featured ? characters.find(c => c.id === featured.characterId) : null
@@ -166,6 +168,7 @@ export default function LandingPage() {
 
   useEffect(() => {
     const id = setInterval(() => {
+      if (carouselPaused.current) return
       setFeaturedFade(false)
       setTimeout(() => {
         setFeaturedIdx(i => (i + 1) % FEATURED_LIST.length)
@@ -177,6 +180,12 @@ export default function LandingPage() {
 
   return (
     <div className={`lp ${visible ? 'lp--visible' : ''}`} ref={lpRef}>
+      <Helmet>
+        <title>EchoVerse — Chateá con personajes ficticios usando IA</title>
+        <meta name="description" content="Conversá con Darth Vader, Sherlock Holmes, Walter White y más de 60 personajes icónicos del cine y la TV. Decisiones reales, respuestas únicas." />
+        <link rel="canonical" href="https://echoverse-jet.vercel.app/" />
+        <meta property="og:url" content="https://echoverse-jet.vercel.app/" />
+      </Helmet>
 
       {/* Film grain overlay */}
       <div className="lp-grain" aria-hidden="true" />
@@ -246,12 +255,19 @@ export default function LandingPage() {
         {/* Continue session pill */}
         {session && sessionChar && (
           <button
-            className="lp-hero-resume"
+            className="lp-hero-resume lp-hero-resume--active"
             onClick={() => navigate(session.route || ROUTES.CHAT_CHARACTER(sessionChar.id))}
           >
             <img src={sessionChar.image} alt={sessionChar.name} className="lp-hero-resume__avatar" />
-            <span className="lp-hero-resume__text">
-              Seguís con <strong>{sessionChar.name}</strong> · {timeAgo(session.timestamp)}
+            <span className="lp-hero-resume__body">
+              <span className="lp-hero-resume__label">
+                Seguís con <strong>{sessionChar.name}</strong> · {timeAgo(session.timestamp)}
+              </span>
+              {session.lastMessage && (
+                <span className="lp-hero-resume__last">
+                  "{session.lastMessage.slice(0, 60)}{session.lastMessage.length > 60 ? '…' : ''}"
+                </span>
+              )}
             </span>
             <ArrowIcon size={12} />
           </button>
@@ -323,6 +339,8 @@ export default function LandingPage() {
               role="button"
               tabIndex={0}
               onKeyDown={e => e.key === 'Enter' && navigate(featured.route)}
+              onMouseEnter={() => { carouselPaused.current = true }}
+              onMouseLeave={() => { carouselPaused.current = false }}
             >
               <div className="lp-featured-card__ambient" />
               <div className="lp-featured-card__body">
