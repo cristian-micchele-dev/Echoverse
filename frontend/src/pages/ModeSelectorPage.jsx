@@ -109,7 +109,7 @@ const SECONDARY_MODES = [
   },
   {
     id: 'swipe',
-    image: '/images/tonystark.webp',
+    image: '/images/wolverineSwipe.jpg',
     eyebrow: 'Verdad o Mentira',
     label: 'Swipe',
     desc: 'Tenés segundos para decidir. ¿Cuánto los conocés?',
