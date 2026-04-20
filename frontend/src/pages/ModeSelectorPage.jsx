@@ -178,9 +178,9 @@ export default function ModeSelectorPage() {
           </div>
         </header>
 
-        {/* Tier 1 — Protagonist modes */}
+        {/* Todos los modos — grid unificado */}
         <div className="ms-main-grid">
-          {MAIN_MODES.map((mode, i) => {
+          {[...MAIN_MODES, ...SECONDARY_MODES].map((mode, i) => {
             const char = characters.find(c => c.id === mode.characterId)
             return (
               <button
@@ -198,9 +198,12 @@ export default function ModeSelectorPage() {
                 <div className="ms-main-card__body">
                   <div className="ms-main-card__badges">
                     {mode.badge && <span className="ms-main-card__badge ms-badge--highlight">{mode.badge}</span>}
-                    <span className="ms-main-card__tag">{mode.tag}</span>
+                    {mode.tag && <span className="ms-main-card__tag">{mode.tag}</span>}
                     {mode.id === 'mission' && missionLevel > 1 && (
                       <span className="ms-main-card__badge ms-badge--progress">📍 Nivel {missionLevel - 1}/30</span>
+                    )}
+                    {modeCompletions[mode.id] > 0 && (
+                      <span className="ms-main-card__badge ms-badge--played">✓ {modeCompletions[mode.id]}×</span>
                     )}
                   </div>
                   <span className="ms-main-card__eyebrow">{mode.eyebrow}</span>
@@ -218,50 +221,6 @@ export default function ModeSelectorPage() {
               </button>
             )
           })}
-        </div>
-
-        {/* Divider */}
-        <div className="ms-divider">
-          <span>También disponible</span>
-        </div>
-
-        {/* Tier 2 — Secondary modes */}
-        <div className="ms-secondary-grid">
-          {SECONDARY_MODES.map((mode, i) => (
-            <button
-              key={mode.id}
-              className="ms-main-card"
-              style={{ '--accent': mode.accent, animationDelay: `${(MAIN_MODES.length + i) * 70}ms` }}
-              onClick={() => navigate(mode.route)}
-            >
-              {mode.image && (
-                <div className="ms-main-card__visual">
-                  <img src={mode.image} alt="" />
-                  <div className="ms-main-card__visual-fade" />
-                </div>
-              )}
-              <div className="ms-main-card__body">
-                <div className="ms-main-card__badges">
-                  {mode.badge && <span className="ms-main-card__badge ms-badge--highlight">{mode.badge}</span>}
-                  {mode.tag && <span className="ms-main-card__tag">{mode.tag}</span>}
-                  {modeCompletions[mode.id] > 0 && (
-                    <span className="ms-main-card__badge ms-badge--played">✓ {modeCompletions[mode.id]}×</span>
-                  )}
-                </div>
-                <span className="ms-main-card__eyebrow">{mode.eyebrow}</span>
-                <span className="ms-main-card__label">{mode.label}</span>
-                <p className="ms-main-card__desc">{mode.desc}</p>
-                {(mode.difficulty || mode.duration) && (
-                  <div className="ms-main-card__stats">
-                    {mode.difficulty && <span>{mode.difficulty}</span>}
-                    {mode.difficulty && mode.duration && <span className="ms-stat-dot" />}
-                    {mode.duration && <span>⏱ {mode.duration}</span>}
-                  </div>
-                )}
-              </div>
-              <div className="ms-main-card__glow" aria-hidden="true" />
-            </button>
-          ))}
         </div>
 
 
