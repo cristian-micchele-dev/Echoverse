@@ -76,7 +76,7 @@ const MAIN_MODES = [
 const SECONDARY_MODES = [
   {
     id: 'chat',
-    image: '/images/ipmanstevenseagal.png',
+    image: '/images/sherlock.jpg',
     eyebrow: 'Chat con Personaje',
     label: 'Chat 1 a 1',
     desc: 'Sin guión. Sin filtros. Solo ellos, tal cual son.',
@@ -87,7 +87,7 @@ const SECONDARY_MODES = [
   },
   {
     id: 'duo',
-    image: '/images/jonsnow2.jpg',
+    image: '/images/ipmanstevenseagal.png',
     eyebrow: 'Dos Personajes',
     label: 'Chat en Alianza',
     desc: 'Elegís dos personajes y los hacés interactuar.',
