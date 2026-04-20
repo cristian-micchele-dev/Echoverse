@@ -236,83 +236,15 @@
   opacity: 0.65;
 }
 
-/* ─── Tier 2: Secondary cards ─────────────────────────── */
+/* ─── Tier 2: Secondary cards (same style as main, smaller) ── */
 .ms-secondary-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.75rem;
-}
-
-.ms-secondary-card {
-  display: flex;
-  align-items: center;
+  grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
-  padding: 1rem 1.1rem;
-  background: var(--ink-700, rgba(255,255,255,0.03));
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 10px;
-  cursor: pointer;
-  font-family: var(--font-body);
-  text-align: left;
-  transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
-  animation: ms-in 0.45s ease both;
-}
-.ms-secondary-card:hover {
-  border-color: color-mix(in srgb, var(--accent) 38%, transparent);
-  background: color-mix(in srgb, var(--accent) 5%, transparent);
-  transform: translateY(-2px);
 }
 
-.ms-secondary-card__icon {
-  color: var(--accent);
-  opacity: 0.85;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-}
-
-.ms-secondary-card__text {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-  flex: 1;
-  min-width: 0;
-}
-
-.ms-secondary-card__eyebrow {
-  font-size: 0.56rem;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--accent);
-  opacity: 0.75;
-}
-
-.ms-secondary-card__label {
-  font-family: 'Cormorant Garamond', var(--font-display), Georgia, serif;
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  line-height: 1.15;
-}
-
-.ms-secondary-card__desc {
-  font-size: 0.73rem;
-  color: var(--text-muted);
-  line-height: 1.45;
-  margin: 0;
-}
-
-.ms-secondary-card__arrow {
-  color: var(--text-muted);
-  flex-shrink: 0;
-  opacity: 0;
-  transform: translateX(-4px);
-  transition: opacity 0.18s ease, transform 0.18s ease;
-}
-.ms-secondary-card:hover .ms-secondary-card__arrow {
-  opacity: 0.6;
-  transform: translateX(0);
+.ms-main-card--sm {
+  min-height: 200px;
 }
 
 /* ─── Mode badges & stats ────────────────────────────── */
@@ -389,11 +321,14 @@
 @media (max-width: 860px) {
   .ms-main-grid { grid-template-columns: 1fr; }
   .ms-main-card { min-height: 200px; }
-  .ms-secondary-grid { grid-template-columns: 1fr; }
+  .ms-secondary-grid { grid-template-columns: repeat(2, 1fr); }
+  .ms-main-card--sm { min-height: 180px; }
 }
 
 @media (max-width: 500px) {
   .ms { padding: 1rem 1rem 3rem; }
   .ms-title { font-size: 2rem; }
   .ms-main-card { min-height: 180px; }
+  .ms-secondary-grid { grid-template-columns: 1fr; }
+  .ms-main-card--sm { min-height: 160px; }
 }

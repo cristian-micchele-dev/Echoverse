@@ -76,78 +76,119 @@ const MAIN_MODES = [
 const SECONDARY_MODES = [
   {
     id: 'chat',
+    image: '/images/sherlock.jpg',
     eyebrow: 'Chat con Personaje',
     label: 'Chat 1 a 1',
     desc: 'Sin guión. Sin filtros. Solo ellos, tal cual son.',
     route: '/chat',
     accent: '#4A9B7B',
     badge: '💬 Popular',
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-        <path d="M4 4h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H8l-5 4V5a1 1 0 0 1 1-1z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round"/>
-      </svg>
-    ),
+    tag: 'Sin límite',
   },
   {
     id: 'duo',
+    image: '/images/jonsnow2.jpg',
     eyebrow: 'Dos Personajes',
     label: 'Chat en Alianza',
     desc: 'Elegís dos personajes y los hacés interactuar.',
     route: '/duo',
     accent: '#7B9B4A',
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-        <circle cx="8" cy="8" r="3" stroke="currentColor" strokeWidth="1.7"/>
-        <circle cx="16" cy="8" r="3" stroke="currentColor" strokeWidth="1.7"/>
-        <path d="M2 20c0-3.3 2.7-5 6-5s6 1.7 6 5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/>
-        <path d="M16 15c3.3 0 6 1.7 6 5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/>
-      </svg>
-    ),
+    tag: '2 personajes',
   },
   {
     id: 'guess',
+    image: '/images/golum.jfif',
     eyebrow: 'Pistas y Deducción',
     label: 'Adivina el Personaje',
     desc: 'Pistas de a una. Cuanto antes lo adivinás, más puntos.',
     route: '/guess',
     accent: '#9B4A7B',
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-        <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="1.7"/>
-        <path d="M16.5 16.5L21 21" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/>
-      </svg>
-    ),
+    tag: 'Con puntaje',
+    difficulty: '🟡 Medio',
+    duration: '~3 min',
   },
   {
     id: 'swipe',
+    image: '/images/tonystark.webp',
     eyebrow: 'Verdad o Mentira',
     label: 'Swipe',
     desc: 'Tenés segundos para decidir. ¿Cuánto los conocés?',
     route: '/swipe',
     accent: '#4A7B9B',
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-        <rect x="4" y="3" width="16" height="20" rx="2" stroke="currentColor" strokeWidth="1.7"/>
-        <path d="M9 9l6 6M15 9l-6 6" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/>
-      </svg>
-    ),
+    tag: 'Velocidad',
+    difficulty: '🟡 Medio',
+    duration: '~2 min',
   },
   {
     id: 'salas',
+    image: '/images/profesor.jpg',
     eyebrow: 'Chat Multijugador',
     label: 'Salas en vivo',
     desc: 'Chateá con un personaje junto a otros usuarios en tiempo real.',
     route: '/salas',
     accent: '#C9954A',
-    badge: '🔴 Nuevo',
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-        <circle cx="9" cy="7" r="4" stroke="currentColor" strokeWidth="1.7"/>
-        <circle cx="17" cy="9" r="3" stroke="currentColor" strokeWidth="1.7"/>
-        <path d="M1 21c0-4 3.6-6 8-6s8 2 8 6" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/>
-        <path d="M17 15c2.8 0 5 1.5 5 4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/>
-      </svg>
-    ),
+    badge: '🔴 En vivo',
+    tag: 'Multijugador',
+  },
+  {
+    id: 'story',
+    image: '/images/RAGNAR2.webp',
+    eyebrow: 'Narrativa Interactiva',
+    label: 'Historia',
+    desc: 'Una historia que se bifurca. Cada elección cambia el rumbo.',
+    route: '/story',
+    accent: '#8B7B4A',
+    tag: '4 opciones',
+    difficulty: '🟢 Fácil',
+    duration: '~8 min',
+  },
+  {
+    id: 'confesionario',
+    image: '/images/tomashelby.jpg',
+    eyebrow: 'Confesión en Personaje',
+    label: 'Confesionario',
+    desc: 'El personaje confiesa. Vos escuchás y preguntás.',
+    route: '/confesionario',
+    accent: '#8B4A6B',
+    tag: 'Íntimo',
+    difficulty: '🟢 Fácil',
+    duration: '~5 min',
+  },
+  {
+    id: 'este-o-ese',
+    image: '/images/DarthVader.jfif',
+    eyebrow: 'Decisión Binaria',
+    label: 'Este o Ese',
+    desc: '¿Con quién te quedás? Elegí entre dos opciones sin escapatoria.',
+    route: '/este-o-ese',
+    accent: '#6B4A8B',
+    tag: 'Sin escapatoria',
+    difficulty: '🟢 Fácil',
+    duration: '~3 min',
+  },
+  {
+    id: 'battle',
+    image: '/images/leonidas2.jpg',
+    eyebrow: 'Enfrentamiento',
+    label: 'Batalla',
+    desc: 'Dos personajes se enfrentan. Vos decidís quién tiene razón.',
+    route: '/battle',
+    accent: '#D4576B',
+    tag: 'Votación',
+    difficulty: '🟡 Medio',
+    duration: '~6 min',
+  },
+  {
+    id: 'fight',
+    image: '/images/wolverine.jpg',
+    eyebrow: 'Combate Narrativo',
+    label: 'Duelo',
+    desc: 'Un enfrentamiento entre dos personajes. El más convincente gana.',
+    route: '/fight',
+    accent: '#A04A2A',
+    tag: 'Intenso',
+    difficulty: '🔴 Intenso',
+    duration: '~8 min',
   },
 ]
 
@@ -249,25 +290,36 @@ export default function ModeSelectorPage() {
           {SECONDARY_MODES.map((mode, i) => (
             <button
               key={mode.id}
-              className="ms-secondary-card"
+              className="ms-main-card ms-main-card--sm"
               style={{ '--accent': mode.accent, animationDelay: `${(MAIN_MODES.length + i) * 70}ms` }}
               onClick={() => navigate(mode.route)}
             >
-              <div className="ms-secondary-card__icon">{mode.icon}</div>
-              <div className="ms-secondary-card__text">
-                <span className="ms-secondary-card__eyebrow">{mode.eyebrow}</span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-                  <span className="ms-secondary-card__label">{mode.label}</span>
-                  {mode.badge && <span className="ms-badge--highlight ms-badge--sm">{mode.badge}</span>}
+              {mode.image && (
+                <div className="ms-main-card__visual">
+                  <img src={mode.image} alt="" />
+                  <div className="ms-main-card__visual-fade" />
+                </div>
+              )}
+              <div className="ms-main-card__body">
+                <div className="ms-main-card__badges">
+                  {mode.badge && <span className="ms-main-card__badge ms-badge--highlight">{mode.badge}</span>}
+                  {mode.tag && <span className="ms-main-card__tag">{mode.tag}</span>}
                   {modeCompletions[mode.id] > 0 && (
-                    <span className="ms-badge--played ms-badge--sm">✓ {modeCompletions[mode.id]}×</span>
+                    <span className="ms-main-card__badge ms-badge--played">✓ {modeCompletions[mode.id]}×</span>
                   )}
                 </div>
-                <p className="ms-secondary-card__desc">{mode.desc}</p>
+                <span className="ms-main-card__eyebrow">{mode.eyebrow}</span>
+                <span className="ms-main-card__label">{mode.label}</span>
+                <p className="ms-main-card__desc">{mode.desc}</p>
+                {(mode.difficulty || mode.duration) && (
+                  <div className="ms-main-card__stats">
+                    {mode.difficulty && <span>{mode.difficulty}</span>}
+                    {mode.difficulty && mode.duration && <span className="ms-stat-dot" />}
+                    {mode.duration && <span>⏱ {mode.duration}</span>}
+                  </div>
+                )}
               </div>
-              <svg className="ms-secondary-card__arrow" width="14" height="14" viewBox="0 0 16 16" fill="none">
-                <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
+              <div className="ms-main-card__glow" aria-hidden="true" />
             </button>
           ))}
         </div>
