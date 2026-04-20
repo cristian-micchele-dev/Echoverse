@@ -1632,8 +1632,10 @@
   align-items: center;
   gap: 0.55rem;
   margin-top: 1rem;
+  margin-bottom: 1.5rem;
   flex-wrap: wrap;
   justify-content: center;
+  width: 100%;
 }
 
 .lp-hero-meta span {
