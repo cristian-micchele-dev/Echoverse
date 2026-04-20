@@ -1404,6 +1404,43 @@
   font-size: 0.58rem;
   color: var(--lp-faint);
 }
+.lp-footer__dev {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+}
+.lp-footer__dev-label {
+  font-family: var(--lp-font-ui);
+  font-size: 0.55rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--lp-faint);
+  opacity: 0.6;
+}
+.lp-footer__dev-name {
+  font-family: var(--lp-font-ui);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--lp-faint);
+  letter-spacing: 0.04em;
+}
+.lp-footer__dev-links {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 0.15rem;
+}
+.lp-footer__dev-link {
+  color: var(--lp-faint);
+  opacity: 0.5;
+  transition: opacity 0.18s ease, color 0.18s ease;
+  display: flex;
+  align-items: center;
+}
+.lp-footer__dev-link:hover {
+  opacity: 1;
+  color: #9B7BFF;
+}
 
 /* ═══════════════════════════════════════════════════════════════════════════
    RESPONSIVE
