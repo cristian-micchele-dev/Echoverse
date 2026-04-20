@@ -76,7 +76,7 @@ const MAIN_MODES = [
 const SECONDARY_MODES = [
   {
     id: 'chat',
-    image: '/images/sherlock.jpg',
+    image: '/images/ragnarchat1a1.png',
     eyebrow: 'Chat con Personaje',
     label: 'Chat 1 a 1',
     desc: 'Sin guión. Sin filtros. Solo ellos, tal cual son.',
