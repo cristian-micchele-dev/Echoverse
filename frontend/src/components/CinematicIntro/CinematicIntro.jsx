@@ -13,6 +13,7 @@ const MODE_LABELS = {
   action:   'MODO OPERATIVO',
   battle:   'MODO BATALLA',
   story:    'MODO HISTORIA',
+  chat:     'CHAT LIBRE',
 }
 
 /**

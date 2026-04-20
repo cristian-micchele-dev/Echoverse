@@ -685,7 +685,7 @@ export default function LandingPage() {
       <footer className="lp-footer">
         <div className="lp-container lp-footer__inner">
           <span className="lp-footer__logo">ECHOVERSE</span>
-          <span className="lp-footer__powered">Powered by Groq · Llama 3.3</span>
+          <span className="lp-footer__powered">Powered by Mistral AI</span>
           <span className="lp-footer__year">© 2026</span>
         </div>
       </footer>
