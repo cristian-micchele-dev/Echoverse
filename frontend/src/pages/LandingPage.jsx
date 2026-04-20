@@ -184,7 +184,12 @@ export default function LandingPage() {
   // Online counter — ping every 20s
   useEffect(() => {
     if (!sidRef.current) {
-      sidRef.current = Math.random().toString(36).slice(2, 18)
+      let stored = localStorage.getItem('echo_sid')
+      if (!stored) {
+        stored = Math.random().toString(36).slice(2, 18)
+        localStorage.setItem('echo_sid', stored)
+      }
+      sidRef.current = stored
     }
     const ping = () => {
       fetch(`${API_URL}/online/ping`, {
