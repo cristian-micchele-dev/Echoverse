@@ -97,7 +97,7 @@ const SECONDARY_MODES = [
   },
   {
     id: 'guess',
-    image: '/images/golum.jfif',
+    image: '/images/adivinaelpersonaje.png',
     eyebrow: 'Pistas y Deducción',
     label: 'Adivina el Personaje',
     desc: 'Pistas de a una. Cuanto antes lo adivinás, más puntos.',
