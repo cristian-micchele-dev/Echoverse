@@ -267,9 +267,13 @@ export default function LandingPage() {
             <p className="lp-hero-tagline__b">Cada decisión, un precio.</p>
           </div>
 
-          <p className="lp-hero-subtitle">
-            Conversaciones con personajes icónicos del cine y la TV — impulsadas por IA que se mantiene en personaje.
-          </p>
+          <div className="lp-hero-meta">
+            <span>Personajes icónicos</span>
+            <span className="lp-hero-meta__sep" aria-hidden="true" />
+            <span>IA en personaje</span>
+            <span className="lp-hero-meta__sep" aria-hidden="true" />
+            <span>En español</span>
+          </div>
 
           <div className="lp-hero-actions">
             <button

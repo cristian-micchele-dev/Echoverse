@@ -1625,17 +1625,35 @@
   50%       { opacity: 0.35; }
 }
 
-/* ─── Hero subtitle ─────────────────────────────────────────────────────── */
+/* ─── Hero meta tags ────────────────────────────────────────────────────── */
 
-.lp-hero-subtitle {
-  font-family: var(--lp-font-body);
-  font-size: 0.88rem;
+.lp-hero-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.lp-hero-meta span {
+  font-family: var(--lp-font-ui);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
   color: var(--lp-muted);
-  max-width: 360px;
-  margin-top: 0.9rem;
-  line-height: 1.6;
-  text-align: center;
-  opacity: 0.9;
+  opacity: 0.65;
+}
+
+.lp-hero-meta__sep {
+  width: 3px !important;
+  height: 3px !important;
+  border-radius: 50% !important;
+  background: var(--lp-faint);
+  flex-shrink: 0;
+  opacity: 0.6 !important;
+  letter-spacing: 0 !important;
 }
 
 /* ─── Conversation Previews ─────────────────────────────────────────────── */
