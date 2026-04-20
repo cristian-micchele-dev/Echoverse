@@ -121,7 +121,7 @@ const SECONDARY_MODES = [
   },
   {
     id: 'salas',
-    image: '/images/profesor.jpg',
+    image: '/images/jaxtellersupermanchatenvivo.png',
     eyebrow: 'Chat Multijugador',
     label: 'Salas en vivo',
     desc: 'Chateá con un personaje junto a otros usuarios en tiempo real.',
