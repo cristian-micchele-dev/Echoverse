@@ -104,6 +104,24 @@ const SECONDARY_MODES = [
   },
 ]
 
+const CONVERSATION_PREVIEWS = [
+  {
+    characterId: 'walter-white',
+    user: '¿Te arrepentís de algo?',
+    reply: 'El arrepentimiento es para la gente débil. Pero... a veces, a las 3 de la mañana, me pregunto quién sería si hubiera aceptado el dinero de Grey Matter hace veinte años. Nada de esto hubiera pasado. Eso no es arrepentimiento. Es curiosidad.',
+  },
+  {
+    characterId: 'sherlock',
+    user: '¿Cómo sabés en qué estoy pensando?',
+    reply: 'No lo sé. Lo deduzco. Tu mirada fue hacia la izquierda antes de hablar — recuerdo episódico, no lógico. Tus manos están cruzadas pero los pulgares apuntan hacia arriba. Defensivo pero seguro. Pensás que tengo razón, y eso te incomoda.',
+  },
+  {
+    characterId: 'john-wick',
+    user: '¿Por qué seguís en esto?',
+    reply: 'Porque me sacaron lo único que me quedaba. Después de eso no hay razón para parar. Solo el siguiente paso.',
+  },
+]
+
 const PILLARS = [
   { num: '01', title: 'IA que no rompe el personaje', desc: 'Responden con su voz, su lógica y sus contradicciones. Nunca salen del rol.' },
   { num: '02', title: 'Decisiones con consecuencias', desc: 'No hay respuestas correctas automáticas. Lo que elegís cambia el rumbo de la historia.' },
@@ -249,6 +267,10 @@ export default function LandingPage() {
             <p className="lp-hero-tagline__b">Cada decisión, un precio.</p>
           </div>
 
+          <p className="lp-hero-subtitle">
+            Conversaciones con personajes icónicos del cine y la TV — impulsadas por IA que se mantiene en personaje.
+          </p>
+
           <div className="lp-hero-actions">
             <button
               className="lp-btn lp-btn--primary"
@@ -269,7 +291,7 @@ export default function LandingPage() {
             </div>
             <div className="lp-hero-stats__rule" />
             <div className="lp-hero-stat">
-              <span className="lp-hero-stat__num">6</span>
+              <span className="lp-hero-stat__num">10+</span>
               <span className="lp-hero-stat__label">Modos de juego</span>
             </div>
             <div className="lp-hero-stats__rule" />
@@ -398,6 +420,64 @@ export default function LandingPage() {
           </div>
         </section>
       )}
+
+      {/* ─── CONVERSATION PREVIEWS ────────────────────────────────────── */}
+      <section className="lp-previews">
+        <div className="lp-container">
+          <div className="lp-section-header lp-reveal">
+            <span className="lp-eyebrow lp-eyebrow--inline">
+              EN ACCIÓN
+              <span className="lp-eyebrow__rule lp-eyebrow__rule--right" />
+            </span>
+            <h2 className="lp-section-title">
+              Así hablan<br /><em>de verdad.</em>
+            </h2>
+            <p className="lp-previews__sub">Respuestas reales generadas por IA. Sin guión. Sin filtros.</p>
+          </div>
+
+          <div className="lp-previews-grid">
+            {CONVERSATION_PREVIEWS.map((preview, i) => {
+              const char = characters.find(c => c.id === preview.characterId)
+              if (!char) return null
+              return (
+                <article
+                  key={preview.characterId}
+                  className="lp-preview-card lp-reveal"
+                  style={{
+                    '--char-color': char.themeColor,
+                    '--char-dim': char.themeColorDim,
+                    '--reveal-delay': `${i * 0.12}s`,
+                  }}
+                >
+                  <div className="lp-preview-card__header">
+                    <div className="lp-preview-card__avatar">
+                      <img src={char.image} alt={char.name} />
+                    </div>
+                    <div>
+                      <span className="lp-preview-card__name">{char.name}</span>
+                      <span className="lp-preview-card__universe">{char.universe}</span>
+                    </div>
+                  </div>
+                  <div className="lp-preview-card__chat">
+                    <div className="lp-preview-bubble lp-preview-bubble--user">
+                      {preview.user}
+                    </div>
+                    <div className="lp-preview-bubble lp-preview-bubble--char">
+                      {preview.reply}
+                    </div>
+                  </div>
+                  <button
+                    className="lp-preview-card__cta"
+                    onClick={() => navigate(ROUTES.CHAT_CHARACTER(preview.characterId))}
+                  >
+                    Chatear con {char.name} <ArrowIcon size={13} />
+                  </button>
+                </article>
+              )
+            })}
+          </div>
+        </div>
+      </section>
 
       {/* ─── MODES ────────────────────────────────────────────────────── */}
       <section className="lp-modes">
@@ -602,7 +682,7 @@ export default function LandingPage() {
         <div className="lp-container lp-footer__inner">
           <span className="lp-footer__logo">ECHOVERSE</span>
           <span className="lp-footer__powered">Powered by Groq · Llama 3.3</span>
-          <span className="lp-footer__year">© 2025</span>
+          <span className="lp-footer__year">© 2026</span>
         </div>
       </footer>
 
