@@ -359,6 +359,30 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.chat-inbox-item__delete {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: var(--text-faint);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease, color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+.chat-inbox-item:hover .chat-inbox-item__delete {
+  opacity: 1;
+}
+.chat-inbox-item__delete:hover {
+  color: #f87171;
+  border-color: rgba(248, 113, 113, 0.3);
+  background: rgba(248, 113, 113, 0.08);
+}
+
 .chat-inbox-item__arrow {
   color: var(--text-faint);
   flex-shrink: 0;
@@ -369,6 +393,7 @@
 @media (max-width: 600px) {
   .chat-mode { padding: 1rem 1rem 3rem; gap: 1.5rem; }
   .chat-mode-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+  .chat-inbox-item__delete { opacity: 1; }
 }
 @media (max-width: 380px) {
   .chat-mode-title { font-size: 1.45rem; }

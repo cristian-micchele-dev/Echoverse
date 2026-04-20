@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { characters } from '../data/characters'
@@ -40,7 +40,7 @@ export default function ChatModePage() {
   const [search, setSearch] = useState('')
   const [selectedId, setSelectedId] = useState(null)
 
-  const recentChats = useMemo(() => getRecentChats(), [])
+  const [recentChats, setRecentChats] = useState(() => getRecentChats())
   const [activeTab, setActiveTab] = useState(recentChats.length > 0 ? 'recent' : 'all')
 
   useEffect(() => {
@@ -56,6 +56,14 @@ export default function ChatModePage() {
     setSelectedId(characterId)
     setExiting(true)
     setTimeout(() => navigate(ROUTES.CHAT_CHARACTER(characterId)), 260)
+  }
+
+  function handleDeleteChat(charId, e) {
+    e.stopPropagation()
+    localStorage.removeItem(chatHistoryKey(charId))
+    const updated = recentChats.filter(r => r.char.id !== charId)
+    setRecentChats(updated)
+    if (updated.length === 0) setActiveTab('all')
   }
 
   function goToDuo() {
@@ -123,11 +131,14 @@ export default function ChatModePage() {
       {activeTab === 'recent' && (
         <div className="chat-inbox">
           {recentChats.map(({ char, last, ts }) => (
-            <button
+            <div
               key={char.id}
               className="chat-inbox-item"
               style={{ '--ci-color': char.themeColor }}
               onClick={() => handleSelect(char.id)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={e => e.key === 'Enter' && handleSelect(char.id)}
             >
               <div className="chat-inbox-item__avatar">
                 {char.image
@@ -148,10 +159,19 @@ export default function ChatModePage() {
                   </span>
                 </div>
               </div>
+              <button
+                className="chat-inbox-item__delete"
+                onClick={e => handleDeleteChat(char.id, e)}
+                aria-label={`Eliminar chat con ${char.name}`}
+              >
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                  <path d="M3 4h10M6 4V3h4v1M5 4l.5 8h5l.5-8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
               <svg className="chat-inbox-item__arrow" width="14" height="14" viewBox="0 0 16 16" fill="none">
                 <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-            </button>
+            </div>
           ))}
         </div>
       )}
