@@ -13,7 +13,6 @@ import { useAuth } from '../context/AuthContext'
 import { useAchievements } from '../hooks/useAchievements'
 import { useStreaming } from '../hooks/useStreaming'
 import AchievementToast from '../components/AchievementToast/AchievementToast'
-import CinematicIntro from '../components/CinematicIntro/CinematicIntro'
 
 function playNotificationSound(tone) {
   try {
@@ -114,14 +113,6 @@ export default function ChatPage() {
 
   const storageKey = chatHistoryKey(characterId)
   const userReactionsKey = `reactions-${characterId}`
-  const introKey = `intro-${characterId}-${new Date().toDateString()}`
-
-  const [showIntro, setShowIntro] = useState(() => !localStorage.getItem(introKey))
-  const handleIntroFinish = useCallback(() => {
-    try { localStorage.setItem(introKey, '1') } catch { /* unavailable */ }
-    setShowIntro(false)
-  }, [introKey])
-
   const [messages, setMessages] = useState(() => {
     try {
       const saved = localStorage.getItem(storageKey)
@@ -339,16 +330,6 @@ export default function ChatPage() {
   }
 
   if (!character) return null
-
-  if (showIntro) {
-    return (
-      <CinematicIntro
-        character={character}
-        mode="chat"
-        onFinish={handleIntroFinish}
-      />
-    )
-  }
 
   const typingClass = character.typingStyle && character.typingStyle !== 'default'
     ? `typing--${character.typingStyle}`
