@@ -94,7 +94,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (authLoading) return
-    if (!session) { navigate(ROUTES.AUTH); return }
+    if (!session) { navigate(ROUTES.AUTH, { state: { message: 'Iniciá sesión para ver tu perfil y progreso.' } }); return }
     const headers = { Authorization: `Bearer ${session.access_token}` }
     Promise.all([
       fetch(`${API_URL}/db/affinity`, { headers }).then(r => r.json()),

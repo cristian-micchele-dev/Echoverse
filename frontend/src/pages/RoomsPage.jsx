@@ -209,7 +209,7 @@ export default function RoomsPage() {
   }, [])
 
   async function handleCreate(characterId, name) {
-    if (!session) { navigate(ROUTES.AUTH); return }
+    if (!session) { navigate(ROUTES.AUTH, { state: { message: 'Iniciá sesión para crear una sala.' } }); return }
     const res = await fetch(`${API_URL}/rooms`, {
       method: 'POST',
       headers: {

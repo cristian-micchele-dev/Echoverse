@@ -98,6 +98,55 @@
   justify-content: center;
 }
 
+/* ── Cameo ── */
+.nf-cameo {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  margin: 1.75rem 0 0.5rem;
+  max-width: 360px;
+  text-align: left;
+  animation: nf-in 0.6s 0.15s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.nf-cameo__avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  overflow: hidden;
+  border: 2px solid var(--cc, #7252E8);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--cc, #7252E8) 35%, transparent);
+}
+.nf-cameo__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+.nf-cameo__bubble {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 0 12px 12px 12px;
+  padding: 0.6rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.nf-cameo__name {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--cc, #7252E8);
+}
+.nf-cameo__quote {
+  font-size: 0.83rem;
+  color: var(--text-secondary, #9E9BBE);
+  line-height: 1.5;
+  margin: 0;
+  font-style: italic;
+}
+
 .nf-btn {
   padding: 0.65rem 1.5rem;
   border-radius: 4px;

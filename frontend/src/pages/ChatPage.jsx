@@ -239,10 +239,14 @@ export default function ChatPage() {
     const container = messagesContainerRef.current
     if (!container) return
     const isAtBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 120
-    if (isAtBottom) {
+    if (!isAtBottom) return
+    // Durante streaming usamos scroll instantáneo para evitar jank
+    if (isLoading) {
+      container.scrollTop = container.scrollHeight
+    } else {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
     }
-  }, [messages, isTyping])
+  }, [messages, isTyping, isLoading])
 
   useEffect(() => {
     const el = inputRef.current

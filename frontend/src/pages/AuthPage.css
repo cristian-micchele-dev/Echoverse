@@ -200,6 +200,19 @@
   color: #2c2a40;
 }
 
+/* ── Context message (redirect con motivo) ── */
+.auth-context-msg {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  color: #a5b4fc;
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: 10px;
+  padding: 0.55rem 0.85rem;
+}
+
 /* ── Feedback ── */
 .auth-error {
   color: #fca5a5;

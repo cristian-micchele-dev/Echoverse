@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { ROUTES } from '../utils/constants'
 import './AuthPage.css'
@@ -14,6 +14,8 @@ export default function AuthPage() {
   const [loading, setLoading] = useState(false)
   const { login, register, forgotPassword } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
+  const contextMessage = location.state?.message ?? null
 
   function switchTab(newTab) {
     setTab(newTab)
@@ -72,6 +74,16 @@ export default function AuthPage() {
           <h1 className="auth-title">EchoVerse</h1>
           <p className="auth-subtitle">Chatea con personajes icónicos</p>
         </div>
+
+        {contextMessage && (
+          <div className="auth-context-msg">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+              <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.4"/>
+              <path d="M8 5v4M8 11v.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+            </svg>
+            {contextMessage}
+          </div>
+        )}
 
         {/* ── Forgot sent ── */}
         {mode === 'forgot-sent' ? (
