@@ -1373,6 +1373,88 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   ABOUT
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.lp-about {
+  padding: 5rem 0;
+  border-top: 1px solid var(--lp-border);
+}
+.lp-about__inner {
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
+}
+.lp-about__avatar {
+  flex-shrink: 0;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(109,74,255,0.25) 0%, rgba(155,123,255,0.15) 100%);
+  border: 2px solid rgba(155, 123, 255, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--lp-font-d);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #9B7BFF;
+  letter-spacing: 0.05em;
+}
+.lp-about__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.lp-about__name {
+  font-family: var(--lp-font-d);
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 700;
+  color: var(--lp-text);
+  line-height: 1.1;
+  margin: 0;
+}
+.lp-about__bio {
+  font-family: var(--lp-font-ui);
+  font-size: 0.9rem;
+  color: var(--lp-subtle);
+  line-height: 1.65;
+  max-width: 480px;
+  margin: 0;
+}
+.lp-about__links {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+  flex-wrap: wrap;
+}
+.lp-about__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 1.1rem;
+  border-radius: 99px;
+  border: 1px solid rgba(155, 123, 255, 0.3);
+  color: rgba(155, 123, 255, 0.8);
+  font-family: var(--lp-font-ui);
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+.lp-about__link:hover {
+  color: #9B7BFF;
+  border-color: rgba(155, 123, 255, 0.6);
+  background: rgba(155, 123, 255, 0.08);
+}
+
+@media (max-width: 600px) {
+  .lp-about { padding: 3.5rem 0; }
+  .lp-about__inner { flex-direction: column; align-items: flex-start; gap: 1.5rem; }
+  .lp-about__avatar { width: 64px; height: 64px; font-size: 1.2rem; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
    FOOTER
    ═══════════════════════════════════════════════════════════════════════════ */
 
