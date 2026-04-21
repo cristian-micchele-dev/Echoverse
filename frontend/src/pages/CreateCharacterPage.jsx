@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { buildCustomSystemPrompt } from '../utils/buildCustomSystemPrompt'
-import { API_URL } from '../config/api'
 import { ROUTES } from '../utils/constants'
 import './CreateCharacterPage.css'
 
@@ -77,40 +76,32 @@ export default function CreateCharacterPage() {
         rules: form.rules,
       })
 
-      // Crear personaje sin avatar primero (para obtener el ID)
-      const res = await fetch(`${API_URL}/db/custom-characters`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({
-          ...form,
+      // Crear personaje directamente vía cliente Supabase (session del usuario activa)
+      const { data: inserted, error: insertErr } = await supabase
+        .from('custom_characters')
+        .insert({
+          user_id: session.user.id,
+          name: form.name,
+          description: form.description,
+          personality: form.personality,
+          rules: form.rules || null,
+          welcome_message: form.welcome_message || null,
+          emoji: form.emoji || '🤖',
+          color: form.color || '#7252E8',
           system_prompt,
           avatar_url: null,
-        }),
-      })
+        })
+        .select('id')
+        .single()
 
-      if (!res.ok) {
-        const err = await res.json()
-        throw new Error(err.error || 'Error al guardar')
-      }
+      if (insertErr) throw new Error(insertErr.message)
 
-      const { id } = await res.json()
+      const id = inserted.id
 
       // Si hay imagen, subirla y actualizar avatar_url
       if (imageFile) {
         const avatarUrl = await uploadAvatar(session.user.id, id)
         if (avatarUrl) {
-          await fetch(`${API_URL}/db/custom-characters/${id}/avatar`, {
-            method: 'PATCH',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${session.access_token}`,
-            },
-            body: JSON.stringify({ avatar_url: avatarUrl }),
-          }).catch(() => {})
-          // También actualizamos directo vía Supabase client
           await supabase
             .from('custom_characters')
             .update({ avatar_url: avatarUrl })
