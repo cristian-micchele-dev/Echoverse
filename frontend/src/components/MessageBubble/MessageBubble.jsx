@@ -4,7 +4,7 @@ import './MessageBubble.css'
 
 const REACTION_EMOJIS = ['❤️', '😂', '😮', '😢', '🔥', '👏']
 
-export default function MessageBubble({ message, character, isStreaming, isGrouped, reaction, userReaction, onReact, speak, speakingId, isVoiceSupported }) {
+export default function MessageBubble({ message, character, isStreaming, isGrouped, reaction, userReaction, onReact }) {
   const isUser = message.role === 'user'
   const [imgError, setImgError] = useState(false)
   const [copied, setCopied] = useState(false)
@@ -117,19 +117,6 @@ export default function MessageBubble({ message, character, isStreaming, isGroup
                 </div>
               )}
             </div>
-
-            {isVoiceSupported && speak && (
-              <button
-                className={`speak-btn ${speakingId === message.ts ? 'speak-btn--active' : ''}`}
-                onClick={() => speak(message.ts, message.content)}
-                title={speakingId === message.ts ? 'Detener voz' : 'Escuchar'}
-              >
-                {speakingId === message.ts
-                  ? <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="2" y="2" width="3.5" height="9" rx="1" fill="currentColor"/><rect x="7.5" y="2" width="3.5" height="9" rx="1" fill="currentColor"/></svg>
-                  : <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 4.5h2.5L8 2v9L4.5 8.5H2V4.5z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round"/><path d="M10 4a3 3 0 0 1 0 5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/></svg>
-                }
-              </button>
-            )}
 
             <button className="copy-btn" onClick={handleCopy} title="Copiar mensaje">
               {copied
