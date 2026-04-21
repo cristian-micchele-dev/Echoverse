@@ -14,6 +14,7 @@ import { useAchievements } from '../hooks/useAchievements'
 import { useStreaming } from '../hooks/useStreaming'
 import AchievementToast from '../components/AchievementToast/AchievementToast'
 import ShareModal from '../components/ShareModal/ShareModal'
+import VerdictBubble from '../components/VerdictBubble/VerdictBubble'
 
 function playNotificationSound(tone) {
   try {
@@ -127,6 +128,7 @@ export default function ChatPage() {
   const [chatError, setChatError] = useState(null)
   const [cloudSaved, setCloudSaved] = useState(false)
   const [showShare, setShowShare] = useState(false)
+  const [isVerdictLoading, setIsVerdictLoading] = useState(false)
   const lastFailedInputRef = useRef('')
   const errorTimerRef = useRef(null)
   const [visible, setVisible] = useState(false)
@@ -176,7 +178,7 @@ export default function ChatPage() {
   useEffect(() => {
     if (messages.length === 0) return
     try {
-      const toSave = messages.slice(-MAX_STORED_MESSAGES)
+      const toSave = messages.filter(m => !m.isVerdict).slice(-MAX_STORED_MESSAGES)
       localStorage.setItem(storageKey, JSON.stringify(toSave))
     } catch { /* localStorage unavailable */ }
   }, [messages, storageKey])
@@ -201,7 +203,7 @@ export default function ChatPage() {
   useEffect(() => {
     if (prevIsLoadingRef.current && !isLoading && messages.length > 0) {
       const lastMsg = messages[messages.length - 1]
-      if (lastMsg.role === 'assistant' && lastMsg.content) {
+      if (lastMsg.role === 'assistant' && lastMsg.content && !lastMsg.isVerdict) {
         const reaction = detectReaction(lastMsg.content)
         if (reaction) {
           setReactions(prev => ({ ...prev, [messages.length - 1]: reaction }))
@@ -335,6 +337,33 @@ export default function ChatPage() {
     }
   }
 
+  const handleVerdict = async () => {
+    const realMessages = messages.filter(m => !m.isVerdict)
+    if (realMessages.length < 4 || isVerdictLoading || isLoading) return
+    setIsVerdictLoading(true)
+    try {
+      await streamChat(
+        `${API_URL}/chat/verdict`,
+        { characterId, messages: realMessages },
+        (content, isFirst) => {
+          if (isFirst) {
+            setMessages(prev => [...prev, { role: 'assistant', content, ts: Date.now(), isVerdict: true }])
+          } else {
+            setMessages(prev => {
+              const copy = [...prev]
+              copy[copy.length - 1] = { ...copy[copy.length - 1], content: copy[copy.length - 1].content + content }
+              return copy
+            })
+          }
+        }
+      )
+    } catch {
+      // silencioso
+    } finally {
+      setIsVerdictLoading(false)
+    }
+  }
+
   if (!character) return null
 
   const typingClass = character.typingStyle && character.typingStyle !== 'default'
@@ -418,6 +447,20 @@ export default function ChatPage() {
               <span className="cloud-saved-indicator">✓ Guardado</span>
             )}
           </div>
+          {messages.filter(m => !m.isVerdict).length >= 4 && (
+            <button
+              className="verdict-btn"
+              onClick={handleVerdict}
+              disabled={isVerdictLoading || isLoading}
+              title="¿Qué piensa de vos?"
+            >
+              <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+                <path d="M8 2v1M4 4l1 1M12 4l-1 1" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+                <path d="M3 7h4l-2 3H3a2 2 0 0 1 0-3zM13 7h-4l2 3h2a2 2 0 0 0 0-3z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round"/>
+                <path d="M8 3v9M6 12h4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+              </svg>
+            </button>
+          )}
           {messages.length > 0 && (
             <>
               <button className="share-btn" onClick={() => setShowShare(true)} title="Compartir conversación">
@@ -487,15 +530,22 @@ export default function ChatPage() {
                   <span>{formatDateSeparator(msg.ts)}</span>
                 </div>
               )}
-              <MessageBubble
-                message={msg}
-                character={character}
-                isStreaming={isLoading && i === messages.length - 1 && msg.role === 'assistant'}
-                isGrouped={i > 0 && !showDateSep && messages[i - 1].role === msg.role}
-                reaction={reactions[i]}
-                userReaction={userReactions[i]}
-                onReact={(emoji) => handleUserReact(i, emoji)}
-              />
+              {msg.isVerdict
+                ? <VerdictBubble
+                    character={character}
+                    message={msg}
+                    isStreaming={(isVerdictLoading || isLoading) && i === messages.length - 1}
+                  />
+                : <MessageBubble
+                    message={msg}
+                    character={character}
+                    isStreaming={isLoading && i === messages.length - 1 && msg.role === 'assistant'}
+                    isGrouped={i > 0 && !showDateSep && messages[i - 1].role === msg.role}
+                    reaction={reactions[i]}
+                    userReaction={userReactions[i]}
+                    onReact={(emoji) => handleUserReact(i, emoji)}
+                  />
+              }
             </div>
           )
         })}

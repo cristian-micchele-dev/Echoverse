@@ -349,6 +349,27 @@
   color: var(--text-muted);
 }
 
+.verdict-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background: none;
+  border: 1px solid var(--char-color, var(--border-subtle));
+  border-radius: var(--radius-sm);
+  color: var(--char-color, var(--text-muted));
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s, transform 0.15s;
+}
+.verdict-btn:hover:not(:disabled) {
+  opacity: 1;
+  transform: translateY(-1px);
+}
+.verdict-btn:active:not(:disabled) { transform: scale(0.9); }
+.verdict-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
 .share-btn {
   display: flex;
   align-items: center;

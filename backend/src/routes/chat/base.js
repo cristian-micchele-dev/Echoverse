@@ -165,6 +165,41 @@ Respondé siempre en español.`
   }
 })
 
+router.post('/chat/verdict', async (req, res) => {
+  const { characterId, messages } = req.body
+  const character = characters[characterId]
+  if (!character) return res.status(404).json({ error: 'Personaje no encontrado' })
+
+  initSseResponse(res)
+
+  const transcript = (messages ?? [])
+    .map(m => `${m.role === 'user' ? 'Usuario' : character.especialidad ?? character.id}: "${m.content}"`)
+    .join('\n')
+
+  const verdictPrompt = `${character.systemPrompt}
+
+VEREDICTO — ANÁLISIS DE CONVERSACIÓN:
+Basándote ÚNICAMENTE en cómo se desarrolló esta conversación — las preguntas que hizo el usuario, cómo te trató, qué reveló de sí mismo, qué evitó preguntar, cómo reaccionó a tus respuestas — emitís un análisis de esta persona. En tu voz más característica, sin filtros.
+
+- Máximo 3 párrafos cortos
+- Citá algo ESPECÍFICO que dijeron (una frase o actitud real de la conversación)
+- Esto es sobre ESTA persona y LO QUE DIJO — no es un análisis genérico
+- Terminá con una sola frase corta que los defina. Que sea verdad. Que duela un poco.
+- Respondé siempre en español.`
+
+  try {
+    await streamMistral(
+      res,
+      verdictPrompt,
+      [{ role: 'user', content: `Esta fue nuestra conversación:\n\n${transcript}\n\nDa tu veredicto sobre quién es realmente esta persona.` }],
+      450
+    )
+  } catch (error) {
+    console.error('Error Mistral /chat/verdict:', error.message)
+    sendSseError(res, 'Error al generar veredicto')
+  }
+})
+
 router.get('/characters', (req, res) => {
   const list = Object.values(characters).map(({ id, systemPrompt: _, ...rest }) => ({ id, ...rest }))
   res.json(list)
