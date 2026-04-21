@@ -133,7 +133,7 @@ const SECONDARY_MODES = [
   },
   {
     id: 'crear-personaje',
-    image: '/images/Kill_Bill.webp',
+    image: '/images/ninja.png',
     eyebrow: 'Tu personaje',
     label: 'Creá tu personaje',
     desc: 'Diseñá tu propio personaje con personalidad, reglas y estilo único.',
