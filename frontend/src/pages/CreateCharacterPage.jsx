@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { buildCustomSystemPrompt } from '../utils/buildCustomSystemPrompt'
+import { useAchievements } from '../hooks/useAchievements'
 import { ROUTES } from '../utils/constants'
 import './CreateCharacterPage.css'
 
@@ -12,6 +13,7 @@ const EMOJI_OPTIONS = ['🤖', '🕵️', '🧙', '⚔️', '🦸', '🎭', '�
 export default function CreateCharacterPage() {
   const navigate = useNavigate()
   const { session } = useAuth()
+  const { checkAndUnlock } = useAchievements()
   const fileInputRef = useRef(null)
 
   const [form, setForm] = useState({
@@ -114,6 +116,7 @@ export default function CreateCharacterPage() {
         }
       }
 
+      checkAndUnlock({ customCharCreated: 1 })
       navigate(ROUTES.CHAT)
     } catch (err) {
       setError(err.message)

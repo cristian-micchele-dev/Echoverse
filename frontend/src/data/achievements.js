@@ -203,6 +203,16 @@ export const ACHIEVEMENTS = [
     condition: { type: 'all_modes', threshold: 1 },
   },
 
+  // ── Personaje personalizado ───────────────────────────────────────────────
+  {
+    id: 'custom_char_created',
+    name: 'Creador',
+    desc: 'Creaste tu primer personaje personalizado',
+    emoji: '🥷',
+    rarity: 'rare',
+    condition: { type: 'custom_character_created', threshold: 1 },
+  },
+
   // ── Racha diaria ──────────────────────────────────────────────────────────
   {
     id: 'streak_3',
