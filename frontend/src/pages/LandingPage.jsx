@@ -684,7 +684,9 @@ export default function LandingPage() {
       {/* ─── ABOUT ────────────────────────────────────────────────────── */}
       <section className="lp-about">
         <div className="lp-container lp-about__inner">
-          <div className="lp-about__avatar">CM</div>
+          <div className="lp-about__avatar">
+            <img src="/images/yo.jfif" alt="Cristian Micchele" />
+          </div>
           <div className="lp-about__body">
             <span className="lp-eyebrow">SOBRE EL CREADOR</span>
             <h2 className="lp-about__name">Cristian Micchele</h2>
