@@ -8,6 +8,17 @@ export default class ErrorBoundary extends Component {
   }
 
   static getDerivedStateFromError(error) {
+    const isChunkError =
+      error?.name === 'ChunkLoadError' ||
+      error?.message?.includes('Failed to fetch dynamically imported module') ||
+      error?.message?.includes('Importing a module script failed')
+
+    if (isChunkError && !sessionStorage.getItem('eb-chunk-reload')) {
+      sessionStorage.setItem('eb-chunk-reload', '1')
+      window.location.reload()
+      return { hasError: false, error: null }
+    }
+
     return { hasError: true, error }
   }
 
