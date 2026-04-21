@@ -6,6 +6,7 @@ import CharacterCard from '../components/CharacterCard/CharacterCard'
 import { ROUTES, chatHistoryKey } from '../utils/constants'
 import { useAuth } from '../context/AuthContext'
 import { API_URL } from '../config/api'
+import { supabase } from '../lib/supabase'
 import './ChatModePage.css'
 
 function formatChatTime(ts) {
@@ -55,12 +56,12 @@ export default function ChatModePage() {
   // Cargar personajes personalizados si el usuario está autenticado
   useEffect(() => {
     if (!session) return
-    fetch(`${API_URL}/db/custom-characters`, {
-      headers: { Authorization: `Bearer ${session.access_token}` }
-    })
-      .then(r => r.ok ? r.json() : [])
-      .then(data => setCustomChars(data))
-      .catch(() => {})
+    supabase
+      .from('custom_characters')
+      .select('id, name, emoji, color, avatar_url, welcome_message, created_at')
+      .eq('user_id', session.user.id)
+      .order('created_at', { ascending: false })
+      .then(({ data }) => setCustomChars(data ?? []))
   }, [session])
 
   const filtered = characters.filter(c =>
@@ -91,15 +92,13 @@ export default function ChatModePage() {
     e.stopPropagation()
     if (!window.confirm('¿Eliminar este personaje?')) return
     setDeletingId(id)
-    try {
-      await fetch(`${API_URL}/db/custom-characters/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${session.access_token}` }
-      })
-      setCustomChars(prev => prev.filter(c => c.id !== id))
-    } catch { /* silent */ } finally {
-      setDeletingId(null)
-    }
+    await supabase
+      .from('custom_characters')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', session.user.id)
+    setCustomChars(prev => prev.filter(c => c.id !== id))
+    setDeletingId(null)
   }
 
   return (
