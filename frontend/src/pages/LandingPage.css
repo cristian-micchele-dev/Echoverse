@@ -34,7 +34,7 @@
   min-height: 100dvh;
   opacity: 0;
   transition: opacity 0.7s ease;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 .lp--visible { opacity: 1; }
 
