@@ -12,6 +12,8 @@ import { getAffinityData, getAffinityLevel, getAffinityLabel, getAffinityEmoji }
 import { useAuth } from '../context/AuthContext'
 import { useAchievements } from '../hooks/useAchievements'
 import { useStreaming } from '../hooks/useStreaming'
+import { useSpeech } from '../hooks/useSpeech'
+import { getVoiceConfig } from '../data/voiceConfigs'
 import AchievementToast from '../components/AchievementToast/AchievementToast'
 import ShareModal from '../components/ShareModal/ShareModal'
 
@@ -111,6 +113,7 @@ export default function ChatPage() {
   const { session } = useAuth()
   const { checkAndUnlock, newlyUnlocked, dismissToast } = useAchievements()
   const { isTyping, isLoading, streamChat } = useStreaming()
+  const { speak, speakingId, isSupported: isVoiceSupported } = useSpeech()
 
   const storageKey = chatHistoryKey(characterId)
   const userReactionsKey = `reactions-${characterId}`
@@ -495,6 +498,9 @@ export default function ChatPage() {
                 reaction={reactions[i]}
                 userReaction={userReactions[i]}
                 onReact={(emoji) => handleUserReact(i, emoji)}
+                speak={(id, text) => speak(id, text, getVoiceConfig(character))}
+                speakingId={speakingId}
+                isVoiceSupported={isVoiceSupported}
               />
             </div>
           )
