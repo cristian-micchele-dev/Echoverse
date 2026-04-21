@@ -11,6 +11,7 @@ import AchievementToast from '../components/AchievementToast/AchievementToast'
 import { ROUTES, chatHistoryKey } from '../utils/constants'
 import { timeAgo } from '../utils/session'
 import { API_URL } from '../config/api.js'
+import { Helmet } from 'react-helmet-async'
 import './ProfilePage.css'
 
 const RANK_TIERS = [
@@ -237,6 +238,9 @@ export default function ProfilePage() {
 
   return (
     <div className="pp">
+      <Helmet>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       {/* Toasts de logros recién desbloqueados */}
       {newlyUnlocked.length > 0 && (
         <AchievementToast

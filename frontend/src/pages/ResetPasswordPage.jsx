@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { ROUTES } from '../utils/constants'
+import { Helmet } from 'react-helmet-async'
 import './AuthPage.css'
 
 export default function ResetPasswordPage() {
@@ -52,6 +53,9 @@ export default function ResetPasswordPage() {
 
   return (
     <div className="auth-page">
+      <Helmet>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       <div className="auth-card">
         <div className="auth-brand">
           <h1 className="auth-title">EchoVerse</h1>

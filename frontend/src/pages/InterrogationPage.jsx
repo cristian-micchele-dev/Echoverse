@@ -5,6 +5,7 @@ import { INTERROGATION_CHAR_IDS, SCENARIOS } from '../data/interrogationData'
 import { useAuth } from '../context/AuthContext'
 import { recordCompletion } from '../utils/recordCompletion'
 import { ROUTES } from '../utils/constants'
+import { Helmet } from 'react-helmet-async'
 import './InterrogationPage.css'
 import { API_URL } from '../config/api.js'
 const MAX_QUESTIONS = 8
@@ -282,6 +283,11 @@ export default function InterrogationPage() {
   if (phase === 'intro') {
     return (
       <div className="ip ip--intro">
+        <Helmet>
+          <title>Interrogatorio — EchoVerse</title>
+          <meta name="description" content="El personaje puede estar mintiendo. Detectá las contradicciones y decidí si le creés. IA reactiva en tiempo real." />
+          <link rel="canonical" href="https://echoverse-jet.vercel.app/interrogation" />
+        </Helmet>
         <div className="ip-bg" aria-hidden="true">
           <div className="ip-bg__spotlight ip-bg__spotlight--1" />
           <div className="ip-bg__spotlight ip-bg__spotlight--2" />

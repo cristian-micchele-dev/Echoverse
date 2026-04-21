@@ -10,6 +10,7 @@ import { CAMPAIGN_ARCS } from '../data/missionLevels.js'
 import { getMissionProgress, isLevelUnlocked, saveLevelComplete, resetProgress } from '../utils/missionProgress.js'
 import { useAuth } from '../context/AuthContext'
 import { ROUTES } from '../utils/constants'
+import { Helmet } from 'react-helmet-async'
 
 const MISSION_TRACKS = [
   '/sounds/ArcSound - Dark Suspense Cinematic.mp3',
@@ -517,6 +518,11 @@ export default function MissionPage() {
   if (phase === 'chars') {
     return (
       <div className="mission-page">
+        <Helmet>
+          <title>Modo Misión — EchoVerse</title>
+          <meta name="description" content="Tomá decisiones dentro de historias interactivas con personajes como El Profesor. Cada elección tiene consecuencias reales." />
+          <link rel="canonical" href="https://echoverse-jet.vercel.app/mission" />
+        </Helmet>
         <div className="mission-top-bar">
           <button className="mission-back-btn" onClick={() => navigate(ROUTES.HOME)}>
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">

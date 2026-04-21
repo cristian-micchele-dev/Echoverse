@@ -8,6 +8,7 @@ import { recordCompletion } from '../utils/recordCompletion'
 import { addModeXP } from '../utils/affinity'
 import { useLevelUpToast } from '../hooks/useLevelUpToast'
 import AchievementToast from '../components/AchievementToast/AchievementToast'
+import { Helmet } from 'react-helmet-async'
 import './SwipePage.css'
 import { API_URL } from '../config/api.js'
 const THRESHOLD = 80
@@ -147,6 +148,11 @@ export default function SwipePage() {
   /* ── Chars ── */
   if (phase === 'chars') return (
     <div className="swipe-page">
+      <Helmet>
+        <title>Verdad o Mentira — EchoVerse</title>
+        <meta name="description" content="¿Verdad o mentira? Respondé en segundos sobre los personajes más icónicos del cine y la TV." />
+        <link rel="canonical" href="https://echoverse-jet.vercel.app/swipe" />
+      </Helmet>
       <div className="swipe-top-bar">
         <button className="swipe-back-btn" onClick={() => navigate(ROUTES.HOME)}>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">

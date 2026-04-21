@@ -5,6 +5,7 @@ import { guessData }   from '../data/guessData'
 import { useAuth } from '../context/AuthContext'
 import { recordCompletion } from '../utils/recordCompletion'
 import { ROUTES } from '../utils/constants'
+import { Helmet } from 'react-helmet-async'
 import './GuessPage.css'
 
 const ROUNDS     = 8
@@ -162,6 +163,11 @@ export default function GuessPage() {
   if (phase === 'intro') {
     return (
       <div className="gp gp--intro">
+        <Helmet>
+          <title>Adivina el Personaje — EchoVerse</title>
+          <meta name="description" content="Pistas de a una, puntaje que baja. ¿Cuánto conocés a los personajes más icónicos del cine y la TV?" />
+          <link rel="canonical" href="https://echoverse-jet.vercel.app/guess" />
+        </Helmet>
         <div className="gp-bg" aria-hidden="true">
           <div className="gp-orb gp-orb--1" />
           <div className="gp-orb gp-orb--2" />

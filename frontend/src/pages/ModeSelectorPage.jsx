@@ -5,6 +5,7 @@ import { getMissionProgress } from '../utils/missionProgress'
 import { useAuth } from '../context/AuthContext'
 import { ROUTES } from '../utils/constants'
 import { API_URL } from '../config/api'
+import { Helmet } from 'react-helmet-async'
 import './ModeSelectorPage.css'
 
 const MAIN_MODES = [
@@ -158,6 +159,11 @@ export default function ModeSelectorPage() {
 
   return (
     <div className={`ms ${visible ? 'ms--visible' : ''}`}>
+      <Helmet>
+        <title>Modos de juego — EchoVerse</title>
+        <meta name="description" content="Chat, misiones, dilemas, interrogatorios y más. Elegí cómo interactuar con los personajes icónicos del cine y la TV." />
+        <link rel="canonical" href="https://echoverse-jet.vercel.app/modos" />
+      </Helmet>
 
       <div className="ms-bg" aria-hidden="true" />
 

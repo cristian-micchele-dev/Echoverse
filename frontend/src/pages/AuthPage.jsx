@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { ROUTES } from '../utils/constants'
+import { Helmet } from 'react-helmet-async'
 import './AuthPage.css'
 
 export default function AuthPage() {
@@ -67,6 +68,9 @@ export default function AuthPage() {
 
   return (
     <div className="auth-page">
+      <Helmet>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       <div className="auth-card">
 
         {/* Brand */}
