@@ -1,0 +1,86 @@
+.share-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.78);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 16px;
+  animation: share-overlay-in 0.18s ease;
+}
+
+@keyframes share-overlay-in {
+  from { opacity: 0 }
+  to   { opacity: 1 }
+}
+
+.share-modal {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: 90dvh;
+  overflow-y: auto;
+  animation: share-modal-in 0.2s ease;
+}
+
+@keyframes share-modal-in {
+  from { opacity: 0; transform: translateY(10px) }
+  to   { opacity: 1; transform: translateY(0) }
+}
+
+.share-modal__preview {
+  overflow-x: auto;
+  border-radius: 20px;
+  scrollbar-width: none;
+}
+
+.share-modal__preview::-webkit-scrollbar {
+  display: none;
+}
+
+.share-modal__actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.share-modal__btn {
+  padding: 10px 22px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+}
+
+.share-modal__btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.share-modal__btn:not(:disabled):hover {
+  opacity: 0.82;
+}
+
+.share-modal__btn--download {
+  color: #fff;
+}
+
+.share-modal__btn--share {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.share-modal__btn--cancel {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}

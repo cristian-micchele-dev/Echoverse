@@ -13,6 +13,7 @@ import { useAuth } from '../context/AuthContext'
 import { useAchievements } from '../hooks/useAchievements'
 import { useStreaming } from '../hooks/useStreaming'
 import AchievementToast from '../components/AchievementToast/AchievementToast'
+import ShareModal from '../components/ShareModal/ShareModal'
 
 function playNotificationSound(tone) {
   try {
@@ -125,6 +126,7 @@ export default function ChatPage() {
   const [emptyImgError, setEmptyImgError] = useState(false)
   const [chatError, setChatError] = useState(null)
   const [cloudSaved, setCloudSaved] = useState(false)
+  const [showShare, setShowShare] = useState(false)
   const lastFailedInputRef = useRef('')
   const errorTimerRef = useRef(null)
   const [visible, setVisible] = useState(false)
@@ -417,11 +419,21 @@ export default function ChatPage() {
             )}
           </div>
           {messages.length > 0 && (
-            <button className="clear-btn" onClick={clearChat} title="Nueva conversación">
-              <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-                <path d="M1.5 7.5a6 6 0 1 0 6-6 6 6 0 0 0-4.24 1.76M1.5 1.5v4h4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </button>
+            <>
+              <button className="share-btn" onClick={() => setShowShare(true)} title="Compartir conversación">
+                <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+                  <circle cx="12" cy="2.5" r="1.8" stroke="currentColor" strokeWidth="1.4"/>
+                  <circle cx="12" cy="12.5" r="1.8" stroke="currentColor" strokeWidth="1.4"/>
+                  <circle cx="3" cy="7.5" r="1.8" stroke="currentColor" strokeWidth="1.4"/>
+                  <path d="M10.3 3.4L4.7 6.6M10.3 11.6L4.7 8.4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+                </svg>
+              </button>
+              <button className="clear-btn" onClick={clearChat} title="Nueva conversación">
+                <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+                  <path d="M1.5 7.5a6 6 0 1 0 6-6 6 6 0 0 0-4.24 1.76M1.5 1.5v4h4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+            </>
           )}
         </div>
       </header>
@@ -558,6 +570,14 @@ export default function ChatPage() {
           }
         </button>
       </div>
+
+      {showShare && (
+        <ShareModal
+          character={character}
+          messages={messages}
+          onClose={() => setShowShare(false)}
+        />
+      )}
     </div>
   )
 }
