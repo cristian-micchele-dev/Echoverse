@@ -336,10 +336,7 @@ export default function LandingPage() {
           ) : (
             <>
               <span className="lp-auth-pill__nudge">Tu progreso solo se guarda en este dispositivo.</span>
-              <div className="lp-auth-pill__register">
-                <button className="lp-auth-pill__btn" onClick={() => navigate(ROUTES.AUTH)}>Registrate</button>
-                <span className="lp-auth-pill__free">Es gratis · Sin tarjeta</span>
-              </div>
+              <button className="lp-auth-pill__btn" onClick={() => navigate(ROUTES.AUTH)}>Registrate</button>
             </>
           )}
         </div>
