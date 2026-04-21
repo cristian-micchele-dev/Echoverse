@@ -169,7 +169,7 @@ export default function DuoPage() {
             <div className={`duo-slot ${charA ? 'duo-slot--filled' : 'duo-slot--empty'}`}>
               {charA ? (
                 <>
-                  <img src={charA.image} alt={charA.name} onError={e => e.target.style.display='none'} />
+                  <img src={charA.image} alt={charA.name} onError={e => e.target.style.display='none'} loading="lazy" decoding="async" />
                   <span>{charA.name}</span>
                 </>
               ) : <span className="duo-slot__placeholder">Personaje 1</span>}
@@ -178,7 +178,7 @@ export default function DuoPage() {
             <div className={`duo-slot ${charB ? 'duo-slot--filled' : 'duo-slot--empty'}`}>
               {charB ? (
                 <>
-                  <img src={charB.image} alt={charB.name} onError={e => e.target.style.display='none'} />
+                  <img src={charB.image} alt={charB.name} onError={e => e.target.style.display='none'} loading="lazy" decoding="async" />
                   <span>{charB.name}</span>
                 </>
               ) : <span className="duo-slot__placeholder">Personaje 2</span>}
@@ -214,7 +214,7 @@ export default function DuoPage() {
               >
                 {getSlot(char) && <span className="duo-char-slot">{getSlot(char)}</span>}
                 <div className="duo-char-img">
-                  <img src={char.image} alt={char.name} />
+                  <img src={char.image} alt={char.name} loading="lazy" decoding="async" />
                 </div>
                 <span className="duo-char-name">{char.name}</span>
               </button>
@@ -245,7 +245,7 @@ export default function DuoPage() {
         </button>
         <div className="duo-chat-combatants">
           <div className="duo-chat-char" style={{ '--char-color': charA.themeColor }}>
-            <img src={charA.image} alt={charA.name} onError={e => e.target.style.display='none'} />
+            <img src={charA.image} alt={charA.name} onError={e => e.target.style.display='none'} loading="lazy" decoding="async" />
             <div>
               <span className="duo-chat-char__name">{charA.name}</span>
               {typingChar === 'charA' && <span className="duo-chat-char__typing">escribiendo...</span>}
@@ -253,7 +253,7 @@ export default function DuoPage() {
           </div>
           <span className="duo-chat-plus">⇄</span>
           <div className="duo-chat-char" style={{ '--char-color': charB.themeColor }}>
-            <img src={charB.image} alt={charB.name} onError={e => e.target.style.display='none'} />
+            <img src={charB.image} alt={charB.name} onError={e => e.target.style.display='none'} loading="lazy" decoding="async" />
             <div>
               <span className="duo-chat-char__name">{charB.name}</span>
               {typingChar === 'charB' && <span className="duo-chat-char__typing">escribiendo...</span>}
@@ -266,8 +266,8 @@ export default function DuoPage() {
         {messages.length === 0 && (
           <div className="duo-empty">
             <div className="duo-empty__avatars">
-              <img src={charA.image} alt={charA.name} style={{ borderColor: charA.themeColor }} onError={e => e.target.style.display='none'} />
-              <img src={charB.image} alt={charB.name} style={{ borderColor: charB.themeColor }} onError={e => e.target.style.display='none'} />
+              <img src={charA.image} alt={charA.name} style={{ borderColor: charA.themeColor }} onError={e => e.target.style.display='none'} loading="lazy" decoding="async" />
+              <img src={charB.image} alt={charB.name} style={{ borderColor: charB.themeColor }} onError={e => e.target.style.display='none'} loading="lazy" decoding="async" />
             </div>
             <p>Los dos están listos. ¿Qué les querés preguntar?</p>
           </div>
@@ -287,7 +287,7 @@ export default function DuoPage() {
           return (
             <div key={i} className={`duo-msg ${isA ? 'duo-msg--a' : 'duo-msg--b'} ${msg.isRemate ? 'duo-msg--remate' : ''}`}>
               <div className="duo-msg__avatar" style={{ '--char-color': msg.char.themeColor }}>
-                <img src={msg.char.image} alt={msg.char.name} onError={e => e.target.style.display='none'} />
+                <img src={msg.char.image} alt={msg.char.name} onError={e => e.target.style.display='none'} loading="lazy" decoding="async" />
               </div>
               <div className="duo-msg__bubble" style={{ '--char-color': msg.char.themeColor }}>
                 {msg.isRemate && <span className="duo-msg__remate-label">↩</span>}
@@ -302,7 +302,7 @@ export default function DuoPage() {
           return (
             <div className={`duo-msg ${typingChar === 'charA' ? 'duo-msg--a' : 'duo-msg--b'}`}>
               <div className="duo-msg__avatar" style={{ '--char-color': char.themeColor }}>
-                <img src={char.image} alt={char.name} onError={e => e.target.style.display='none'} />
+                <img src={char.image} alt={char.name} onError={e => e.target.style.display='none'} loading="lazy" decoding="async" />
               </div>
               <div className="duo-msg__bubble duo-msg__bubble--typing" style={{ '--char-color': char.themeColor }}>
                 <span /><span /><span />

@@ -452,7 +452,7 @@ export default function ProfilePage() {
                       onClick={() => navigate(ROUTES.CHAT_CHARACTER(a.character_id))}
                     >
                       <div className="pp-char-card__img-wrap">
-                        <img src={a.char.image} alt={a.char.name} className="pp-char-card__img" />
+                        <img src={a.char.image} alt={a.char.name} className="pp-char-card__img" loading="lazy" decoding="async" />
                         <div className="pp-char-card__fade" />
                       </div>
                       <div className="pp-char-card__body">

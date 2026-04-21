@@ -23,7 +23,7 @@ export default function CharacterSelector({ characters, onSelect }) {
             style={{ background: char.gradient }}
           >
             {char.image && (
-              <img src={char.image} alt={char.name} className="char-selector__img" />
+              <img src={char.image} alt={char.name} className="char-selector__img" loading="lazy" decoding="async" />
             )}
           </div>
           <div className="char-selector__overlay" />

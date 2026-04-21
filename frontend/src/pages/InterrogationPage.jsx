@@ -331,7 +331,7 @@ export default function InterrogationPage() {
                 onClick={() => { setSelectedChar(char); setSelectedScenario(null) }}
               >
                 <div className="ip-char-card__img">
-                  <img src={char.image} alt={char.name} />
+                  <img src={char.image} alt={char.name} loading="lazy" decoding="async" />
                 </div>
                 <div className="ip-char-card__overlay" />
                 <span className="ip-char-card__num">#{String(i + 1).padStart(2, '0')}</span>
@@ -396,7 +396,7 @@ export default function InterrogationPage() {
           <div className="ip-bg__char-glow" />
           {selectedChar?.image && (
             <div className="ip-bg__ghost">
-              <img src={selectedChar.image} alt="" />
+              <img src={selectedChar.image} alt="" loading="lazy" decoding="async" />
             </div>
           )}
           <div className="ip-bg__scanlines" />
@@ -410,7 +410,7 @@ export default function InterrogationPage() {
           </button>
           <div className="ip-intr-header__char">
             <div className="ip-intr-header__img" style={{ '--cc': charColor }}>
-              <img src={selectedChar?.image} alt={selectedChar?.name} />
+              <img src={selectedChar?.image} alt={selectedChar?.name} loading="lazy" decoding="async" />
             </div>
             <div className="ip-intr-header__info">
               <span className="ip-intr-header__name">{selectedChar?.name}</span>
@@ -448,7 +448,7 @@ export default function InterrogationPage() {
           {openingStatement && (
             <div className="ip-bubble ip-bubble--char ip-bubble--opening">
               <div className="ip-bubble__avatar" style={{ '--cc': charColor }}>
-                <img src={selectedChar?.image} alt={selectedChar?.name} />
+                <img src={selectedChar?.image} alt={selectedChar?.name} loading="lazy" decoding="async" />
               </div>
               <div className="ip-bubble__body">
                 <span className="ip-bubble__name">{selectedChar?.name}</span>
@@ -472,7 +472,7 @@ export default function InterrogationPage() {
               {ex.response ? (
                 <div className="ip-bubble ip-bubble--char">
                   <div className="ip-bubble__avatar" style={{ '--cc': charColor }}>
-                    <img src={selectedChar?.image} alt={selectedChar?.name} />
+                    <img src={selectedChar?.image} alt={selectedChar?.name} loading="lazy" decoding="async" />
                   </div>
                   <div className="ip-bubble__body">
                     <div className="ip-bubble__meta">
@@ -492,7 +492,7 @@ export default function InterrogationPage() {
               ) : (
                 <div className="ip-bubble ip-bubble--char ip-bubble--loading">
                   <div className="ip-bubble__avatar" style={{ '--cc': charColor }}>
-                    <img src={selectedChar?.image} alt={selectedChar?.name} />
+                    <img src={selectedChar?.image} alt={selectedChar?.name} loading="lazy" decoding="async" />
                   </div>
                   <div className="ip-typing">
                     <span /><span /><span />
@@ -582,7 +582,7 @@ export default function InterrogationPage() {
         <div className="ip-confrontation">
           <div className="ip-confrontation__char">
             <div className="ip-confrontation__char-img" style={{ '--cc': charColor }}>
-              <img src={selectedChar?.image} alt={selectedChar?.name} />
+              <img src={selectedChar?.image} alt={selectedChar?.name} loading="lazy" decoding="async" />
             </div>
           </div>
 
@@ -674,7 +674,7 @@ export default function InterrogationPage() {
         <div className="ip-decision">
           <div className="ip-decision__char">
             <div className="ip-decision__char-img" style={{ '--cc': charColor }}>
-              <img src={selectedChar?.image} alt={selectedChar?.name} />
+              <img src={selectedChar?.image} alt={selectedChar?.name} loading="lazy" decoding="async" />
             </div>
             <h2 className="ip-decision__char-name">{selectedChar?.name}</h2>
           </div>
@@ -759,7 +759,7 @@ export default function InterrogationPage() {
           {/* Character + closing line */}
           <div className="ip-reveal__char">
             <div className="ip-reveal__char-img" style={{ '--cc': charColor }}>
-              <img src={selectedChar?.image} alt={selectedChar?.name} />
+              <img src={selectedChar?.image} alt={selectedChar?.name} loading="lazy" decoding="async" />
             </div>
             {closingLine && (
               <div className="ip-reveal__closing">

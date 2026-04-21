@@ -173,7 +173,7 @@ export default function GuessPage() {
         <div className="gp-intro-strip" aria-hidden="true">
           {[...characters, ...characters].map((c, i) => (
             <div key={`s-${i}`} className="gp-intro-strip__card">
-              <img src={c.image} alt="" />
+              <img src={c.image} alt="" loading="lazy" decoding="async" />
             </div>
           ))}
         </div>
@@ -272,7 +272,7 @@ export default function GuessPage() {
               disabled={!!result || revealing}
             >
               <div className="gp-candidate__img">
-                <img src={char.image} alt={char.name} />
+                <img src={char.image} alt={char.name} loading="lazy" decoding="async" />
               </div>
               <span className="gp-candidate__name">{char.name}</span>
             </button>
@@ -311,7 +311,7 @@ export default function GuessPage() {
 
         <div className="gp-reveal-card" style={{ '--cc': target.themeColor }}>
           <div className="gp-reveal-avatar">
-            <img src={target.image} alt={target.name} />
+            <img src={target.image} alt={target.name} loading="lazy" decoding="async" />
           </div>
 
           <div className={`gp-reveal-mark gp-reveal-mark--${isWin ? 'win' : 'lose'}`}>
@@ -431,7 +431,7 @@ export default function GuessPage() {
             {history.map((h, i) => (
               <div key={i} className={`gp-summary__hist-item gp-summary__hist-item--${h.win ? 'win' : 'lose'}`}>
                 <div className="gp-summary__hist-img">
-                  <img src={h.char.image} alt={h.char.name} />
+                  <img src={h.char.image} alt={h.char.name} loading="lazy" decoding="async" />
                 </div>
                 <span className="gp-summary__hist-mark">{h.win ? '✔' : '✕'}</span>
               </div>

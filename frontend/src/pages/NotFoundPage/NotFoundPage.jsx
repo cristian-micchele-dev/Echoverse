@@ -35,7 +35,7 @@ export default function NotFoundPage() {
         {char && (
           <div className="nf-cameo">
             <div className="nf-cameo__avatar" style={{ '--cc': char.themeColor }}>
-              <img src={char.image} alt={char.name} />
+              <img src={char.image} alt={char.name} loading="lazy" decoding="async" />
             </div>
             <div className="nf-cameo__bubble">
               <span className="nf-cameo__name">{char.name}</span>

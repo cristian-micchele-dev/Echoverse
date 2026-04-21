@@ -106,7 +106,7 @@ export default function CriticalPage() {
           </button>
           <div className="critical-page__char-badge">
             {character.image
-              ? <img src={character.image} alt={character.name} className="critical-page__char-avatar" />
+              ? <img src={character.image} alt={character.name} className="critical-page__char-avatar" loading="lazy" decoding="async" />
               : <span>{character.emoji}</span>
             }
             <span className="critical-page__char-name">{character.name}</span>
@@ -168,7 +168,7 @@ export default function CriticalPage() {
           </button>
           <div className="critical-page__char-badge">
             {character.image
-              ? <img src={character.image} alt={character.name} className="critical-page__char-avatar" />
+              ? <img src={character.image} alt={character.name} className="critical-page__char-avatar" loading="lazy" decoding="async" />
               : <span>{character.emoji}</span>
             }
             <span className="critical-page__char-name">{character.name}</span>
@@ -243,7 +243,7 @@ export default function CriticalPage() {
       <div className="critical-summary__header">
         <div className="critical-summary__char">
           {character.image
-            ? <img src={character.image} alt={character.name} className="critical-summary__avatar" />
+            ? <img src={character.image} alt={character.name} className="critical-summary__avatar" loading="lazy" decoding="async" />
             : <span className="critical-summary__avatar-emoji">{character.emoji}</span>
           }
         </div>

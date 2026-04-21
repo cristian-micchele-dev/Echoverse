@@ -204,7 +204,7 @@ export default function StoryPage() {
             >
               <div className="story-char-card__bg" style={{ background: char.gradient }}>
                 {char.image && (
-                  <img src={char.image} alt={char.name} className="story-char-card__img" />
+                  <img src={char.image} alt={char.name} className="story-char-card__img" loading="lazy" decoding="async" />
                 )}
               </div>
               <div className="story-char-card__overlay" />
@@ -235,7 +235,7 @@ export default function StoryPage() {
         <div className="story-char-hero">
           <div className="story-char-hero__avatar-wrap" style={{ '--char-color': selectedChar.themeColor }}>
             {selectedChar.image
-              ? <img src={selectedChar.image} alt={selectedChar.name} className="story-char-hero__avatar" />
+              ? <img src={selectedChar.image} alt={selectedChar.name} className="story-char-hero__avatar" loading="lazy" decoding="async" />
               : <span className="story-char-hero__emoji">{selectedChar.emoji}</span>
             }
           </div>
@@ -301,7 +301,7 @@ export default function StoryPage() {
         </button>
         <div className="story-play-identity">
           {selectedChar.image
-            ? <img src={selectedChar.image} alt={selectedChar.name} className="story-play-avatar" />
+            ? <img src={selectedChar.image} alt={selectedChar.name} className="story-play-avatar" loading="lazy" decoding="async" />
             : <span className="story-play-avatar-emoji">{selectedChar.emoji}</span>
           }
           <span className="story-play-name">{selectedChar.name}</span>

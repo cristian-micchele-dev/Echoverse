@@ -243,7 +243,7 @@ export default function LandingPage() {
         <div className="lp-hero-collage" aria-hidden="true">
           {heroChars.map((c, i) => (
             <div key={c.id} className={`lp-hero-collage__char lp-hero-collage__char--${i}`}>
-              <img src={c.image} alt="" draggable={false} />
+              <img src={c.image} alt="" draggable={false} fetchpriority={i === 0 ? "high" : "auto"} />
             </div>
           ))}
           <div className="lp-hero-collage__vignette" />
@@ -312,7 +312,7 @@ export default function LandingPage() {
             className="lp-hero-resume lp-hero-resume--active"
             onClick={() => navigate(session.route || ROUTES.CHAT_CHARACTER(sessionChar.id))}
           >
-            <img src={sessionChar.image} alt={sessionChar.name} className="lp-hero-resume__avatar" />
+            <img src={sessionChar.image} alt={sessionChar.name} className="lp-hero-resume__avatar" loading="lazy" decoding="async" />
             <span className="lp-hero-resume__body">
               <span className="lp-hero-resume__label">
                 Seguís con <strong>{sessionChar.name}</strong> · {timeAgo(session.timestamp)}
@@ -417,7 +417,7 @@ export default function LandingPage() {
                 </button>
               </div>
               <div className="lp-featured-card__visual">
-                <img src={featuredChar.image} alt={featuredChar.name} />
+                <img src={featuredChar.image} alt={featuredChar.name} loading="lazy" decoding="async" />
                 <div className="lp-featured-card__visual-fade" />
               </div>
             </div>
@@ -455,7 +455,7 @@ export default function LandingPage() {
                 >
                   <div className="lp-preview-card__header">
                     <div className="lp-preview-card__avatar">
-                      <img src={char.image} alt={char.name} />
+                      <img src={char.image} alt={char.name} loading="lazy" decoding="async" />
                     </div>
                     <div>
                       <span className="lp-preview-card__name">{char.name}</span>
@@ -537,7 +537,7 @@ export default function LandingPage() {
                   </div>
                   {(char || mode.image) && (
                     <div className="lp-mode-block__visual" style={mode.imgPosition ? { '--img-pos': mode.imgPosition } : undefined}>
-                      <img src={mode.image ?? char.image} alt={mode.label} />
+                      <img src={mode.image ?? char.image} alt={mode.label} loading="lazy" decoding="async" />
                       <div className="lp-mode-block__visual-fade" />
                     </div>
                   )}
@@ -567,7 +567,7 @@ export default function LandingPage() {
                 >
                   {char && (
                     <div className="lp-mode-card__img-wrap">
-                      <img src={char.image} alt={char.name} className="lp-mode-card__img" />
+                      <img src={char.image} alt={char.name} className="lp-mode-card__img" loading="lazy" decoding="async" />
                       <div className="lp-mode-card__img-fade" />
                     </div>
                   )}
@@ -618,7 +618,7 @@ export default function LandingPage() {
                 onClick={() => navigate(ROUTES.CHAT_CHARACTER(fc.id))}
               >
                 <div className="lp-cast-card__portrait">
-                  <img src={char.image} alt={char.name} />
+                  <img src={char.image} alt={char.name} loading="lazy" decoding="async" />
                   <div className="lp-cast-card__portrait-fade" />
                 </div>
                 <div className="lp-cast-card__body">
@@ -685,7 +685,7 @@ export default function LandingPage() {
       <section className="lp-about">
         <div className="lp-container lp-about__inner">
           <div className="lp-about__avatar">
-            <img src="/images/yo.jfif" alt="Cristian Micchele" />
+            <img src="/images/yo.jfif" alt="Cristian Micchele" loading="lazy" decoding="async" />
           </div>
           <div className="lp-about__body">
             <span className="lp-eyebrow">SOBRE EL CREADOR</span>

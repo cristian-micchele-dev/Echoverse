@@ -147,7 +147,7 @@ export default function FightPage() {
             role="listitem"
           >
             <div className="fight-char-card__bg" style={{ background: char.gradient }}>
-              {char.image && <img src={char.image} alt="" className="fight-char-card__img" />}
+              {char.image && <img src={char.image} alt="" className="fight-char-card__img" loading="lazy" decoding="async" />}
             </div>
             <div className="fight-char-card__overlay" />
             <div className="fight-char-card__info">
@@ -174,7 +174,7 @@ export default function FightPage() {
       <div className="fight-intro">
         <div className="fight-intro__picked">
           {playerChar.image
-            ? <img src={playerChar.image} alt={playerChar.name} className="fight-intro__picked-avatar" style={{ '--char-color': playerChar.themeColor }} />
+            ? <img src={playerChar.image} alt={playerChar.name} className="fight-intro__picked-avatar" style={{ '--char-color': playerChar.themeColor }} loading="lazy" decoding="async" />
             : <span>{playerChar.emoji}</span>}
           <span className="fight-intro__picked-name" style={{ color: playerChar.themeColor }}>{playerChar.name}</span>
         </div>
@@ -192,7 +192,7 @@ export default function FightPage() {
             role="listitem"
           >
             <div className="fight-char-card__bg" style={{ background: char.gradient }}>
-              {char.image && <img src={char.image} alt="" className="fight-char-card__img" />}
+              {char.image && <img src={char.image} alt="" className="fight-char-card__img" loading="lazy" decoding="async" />}
             </div>
             <div className="fight-char-card__overlay" />
             <div className="fight-char-card__info">
@@ -223,7 +223,7 @@ export default function FightPage() {
           {lastDmg.player && <span className="fcard__dmg fcard__dmg--player" aria-live="polite">{lastDmg.player}</span>}
           <div className="fcard__img-wrap">
             {playerChar.image
-              ? <img src={playerChar.image} alt={playerChar.name} className="fcard__img" />
+              ? <img src={playerChar.image} alt={playerChar.name} className="fcard__img" loading="lazy" decoding="async" />
               : <span className="fcard__emoji" aria-hidden="true">{playerChar.emoji}</span>}
           </div>
           <div className="fcard__footer">
@@ -253,7 +253,7 @@ export default function FightPage() {
           {lastDmg.enemy && <span className="fcard__dmg fcard__dmg--enemy" aria-live="polite">{lastDmg.enemy}</span>}
           <div className="fcard__img-wrap">
             {enemyChar.image
-              ? <img src={enemyChar.image} alt={enemyChar.name} className="fcard__img" />
+              ? <img src={enemyChar.image} alt={enemyChar.name} className="fcard__img" loading="lazy" decoding="async" />
               : <span className="fcard__emoji" aria-hidden="true">{enemyChar.emoji}</span>}
           </div>
           <div className="fcard__footer">

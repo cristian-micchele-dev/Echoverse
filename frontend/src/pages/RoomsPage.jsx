@@ -74,7 +74,7 @@ function CreateRoomModal({ onClose, onCreate }) {
               onClick={() => setSelected(char)}
               style={selected?.id === char.id ? { '--char-accent': char.themeColor } : {}}
             >
-              <img src={char.image} alt={char.name} className="rm-modal__char-img" />
+              <img src={char.image} alt={char.name} className="rm-modal__char-img" loading="lazy" decoding="async" />
               <span className="rm-modal__char-name">{char.name}</span>
             </button>
           ))}
@@ -143,7 +143,7 @@ function RoomCard({ room, isAdmin, session, onDelete }) {
       )}
 
       <div className="rm-card__img-wrap">
-        <img src={char.image} alt={char.name} className="rm-card__img" />
+        <img src={char.image} alt={char.name} className="rm-card__img" loading="lazy" decoding="async" />
         <div className="rm-card__img-fade" />
       </div>
 

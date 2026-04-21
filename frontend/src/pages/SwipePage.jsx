@@ -167,7 +167,7 @@ export default function SwipePage() {
             style={{ '--char-color': char.themeColor, '--char-gradient': char.gradient, '--card-delay': `${i * 0.03}s` }}
             onClick={() => handleCharSelect(char)}>
             <div className="swipe-char-card__bg" style={{ background: char.gradient }}>
-              {char.image && <img src={char.image} alt={char.name} className="swipe-char-card__img" />}
+              {char.image && <img src={char.image} alt={char.name} className="swipe-char-card__img" loading="lazy" decoding="async" />}
             </div>
             <div className="swipe-char-card__overlay" />
             <div className="swipe-char-card__info">
@@ -186,7 +186,7 @@ export default function SwipePage() {
       <div className="swipe-loading">
         <div className="swipe-loading__avatar-wrap">
           {selectedChar.image
-            ? <img src={selectedChar.image} alt={selectedChar.name} className="swipe-loading__avatar" />
+            ? <img src={selectedChar.image} alt={selectedChar.name} className="swipe-loading__avatar" loading="lazy" decoding="async" />
             : <span className="swipe-loading__emoji">{selectedChar.emoji}</span>}
           <span className="swipe-loading__pulse" />
         </div>
@@ -215,7 +215,7 @@ export default function SwipePage() {
             ))}
           </div>
           {selectedChar.image
-            ? <img src={selectedChar.image} alt={selectedChar.name} className="swipe-play-avatar" />
+            ? <img src={selectedChar.image} alt={selectedChar.name} className="swipe-play-avatar" loading="lazy" decoding="async" />
             : <span className="swipe-play-emoji">{selectedChar.emoji}</span>}
         </div>
 
@@ -225,7 +225,7 @@ export default function SwipePage() {
 
         {selectedChar.image && (
           <div className="swipe-bg-char">
-            <img src={selectedChar.image} alt="" />
+            <img src={selectedChar.image} alt="" loading="lazy" decoding="async" />
           </div>
         )}
 
@@ -300,7 +300,7 @@ export default function SwipePage() {
             {card?.quote && (
               <span className="swipe-card__quote-label">
                 {selectedChar.image
-                  ? <img src={selectedChar.image} alt="" className="swipe-card__quote-avatar" />
+                  ? <img src={selectedChar.image} alt="" className="swipe-card__quote-avatar" loading="lazy" decoding="async" />
                   : <span>{selectedChar.emoji}</span>}
                 {selectedChar.name}
               </span>
@@ -349,7 +349,7 @@ export default function SwipePage() {
       <div className="swipe-result">
         <div className="swipe-result__char">
           {selectedChar.image
-            ? <img src={selectedChar.image} alt={selectedChar.name} className="swipe-result__avatar" />
+            ? <img src={selectedChar.image} alt={selectedChar.name} className="swipe-result__avatar" loading="lazy" decoding="async" />
             : <span className="swipe-result__emoji">{selectedChar.emoji}</span>}
         </div>
         <div className="swipe-result__score">

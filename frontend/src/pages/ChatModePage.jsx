@@ -142,7 +142,7 @@ export default function ChatModePage() {
             >
               <div className="chat-inbox-item__avatar">
                 {char.image
-                  ? <img src={char.image} alt={char.name} />
+                  ? <img src={char.image} alt={char.name} loading="lazy" decoding="async" />
                   : <span>{char.emoji}</span>
                 }
               </div>

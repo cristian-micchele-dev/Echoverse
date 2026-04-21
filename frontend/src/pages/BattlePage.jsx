@@ -191,7 +191,7 @@ export default function BattlePage() {
               <div className={`battle-slot ${charA ? 'battle-slot--filled' : 'battle-slot--empty'}`}>
                 {charA ? (
                   <>
-                    <img src={charA.image} alt={charA.name} onError={e => e.target.style.display='none'} />
+                    <img src={charA.image} alt={charA.name} onError={e => e.target.style.display='none'} loading="lazy" decoding="async" />
                     <span>{charA.name}</span>
                   </>
                 ) : <span className="battle-slot__placeholder">Jugador 1</span>}
@@ -200,7 +200,7 @@ export default function BattlePage() {
               <div className={`battle-slot ${charB ? 'battle-slot--filled' : 'battle-slot--empty'}`}>
                 {charB ? (
                   <>
-                    <img src={charB.image} alt={charB.name} onError={e => e.target.style.display='none'} />
+                    <img src={charB.image} alt={charB.name} onError={e => e.target.style.display='none'} loading="lazy" decoding="async" />
                     <span>{charB.name}</span>
                   </>
                 ) : <span className="battle-slot__placeholder">Jugador 2</span>}
@@ -242,7 +242,7 @@ export default function BattlePage() {
               >
                 {getSlot(char) && <span className="battle-char-slot">{getSlot(char)}</span>}
                 <div className="battle-char-img">
-                  <img src={char.image} alt={char.name} />
+                  <img src={char.image} alt={char.name} loading="lazy" decoding="async" />
                 </div>
                 <span className="battle-char-name">{char.name}</span>
               </button>
@@ -293,13 +293,13 @@ export default function BattlePage() {
         <div className="battle-arena">
           <div className="battle-combatants">
             <div className="battle-combatant" style={{ '--char-color': charA.themeColor }}>
-              <img src={charA.image} alt={charA.name} onError={e => e.target.style.display='none'} />
+              <img src={charA.image} alt={charA.name} onError={e => e.target.style.display='none'} loading="lazy" decoding="async" />
               <span>{charA.name}</span>
               {currentStreaming === charA.id && <span className="battle-thinking">pensando...</span>}
             </div>
             <div className="battle-topic-display">"{topic}"</div>
             <div className="battle-combatant" style={{ '--char-color': charB.themeColor }}>
-              <img src={charB.image} alt={charB.name} onError={e => e.target.style.display='none'} />
+              <img src={charB.image} alt={charB.name} onError={e => e.target.style.display='none'} loading="lazy" decoding="async" />
               <span>{charB.name}</span>
               {currentStreaming === charB.id && <span className="battle-thinking">pensando...</span>}
             </div>
@@ -313,7 +313,7 @@ export default function BattlePage() {
                 style={{ '--char-color': entry.char.themeColor }}
               >
                 <div className="battle-message__avatar">
-                  <img src={entry.char.image} alt={entry.char.name} onError={e => e.target.style.display='none'} />
+                  <img src={entry.char.image} alt={entry.char.name} onError={e => e.target.style.display='none'} loading="lazy" decoding="async" />
                 </div>
                 <div className="battle-message__bubble">
                   <span className="battle-message__name">{entry.char.name}</span>
@@ -326,7 +326,7 @@ export default function BattlePage() {
               <div className={`battle-message ${currentStreaming === charA.id ? 'battle-message--left' : 'battle-message--right'}`}
                 style={{ '--char-color': (currentStreaming === charA.id ? charA : charB).themeColor }}>
                 <div className="battle-message__avatar">
-                  <img src={(currentStreaming === charA.id ? charA : charB).image} alt="" onError={e => e.target.style.display='none'} />
+                  <img src={(currentStreaming === charA.id ? charA : charB).image} alt="" onError={e => e.target.style.display='none'} loading="lazy" decoding="async" />
                 </div>
                 <div className="battle-message__bubble battle-message__bubble--typing">
                   <span /><span /><span />
@@ -373,7 +373,7 @@ export default function BattlePage() {
                         onClick={() => castVote(charA.id)}
                         aria-label={`Votar por ${charA.name}`}
                       >
-                        <img src={charA.image} alt="" onError={e => e.target.style.display='none'} />
+                        <img src={charA.image} alt="" onError={e => e.target.style.display='none'} loading="lazy" decoding="async" />
                         {charA.name}
                       </button>
                       <button
@@ -382,7 +382,7 @@ export default function BattlePage() {
                         onClick={() => castVote(charB.id)}
                         aria-label={`Votar por ${charB.name}`}
                       >
-                        <img src={charB.image} alt="" onError={e => e.target.style.display='none'} />
+                        <img src={charB.image} alt="" onError={e => e.target.style.display='none'} loading="lazy" decoding="async" />
                         {charB.name}
                       </button>
                     </div>
@@ -396,7 +396,7 @@ export default function BattlePage() {
                         const isMyVote = userVote === char.id
                         return (
                           <div key={char.id} className={`battle-vote__bar-row ${isMyVote ? 'battle-vote__bar-row--mine' : ''}`}>
-                            <img src={char.image} alt={char.name} onError={e => e.target.style.display='none'} />
+                            <img src={char.image} alt={char.name} onError={e => e.target.style.display='none'} loading="lazy" decoding="async" />
                             <div className="battle-vote__bar-wrap">
                               <div className="battle-vote__bar-label">
                                 <span style={{ color: char.themeColor }}>{char.name}</span>

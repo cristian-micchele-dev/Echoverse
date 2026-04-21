@@ -562,7 +562,7 @@ export default function MissionPage() {
                 onClick={() => handleCharSelect(char)}
               >
                 <div className="mission-char-card__bg" style={{ background: char.gradient }}>
-                  {char.image && <img src={char.image} alt={char.name} className="mission-char-card__img" />}
+                  {char.image && <img src={char.image} alt={char.name} className="mission-char-card__img" loading="lazy" decoding="async" />}
                 </div>
                 <div className="mission-char-card__overlay" />
                 <div className="mission-char-card__info">
@@ -594,7 +594,7 @@ export default function MissionPage() {
                   >
                     {/* Background image */}
                     <div className="campaign-card__bg">
-                      {arcChar?.image && <img src={arcChar.image} alt={arcChar.name} className="campaign-card__img" />}
+                      {arcChar?.image && <img src={arcChar.image} alt={arcChar.name} className="campaign-card__img" loading="lazy" decoding="async" />}
                       {isSpecial && <div className="campaign-card__special-bg">⏱</div>}
                       <div className="campaign-card__overlay" />
                     </div>
@@ -692,7 +692,7 @@ export default function MissionPage() {
           {/* Personaje */}
           <div className="mission-setup__char">
             {selectedChar.image
-              ? <img src={selectedChar.image} alt={selectedChar.name} className="mission-setup__avatar" />
+              ? <img src={selectedChar.image} alt={selectedChar.name} className="mission-setup__avatar" loading="lazy" decoding="async" />
               : <span className="mission-setup__emoji">{selectedChar.emoji}</span>
             }
             <p className="mission-setup__char-name">{selectedChar.name}</p>
@@ -835,7 +835,7 @@ export default function MissionPage() {
           </div>
           <div className="mission-play-identity">
             {selectedChar.image
-              ? <img src={selectedChar.image} alt={selectedChar.name} className="mission-play-avatar" />
+              ? <img src={selectedChar.image} alt={selectedChar.name} className="mission-play-avatar" loading="lazy" decoding="async" />
               : <span className="mission-play-avatar-emoji">{selectedChar.emoji}</span>
             }
             <div>
