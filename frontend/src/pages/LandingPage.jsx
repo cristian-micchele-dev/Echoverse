@@ -288,6 +288,12 @@ export default function LandingPage() {
             </button>
           </div>
 
+          {!user && (
+            <button className="lp-hero-noaccount" onClick={() => navigate(ROUTES.MODOS)}>
+              Seguir explorando sin registro →
+            </button>
+          )}
+
           <div className="lp-hero-stats">
             <div className="lp-hero-stat">
               <span className="lp-hero-stat__num">{characters.length}</span>
