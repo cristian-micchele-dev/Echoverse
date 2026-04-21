@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { characters } from '../data/characters'
@@ -15,6 +15,7 @@ import { useStreaming } from '../hooks/useStreaming'
 import AchievementToast from '../components/AchievementToast/AchievementToast'
 import ShareModal from '../components/ShareModal/ShareModal'
 import VerdictBubble from '../components/VerdictBubble/VerdictBubble'
+import { supabase } from '../lib/supabase'
 
 function playNotificationSound(tone) {
   try {
@@ -108,7 +109,33 @@ function BgParticles({ effect }) {
 export default function ChatPage() {
   const { characterId } = useParams()
   const navigate = useNavigate()
-  const character = characters.find(c => c.id === characterId)
+  const isCustom = characterId?.startsWith('custom-')
+  const rawCustomId = isCustom ? characterId.replace('custom-', '') : null
+  const [customCharData, setCustomCharData] = useState(null)
+  const character = useMemo(() => {
+    if (isCustom) {
+      if (!customCharData) return null
+      return {
+        id: characterId,
+        name: customCharData.name,
+        image: customCharData.avatar_url || null,
+        emoji: customCharData.emoji || '🤖',
+        themeColor: customCharData.color || '#7252E8',
+        themeColorDim: (customCharData.color || '#7252E8') + '30',
+        gradient: 'linear-gradient(160deg, #050508 0%, #0d0d1a 100%)',
+        universe: 'Personaje personalizado',
+        welcomeMessage: customCharData.welcome_message || null,
+        notificationTone: 'default',
+        bgEffect: null,
+        uiTheme: null,
+        typingStyle: 'default',
+        suggestedQuestions: [],
+        description: '',
+        systemPrompt: customCharData.system_prompt,
+      }
+    }
+    return characters.find(c => c.id === characterId) ?? null
+  }, [isCustom, customCharData, characterId])
   const { session } = useAuth()
   const { checkAndUnlock, newlyUnlocked, dismissToast } = useAchievements()
   const { isTyping, isLoading, streamChat } = useStreaming()
@@ -145,9 +172,23 @@ export default function ChatPage() {
     requestAnimationFrame(() => setVisible(true))
   }, [])
 
-  // Cargar historial desde BD si el usuario está autenticado
+  // Cargar personaje custom desde Supabase
   useEffect(() => {
-    if (!session || !characterId) return
+    if (!isCustom || !rawCustomId) return
+    supabase
+      .from('custom_characters')
+      .select('*')
+      .eq('id', rawCustomId)
+      .single()
+      .then(({ data }) => {
+        if (data) setCustomCharData(data)
+        else navigate(ROUTES.CHAT)
+      })
+  }, [isCustom, rawCustomId, navigate])
+
+  // Cargar historial desde BD si el usuario está autenticado (solo chars oficiales)
+  useEffect(() => {
+    if (!session || !characterId || isCustom) return
     fetch(`${API_URL}/db/chat-history/${characterId}`, {
       headers: { Authorization: `Bearer ${session.access_token}` }
     })
@@ -158,7 +199,7 @@ export default function ChatPage() {
         }
       })
       .catch(() => {})
-  }, [session, characterId])
+  }, [session, characterId, isCustom])
 
   // Aplicar tema al :root y restaurar al salir
   useEffect(() => {
@@ -172,8 +213,8 @@ export default function ChatPage() {
   }, [character])
 
   useEffect(() => {
-    if (!character) navigate(ROUTES.HOME)
-  }, [character, navigate])
+    if (!character && !isCustom) navigate(ROUTES.HOME)
+  }, [character, isCustom, navigate])
 
   useEffect(() => {
     if (messages.length === 0) return
@@ -217,7 +258,7 @@ export default function ChatPage() {
           route: `/chat/${characterId}`,
           lastMessage: lastMsg.content?.slice(0, 120) || '',
         })
-        if (session) {
+        if (session && !isCustom) {
           const toSave = messages.slice(-MAX_STORED_MESSAGES)
           fetch(`${API_URL}/db/chat-history`, {
             method: 'POST',
@@ -237,7 +278,7 @@ export default function ChatPage() {
       }
     }
     prevIsLoadingRef.current = isLoading
-  }, [isLoading, messages, character, characterId, session, checkAndUnlock])
+  }, [isLoading, messages, character, characterId, session, checkAndUnlock, isCustom])
 
   useEffect(() => {
     const container = messagesContainerRef.current
@@ -280,9 +321,16 @@ export default function ChatPage() {
     setInput('')
 
     try {
+      const chatEndpoint = isCustom ? `${API_URL}/chat/custom` : `${API_URL}/chat`
+      const chatPayload = isCustom
+        ? { systemPrompt: character.systemPrompt, messages: updatedMessages }
+        : { characterId, messages: updatedMessages, affinityLevel: getAffinityLevel(getAffinityData(characterId).messageCount) }
+      const chatHeaders = isCustom && session
+        ? { Authorization: `Bearer ${session.access_token}` }
+        : {}
       await streamChat(
-        `${API_URL}/chat`,
-        { characterId, messages: updatedMessages, affinityLevel: getAffinityLevel(getAffinityData(characterId).messageCount) },
+        chatEndpoint,
+        chatPayload,
         (content, isFirst) => {
           if (isFirst) {
             setMessages(prev => [...prev, { role: 'assistant', content, ts: Date.now() }])
@@ -293,7 +341,8 @@ export default function ChatPage() {
               return copy
             })
           }
-        }
+        },
+        chatHeaders
       )
     } catch (err) {
       let msg = 'Error al conectar con el servidor.'
@@ -311,7 +360,7 @@ export default function ChatPage() {
     } finally {
       inputRef.current?.focus()
     }
-  }, [input, isLoading, messages, characterId, streamChat])
+  }, [input, isLoading, messages, characterId, streamChat, isCustom, character, session])
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -329,7 +378,7 @@ export default function ChatPage() {
       localStorage.removeItem(storageKey)
       localStorage.removeItem(userReactionsKey)
     } catch { /* localStorage unavailable */ }
-    if (session) {
+    if (session && !isCustom) {
       fetch(`${API_URL}/db/chat-history/${characterId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${session.access_token}` }
@@ -364,7 +413,7 @@ export default function ChatPage() {
     }
   }
 
-  if (!character) return null
+  if (!character) return null  // cargando custom char o no existe
 
   const typingClass = character.typingStyle && character.typingStyle !== 'default'
     ? `typing--${character.typingStyle}`
@@ -428,7 +477,7 @@ export default function ChatPage() {
           <div>
             <h2 className="chat-header__name">{character.name}</h2>
             <span className="chat-header__universe">{character.universe}</span>
-            {(() => {
+            {!isCustom && (() => {
               const level = getAffinityLevel(getAffinityData(characterId).messageCount)
               return level >= 1 ? (
                 <span className="chat-header__affinity">
@@ -579,7 +628,7 @@ export default function ChatPage() {
         </div>
       )}
 
-      {messages.filter(m => !m.isVerdict).length >= 10 && (
+      {!isCustom && messages.filter(m => !m.isVerdict).length >= 10 && (
         <div className="verdict-prompt">
           <button
             className="verdict-prompt__btn"

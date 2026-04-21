@@ -429,4 +429,58 @@ router.post('/mode-completions', requireAuth, async (req, res) => {
   res.json({ ok: true, count: newCount })
 })
 
+// ─── Custom Characters (requiere auth) ───────────────────────────────────────
+
+// GET /api/db/custom-characters
+router.get('/custom-characters', requireAuth, async (req, res) => {
+  const { data, error } = await supabase
+    .from('custom_characters')
+    .select('id, name, emoji, color, avatar_url, welcome_message, created_at')
+    .eq('user_id', req.user.id)
+    .order('created_at', { ascending: false })
+
+  if (error) return res.status(500).json({ error: error.message })
+  res.json(data ?? [])
+})
+
+// POST /api/db/custom-characters  { name, description, personality, rules, welcome_message, emoji, color, avatar_url, system_prompt }
+router.post('/custom-characters', requireAuth, async (req, res) => {
+  const { name, description, personality, rules, welcome_message, emoji, color, avatar_url, system_prompt } = req.body
+  if (!name || !description || !personality || !system_prompt) {
+    return res.status(400).json({ error: 'name, description, personality y system_prompt son requeridos' })
+  }
+
+  const { data, error } = await supabase
+    .from('custom_characters')
+    .insert({
+      user_id: req.user.id,
+      name,
+      description,
+      personality,
+      rules: rules || null,
+      welcome_message: welcome_message || null,
+      emoji: emoji || '🤖',
+      color: color || '#7252E8',
+      avatar_url: avatar_url || null,
+      system_prompt,
+    })
+    .select('id')
+    .single()
+
+  if (error) return res.status(500).json({ error: error.message })
+  res.json({ id: data.id })
+})
+
+// DELETE /api/db/custom-characters/:id
+router.delete('/custom-characters/:id', requireAuth, async (req, res) => {
+  const { error } = await supabase
+    .from('custom_characters')
+    .delete()
+    .eq('id', req.params.id)
+    .eq('user_id', req.user.id)
+
+  if (error) return res.status(500).json({ error: error.message })
+  res.json({ ok: true })
+})
+
 export default router

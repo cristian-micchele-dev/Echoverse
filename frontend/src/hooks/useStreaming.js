@@ -19,14 +19,14 @@ export function useStreaming() {
    * @param {(content: string, isFirst: boolean) => void} onChunk - Callback por token
    * @returns {Promise<void>}
    */
-  async function streamChat(url, payload, onChunk) {
+  async function streamChat(url, payload, onChunk, extraHeaders = {}) {
     setIsLoading(true)
     setIsTyping(true)
 
     try {
       const response = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...extraHeaders },
         body: JSON.stringify(payload)
       })
 

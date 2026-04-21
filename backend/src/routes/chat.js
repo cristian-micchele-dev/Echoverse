@@ -8,6 +8,7 @@ import swipeRouter from './chat/swipe.js'
 import dilemaRouter from './chat/dilema.js'
 import esteOEseRouter from './chat/esteoese.js'
 import ultimaCenaRouter from './chat/ultima-cena.js'
+import customRouter from './chat/custom.js'
 
 const router = Router()
 
@@ -20,5 +21,6 @@ router.use('/', swipeRouter)
 router.use('/', dilemaRouter)
 router.use('/', esteOEseRouter)
 router.use('/', ultimaCenaRouter)
+router.use('/', customRouter)
 
 export default router

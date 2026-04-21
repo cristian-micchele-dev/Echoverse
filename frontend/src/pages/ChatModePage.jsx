@@ -4,6 +4,8 @@ import { Helmet } from 'react-helmet-async'
 import { characters } from '../data/characters'
 import CharacterCard from '../components/CharacterCard/CharacterCard'
 import { ROUTES, chatHistoryKey } from '../utils/constants'
+import { useAuth } from '../context/AuthContext'
+import { API_URL } from '../config/api'
 import './ChatModePage.css'
 
 function formatChatTime(ts) {
@@ -35,6 +37,7 @@ function getRecentChats() {
 
 export default function ChatModePage() {
   const navigate = useNavigate()
+  const { session } = useAuth()
   const [visible, setVisible] = useState(false)
   const [exiting, setExiting] = useState(false)
   const [search, setSearch] = useState('')
@@ -42,10 +45,23 @@ export default function ChatModePage() {
 
   const [recentChats, setRecentChats] = useState(() => getRecentChats())
   const [activeTab, setActiveTab] = useState(recentChats.length > 0 ? 'recent' : 'all')
+  const [customChars, setCustomChars] = useState([])
+  const [deletingId, setDeletingId] = useState(null)
 
   useEffect(() => {
     requestAnimationFrame(() => setVisible(true))
   }, [])
+
+  // Cargar personajes personalizados si el usuario está autenticado
+  useEffect(() => {
+    if (!session) return
+    fetch(`${API_URL}/db/custom-characters`, {
+      headers: { Authorization: `Bearer ${session.access_token}` }
+    })
+      .then(r => r.ok ? r.json() : [])
+      .then(data => setCustomChars(data))
+      .catch(() => {})
+  }, [session])
 
   const filtered = characters.filter(c =>
     c.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -69,6 +85,21 @@ export default function ChatModePage() {
   function goToDuo() {
     setExiting(true)
     setTimeout(() => navigate(ROUTES.DUO), 260)
+  }
+
+  async function handleDeleteCustomChar(id, e) {
+    e.stopPropagation()
+    if (!window.confirm('¿Eliminar este personaje?')) return
+    setDeletingId(id)
+    try {
+      await fetch(`${API_URL}/db/custom-characters/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${session.access_token}` }
+      })
+      setCustomChars(prev => prev.filter(c => c.id !== id))
+    } catch { /* silent */ } finally {
+      setDeletingId(null)
+    }
   }
 
   return (
@@ -115,6 +146,18 @@ export default function ChatModePage() {
             </svg>
             1 Personaje
           </button>
+          {session && (
+            <button
+              className={`chat-mode-switcher__btn${activeTab === 'custom' ? ' chat-mode-switcher__btn--active' : ''}`}
+              onClick={() => setActiveTab('custom')}
+            >
+              <svg width="14" height="14" viewBox="0 0 22 22" fill="none">
+                <circle cx="11" cy="11" r="4" stroke="currentColor" strokeWidth="1.8"/>
+                <path d="M11 3v2M11 17v2M3 11h2M17 11h2M5.6 5.6l1.4 1.4M15 15l1.4 1.4M15 7l1.4-1.4M5.6 16.4l1.4-1.4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+              </svg>
+              Mis personajes
+            </button>
+          )}
           <button className="chat-mode-switcher__btn" onClick={goToDuo}>
             <svg width="14" height="14" viewBox="0 0 22 22" fill="none">
               <circle cx="7.5" cy="7.5" r="3" stroke="currentColor" strokeWidth="1.8"/>
@@ -173,6 +216,66 @@ export default function ChatModePage() {
               </svg>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* ── Vista "Mis personajes" (custom) ── */}
+      {activeTab === 'custom' && (
+        <div className="custom-chars-section">
+          <button
+            className="custom-chars-create-btn"
+            onClick={() => navigate(ROUTES.CREAR_PERSONAJE)}
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M8 3v10M3 8h10" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+            </svg>
+            Crear personaje
+          </button>
+
+          {customChars.length === 0 ? (
+            <div className="custom-chars-empty">
+              <span className="custom-chars-empty__icon">🤖</span>
+              <p className="custom-chars-empty__text">Todavía no creaste ningún personaje.<br />¡Diseñá el tuyo!</p>
+            </div>
+          ) : (
+            <div className="custom-chars-list">
+              {customChars.map(char => (
+                <div
+                  key={char.id}
+                  className="custom-char-item"
+                  style={{ '--ci-color': char.color || '#7252E8' }}
+                  onClick={() => handleSelect(`custom-${char.id}`)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={e => e.key === 'Enter' && handleSelect(`custom-${char.id}`)}
+                >
+                  <div className="custom-char-item__avatar">
+                    {char.avatar_url
+                      ? <img src={char.avatar_url} alt={char.name} loading="lazy" />
+                      : <span>{char.emoji || '🤖'}</span>
+                    }
+                  </div>
+                  <div className="custom-char-item__info">
+                    <span className="custom-char-item__name">{char.name}</span>
+                    <span className="custom-char-item__tag">Personaje personalizado</span>
+                  </div>
+                  <button
+                    className="custom-char-item__delete"
+                    onClick={e => handleDeleteCustomChar(char.id, e)}
+                    disabled={deletingId === char.id}
+                    aria-label={`Eliminar ${char.name}`}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                      <path d="M3 4h10M6 4V3h4v1M5 4l.5 8h5l.5-8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+                  <svg className="custom-char-item__arrow" width="14" height="14" viewBox="0 0 16 16" fill="none">
+                    <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
