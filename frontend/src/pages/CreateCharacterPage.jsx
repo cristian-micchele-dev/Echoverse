@@ -98,16 +98,18 @@ export default function CreateCharacterPage() {
 
       const id = inserted.id
 
-      // Si hay imagen, subirla y actualizar avatar_url
+      // Si hay imagen, subirla y actualizar avatar_url (no bloquea si falla)
       if (imageFile) {
-        const avatarUrl = await uploadAvatar(session.user.id, id)
-        if (avatarUrl) {
-          await supabase
-            .from('custom_characters')
-            .update({ avatar_url: avatarUrl })
-            .eq('id', id)
-            .eq('user_id', session.user.id)
-        }
+        try {
+          const avatarUrl = await uploadAvatar(session.user.id, id)
+          if (avatarUrl) {
+            await supabase
+              .from('custom_characters')
+              .update({ avatar_url: avatarUrl })
+              .eq('id', id)
+              .eq('user_id', session.user.id)
+          }
+        } catch { /* imagen opcional, no bloquea */ }
       }
 
       navigate(ROUTES.CHAT)
