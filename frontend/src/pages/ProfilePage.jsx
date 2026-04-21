@@ -13,6 +13,49 @@ import { timeAgo } from '../utils/session'
 import { API_URL } from '../config/api.js'
 import './ProfilePage.css'
 
+const RANK_TIERS = [
+  { min: 500, label: 'Leyenda',    color: '#f59e0b' },
+  { min: 200, label: 'Maestro',    color: '#a78bfa' },
+  { min: 75,  label: 'Veterano',   color: '#60a5fa' },
+  { min: 20,  label: 'Explorador', color: '#34d399' },
+  { min: 0,   label: 'Curioso',    color: '#9ca3af' },
+]
+function getRank(totalMessages) {
+  return RANK_TIERS.find(t => totalMessages >= t.min) ?? RANK_TIERS[RANK_TIERS.length - 1]
+}
+
+const MODE_META = {
+  interrogation: { label: 'Interrogatorio', emoji: '🕵️' },
+  swipe:         { label: 'Swipe',          emoji: '🃏' },
+  dilema:        { label: 'Dilemas',        emoji: '⚖️' },
+  story:         { label: 'Historia',       emoji: '📖' },
+  parecido:      { label: '¿A quién te parecés?', emoji: '🪞' },
+  guess:         { label: 'Adivina el Personaje', emoji: '🔍' },
+}
+
+function getActivityGrid(daysBack = 28) {
+  const now = Date.now()
+  const dayCounts = {}
+  characters.forEach(char => {
+    try {
+      const raw = localStorage.getItem(`chat-${char.id}`)
+      if (!raw) return
+      JSON.parse(raw).forEach(msg => {
+        if (!msg.ts) return
+        const daysAgo = Math.floor((now - msg.ts) / 86400000)
+        if (daysAgo < daysBack) {
+          const key = daysAgo
+          dayCounts[key] = (dayCounts[key] || 0) + 1
+        }
+      })
+    } catch { /* ignore */ }
+  })
+  return Array.from({ length: daysBack }, (_, i) => ({
+    daysAgo: daysBack - 1 - i,
+    count: dayCounts[daysBack - 1 - i] || 0,
+  }))
+}
+
 function useCountUp(target, duration = 800) {
   const [count, setCount] = useState(0)
   useEffect(() => {
@@ -157,6 +200,17 @@ export default function ProfilePage() {
   const animLevels  = useCountUp(loading ? 0 : completedLevels)
   const animStreak  = useCountUp(loading ? 0 : streak.current)
 
+  const rank = getRank(totalMessages)
+
+  const favMode = useMemo(() => {
+    const entries = Object.entries(modeCompletions).filter(([, v]) => v > 0)
+    if (!entries.length) return null
+    const [key, count] = entries.sort((a, b) => b[1] - a[1])[0]
+    return { key, count, ...MODE_META[key] }
+  }, [modeCompletions])
+
+  const activityGrid = useMemo(() => getActivityGrid(28), [])
+
   if (authLoading || !user) return null
 
   // ── CTA contextual "Próximo paso" ──
@@ -204,7 +258,7 @@ export default function ProfilePage() {
             <div className="pp-avatar">{initial}</div>
             <div className="pp-hero__meta">
               <h1 className="pp-username">{displayName}</h1>
-              <span className="pp-tag">EchoVerse · Explorador</span>
+              <span className="pp-tag" style={{ color: rank.color }}>EchoVerse · {rank.label}</span>
             </div>
           </div>
 
@@ -247,6 +301,35 @@ export default function ProfilePage() {
           <button className="pp-logout" onClick={handleLogout}>Cerrar sesión</button>
         </div>
       </div>
+
+      {/* ── ACTIVIDAD + MODO FAVORITO ── */}
+      {!loading && (
+        <div className="pp-insights">
+          <div className="pp-activity">
+            <span className="pp-activity__label">Actividad — últimos 28 días</span>
+            <div className="pp-activity__grid">
+              {activityGrid.map((day, i) => {
+                const intensity = day.count === 0 ? 0 : day.count < 5 ? 1 : day.count < 15 ? 2 : 3
+                return (
+                  <div
+                    key={i}
+                    className={`pp-activity__day pp-activity__day--${intensity}`}
+                    title={day.count > 0 ? `${day.count} mensajes` : 'Sin actividad'}
+                  />
+                )
+              })}
+            </div>
+          </div>
+          {favMode && (
+            <div className="pp-fav-mode">
+              <span className="pp-fav-mode__label">Modo favorito</span>
+              <span className="pp-fav-mode__emoji">{favMode.emoji}</span>
+              <span className="pp-fav-mode__name">{favMode.label}</span>
+              <span className="pp-fav-mode__count">{favMode.count}x jugado</span>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* ── PRÓXIMO PASO ── */}
       {!loading && nextStep && (

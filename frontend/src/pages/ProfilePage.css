@@ -663,6 +663,93 @@
   color: #bbb;
 }
 
+/* ── Insights: actividad + modo favorito ── */
+.pp-insights {
+  display: flex;
+  gap: 1rem;
+  padding: 0 1.5rem;
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.pp-activity {
+  flex: 1;
+  background: #0f0f1a;
+  border: 1px solid #1e1e2a;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.pp-activity__label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #444;
+}
+.pp-activity__grid {
+  display: grid;
+  grid-template-columns: repeat(28, 1fr);
+  gap: 3px;
+}
+.pp-activity__day {
+  aspect-ratio: 1;
+  border-radius: 2px;
+}
+.pp-activity__day--0 { background: #1a1a2a; }
+.pp-activity__day--1 { background: #312e81; }
+.pp-activity__day--2 { background: #6d28d9; }
+.pp-activity__day--3 { background: #9B7BFF; }
+
+.pp-fav-mode {
+  width: 130px;
+  flex-shrink: 0;
+  background: #0f0f1a;
+  border: 1px solid #1e1e2a;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  text-align: center;
+}
+.pp-fav-mode__label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #444;
+  margin-bottom: 0.3rem;
+}
+.pp-fav-mode__emoji {
+  font-size: 1.8rem;
+  line-height: 1;
+}
+.pp-fav-mode__name {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #ccc;
+  line-height: 1.3;
+}
+.pp-fav-mode__count {
+  font-size: 0.65rem;
+  color: #555;
+  margin-top: 0.1rem;
+}
+
+@media (max-width: 480px) {
+  .pp-insights { flex-direction: column; padding: 0 1rem; }
+  .pp-fav-mode { width: 100%; flex-direction: row; justify-content: flex-start; gap: 0.75rem; text-align: left; }
+  .pp-fav-mode__label { display: none; }
+  .pp-activity__grid { grid-template-columns: repeat(14, 1fr); }
+}
+
 /* ── Responsive ── */
 @media (max-width: 480px) {
   .pp-stats { gap: 1rem; padding: 0.9rem 1rem; }
