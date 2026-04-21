@@ -139,7 +139,7 @@ export default function LandingPage() {
   const [featuredIdx, setFeaturedIdx] = useState(0)
   const [featuredFade, setFeaturedFade] = useState(true)
   const [scrolled, setScrolled]       = useState(false)
-  const [showBanner, setShowBanner] = useState(() => !localStorage.getItem('echoverse-visited'))
+  const [showBanner, setShowBanner] = useState(true)
   const [onlineCount, setOnlineCount] = useState(null)
   const sidRef = useRef(null)
   const heroRef                       = useRef(null)
@@ -153,12 +153,12 @@ export default function LandingPage() {
   const sessionChar  = session ? characters.find(c => c.id === session.characterId) : null
   const { streak }   = useStreak()
 
-  const bannerCast   = CAST.filter(fc => characters.find(c => c.id === fc.id))
-  const bannerEntry  = pickByDay(bannerCast)
-  const bannerChar   = bannerEntry ? characters.find(c => c.id === bannerEntry.id) : null
+  const bannerCast  = CAST.filter(fc => characters.find(c => c.id === fc.id))
+  const bannerEntry = pickByDay(bannerCast)
+  const bannerChar  = bannerEntry ? characters.find(c => c.id === bannerEntry.id) : null
+  const bannerQuote = bannerEntry?.quote ?? bannerChar?.quotes?.[0] ?? null
 
   function dismissBanner() {
-    localStorage.setItem('echoverse-visited', '1')
     setShowBanner(false)
   }
 
@@ -302,7 +302,7 @@ export default function LandingPage() {
               </div>
               <div className="lp-hero-banner__body">
                 <span className="lp-hero-banner__name">{bannerChar.name} te espera</span>
-                <span className="lp-hero-banner__quote">"{bannerEntry.quote}"</span>
+                {bannerQuote && <span className="lp-hero-banner__quote">"{bannerQuote}"</span>}
               </div>
               <button
                 className="lp-hero-banner__cta"
@@ -314,11 +314,6 @@ export default function LandingPage() {
             </div>
           )}
 
-          {!user && !showBanner && (
-            <button className="lp-hero-noaccount" onClick={() => navigate(ROUTES.MODOS)}>
-              Seguir explorando sin registro →
-            </button>
-          )}
 
           <div className="lp-hero-stats">
             <div className="lp-hero-stat">
