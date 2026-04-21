@@ -339,7 +339,7 @@ export default function ChatPage() {
 
   const handleVerdict = async () => {
     const realMessages = messages.filter(m => !m.isVerdict)
-    if (realMessages.length < 4 || isVerdictLoading || isLoading) return
+    if (realMessages.length < 10 || isVerdictLoading || isLoading) return
     setIsVerdictLoading(true)
     try {
       await streamChat(
@@ -447,7 +447,7 @@ export default function ChatPage() {
               <span className="cloud-saved-indicator">✓ Guardado</span>
             )}
           </div>
-          {messages.filter(m => !m.isVerdict).length >= 4 && (
+          {messages.filter(m => !m.isVerdict).length >= 10 && (
             <button
               className="verdict-btn"
               onClick={handleVerdict}
