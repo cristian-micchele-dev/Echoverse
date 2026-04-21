@@ -1326,13 +1326,13 @@
   .mission-progress__dot { width: 6px; height: 6px; }
   .mission-progress__label { font-size: 0.62rem; }
 
-  /* Stats: reducir pips y ocultar nombres */
+  /* Stats: reducir pips */
   .mission-stats { gap: 0.9rem; padding: 0.4rem 0 0.45rem; }
   .mission-stat { gap: 0.3rem; }
   .mission-stat__pip { width: 11px; height: 7px; }
   .mission-stat__bar { gap: 3px; }
   .mission-stat__icon { font-size: 0.75rem; width: 14px; }
-  .mission-stat__name { display: none; }
+  .mission-stat__name { font-size: 0.55rem; letter-spacing: 0.06em; }
 }
 @media (max-width: 380px) {
   .mission-chars-grid { grid-template-columns: repeat(2, 1fr); }
