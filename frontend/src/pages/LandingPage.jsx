@@ -283,13 +283,6 @@ export default function LandingPage() {
             </button>
           </div>
 
-          {onlineCount !== null && (
-            <div className="lp-hero-live">
-              <span className="lp-online__dot" />
-              <span>{onlineCount} {onlineCount === 1 ? 'persona' : 'personas'} en el universo ahora</span>
-            </div>
-          )}
-
           <div className="lp-hero-stats">
             <div className="lp-hero-stat">
               <span className="lp-hero-stat__num">{characters.length}</span>

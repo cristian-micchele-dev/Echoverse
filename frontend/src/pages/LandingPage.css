@@ -374,19 +374,6 @@
 }
 .lp-hero-noaccount:hover { color: var(--lp-text-dim, #9E9BBE); }
 
-/* ── Live counter ── */
-
-.lp-hero-live {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-family: var(--lp-font-body);
-  font-size: 0.72rem;
-  color: rgba(196, 182, 255, 0.45);
-  letter-spacing: 0.04em;
-  margin-bottom: 1.5rem;
-}
-
 /* ── Stats ── */
 
 .lp-hero-stats {
