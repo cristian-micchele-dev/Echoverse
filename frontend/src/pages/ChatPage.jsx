@@ -447,20 +447,6 @@ export default function ChatPage() {
               <span className="cloud-saved-indicator">✓ Guardado</span>
             )}
           </div>
-          {messages.filter(m => !m.isVerdict).length >= 10 && (
-            <button
-              className="verdict-btn"
-              onClick={handleVerdict}
-              disabled={isVerdictLoading || isLoading}
-              title="¿Qué piensa de vos?"
-            >
-              <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
-                <path d="M8 2v1M4 4l1 1M12 4l-1 1" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-                <path d="M3 7h4l-2 3H3a2 2 0 0 1 0-3zM13 7h-4l2 3h2a2 2 0 0 0 0-3z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round"/>
-                <path d="M8 3v9M6 12h4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
-              </svg>
-            </button>
-          )}
           {messages.length > 0 && (
             <>
               <button className="share-btn" onClick={() => setShowShare(true)} title="Compartir conversación">
@@ -590,6 +576,22 @@ export default function ChatPage() {
             </button>
             <button className="chat-error-banner__close" onClick={() => setChatError(null)}>✕</button>
           </div>
+        </div>
+      )}
+
+      {messages.filter(m => !m.isVerdict).length >= 10 && (
+        <div className="verdict-prompt">
+          <button
+            className="verdict-prompt__btn"
+            onClick={handleVerdict}
+            disabled={isVerdictLoading || isLoading}
+          >
+            <svg width="15" height="15" viewBox="0 0 20 20" fill="none">
+              <ellipse cx="10" cy="10" rx="9" ry="5.5" stroke="currentColor" strokeWidth="1.5"/>
+              <circle cx="10" cy="10" r="2.5" fill="currentColor"/>
+            </svg>
+            {isVerdictLoading ? 'Analizando…' : '¿Qué pensás de mí?'}
+          </button>
         </div>
       )}
 

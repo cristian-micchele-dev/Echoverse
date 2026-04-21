@@ -349,26 +349,33 @@
   color: var(--text-muted);
 }
 
-.verdict-btn {
+.verdict-prompt {
+  display: flex;
+  justify-content: center;
+  padding: 0 1rem 0.5rem;
+}
+
+.verdict-prompt__btn {
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
+  gap: 7px;
   background: none;
-  border: 1px solid var(--char-color, var(--border-subtle));
-  border-radius: var(--radius-sm);
-  color: var(--char-color, var(--text-muted));
+  border: 1px solid color-mix(in srgb, var(--char-color, #7252E8) 40%, transparent);
+  border-radius: 20px;
+  color: var(--char-color, rgba(255,255,255,0.6));
+  font-size: 0.78rem;
+  font-family: inherit;
+  padding: 6px 16px;
   cursor: pointer;
-  opacity: 0.7;
-  transition: opacity 0.2s, transform 0.15s;
+  opacity: 0.75;
+  transition: opacity 0.2s, transform 0.15s, background 0.2s;
 }
-.verdict-btn:hover:not(:disabled) {
+.verdict-prompt__btn:hover:not(:disabled) {
   opacity: 1;
+  background: color-mix(in srgb, var(--char-color, #7252E8) 10%, transparent);
   transform: translateY(-1px);
 }
-.verdict-btn:active:not(:disabled) { transform: scale(0.9); }
-.verdict-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.verdict-prompt__btn:disabled { opacity: 0.35; cursor: not-allowed; }
 
 .share-btn {
   display: flex;
