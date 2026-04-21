@@ -500,6 +500,21 @@
   .lp-auth-pill__nudge { display: block; }
 }
 
+.lp-auth-pill__register {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.lp-auth-pill__free {
+  font-family: var(--lp-font-body);
+  font-size: 0.65rem;
+  color: var(--lp-faint);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
 .lp-auth-pill__btn {
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.20);
