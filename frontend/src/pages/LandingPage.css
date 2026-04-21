@@ -195,6 +195,14 @@
   isolation: isolate;
 }
 
+@media (max-width: 540px) {
+  .lp-hero {
+    overflow-x: hidden;
+    overflow-y: visible;
+    align-items: flex-start;
+  }
+}
+
 /* ── Character collage ── */
 
 .lp-hero-collage {
@@ -1572,8 +1580,22 @@
   .lp-hero-title { font-size: clamp(2.5rem, 11vw, 4rem); }
   .lp-hero-actions { flex-wrap: nowrap; }
   .lp-hero-resume { position: static; margin: 2rem 2rem 0; align-self: flex-start; }
-  .lp-hero-body { display: flex; flex-direction: column; }
-  .lp-hero-tagline { flex-wrap: nowrap; }
+  .lp-hero-body {
+    display: flex;
+    flex-direction: column;
+    padding: 5rem 1.5rem 3rem;
+    gap: 0;
+  }
+  .lp-hero-tagline {
+    flex-wrap: wrap;
+    margin-bottom: 1.25rem;
+  }
+  .lp-hero-tagline__a,
+  .lp-hero-tagline__b {
+    white-space: normal;
+  }
+  .lp-hero-actions { margin-bottom: 1.5rem; }
+  .lp-hero-noaccount { margin-bottom: 1.25rem; }
   .lp-section-title { font-size: 2.25rem; }
   .lp-end__title { font-size: 2.25rem; }
   .lp-featured-card__body { padding: 2rem 1.5rem; }
