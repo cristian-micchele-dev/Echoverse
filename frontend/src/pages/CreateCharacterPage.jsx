@@ -49,11 +49,11 @@ export default function CreateCharacterPage() {
 
   async function uploadAvatar(userId, charId) {
     if (!imageFile) return null
-    const ext = imageFile.name.split('.').pop()
+    const ext = imageFile.name.split('.').pop().toLowerCase()
     const path = `custom-chars/${userId}/${charId}.${ext}`
     const { error: uploadErr } = await supabase.storage
       .from('avatars')
-      .upload(path, imageFile, { upsert: true })
+      .upload(path, imageFile, { contentType: imageFile.type })
     if (uploadErr) throw new Error(uploadErr.message)
     const { data } = supabase.storage.from('avatars').getPublicUrl(path)
     return data.publicUrl
@@ -109,7 +109,9 @@ export default function CreateCharacterPage() {
               .eq('id', id)
               .eq('user_id', session.user.id)
           }
-        } catch { /* imagen opcional, no bloquea */ }
+        } catch (imgErr) {
+          console.warn('Upload imagen falló:', imgErr.message)
+        }
       }
 
       navigate(ROUTES.CHAT)
