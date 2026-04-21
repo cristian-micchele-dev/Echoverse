@@ -374,6 +374,19 @@
 }
 .lp-hero-noaccount:hover { color: var(--lp-text-dim, #9E9BBE); }
 
+/* ── Live counter ── */
+
+.lp-hero-live {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--lp-font-body);
+  font-size: 0.72rem;
+  color: rgba(196, 182, 255, 0.45);
+  letter-spacing: 0.04em;
+  margin-bottom: 1.5rem;
+}
+
 /* ── Stats ── */
 
 .lp-hero-stats {
@@ -1921,6 +1934,15 @@
 
 .lp-preview-card__cta:hover {
   background: color-mix(in srgb, var(--char-color, var(--lp-violet)) 10%, transparent);
+}
+
+.lp-preview-free {
+  display: block;
+  text-align: center;
+  font-size: 0.68rem;
+  color: var(--lp-faint);
+  margin-top: 0.3rem;
+  letter-spacing: 0.03em;
 }
 
 @media (max-width: 768px) {
