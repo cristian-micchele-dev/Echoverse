@@ -8,9 +8,28 @@ import { getMissionProgress, resetProgress } from '../utils/missionProgress'
 import { useAchievements } from '../hooks/useAchievements'
 import { useStreak } from '../hooks/useStreak'
 import AchievementToast from '../components/AchievementToast/AchievementToast'
-import { ROUTES } from '../utils/constants'
+import { ROUTES, chatHistoryKey } from '../utils/constants'
+import { timeAgo } from '../utils/session'
 import { API_URL } from '../config/api.js'
 import './ProfilePage.css'
+
+function useCountUp(target, duration = 800) {
+  const [count, setCount] = useState(0)
+  useEffect(() => {
+    if (!target) return
+    let frame
+    const start = Date.now()
+    const tick = () => {
+      const progress = Math.min((Date.now() - start) / duration, 1)
+      const eased = 1 - Math.pow(1 - progress, 3)
+      setCount(Math.round(eased * target))
+      if (progress < 1) { frame = requestAnimationFrame(tick) }
+    }
+    frame = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(frame)
+  }, [target, duration])
+  return count
+}
 
 export default function ProfilePage() {
   const { user, session, loading: authLoading, logout } = useAuth()
@@ -114,8 +133,6 @@ export default function ProfilePage() {
     navigate(ROUTES.HOME)
   }
 
-  if (authLoading || !user) return null
-
   const activeAffinities = affinities
     .map(a => {
       const char = characters.find(c => c.id === a.character_id)
@@ -132,8 +149,15 @@ export default function ProfilePage() {
   const highestLevel = mission?.highestUnlocked ?? 1
   const progressPct = Math.min(((highestLevel - 1) / 30) * 100, 100)
 
-  const displayName = user.user_metadata?.username || user.email
+  const displayName = user?.user_metadata?.username || user?.email
   const initial = displayName?.[0]?.toUpperCase()
+
+  const animChars   = useCountUp(loading ? 0 : activeAffinities.length)
+  const animMsgs    = useCountUp(loading ? 0 : totalMessages)
+  const animLevels  = useCountUp(loading ? 0 : completedLevels)
+  const animStreak  = useCountUp(loading ? 0 : streak.current)
+
+  if (authLoading || !user) return null
 
   // ── CTA contextual "Próximo paso" ──
   const SUGGESTED_MODES = [
@@ -191,7 +215,7 @@ export default function ProfilePage() {
                 <circle cx="12" cy="8" r="4" stroke="currentColor" strokeWidth="1.7"/>
                 <path d="M4 20c0-4 3.6-6 8-6s8 2 8 6" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/>
               </svg>
-              <span className="pp-stat__num">{activeAffinities.length}</span>
+              <span className="pp-stat__num">{animChars}</span>
               <span className="pp-stat__label">Personajes</span>
             </div>
             <div className="pp-stats__rule" />
@@ -199,7 +223,7 @@ export default function ProfilePage() {
               <svg className="pp-stat__icon" width="18" height="18" viewBox="0 0 24 24" fill="none">
                 <path d="M4 4h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H8l-5 4V5a1 1 0 0 1 1-1z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round"/>
               </svg>
-              <span className="pp-stat__num">{totalMessages}</span>
+              <span className="pp-stat__num">{animMsgs}</span>
               <span className="pp-stat__label">Mensajes</span>
             </div>
             <div className="pp-stats__rule" />
@@ -207,7 +231,7 @@ export default function ProfilePage() {
               <svg className="pp-stat__icon" width="18" height="18" viewBox="0 0 24 24" fill="none">
                 <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6L12 2z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round"/>
               </svg>
-              <span className="pp-stat__num">{completedLevels}</span>
+              <span className="pp-stat__num">{animLevels}</span>
               <span className="pp-stat__label">Niveles</span>
             </div>
             <div className="pp-stats__rule" />
@@ -215,9 +239,7 @@ export default function ProfilePage() {
               <svg className="pp-stat__icon pp-stat__icon--streak" width="18" height="18" viewBox="0 0 24 24" fill="none">
                 <path d="M12 2c0 0-5 5-5 10a5 5 0 0 0 10 0c0-3-2-5-2-5s0 3-3 4c2-4 0-9 0-9z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round"/>
               </svg>
-              <span className="pp-stat__num">
-                {streak.current > 0 ? `${streak.current}` : streak.current}
-              </span>
+              <span className="pp-stat__num">{animStreak}</span>
               <span className="pp-stat__label">Racha</span>
             </div>
           </div>
@@ -330,7 +352,16 @@ export default function ProfilePage() {
 
               {activeAffinities.length > 0 ? (
                 <div className="pp-chars">
-                  {activeAffinities.map(a => (
+                  {activeAffinities.map(a => {
+                    const lastTs = (() => {
+                      try {
+                        const raw = localStorage.getItem(chatHistoryKey(a.character_id))
+                        if (!raw) return null
+                        const msgs = JSON.parse(raw)
+                        return msgs?.[msgs.length - 1]?.ts ?? null
+                      } catch { return null }
+                    })()
+                    return (
                     <button
                       key={a.character_id}
                       className="pp-char-card"
@@ -345,10 +376,12 @@ export default function ProfilePage() {
                         <span className="pp-char-card__level">{getAffinityEmoji(a.level)} {getAffinityLabel(a.level)}</span>
                         <span className="pp-char-card__name">{a.char.name}</span>
                         <span className="pp-char-card__msgs">{a.message_count} mensajes</span>
+                        {lastTs && <span className="pp-char-card__last">{timeAgo(lastTs)}</span>}
                       </div>
                       <div className="pp-char-card__enter">Chatear →</div>
                     </button>
-                  ))}
+                    )
+                  })}
                 </div>
               ) : (
                 <div className="pp-empty-cta" onClick={() => navigate(ROUTES.CHAT)}>
@@ -385,7 +418,7 @@ export default function ProfilePage() {
                     <div
                       key={a.id}
                       className={`pp-badge ${unlocked ? 'pp-badge--unlocked' : 'pp-badge--locked'}`}
-                      title={a.desc}
+                      data-tooltip={!unlocked ? a.desc : undefined}
                     >
                       <span className="pp-badge__emoji">{unlocked ? a.emoji : '🔒'}</span>
                       <span className="pp-badge__name">{a.name}</span>

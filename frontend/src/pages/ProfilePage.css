@@ -502,6 +502,12 @@
   color: #666;
 }
 
+.pp-char-card__last {
+  font-size: 0.65rem;
+  color: #444;
+  margin-top: 0.1rem;
+}
+
 .pp-char-card__enter {
   position: relative;
   z-index: 1;
@@ -568,6 +574,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
   gap: 0.75rem;
+  overflow: visible;
 }
 
 .pp-badge {
@@ -595,6 +602,49 @@
 
 .pp-badge--locked {
   opacity: 0.4;
+  position: relative;
+}
+.pp-badge--locked[data-tooltip]:hover {
+  opacity: 0.75;
+}
+.pp-badge--locked[data-tooltip]::before {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #13131e;
+  border: 1px solid #2a2a3a;
+  color: #ccc;
+  font-size: 0.68rem;
+  line-height: 1.4;
+  padding: 6px 10px;
+  border-radius: 8px;
+  width: max-content;
+  max-width: 180px;
+  white-space: normal;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.18s ease;
+  z-index: 20;
+}
+.pp-badge--locked[data-tooltip]::after {
+  content: '';
+  position: absolute;
+  bottom: calc(100% + 3px);
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #2a2a3a;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.18s ease;
+  z-index: 20;
+}
+.pp-badge--locked[data-tooltip]:hover::before,
+.pp-badge--locked[data-tooltip]:hover::after {
+  opacity: 1;
 }
 
 .pp-badge__emoji {
