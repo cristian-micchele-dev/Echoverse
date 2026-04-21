@@ -76,7 +76,7 @@ const MAIN_MODES = [
 const SECONDARY_MODES = [
   {
     id: 'chat',
-    image: '/images/ragnarchat1a1.png',
+    image: '/images/ragnarchat1a1.webp',
     eyebrow: 'Chat con Personaje',
     label: 'Chat 1 a 1',
     desc: 'Sin guión. Sin filtros. Solo ellos, tal cual son.',
@@ -87,7 +87,7 @@ const SECONDARY_MODES = [
   },
   {
     id: 'duo',
-    image: '/images/ipmanstevenseagal.png',
+    image: '/images/ipmanstevenseagal.webp',
     eyebrow: 'Dos Personajes',
     label: 'Chat en Alianza',
     desc: 'Elegís dos personajes y los hacés interactuar.',
@@ -97,7 +97,7 @@ const SECONDARY_MODES = [
   },
   {
     id: 'guess',
-    image: '/images/adivinaelpersonaje.png',
+    image: '/images/adivinaelpersonaje.webp',
     eyebrow: 'Pistas y Deducción',
     label: 'Adivina el Personaje',
     desc: 'Pistas de a una. Cuanto antes lo adivinás, más puntos.',
@@ -121,7 +121,7 @@ const SECONDARY_MODES = [
   },
   {
     id: 'salas',
-    image: '/images/jaxtellersupermanchatenvivo.png',
+    image: '/images/jaxtellersupermanchatenvivo.webp',
     eyebrow: 'Chat Multijugador',
     label: 'Salas en vivo',
     desc: 'Chateá con un personaje junto a otros usuarios en tiempo real.',
