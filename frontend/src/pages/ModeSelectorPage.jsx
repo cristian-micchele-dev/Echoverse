@@ -131,6 +131,17 @@ const SECONDARY_MODES = [
     badge: '🔴 En vivo',
     tag: 'Multijugador',
   },
+  {
+    id: 'crear-personaje',
+    image: '/images/Kill_Bill.webp',
+    eyebrow: 'Tu personaje',
+    label: 'Creá tu personaje',
+    desc: 'Diseñá tu propio personaje con personalidad, reglas y estilo único.',
+    route: '/crear-personaje',
+    accent: '#7252E8',
+    badge: '✨ Nuevo',
+    tag: 'Solo para vos',
+  },
 ]
 
 
