@@ -9,7 +9,6 @@ import { pickByDay } from '../utils/daily'
 import { useStreak } from '../hooks/useStreak'
 import { useAuth } from '../context/AuthContext'
 import DailyChallenge from '../components/DailyChallenge/DailyChallenge'
-import OnboardingModal from '../components/OnboardingModal/OnboardingModal'
 import { ROUTES } from '../utils/constants'
 import { API_URL } from '../config/api.js'
 import './LandingPage.css'
@@ -140,7 +139,7 @@ export default function LandingPage() {
   const [featuredIdx, setFeaturedIdx] = useState(0)
   const [featuredFade, setFeaturedFade] = useState(true)
   const [scrolled, setScrolled]       = useState(false)
-  const [showOnboarding, setShowOnboarding] = useState(false)
+  const [showBanner, setShowBanner] = useState(() => !localStorage.getItem('echoverse-visited'))
   const [onlineCount, setOnlineCount] = useState(null)
   const sidRef = useRef(null)
   const heroRef                       = useRef(null)
@@ -154,12 +153,17 @@ export default function LandingPage() {
   const sessionChar  = session ? characters.find(c => c.id === session.characterId) : null
   const { streak }   = useStreak()
 
+  const bannerCast   = CAST.filter(fc => characters.find(c => c.id === fc.id))
+  const bannerEntry  = pickByDay(bannerCast)
+  const bannerChar   = bannerEntry ? characters.find(c => c.id === bannerEntry.id) : null
+
+  function dismissBanner() {
+    localStorage.setItem('echoverse-visited', '1')
+    setShowBanner(false)
+  }
+
   useEffect(() => {
     requestAnimationFrame(() => setVisible(true))
-    if (!localStorage.getItem('echoverse-visited')) {
-      const t = setTimeout(() => setShowOnboarding(true), 1200)
-      return () => clearTimeout(t)
-    }
   }, [])
 
   useEffect(() => {
@@ -288,7 +292,29 @@ export default function LandingPage() {
             </button>
           </div>
 
-          {!user && (
+          {!user && showBanner && bannerChar && (
+            <div
+              className="lp-hero-banner"
+              style={{ '--banner-color': bannerChar.themeColor, '--banner-dim': bannerChar.themeColorDim }}
+            >
+              <div className="lp-hero-banner__avatar">
+                <img src={bannerChar.image} alt={bannerChar.name} />
+              </div>
+              <div className="lp-hero-banner__body">
+                <span className="lp-hero-banner__name">{bannerChar.name} te espera</span>
+                <span className="lp-hero-banner__quote">"{bannerEntry.quote}"</span>
+              </div>
+              <button
+                className="lp-hero-banner__cta"
+                onClick={() => { dismissBanner(); navigate(ROUTES.CHAT_CHARACTER(bannerChar.id)) }}
+              >
+                Chatear →
+              </button>
+              <button className="lp-hero-banner__close" onClick={dismissBanner} aria-label="Cerrar">✕</button>
+            </div>
+          )}
+
+          {!user && !showBanner && (
             <button className="lp-hero-noaccount" onClick={() => navigate(ROUTES.MODOS)}>
               Seguir explorando sin registro →
             </button>
@@ -745,11 +771,6 @@ export default function LandingPage() {
           <path d="M8 12V4M4 7l4-4 4 4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       </button>
-
-      {/* ─── ONBOARDING ────────────────────────────────────────────────── */}
-      {showOnboarding && (
-        <OnboardingModal onClose={() => setShowOnboarding(false)} />
-      )}
 
     </div>
   )
