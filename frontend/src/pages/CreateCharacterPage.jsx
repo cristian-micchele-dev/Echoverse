@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
@@ -31,10 +31,11 @@ export default function CreateCharacterPage() {
   const [error, setError] = useState(null)
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
 
-  if (!session) {
-    navigate(ROUTES.AUTH)
-    return null
-  }
+  useEffect(() => {
+    if (!session) navigate(ROUTES.AUTH)
+  }, [session, navigate])
+
+  if (!session) return null
 
   function handleChange(e) {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))

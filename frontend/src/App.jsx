@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
+import { useAuth } from './context/AuthContext'
 import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary'
 import PageLoader from './components/PageLoader/PageLoader'
 import { ROUTES } from './utils/constants'
@@ -35,6 +36,10 @@ const NotFoundPage = lazy(() => import('./pages/NotFoundPage/NotFoundPage'))
 
 function AnimatedRoutes() {
   const location = useLocation()
+  const { loading } = useAuth()
+
+  if (loading) return <PageLoader />
+
   return (
     <div key={location.pathname} className="page-transition-wrapper">
       <Routes location={location}>
