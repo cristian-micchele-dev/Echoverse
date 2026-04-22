@@ -8,6 +8,7 @@ import { loadSession, timeAgo } from '../utils/session'
 import { pickByDay } from '../utils/daily'
 import { useStreak } from '../hooks/useStreak'
 import { useAuth } from '../context/AuthContext'
+import { supabase } from '../lib/supabase'
 import DailyChallenge from '../components/DailyChallenge/DailyChallenge'
 import { ROUTES } from '../utils/constants'
 import { API_URL } from '../config/api.js'
@@ -140,7 +141,8 @@ export default function LandingPage() {
   const [featuredFade, setFeaturedFade] = useState(true)
   const [scrolled, setScrolled]       = useState(false)
   const [onlineCount, setOnlineCount] = useState(null)
-const sidRef = useRef(null)
+  const [communityChars, setCommunityChars] = useState([])
+  const sidRef = useRef(null)
   const heroRef                       = useRef(null)
   const lpRef                         = useRef(null)
   const carouselPaused                = useRef(false)
@@ -157,7 +159,18 @@ const sidRef = useRef(null)
     requestAnimationFrame(() => setVisible(true))
   }, [])
 
-useEffect(() => {
+  useEffect(() => {
+    if (!user) return
+    supabase
+      .from('custom_characters')
+      .select('id, name, emoji, color, avatar_url, description')
+      .eq('is_public', true)
+      .order('created_at', { ascending: false })
+      .limit(10)
+      .then(({ data }) => { if (data) setCommunityChars(data) })
+  }, [user])
+
+  useEffect(() => {
     const root = lpRef.current
     if (!root) return
     const targets = root.querySelectorAll('.lp-reveal')
@@ -527,7 +540,56 @@ useEffect(() => {
         </div>
       </section>
 
-{/* ─── MODES ────────────────────────────────────────────────────── */}
+      {/* ─── COMMUNITY ─────────────────────────────────────────────── */}
+      {user && communityChars.length > 0 && (
+        <section className="lp-community">
+          <div className="lp-container">
+            <div className="lp-section-header">
+              <span className="lp-eyebrow lp-eyebrow--inline">
+                COMUNIDAD
+                <span className="lp-eyebrow__rule lp-eyebrow__rule--right" />
+              </span>
+              <h2 className="lp-section-title">
+                Creados por<br /><em>jugadores.</em>
+              </h2>
+              <p className="lp-community__sub">Personajes diseñados por otros usuarios. Explorá, chateá, descubrí.</p>
+            </div>
+          </div>
+
+          <div className="lp-community-rail">
+            {communityChars.map(char => (
+              <button
+                key={char.id}
+                className="lp-community-card"
+                style={{ '--ci-color': char.color || '#7252E8' }}
+                onClick={() => navigate(`/chat/custom-${char.id}`)}
+              >
+                <div className="lp-community-card__avatar">
+                  {char.avatar_url
+                    ? <img src={char.avatar_url} alt={char.name} loading="lazy" />
+                    : <span className="lp-community-card__emoji">{char.emoji || '🤖'}</span>
+                  }
+                  <div className="lp-community-card__glow" />
+                </div>
+                <div className="lp-community-card__body">
+                  <span className="lp-community-card__badge">🌐 Comunidad</span>
+                  <span className="lp-community-card__name">{char.name}</span>
+                  {char.description && (
+                    <span className="lp-community-card__desc">
+                      {char.description.length > 60 ? char.description.slice(0, 60) + '…' : char.description}
+                    </span>
+                  )}
+                </div>
+                <div className="lp-community-card__enter">
+                  Chatear →
+                </div>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ─── MODES ────────────────────────────────────────────────────── */}
       <section className="lp-modes">
         <div className="lp-container">
           <div className="lp-section-header lp-reveal">
