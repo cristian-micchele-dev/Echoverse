@@ -698,32 +698,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ─── WHY ──────────────────────────────────────────────────────── */}
-      <section className="lp-why">
-        <div className="lp-container">
-          <div className="lp-section-header lp-reveal">
-            <span className="lp-eyebrow lp-eyebrow--inline">
-              POR QUÉ ECHOVERSE
-              <span className="lp-eyebrow__rule lp-eyebrow__rule--right" />
-            </span>
-            <h2 className="lp-section-title">
-              No es roleplay.<br /><em>Es otra cosa.</em>
-            </h2>
-          </div>
-
-          <div className="lp-pillars">
-            {PILLARS.map((p, i) => (
-              <div key={p.num} className="lp-pillar lp-reveal" style={{ '--reveal-delay': `${i * 0.09}s` }}>
-                <span className="lp-pillar__num">{p.num}</span>
-                <h3 className="lp-pillar__title">{p.title}</h3>
-                <p className="lp-pillar__desc">{p.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ─── FINAL CTA ────────────────────────────────────────────────── */}
+{/* ─── FINAL CTA ────────────────────────────────────────────────── */}
       <section className="lp-end">
         <div className="lp-end__ambient" aria-hidden="true" />
         <div className="lp-container lp-end__inner">
