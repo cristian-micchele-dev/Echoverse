@@ -655,46 +655,6 @@ export default function LandingPage() {
             })}
           </div>
 
-          {/* Divider */}
-          <div className="lp-modes-also">
-            <span>TAMBIÉN DISPONIBLE</span>
-          </div>
-
-          {/* Secondary cards */}
-          <div className="lp-mode-cards">
-            {SECONDARY_MODES.map((m, i) => {
-              const char = characters.find(c => c.id === m.characterId)
-              return (
-                <button
-                  key={m.label}
-                  className="lp-mode-card lp-reveal"
-                  style={{ '--mc': m.color, '--reveal-delay': `${i * 0.1}s` }}
-                  onClick={() => navigate(m.route)}
-                >
-                  {char && (
-                    <div className="lp-mode-card__img-wrap">
-                      <img src={char.image} alt={char.name} className="lp-mode-card__img" loading="lazy" decoding="async" />
-                      <div className="lp-mode-card__img-fade" />
-                    </div>
-                  )}
-                  <div className="lp-mode-card__body">
-                    {m.badge && <span className="lp-mode-card__badge">{m.badge}</span>}
-                    <span className="lp-mode-card__eyebrow">{m.eyebrow}</span>
-                    <span className="lp-mode-card__title">{m.label}</span>
-                    <p className="lp-mode-card__desc">{m.desc}</p>
-                    <div className="lp-mode-card__stats">
-                      <span>⏱ {m.duration}</span>
-                      <span className="lp-mode-card__dot" />
-                      <span>🎯 {m.difficulty}</span>
-                    </div>
-                  </div>
-                  <div className="lp-mode-card__cta">
-                    Ir al modo <ArrowSmallIcon />
-                  </div>
-                </button>
-              )
-            })}
-          </div>
         </div>
       </section>
 
