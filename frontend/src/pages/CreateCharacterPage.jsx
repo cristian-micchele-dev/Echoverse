@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { buildCustomSystemPrompt } from '../utils/buildCustomSystemPrompt'
 import { useAchievements } from '../hooks/useAchievements'
+import AchievementToast from '../components/AchievementToast/AchievementToast'
 import { ROUTES } from '../utils/constants'
 import './CreateCharacterPage.css'
 
@@ -13,7 +14,12 @@ const EMOJI_OPTIONS = ['🤖', '🕵️', '🧙', '⚔️', '🦸', '🎭', '�
 export default function CreateCharacterPage() {
   const navigate = useNavigate()
   const { session } = useAuth()
-  const { checkAndUnlock } = useAchievements()
+  const { checkAndUnlock, newlyUnlocked, dismissToast } = useAchievements()
+  const [savedOk, setSavedOk] = useState(false)
+
+  useEffect(() => {
+    if (savedOk && newlyUnlocked.length === 0) navigate(ROUTES.CHAT)
+  }, [savedOk, newlyUnlocked, navigate])
   const fileInputRef = useRef(null)
 
   const [form, setForm] = useState({
@@ -118,8 +124,8 @@ export default function CreateCharacterPage() {
         }
       }
 
-      checkAndUnlock({ customCharCreated: 1 })
-      navigate(ROUTES.CHAT)
+      await checkAndUnlock({ customCharCreated: 1 })
+      setSavedOk(true)
     } catch (err) {
       setError(err.message)
     } finally {
@@ -300,6 +306,10 @@ export default function CreateCharacterPage() {
           {saving ? 'Guardando…' : 'Crear personaje'}
         </button>
       </form>
+
+      {newlyUnlocked.map(a => (
+        <AchievementToast key={a.id} achievement={a} onDismiss={() => dismissToast(a.id)} />
+      ))}
     </div>
   )
 }
