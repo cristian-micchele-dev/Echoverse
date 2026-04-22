@@ -169,20 +169,6 @@ export default function ChatModePage() {
               Mis personajes
             </button>
           )}
-          {session && (
-            <button
-              className={`chat-mode-switcher__btn${activeTab === 'community' ? ' chat-mode-switcher__btn--active' : ''}`}
-              onClick={() => setActiveTab('community')}
-            >
-              <svg width="14" height="14" viewBox="0 0 22 22" fill="none">
-                <circle cx="8" cy="7" r="3" stroke="currentColor" strokeWidth="1.8"/>
-                <circle cx="15" cy="7" r="2.2" stroke="currentColor" strokeWidth="1.6"/>
-                <path d="M1 18c0-3 2.8-4.5 7-4.5S15 15 15 18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-                <path d="M15 13.5c2.5 0 5 1.2 5 3.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
-              </svg>
-              Comunidad
-            </button>
-          )}
           <button className="chat-mode-switcher__btn" onClick={goToDuo}>
             <svg width="14" height="14" viewBox="0 0 22 22" fill="none">
               <circle cx="7.5" cy="7.5" r="3" stroke="currentColor" strokeWidth="1.8"/>
@@ -304,52 +290,6 @@ export default function ChatModePage() {
         </div>
       )}
 
-      {/* ── Vista "Comunidad" ── */}
-      {activeTab === 'community' && (
-        <div className="custom-chars-section">
-          {communityChars.length === 0 ? (
-            <div className="custom-chars-empty">
-              <span className="custom-chars-empty__icon">🌐</span>
-              <p className="custom-chars-empty__text">Todavía no hay personajes de la comunidad.<br />¡Sé el primero en crear uno!</p>
-              <button className="custom-chars-create-btn" style={{ marginTop: 12 }} onClick={() => navigate(ROUTES.CREAR_PERSONAJE)}>
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M8 3v10M3 8h10" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-                </svg>
-                Crear personaje
-              </button>
-            </div>
-          ) : (
-            <div className="custom-chars-list">
-              {communityChars.map(char => (
-                <div
-                  key={char.id}
-                  className="custom-char-item"
-                  style={{ '--ci-color': char.color || '#7252E8' }}
-                  onClick={() => handleSelect(`custom-${char.id}`)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={e => e.key === 'Enter' && handleSelect(`custom-${char.id}`)}
-                >
-                  <div className="custom-char-item__avatar">
-                    {char.avatar_url
-                      ? <img src={char.avatar_url} alt={char.name} loading="lazy" />
-                      : <span>{char.emoji || '🤖'}</span>
-                    }
-                  </div>
-                  <div className="custom-char-item__info">
-                    <span className="custom-char-item__name">{char.name}</span>
-                    <span className="custom-char-item__tag" style={{ color: 'rgba(255,255,255,0.4)' }}>🌐 Comunidad</span>
-                  </div>
-                  <svg className="custom-char-item__arrow" width="14" height="14" viewBox="0 0 16 16" fill="none">
-                    <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
       {/* ── Vista "Todos los personajes" ── */}
       {activeTab === 'all' && (
         <>
@@ -385,6 +325,48 @@ export default function ChatModePage() {
               <button className="chat-mode-empty__clear" onClick={() => setSearch('')}>
                 Limpiar búsqueda
               </button>
+            </div>
+          )}
+
+          {/* ── Sección comunidad ── */}
+          {session && !search && communityChars.length > 0 && (
+            <div className="community-section">
+              <div className="community-section__header">
+                <svg width="14" height="14" viewBox="0 0 22 22" fill="none">
+                  <circle cx="8" cy="7" r="3" stroke="currentColor" strokeWidth="1.8"/>
+                  <circle cx="15" cy="7" r="2.2" stroke="currentColor" strokeWidth="1.6"/>
+                  <path d="M1 18c0-3 2.8-4.5 7-4.5S15 15 15 18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+                  <path d="M15 13.5c2.5 0 5 1.2 5 3.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+                </svg>
+                <span>Creados por la comunidad</span>
+              </div>
+              <div className="custom-chars-list">
+                {communityChars.map(char => (
+                  <div
+                    key={char.id}
+                    className="custom-char-item"
+                    style={{ '--ci-color': char.color || '#7252E8' }}
+                    onClick={() => handleSelect(`custom-${char.id}`)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={e => e.key === 'Enter' && handleSelect(`custom-${char.id}`)}
+                  >
+                    <div className="custom-char-item__avatar">
+                      {char.avatar_url
+                        ? <img src={char.avatar_url} alt={char.name} loading="lazy" />
+                        : <span>{char.emoji || '🤖'}</span>
+                      }
+                    </div>
+                    <div className="custom-char-item__info">
+                      <span className="custom-char-item__name">{char.name}</span>
+                      <span className="custom-char-item__tag">🌐 Comunidad</span>
+                    </div>
+                    <svg className="custom-char-item__arrow" width="14" height="14" viewBox="0 0 16 16" fill="none">
+                      <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </>
