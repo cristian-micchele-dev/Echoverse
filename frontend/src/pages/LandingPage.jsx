@@ -164,10 +164,12 @@ export default function LandingPage() {
     supabase
       .from('custom_characters')
       .select('id, name, emoji, color, avatar_url, description')
-      .eq('is_public', true)
       .order('created_at', { ascending: false })
       .limit(10)
-      .then(({ data }) => { if (data) setCommunityChars(data) })
+      .then(({ data, error }) => {
+        console.log('[landing community] user:', user?.id, 'data:', data, 'error:', error)
+        if (data) setCommunityChars(data)
+      })
   }, [user])
 
   useEffect(() => {
