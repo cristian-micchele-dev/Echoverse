@@ -164,12 +164,10 @@ export default function LandingPage() {
     supabase
       .from('custom_characters')
       .select('id, name, emoji, color, avatar_url, description')
+      .eq('is_public', true)
       .order('created_at', { ascending: false })
       .limit(10)
-      .then(({ data, error }) => {
-        console.log('[landing community] user:', user?.id, 'data:', data, 'error:', error)
-        if (data) setCommunityChars(data)
-      })
+      .then(({ data }) => { if (data) setCommunityChars(data) })
   }, [user])
 
   useEffect(() => {
@@ -546,7 +544,7 @@ export default function LandingPage() {
       {user && communityChars.length > 0 && (
         <section className="lp-community">
           <div className="lp-container">
-            <div className="lp-section-header lp-reveal">
+            <div className="lp-section-header">
               <span className="lp-eyebrow lp-eyebrow--inline">
                 COMUNIDAD
                 <span className="lp-eyebrow__rule lp-eyebrow__rule--right" />
@@ -558,7 +556,7 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="lp-community-rail lp-reveal" style={{ '--reveal-delay': '0.1s' }}>
+          <div className="lp-community-rail">
             {communityChars.map(char => (
               <button
                 key={char.id}
