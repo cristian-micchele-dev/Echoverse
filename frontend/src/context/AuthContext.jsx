@@ -6,6 +6,25 @@ const AuthContext = createContext(null)
 
 const JSON_HEADERS = { 'Content-Type': 'application/json' }
 
+async function migrateLocalHistory(accessToken) {
+  const chatKeys = Object.keys(localStorage).filter(
+    k => k.startsWith('chat-') && !k.startsWith('chat-custom-') && k !== 'chat-history-meta'
+  )
+  for (const key of chatKeys) {
+    try {
+      const messages = JSON.parse(localStorage.getItem(key) || '[]')
+      if (!Array.isArray(messages) || messages.length === 0) continue
+      const characterId = key.replace('chat-', '')
+      const res = await fetch(`${API_URL}/db/chat-history`, {
+        method: 'POST',
+        headers: { ...JSON_HEADERS, Authorization: `Bearer ${accessToken}` },
+        body: JSON.stringify({ characterId, messages })
+      })
+      if (res.ok) localStorage.removeItem(key)
+    } catch { /* silencioso */ }
+  }
+}
+
 async function authFetch(endpoint, body) {
   const res = await fetch(`${API_URL}${endpoint}`, {
     method: 'POST',
@@ -40,6 +59,7 @@ export function AuthProvider({ children }) {
     const data = await authFetch('/auth/login', { email, password })
     const { error } = await supabase.auth.setSession(data.session)
     if (error) throw error
+    await migrateLocalHistory(data.session.access_token)
   }
 
   async function register(email, password, username) {
@@ -47,6 +67,7 @@ export function AuthProvider({ children }) {
     if (data.session) {
       const { error } = await supabase.auth.setSession(data.session)
       if (error) throw error
+      await migrateLocalHistory(data.session.access_token)
     }
   }
 
