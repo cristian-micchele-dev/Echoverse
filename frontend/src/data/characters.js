@@ -124,6 +124,7 @@ export const characters = [
     bgEffect: 'sparks',
     notificationTone: 'default',
     uiTheme: 'tech',
+    unlockRank: 'explorador',
     cinematic: {
       missionIntro: { quote: 'Genio. Improvisado. Sin red de seguridad.', missionLabel: 'Operación: Iron Protocol' }
     },
