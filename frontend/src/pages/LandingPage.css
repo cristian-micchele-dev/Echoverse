@@ -1354,6 +1354,81 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   REGISTRO / BIENVENIDA
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.lp-register {
+  padding: 6rem 0;
+  border-top: 1px solid var(--lp-border);
+}
+
+/* BenefitsPanel */
+.lp-benefits { display: flex; flex-direction: column; gap: 2.75rem; }
+.lp-benefits__header { display: flex; flex-direction: column; gap: 0.75rem; }
+.lp-benefits__sub {
+  font-family: var(--lp-font-body);
+  font-size: 0.9rem;
+  color: var(--lp-muted);
+  margin: 0;
+}
+.lp-benefits__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem;
+}
+.lp-benefit-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1.5rem;
+  background: var(--lp-surface);
+  border: 1px solid var(--lp-border);
+  border-radius: var(--lp-radius);
+  transition: border-color 0.2s ease;
+}
+.lp-benefit-card:hover { border-color: var(--lp-border-hi); }
+.lp-benefit-card__icon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(109, 74, 255, 0.1);
+  border-radius: 8px;
+  color: var(--lp-violet-hi);
+}
+.lp-benefit-card__title {
+  font-family: var(--lp-font-ui);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--lp-text);
+}
+.lp-benefit-card__desc {
+  font-size: 0.83rem;
+  color: var(--lp-muted);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* WelcomePanel */
+.lp-welcome {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+  padding-bottom: 2.5rem;
+  margin-bottom: 2.5rem;
+  border-bottom: 1px solid var(--lp-border);
+}
+.lp-welcome__header { display: flex; flex-direction: column; gap: 0.75rem; }
+.lp-welcome__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
    FINAL CTA
    ═══════════════════════════════════════════════════════════════════════════ */
 

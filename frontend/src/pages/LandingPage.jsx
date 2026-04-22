@@ -2,11 +2,8 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { characters } from '../data/characters'
-import { FEATURED_LIST } from '../data/featured'
 import { missions } from '../data/missions'
 import { loadSession, timeAgo } from '../utils/session'
-import { pickByDay } from '../utils/daily'
-import { useStreak } from '../hooks/useStreak'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import DailyChallenge from '../components/DailyChallenge/DailyChallenge'
@@ -129,30 +126,29 @@ const PILLARS = [
   { num: '04', title: 'Rejugable por diseño',         desc: 'Cada sesión es única. La IA nunca repite la misma historia dos veces.' },
 ]
 
-/* ─── COMPONENT ─────────────────────────────────────────────────────────── */
+const BENEFITS = [
+  { icon: 'fire',   title: 'Racha diaria',             desc: 'Acumulá días activos y mantené tu racha sin perder progreso.' },
+  { icon: 'cloud',  title: 'Progreso en la nube',      desc: 'Tu historial guardado y accesible desde cualquier dispositivo.' },
+  { icon: 'puzzle', title: 'Desafío diario',           desc: 'Un nuevo reto cada día, exclusivo para usuarios registrados.' },
+  { icon: 'person', title: 'Personajes personalizados', desc: 'Creá y compartí tus propios personajes con la comunidad.' },
+]
 
-const ROTATE_INTERVAL = 6000 // ms entre slides
+/* ─── COMPONENT ─────────────────────────────────────────────────────────── */
 
 export default function LandingPage() {
   const navigate = useNavigate()
   const { user } = useAuth()
   const [visible, setVisible]         = useState(false)
-  const [featuredIdx, setFeaturedIdx] = useState(0)
-  const [featuredFade, setFeaturedFade] = useState(true)
   const [scrolled, setScrolled]       = useState(false)
   const [onlineCount, setOnlineCount] = useState(null)
   const [communityChars, setCommunityChars] = useState([])
   const sidRef = useRef(null)
   const heroRef                       = useRef(null)
   const lpRef                         = useRef(null)
-  const carouselPaused                = useRef(false)
-
-  const featured     = FEATURED_LIST[featuredIdx]
-  const featuredChar = featured ? characters.find(c => c.id === featured.characterId) : null
   const heroChars    = HERO_CHAR_IDS.map(id => characters.find(c => c.id === id)).filter(Boolean)
   const session      = loadSession()
   const sessionChar  = session ? characters.find(c => c.id === session.characterId) : null
-  const { streak }   = useStreak()
+
 
 
   useEffect(() => {
@@ -193,18 +189,6 @@ export default function LandingPage() {
     const onScroll = () => setScrolled(window.scrollY > 400)
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
-  }, [])
-
-  useEffect(() => {
-    const id = setInterval(() => {
-      if (carouselPaused.current) return
-      setFeaturedFade(false)
-      setTimeout(() => {
-        setFeaturedIdx(i => (i + 1) % FEATURED_LIST.length)
-        setFeaturedFade(true)
-      }, 750)
-    }, ROTATE_INTERVAL)
-    return () => clearInterval(id)
   }, [])
 
   // Online counter — ping every 20s
@@ -363,75 +347,59 @@ export default function LandingPage() {
       {user && (
         <section className="lp-daily">
           <div className="lp-container">
-            {streak.current > 0 && (
-              <div className="lp-streak-badge">
-                <span className="lp-streak-badge__fire">🔥</span>
-                <span className="lp-streak-badge__text">
-                  Racha de <strong>{streak.current} {streak.current === 1 ? 'día' : 'días'}</strong> · No la rompas
-                </span>
-              </div>
-            )}
+            <WelcomePanel user={user} navigate={navigate} />
             <DailyChallenge />
           </div>
         </section>
       )}
 
-      {/* ─── FEATURED TODAY ───────────────────────────────────────────── */}
-      {featured && featuredChar && (
-        <section className="lp-featured">
-          <div className="lp-container">
-            <div className="lp-section-label">
-              <span className="lp-section-label__title">DESTACADO</span>
-              <div className="lp-featured-dots">
-                {FEATURED_LIST.map((_, i) => (
-                  <button
-                    key={i}
-                    className={`lp-featured-dot${i === featuredIdx ? ' lp-featured-dot--active' : ''}`}
-                    onClick={() => { setFeaturedFade(false); setTimeout(() => { setFeaturedIdx(i); setFeaturedFade(true) }, 750) }}
-                    aria-label={`Slide ${i + 1}`}
-                  />
-                ))}
-              </div>
-            </div>
-
-            <div
-              className={`lp-featured-card${featuredFade ? ' lp-featured-card--visible' : ''}`}
-              style={{ '--char-color': featuredChar.themeColor, '--char-gradient': featuredChar.gradient }}
-              onClick={() => navigate(featured.route)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={e => e.key === 'Enter' && navigate(featured.route)}
-              onMouseEnter={() => { carouselPaused.current = true }}
-              onMouseLeave={() => { carouselPaused.current = false }}
-            >
-              <div className="lp-featured-card__ambient" />
-              <div className="lp-featured-card__body">
-                <span className="lp-featured-badge">{featured.badge}</span>
-                <h2 className="lp-featured-card__title">
-                  {featured.hook}
-                  <em className="lp-featured-card__accent"> {featured.hookAccent}</em>
-                </h2>
-                <p className="lp-featured-card__charname">{featuredChar.name}</p>
-                {featuredChar.quotes?.length > 0 && (
-                  <blockquote className="lp-featured-quote">
-                    "{pickByDay(featuredChar.quotes)}"
-                  </blockquote>
-                )}
-                <button
-                  className="lp-featured-card__cta"
-                  onClick={e => { e.stopPropagation(); navigate(featured.route) }}
-                >
-                  {featured.cta} <ArrowIcon size={13} />
-                </button>
-              </div>
-              <div className="lp-featured-card__visual">
-                <img src={featuredChar.image} alt={featuredChar.name} loading="lazy" decoding="async" />
-                <div className="lp-featured-card__visual-fade" />
-              </div>
-            </div>
+      {/* ─── CAST ─────────────────────────────────────────────────────── */}
+      <section className="lp-cast">
+        <div className="lp-container">
+          <div className="lp-section-header lp-reveal">
+            <span className="lp-eyebrow lp-eyebrow--inline">
+              ELENCO
+              <span className="lp-eyebrow__rule lp-eyebrow__rule--right" />
+            </span>
+            <h2 className="lp-section-title">
+              Ya están<br /><em>adentro.</em>
+            </h2>
           </div>
-        </section>
-      )}
+        </div>
+
+        <div className="lp-cast-rail lp-reveal" style={{ '--reveal-delay': '0.1s' }}>
+          {CAST.map(fc => {
+            const char = characters.find(c => c.id === fc.id)
+            if (!char) return null
+            return (
+              <button
+                key={fc.id}
+                className="lp-cast-card"
+                style={{ '--char-color': char.themeColor }}
+                onClick={() => navigate(ROUTES.CHAT_CHARACTER(fc.id))}
+              >
+                <div className="lp-cast-card__portrait">
+                  <img src={char.image} alt={char.name} loading="lazy" decoding="async" />
+                  <div className="lp-cast-card__portrait-fade" />
+                </div>
+                <div className="lp-cast-card__body">
+                  <span className="lp-cast-card__tag">{fc.tag}</span>
+                  <span className="lp-cast-card__name">{char.name}</span>
+                  <span className="lp-cast-card__quote">"{fc.quote}"</span>
+                </div>
+                <div className="lp-cast-card__enter">
+                  Chatear <ArrowIcon size={11} />
+                </div>
+              </button>
+            )
+          })}
+
+          <button className="lp-cast-card lp-cast-card--more" onClick={() => navigate(ROUTES.CHAT)}>
+            <span className="lp-cast-card--more__num">+{characters.length - CAST.length}</span>
+            <span className="lp-cast-card--more__label">Ver todos<br />los personajes</span>
+          </button>
+        </div>
+      </section>
 
       {/* ─── CONVERSATION PREVIEWS ────────────────────────────────────── */}
       <section className="lp-previews">
@@ -492,53 +460,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ─── CAST ─────────────────────────────────────────────────────── */}
-      <section className="lp-cast">
-        <div className="lp-container">
-          <div className="lp-section-header lp-reveal">
-            <span className="lp-eyebrow lp-eyebrow--inline">
-              ELENCO
-              <span className="lp-eyebrow__rule lp-eyebrow__rule--right" />
-            </span>
-            <h2 className="lp-section-title">
-              Ya están<br /><em>adentro.</em>
-            </h2>
-          </div>
-        </div>
-
-        <div className="lp-cast-rail lp-reveal" style={{ '--reveal-delay': '0.1s' }}>
-          {CAST.map(fc => {
-            const char = characters.find(c => c.id === fc.id)
-            if (!char) return null
-            return (
-              <button
-                key={fc.id}
-                className="lp-cast-card"
-                style={{ '--char-color': char.themeColor }}
-                onClick={() => navigate(ROUTES.CHAT_CHARACTER(fc.id))}
-              >
-                <div className="lp-cast-card__portrait">
-                  <img src={char.image} alt={char.name} loading="lazy" decoding="async" />
-                  <div className="lp-cast-card__portrait-fade" />
-                </div>
-                <div className="lp-cast-card__body">
-                  <span className="lp-cast-card__tag">{fc.tag}</span>
-                  <span className="lp-cast-card__name">{char.name}</span>
-                  <span className="lp-cast-card__quote">"{fc.quote}"</span>
-                </div>
-                <div className="lp-cast-card__enter">
-                  Chatear <ArrowIcon size={11} />
-                </div>
-              </button>
-            )
-          })}
-
-          <button className="lp-cast-card lp-cast-card--more" onClick={() => navigate(ROUTES.CHAT)}>
-            <span className="lp-cast-card--more__num">+{characters.length - CAST.length}</span>
-            <span className="lp-cast-card--more__label">Ver todos<br />los personajes</span>
-          </button>
-        </div>
-      </section>
 
       {/* ─── COMMUNITY ─────────────────────────────────────────────── */}
       {user && communityChars.length > 0 && (
@@ -658,6 +579,15 @@ export default function LandingPage() {
         </div>
       </section>
 
+{/* ─── BENEFICIOS (solo no registrados) ─────────────────────────── */}
+      {!user && (
+        <section className="lp-register">
+          <div className="lp-container">
+            <BenefitsPanel onRegister={() => navigate(ROUTES.AUTH)} />
+          </div>
+        </section>
+      )}
+
 {/* ─── FINAL CTA ────────────────────────────────────────────────── */}
       <section className="lp-end">
         <div className="lp-end__ambient" aria-hidden="true" />
@@ -749,5 +679,90 @@ function ArrowSmallIcon() {
     <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
       <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
+  )
+}
+
+function BenefitIcon({ name }) {
+  if (name === 'fire') return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 2c0 0-5 5.5-5 10a5 5 0 0 0 10 0c0-2-1-4-2-5 0 2-1.5 3-2.5 3C11 8 12 2 12 2z"/>
+    </svg>
+  )
+  if (name === 'cloud') return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9z"/>
+    </svg>
+  )
+  if (name === 'puzzle') return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+      <circle cx="7" cy="7" r="1" fill="currentColor"/>
+    </svg>
+  )
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+      <circle cx="12" cy="7" r="4"/>
+    </svg>
+  )
+}
+
+function BenefitsPanel({ onRegister }) {
+  return (
+    <div className="lp-benefits lp-reveal">
+      <div className="lp-benefits__header">
+        <span className="lp-eyebrow lp-eyebrow--inline">
+          SOLO REGISTRADOS
+          <span className="lp-eyebrow__rule lp-eyebrow__rule--right" />
+        </span>
+        <h2 className="lp-section-title">
+          Tu progreso,<br /><em>donde vayas.</em>
+        </h2>
+        <p className="lp-benefits__sub">Gratis. Sin tarjeta. En 30 segundos.</p>
+      </div>
+      <div className="lp-benefits__grid">
+        {BENEFITS.map((b, i) => (
+          <div
+            key={b.icon}
+            className="lp-benefit-card lp-reveal"
+            style={{ '--reveal-delay': `${i * 0.08}s` }}
+          >
+            <div className="lp-benefit-card__icon">
+              <BenefitIcon name={b.icon} />
+            </div>
+            <span className="lp-benefit-card__title">{b.title}</span>
+            <p className="lp-benefit-card__desc">{b.desc}</p>
+          </div>
+        ))}
+      </div>
+      <button className="lp-btn lp-btn--primary" onClick={onRegister}>
+        Registrarse gratis <ArrowIcon size={15} />
+      </button>
+    </div>
+  )
+}
+
+function WelcomePanel({ user, navigate }) {
+  const username = user.user_metadata?.username || user.email?.split('@')[0] || 'explorador'
+  return (
+    <div className="lp-welcome lp-reveal">
+      <div className="lp-welcome__header">
+        <span className="lp-eyebrow lp-eyebrow--inline">
+          BIENVENIDO DE VUELTA
+          <span className="lp-eyebrow__rule lp-eyebrow__rule--right" />
+        </span>
+        <h2 className="lp-section-title">
+          Hola, <em>{username}.</em>
+        </h2>
+      </div>
+      <div className="lp-welcome__actions">
+        <button className="lp-btn lp-btn--primary" onClick={() => navigate(ROUTES.PERFIL)}>
+          Mi perfil <ArrowIcon size={14} />
+        </button>
+        <button className="lp-btn lp-btn--ghost" onClick={() => navigate(ROUTES.CREAR_PERSONAJE)}>
+          Crear personaje
+        </button>
+      </div>
+    </div>
   )
 }
