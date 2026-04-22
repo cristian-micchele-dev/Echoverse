@@ -516,6 +516,7 @@
   opacity: 0.8;
 }
 
+.custom-char-item__edit,
 .custom-char-item__delete {
   background: none;
   border: 1px solid rgba(255,255,255,0.1);
@@ -530,8 +531,14 @@
   transition: opacity 0.15s, color 0.15s, border-color 0.15s;
 }
 
+.custom-char-item:hover .custom-char-item__edit,
 .custom-char-item:hover .custom-char-item__delete {
   opacity: 1;
+}
+
+.custom-char-item__edit:hover {
+  color: var(--ci-color, #7252E8);
+  border-color: rgba(114, 82, 232, 0.3);
 }
 
 .custom-char-item__delete:hover {
@@ -545,6 +552,7 @@
 }
 
 @media (max-width: 600px) {
+  .custom-char-item__edit,
   .custom-char-item__delete { opacity: 1; }
 }
 

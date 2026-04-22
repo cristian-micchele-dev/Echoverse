@@ -273,6 +273,15 @@ export default function ChatModePage() {
                     <span className="custom-char-item__tag">Personaje personalizado</span>
                   </div>
                   <button
+                    className="custom-char-item__edit"
+                    onClick={e => { e.stopPropagation(); navigate(ROUTES.EDITAR_PERSONAJE(char.id)) }}
+                    aria-label={`Editar ${char.name}`}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                      <path d="M11.5 2.5a1.414 1.414 0 0 1 2 2L5 13H3v-2L11.5 2.5z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+                  <button
                     className="custom-char-item__delete"
                     onClick={e => handleDeleteCustomChar(char.id, e)}
                     disabled={deletingId === char.id}
