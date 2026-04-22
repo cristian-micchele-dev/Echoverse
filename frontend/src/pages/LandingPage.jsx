@@ -460,6 +460,14 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ─── BENEFICIOS (solo no registrados) ─────────────────────────── */}
+      {!user && (
+        <section className="lp-register">
+          <div className="lp-container">
+            <BenefitsPanel onRegister={() => navigate(ROUTES.AUTH)} />
+          </div>
+        </section>
+      )}
 
       {/* ─── COMMUNITY ─────────────────────────────────────────────── */}
       {user && communityChars.length > 0 && (
@@ -578,15 +586,6 @@ export default function LandingPage() {
 
         </div>
       </section>
-
-{/* ─── BENEFICIOS (solo no registrados) ─────────────────────────── */}
-      {!user && (
-        <section className="lp-register">
-          <div className="lp-container">
-            <BenefitsPanel onRegister={() => navigate(ROUTES.AUTH)} />
-          </div>
-        </section>
-      )}
 
 {/* ─── FINAL CTA ────────────────────────────────────────────────── */}
       <section className="lp-end">
