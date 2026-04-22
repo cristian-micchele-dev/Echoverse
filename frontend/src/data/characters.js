@@ -37,7 +37,8 @@ export const characters = [
     typingStyle: 'tremble',
     bgEffect: 'embers',
     notificationTone: 'dark',
-    uiTheme: 'cave'
+    uiTheme: 'cave',
+    unlockRank: 'explorador',
   },
   {
     id: 'john-wick',
@@ -687,6 +688,7 @@ export const characters = [
     bgEffect: 'sparks',
     notificationTone: 'dark',
     uiTheme: 'void',
+    unlockRank: 'leyenda',
     cinematic: {
       missionIntro: { quote: 'No tenés nada que perder.', missionLabel: 'Operación: Mayhem' }
     },
@@ -708,6 +710,7 @@ export const characters = [
     bgEffect: 'smoke',
     notificationTone: 'dark',
     uiTheme: 'void',
+    unlockRank: 'maestro',
     cinematic: {
       missionIntro: { quote: 'La cortesía es el escudo del predador.', missionLabel: 'Operación: Silencio' }
     },
@@ -852,6 +855,7 @@ export const characters = [
     bgEffect: 'sparks',
     notificationTone: 'dark',
     uiTheme: 'void',
+    unlockRank: 'veterano',
     cinematic: {
       missionIntro: { quote: 'El caos es la única respuesta honesta.', missionLabel: 'Operación: Sonrisa' }
     },
@@ -915,6 +919,7 @@ export const characters = [
     bgEffect: 'sparks',
     notificationTone: 'dark',
     uiTheme: 'void',
+    unlockRank: 'veterano',
     cinematic: {
       missionIntro: { quote: 'Soy el fin de los dioses.', missionLabel: 'Operación: Ragnarök' }
     },
@@ -1092,7 +1097,6 @@ export const characters = [
     bgEffect: 'stars',
     notificationTone: 'default',
     uiTheme: 'cold',
-    unlockRank: 'maestro',
   },
   {
     id: 'deadpool',
