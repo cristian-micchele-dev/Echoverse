@@ -134,3 +134,40 @@ export function getXPProgress(xp) {
 
 export function getAffinityLabel(level) { return LEVELS[level]?.label ?? '' }
 export function getAffinityEmoji(level) { return LEVELS[level]?.emoji ?? '' }
+
+// ─── Rank global ─────────────────────────────────────────────────────────────
+
+const RANK_TIERS = [
+  { minXP: 500, rank: 'leyenda'    },
+  { minXP: 200, rank: 'maestro'    },
+  { minXP: 75,  rank: 'veterano'   },
+  { minXP: 20,  rank: 'explorador' },
+  { minXP: 0,   rank: 'curioso'    },
+]
+
+export const RANK_ORDER = ['curioso', 'explorador', 'veterano', 'maestro', 'leyenda']
+
+export const RANK_LABELS = {
+  curioso:    'Curioso',
+  explorador: 'Explorador',
+  veterano:   'Veterano',
+  maestro:    'Maestro',
+  leyenda:    'Leyenda',
+}
+
+export function getTotalXP() {
+  const meta = getMeta()
+  return Object.values(meta).reduce(
+    (sum, d) => sum + (d.xp ?? (d.messageCount ?? 0) * 2),
+    0
+  )
+}
+
+export function getUserRankName() {
+  const total = getTotalXP()
+  return RANK_TIERS.find(t => total >= t.minXP)?.rank ?? 'curioso'
+}
+
+export function isRankSufficient(userRank, requiredRank) {
+  return RANK_ORDER.indexOf(userRank) >= RANK_ORDER.indexOf(requiredRank)
+}

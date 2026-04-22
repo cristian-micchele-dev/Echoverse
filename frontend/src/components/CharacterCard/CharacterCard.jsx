@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import CharacterBioModal from '../CharacterBioModal/CharacterBioModal'
-import { getAffinityData, getAffinityLevel, getAffinityLabel, getAffinityEmoji } from '../../utils/affinity'
+import { getAffinityData, getAffinityLevel, getAffinityLabel, getAffinityEmoji, RANK_LABELS } from '../../utils/affinity'
 import './CharacterCard.css'
 
-export default function CharacterCard({ character, index = 0, onSelect, selected = false }) {
+export default function CharacterCard({ character, index = 0, onSelect, selected = false, locked = false }) {
   const navigate = useNavigate()
   const [imgLoaded, setImgLoaded] = useState(false)
   const [imgError, setImgError] = useState(false)
@@ -16,6 +16,7 @@ export default function CharacterCard({ character, index = 0, onSelect, selected
   const showImage = character.image && !imgError
 
   function handleClick() {
+    if (locked) return
     if (onSelect) onSelect(character.id)
     else navigate(`/chat/${character.id}`)
   }
@@ -28,7 +29,7 @@ export default function CharacterCard({ character, index = 0, onSelect, selected
   return (
     <>
       <div
-        className={`char-card${selected ? ' char-card--selected' : ''}`}
+        className={`char-card${selected ? ' char-card--selected' : ''}${locked ? ' char-card--locked' : ''}`}
         style={{
           '--char-color': character.themeColor,
           '--char-gradient': character.gradient,
@@ -102,6 +103,16 @@ export default function CharacterCard({ character, index = 0, onSelect, selected
             </svg>
           </div>
         </div>
+
+        {/* Overlay de personaje bloqueado */}
+        {locked && (
+          <div className="char-card__lock">
+            <span className="char-card__lock-icon">🔒</span>
+            <span className="char-card__lock-label">
+              Desbloqueá en nivel<br /><strong>{RANK_LABELS[character.unlockRank]}</strong>
+            </span>
+          </div>
+        )}
 
         {/* Borde glow */}
         <div className="char-card__border" />

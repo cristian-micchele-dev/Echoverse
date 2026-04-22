@@ -270,3 +270,34 @@
 .char-card:hover .char-card__border {
   border-color: rgba(255, 255, 255, 0.15);
 }
+
+/* ─── Locked ────────────────────────────────────────────────────────────────── */
+
+.char-card--locked { cursor: default; }
+.char-card--locked:hover .char-card__border { border-color: transparent; }
+.char-card--locked .char-card__img,
+.char-card--locked .char-card__emoji { filter: grayscale(0.7); opacity: 0.45; }
+
+.char-card__lock {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: inherit;
+  z-index: 4;
+  text-align: center;
+  padding: 1rem;
+}
+.char-card__lock-icon { font-size: 1.75rem; line-height: 1; }
+.char-card__lock-label {
+  font-family: var(--font-ui, 'Syne', sans-serif);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.5;
+}

@@ -8,7 +8,7 @@ import { saveSession } from '../utils/session'
 import { chatHistoryKey, MAX_STORED_MESSAGES, ROUTES } from '../utils/constants'
 import './ChatPage.css'
 import { API_URL } from '../config/api.js'
-import { getAffinityData, getAffinityLevel, getAffinityLabel, getAffinityEmoji } from '../utils/affinity'
+import { getAffinityData, getAffinityLevel, getAffinityLabel, getAffinityEmoji, getUserRankName, isRankSufficient } from '../utils/affinity'
 import { useAuth } from '../context/AuthContext'
 import { useAchievements } from '../hooks/useAchievements'
 import { useStreaming } from '../hooks/useStreaming'
@@ -214,6 +214,13 @@ export default function ChatPage() {
 
   useEffect(() => {
     if (!character && !isCustom) navigate(ROUTES.HOME)
+  }, [character, isCustom, navigate])
+
+  useEffect(() => {
+    if (!character || isCustom) return
+    if (character.unlockRank && !isRankSufficient(getUserRankName(), character.unlockRank)) {
+      navigate(ROUTES.CHAT)
+    }
   }, [character, isCustom, navigate])
 
   useEffect(() => {

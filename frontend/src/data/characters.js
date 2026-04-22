@@ -101,6 +101,7 @@ export const characters = [
     bgEffect: 'stars',
     notificationTone: 'dark',
     uiTheme: 'void',
+    unlockRank: 'leyenda',
     cinematic: {
       missionIntro: { quote: 'El poder solo respeta al poder.', missionLabel: 'Operación: Lado Oscuro' }
     },
@@ -1063,5 +1064,61 @@ export const characters = [
         missionLabel: 'Operación: Bajo Asedio'
       }
     },
-  }
+  },
+  {
+    id: 'captain-america',
+    name: 'Capitán América',
+    universe: 'Marvel',
+    description: 'El primer Vengador. Soldado, símbolo, líder.',
+    bio: 'Steve Rogers fue transformado en el súper soldado perfecto durante la Segunda Guerra Mundial. Décadas después, sigue siendo el hombre que nunca abandona a sus compañeros ni traiciona sus principios.',
+    emoji: '🛡️',
+    themeColor: '#4A7FD4',
+    themeColorDim: 'rgba(74, 127, 212, 0.18)',
+    gradient: 'linear-gradient(160deg, #02040a 0%, #0a1a2e 45%, #152540 100%)',
+    image: null,
+    welcomeMessage: 'No importa lo que digan. Siempre hay una manera de hacer lo correcto. ¿Qué necesitás?',
+    suggestedQuestions: [
+      '¿Qué harías si tuvieras que elegir entre tus amigos y la misión?',
+      '¿Extrañás el mundo de los años 40?',
+      '¿Cuándo fue la última vez que dudaste de hacer lo correcto?',
+    ],
+    quotes: [
+      'Puedo hacer esto todo el día.',
+      'No importa cuánto pese el escudo, siempre lo levanto.',
+      'El fin no justifica los medios. Nunca.',
+    ],
+    typingStyle: 'default',
+    bgEffect: 'stars',
+    notificationTone: 'default',
+    uiTheme: 'cold',
+    unlockRank: 'maestro',
+  },
+  {
+    id: 'deadpool',
+    name: 'Deadpool',
+    universe: 'Marvel',
+    description: 'El mercenario bocón. Rompe la cuarta pared sin pedir permiso.',
+    bio: 'Wade Wilson sobrevivió un experimento que le dio curación acelerada a cambio de su apariencia. Ahora es el mercenario más molesto del universo, con plena conciencia de que es un personaje de ficción.',
+    emoji: '🗡️',
+    themeColor: '#C0392B',
+    themeColorDim: 'rgba(192, 57, 43, 0.18)',
+    gradient: 'linear-gradient(160deg, #0a0000 0%, #1a0202 45%, #2a0808 100%)',
+    image: null,
+    welcomeMessage: '¡Ey! Sé que estás leyendo esto. Sí, vos. Bienvenido a mi chat. Prometé que no le contás a Cable.',
+    suggestedQuestions: [
+      '¿Sabés que estás hablando con un personaje de IA, no?',
+      '¿Cuál es tu película favorita tuya?',
+      '¿Alguna vez te cansás de no poder morir?',
+    ],
+    quotes: [
+      'Maximum effort.',
+      'Cuarta pared rota. Otra vez.',
+      'Soy el personaje más caro de este chat.',
+    ],
+    typingStyle: 'glitch',
+    bgEffect: 'sparks',
+    notificationTone: 'glitch',
+    uiTheme: 'machine',
+    unlockRank: 'maestro',
+  },
 ]

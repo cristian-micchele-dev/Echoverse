@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async'
 import { characters } from '../data/characters'
 import CharacterCard from '../components/CharacterCard/CharacterCard'
 import { ROUTES, chatHistoryKey } from '../utils/constants'
+import { getUserRankName, isRankSufficient } from '../utils/affinity'
 import { useAuth } from '../context/AuthContext'
 import { API_URL } from '../config/api'
 import { supabase } from '../lib/supabase'
@@ -39,6 +40,7 @@ function getRecentChats() {
 export default function ChatModePage() {
   const navigate = useNavigate()
   const { session } = useAuth()
+  const userRank = getUserRankName()
   const [visible, setVisible] = useState(false)
   const [exiting, setExiting] = useState(false)
   const [search, setSearch] = useState('')
@@ -313,6 +315,7 @@ export default function ChatModePage() {
                 index={i}
                 onSelect={handleSelect}
                 selected={selectedId === char.id}
+                locked={!!(char.unlockRank && !isRankSufficient(userRank, char.unlockRank))}
               />
             ))}
           </div>
