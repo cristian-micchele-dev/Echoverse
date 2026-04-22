@@ -315,7 +315,7 @@ export default function ChatModePage() {
                 index={i}
                 onSelect={handleSelect}
                 selected={selectedId === char.id}
-                locked={!!(char.unlockRank && !isRankSufficient(userRank, char.unlockRank))}
+                locked={!!(char.unlockRank && (!session || !isRankSufficient(userRank, char.unlockRank)))}
               />
             ))}
           </div>

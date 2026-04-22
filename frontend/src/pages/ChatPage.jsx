@@ -218,10 +218,10 @@ export default function ChatPage() {
 
   useEffect(() => {
     if (!character || isCustom) return
-    if (character.unlockRank && !isRankSufficient(getUserRankName(), character.unlockRank)) {
+    if (character.unlockRank && (!session || !isRankSufficient(getUserRankName(), character.unlockRank))) {
       navigate(ROUTES.CHAT)
     }
-  }, [character, isCustom, navigate])
+  }, [character, isCustom, session, navigate])
 
   useEffect(() => {
     if (messages.length === 0) return
