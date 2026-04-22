@@ -1980,7 +1980,7 @@
 /* ── Community card ── */
 
 .lp-community-card {
-  flex: 0 0 180px;
+  flex: 0 0 220px;
   scroll-snap-align: start;
   display: flex;
   flex-direction: column;
@@ -1999,7 +1999,7 @@
 }
 
 .lp-community-card__avatar {
-  height: 110px;
+  height: 150px;
   position: relative;
   display: flex;
   align-items: center;
