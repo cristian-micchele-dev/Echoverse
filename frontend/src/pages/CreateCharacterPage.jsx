@@ -92,6 +92,7 @@ export default function CreateCharacterPage() {
           color: form.color || '#7252E8',
           system_prompt,
           avatar_url: null,
+          is_public: true,
         })
         .select('id')
         .single()
