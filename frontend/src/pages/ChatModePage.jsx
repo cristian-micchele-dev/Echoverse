@@ -73,7 +73,10 @@ export default function ChatModePage() {
       .select('id, name, emoji, color, avatar_url, welcome_message, created_at')
       .eq('is_public', true)
       .order('created_at', { ascending: false })
-      .then(({ data }) => setCommunityChars(data ?? []))
+      .then(({ data, error }) => {
+        console.log('[community] data:', data, 'error:', error)
+        setCommunityChars(data ?? [])
+      })
   }, [session])
 
   const filtered = characters.filter(c =>
