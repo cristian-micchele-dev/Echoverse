@@ -140,7 +140,7 @@ const SECONDARY_MODES = [
     route: '/crear-personaje',
     accent: '#7252E8',
     badge: '✨ Nuevo',
-    tag: 'Solo para vos',
+    tag: 'Solo registrados',
   },
 ]
 
