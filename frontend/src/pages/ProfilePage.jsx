@@ -86,6 +86,7 @@ export default function ProfilePage() {
   const [fetchError, setFetchError] = useState(false)
   const [dailyCount, setDailyCount] = useState(0)
   const [modeCompletions, setModeCompletions] = useState({})
+  const [customCharsCount, setCustomCharsCount] = useState(0)
   const { unlockedIds, checkAndUnlock, newlyUnlocked, dismissToast } = useAchievements()
   const { streak } = useStreak()
 
@@ -103,7 +104,9 @@ export default function ProfilePage() {
       fetch(`${API_URL}/db/dilema-seen`, { headers }).then(r => r.json()).catch(() => []),
       fetch(`${API_URL}/db/daily-challenge`, { headers }).then(r => r.json()).catch(() => ({ completed: false })),
       fetch(`${API_URL}/db/mode-completions`, { headers }).then(r => r.json()).catch(() => ({})),
-    ]).then(([aff, mis, seen, dailyStatus, modeComp]) => {
+      fetch(`${API_URL}/db/custom-characters`, { headers }).then(r => r.json()).catch(() => []),
+    ]).then(([aff, mis, seen, dailyStatus, modeComp, customChars]) => {
+      setCustomCharsCount(Array.isArray(customChars) ? customChars.length : 0)
       const seenCount = Array.isArray(seen) ? seen.length : 0
       setDilemasCount(seenCount)
       // Contar desafíos completados (aproximado: si completó hoy, al menos 1)
@@ -165,8 +168,8 @@ export default function ProfilePage() {
     const completedLevels = mission ? Object.keys(mission.completedLevels || {}).length : 0
     const charactersCount = affinities.length
     const guessScore = (() => { try { return parseInt(localStorage.getItem('guess-best-score') || '0') } catch { return 0 } })()
-    checkAndUnlock({ totalMessages, completedLevels, charactersCount, dilemasCount, guessScore, dailyCompleted: dailyCount, modeCompletions, streakCurrent: streak.current })
-  }, [loading, modeCompletions, affinities, mission, dilemasCount, dailyCount, checkAndUnlock, streak])
+    checkAndUnlock({ totalMessages, completedLevels, charactersCount, dilemasCount, guessScore, dailyCompleted: dailyCount, modeCompletions, streakCurrent: streak.current, customCharCreated: customCharsCount })
+  }, [loading, modeCompletions, affinities, mission, dilemasCount, dailyCount, checkAndUnlock, streak, customCharsCount])
 
   async function handleLogout() {
     try {
