@@ -13,10 +13,13 @@ export default class ErrorBoundary extends Component {
       error?.message?.includes('Failed to fetch dynamically imported module') ||
       error?.message?.includes('Importing a module script failed')
 
-    if (isChunkError && !sessionStorage.getItem('eb-chunk-reload')) {
-      sessionStorage.setItem('eb-chunk-reload', '1')
-      window.location.reload()
-      return { hasError: false, error: null }
+    if (isChunkError) {
+      const last = parseInt(sessionStorage.getItem('eb-chunk-reload') || '0')
+      if (Date.now() - last > 10000) {
+        sessionStorage.setItem('eb-chunk-reload', String(Date.now()))
+        window.location.reload()
+        return { hasError: false, error: null }
+      }
     }
 
     return { hasError: true, error }
