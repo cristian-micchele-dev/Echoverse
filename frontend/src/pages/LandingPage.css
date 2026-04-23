@@ -1299,40 +1299,6 @@
   line-height: 1.55;
 }
 
-/* ── Mobile CTA ── */
-
-.lp-cast-mobile-cta {
-  display: none;
-  justify-content: center;
-  margin-top: 1.5rem;
-  padding: 0 1.25rem;
-}
-
-.lp-cast-mobile-cta__btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: rgba(109,74,255,0.12);
-  border: 1px solid rgba(109,74,255,0.35);
-  color: var(--lp-violet-hi, #a78bfa);
-  font-size: 0.9rem;
-  font-weight: 600;
-  padding: 0.75rem 1.5rem;
-  border-radius: 999px;
-  cursor: pointer;
-  width: 100%;
-  justify-content: center;
-  transition: background 0.2s, border-color 0.2s;
-}
-.lp-cast-mobile-cta__btn:hover {
-  background: rgba(109,74,255,0.22);
-  border-color: rgba(109,74,255,0.6);
-}
-
-@media (max-width: 768px) {
-  .lp-cast-mobile-cta { display: flex; }
-}
-
 /* ═══════════════════════════════════════════════════════════════════════════
    WHY
    ═══════════════════════════════════════════════════════════════════════════ */
