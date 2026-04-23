@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { ROUTES } from '../utils/constants'
@@ -18,6 +18,11 @@ function timeAgo(dateStr) {
   return `Hace ${Math.floor(hours / 24)}d`
 }
 
+function isThisWeek(dateStr) {
+  if (!dateStr) return false
+  return Date.now() - new Date(dateStr).getTime() < 7 * 24 * 60 * 60 * 1000
+}
+
 const DeleteIcon = () => (
   <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
     <path d="M2 4h12M5 4V2h6v2M6 7v5M10 7v5M3 4l1 10h8l1-10" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
@@ -31,10 +36,12 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [deleting, setDeleting] = useState(null)
+  const [userSearch, setUserSearch] = useState('')
   const [chars, setChars] = useState([])
   const [charsLoading, setCharsLoading] = useState(true)
   const [charsError, setCharsError] = useState(null)
   const [deletingChar, setDeletingChar] = useState(null)
+  const [charSearch, setCharSearch] = useState('')
 
   const isAdmin = user?.email === ADMIN_EMAIL
 
@@ -106,6 +113,28 @@ export default function AdminPage() {
     }
   }
 
+  // Mapa userId → email para cruzar en la tabla de personajes
+  const userEmailMap = useMemo(() => {
+    const map = {}
+    users.forEach(u => { map[u.id] = u.email })
+    return map
+  }, [users])
+
+  // Stats
+  const newUsersThisWeek = useMemo(() => users.filter(u => isThisWeek(u.created_at)).length, [users])
+  const newCharsThisWeek = useMemo(() => chars.filter(c => isThisWeek(c.created_at)).length, [chars])
+
+  // Filtros
+  const filteredUsers = useMemo(() => {
+    const q = userSearch.toLowerCase()
+    return q ? users.filter(u => u.email?.toLowerCase().includes(q) || u.username?.toLowerCase().includes(q)) : users
+  }, [users, userSearch])
+
+  const filteredChars = useMemo(() => {
+    const q = charSearch.toLowerCase()
+    return q ? chars.filter(c => c.name?.toLowerCase().includes(q)) : chars
+  }, [chars, charSearch])
+
   if (!isAdmin) {
     return (
       <div className="admin-denied">
@@ -124,16 +153,30 @@ export default function AdminPage() {
           </svg>
           Inicio
         </button>
-        <div>
+        <div className="admin-header__info">
           <h1 className="admin-header__title">Panel de administración</h1>
-          <p className="admin-header__sub">{users.length} usuarios · {chars.length} personajes</p>
+          <div className="admin-stats">
+            <span className="admin-stat"><strong>{users.length}</strong> usuarios</span>
+            <span className="admin-stat admin-stat--accent">+{newUsersThisWeek} esta semana</span>
+            <span className="admin-stat"><strong>{chars.length}</strong> personajes</span>
+            <span className="admin-stat admin-stat--accent">+{newCharsThisWeek} esta semana</span>
+          </div>
         </div>
       </header>
 
       <main className="admin-main">
         {/* ── Columna izquierda: Usuarios ── */}
         <section className="admin-col">
-          <h2 className="admin-col__title">Usuarios ({users.length})</h2>
+          <div className="admin-col__header">
+            <h2 className="admin-col__title">Usuarios ({filteredUsers.length})</h2>
+            <input
+              className="admin-search"
+              type="search"
+              placeholder="Buscar por email…"
+              value={userSearch}
+              onChange={e => setUserSearch(e.target.value)}
+            />
+          </div>
           {loading && <p className="admin-loading">Cargando...</p>}
           {error && <p className="admin-error">{error}</p>}
           {!loading && !error && (
@@ -148,7 +191,7 @@ export default function AdminPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {users.map(u => (
+                  {filteredUsers.map(u => (
                     <tr key={u.id} className={u.email === ADMIN_EMAIL ? 'admin-table__row--self' : ''}>
                       <td className="admin-table__email">{u.email}</td>
                       <td className="admin-table__username">{u.username || <span className="admin-table__empty">—</span>}</td>
@@ -167,6 +210,9 @@ export default function AdminPage() {
                       </td>
                     </tr>
                   ))}
+                  {filteredUsers.length === 0 && (
+                    <tr><td colSpan={4} className="admin-table__empty" style={{ textAlign: 'center', padding: '1.5rem' }}>Sin resultados</td></tr>
+                  )}
                 </tbody>
               </table>
             </div>
@@ -175,25 +221,31 @@ export default function AdminPage() {
 
         {/* ── Columna derecha: Personajes ── */}
         <section className="admin-col">
-          <h2 className="admin-col__title">Personajes personalizados ({chars.length})</h2>
+          <div className="admin-col__header">
+            <h2 className="admin-col__title">Personajes ({filteredChars.length})</h2>
+            <input
+              className="admin-search"
+              type="search"
+              placeholder="Buscar por nombre…"
+              value={charSearch}
+              onChange={e => setCharSearch(e.target.value)}
+            />
+          </div>
           {charsLoading && <p className="admin-loading">Cargando...</p>}
           {charsError && <p className="admin-error">{charsError}</p>}
-          {!charsLoading && !charsError && chars.length === 0 && (
-            <p className="admin-loading">No hay personajes creados.</p>
-          )}
-          {!charsLoading && !charsError && chars.length > 0 && (
+          {!charsLoading && !charsError && (
             <div className="admin-scroll">
               <table className="admin-table">
                 <thead>
                   <tr>
                     <th>Personaje</th>
-                    <th>User ID</th>
+                    <th>Creador</th>
                     <th>Creado</th>
                     <th></th>
                   </tr>
                 </thead>
                 <tbody>
-                  {chars.map(c => (
+                  {filteredChars.map(c => (
                     <tr key={c.id}>
                       <td className="admin-table__email">
                         {c.avatar_url
@@ -202,7 +254,9 @@ export default function AdminPage() {
                         }
                         {c.name}
                       </td>
-                      <td className="admin-table__username">{c.user_id.slice(0, 8)}…</td>
+                      <td className="admin-table__username">
+                        {userEmailMap[c.user_id] ?? <span className="admin-table__empty">{c.user_id.slice(0, 8)}…</span>}
+                      </td>
                       <td className="admin-table__date">{timeAgo(c.created_at)}</td>
                       <td className="admin-table__actions">
                         <button
@@ -216,6 +270,9 @@ export default function AdminPage() {
                       </td>
                     </tr>
                   ))}
+                  {filteredChars.length === 0 && (
+                    <tr><td colSpan={4} className="admin-table__empty" style={{ textAlign: 'center', padding: '1.5rem' }}>Sin resultados</td></tr>
+                  )}
                 </tbody>
               </table>
             </div>
