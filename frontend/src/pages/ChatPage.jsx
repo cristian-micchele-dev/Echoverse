@@ -120,8 +120,9 @@ export default function ChatPage() {
         name: customCharData.name,
         image: customCharData.avatar_url || null,
         emoji: customCharData.emoji || '🤖',
-        themeColor: customCharData.color || '#7252E8',
-        themeColorDim: (customCharData.color || '#7252E8') + '30',
+        themeColor: '#7252E8',
+        themeColorDim: '#7252E830',
+        avatarBorderColor: customCharData.color || '#7252E8',
         gradient: 'linear-gradient(160deg, #050508 0%, #0d0d1a 100%)',
         universe: 'Personaje personalizado',
         welcomeMessage: customCharData.welcome_message || null,
@@ -436,6 +437,7 @@ export default function ChatPage() {
         '--char-color': character.themeColor,
         '--char-dim': character.themeColorDim,
         '--char-gradient': character.gradient,
+        '--char-avatar-border': character.avatarBorderColor || character.themeColor,
         ...themeVars,
       }}
     >
