@@ -176,6 +176,16 @@
   overflow-x: auto;
 }
 
+.admin-char-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 0.4rem;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
 /* ── Responsive ────────────────────────────── */
 
 @media (max-width: 900px) {

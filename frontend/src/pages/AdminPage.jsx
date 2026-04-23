@@ -196,7 +196,11 @@ export default function AdminPage() {
                   {chars.map(c => (
                     <tr key={c.id}>
                       <td className="admin-table__email">
-                        <span style={{ marginRight: '0.4rem' }}>{c.emoji}</span>{c.name}
+                        {c.avatar_url
+                          ? <img src={c.avatar_url} alt={c.name} className="admin-char-avatar" />
+                          : <span style={{ marginRight: '0.4rem' }}>{c.emoji}</span>
+                        }
+                        {c.name}
                       </td>
                       <td className="admin-table__username">{c.user_id.slice(0, 8)}…</td>
                       <td className="admin-table__date">{timeAgo(c.created_at)}</td>
