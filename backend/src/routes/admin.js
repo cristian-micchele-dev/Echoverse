@@ -32,4 +32,26 @@ router.delete('/users/:userId', async (req, res) => {
   res.json({ ok: true })
 })
 
+// ─── GET /api/admin/custom-characters ────────────────────────────────────────
+
+router.get('/custom-characters', async (req, res) => {
+  const { data, error } = await supabase
+    .from('custom_characters')
+    .select('id, name, emoji, color, avatar_url, created_at, user_id')
+    .order('created_at', { ascending: false })
+  if (error) return res.status(500).json({ error: error.message })
+  res.json(data ?? [])
+})
+
+// ─── DELETE /api/admin/custom-characters/:id ──────────────────────────────────
+
+router.delete('/custom-characters/:id', async (req, res) => {
+  const { error } = await supabase
+    .from('custom_characters')
+    .delete()
+    .eq('id', req.params.id)
+  if (error) return res.status(500).json({ error: error.message })
+  res.json({ ok: true })
+})
+
 export default router

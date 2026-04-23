@@ -25,12 +25,16 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [deleting, setDeleting] = useState(null)
+  const [chars, setChars] = useState([])
+  const [charsLoading, setCharsLoading] = useState(true)
+  const [deletingChar, setDeletingChar] = useState(null)
 
   const isAdmin = user?.email === ADMIN_EMAIL
 
   useEffect(() => {
     if (!isAdmin) return
     fetchUsers()
+    fetchChars()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAdmin])
 
@@ -46,6 +50,35 @@ export default function AdminPage() {
       setError(e.message)
     } finally {
       setLoading(false)
+    }
+  }
+
+  async function fetchChars() {
+    try {
+      const res = await fetch(`${API_URL}/admin/custom-characters`, {
+        headers: { 'Authorization': `Bearer ${session.access_token}` }
+      })
+      if (!res.ok) throw new Error('Error al cargar personajes')
+      const data = await res.json()
+      setChars(data)
+    } catch (e) {
+      console.error('[admin] fetchChars:', e.message)
+    } finally {
+      setCharsLoading(false)
+    }
+  }
+
+  async function handleDeleteChar(char) {
+    if (!confirm(`¿Borrar el personaje "${char.name}"? Esta acción no se puede deshacer.`)) return
+    setDeletingChar(char.id)
+    try {
+      const res = await fetch(`${API_URL}/admin/custom-characters/${char.id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${session.access_token}` }
+      })
+      if (res.ok) setChars(prev => prev.filter(c => c.id !== char.id))
+    } finally {
+      setDeletingChar(null)
     }
   }
 
@@ -130,6 +163,50 @@ export default function AdminPage() {
             </tbody>
           </table>
         )}
+        <section className="admin-section">
+          <h2 className="admin-section__title">Personajes personalizados ({chars.length})</h2>
+          {charsLoading && <p className="admin-loading">Cargando...</p>}
+          {!charsLoading && chars.length === 0 && (
+            <p className="admin-loading">No hay personajes personalizados.</p>
+          )}
+          {!charsLoading && chars.length > 0 && (
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Personaje</th>
+                  <th>User ID</th>
+                  <th>Creado</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {chars.map(c => (
+                  <tr key={c.id}>
+                    <td className="admin-table__email">
+                      <span style={{ marginRight: '0.4rem' }}>{c.emoji}</span>{c.name}
+                    </td>
+                    <td className="admin-table__username">{c.user_id.slice(0, 8)}…</td>
+                    <td className="admin-table__date">{timeAgo(c.created_at)}</td>
+                    <td className="admin-table__actions">
+                      <button
+                        className="admin-delete-btn"
+                        onClick={() => handleDeleteChar(c)}
+                        disabled={deletingChar === c.id}
+                        title="Borrar personaje"
+                      >
+                        {deletingChar === c.id ? '...' : (
+                          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                            <path d="M2 4h12M5 4V2h6v2M6 7v5M10 7v5M3 4l1 10h8l1-10" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        )}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </section>
       </main>
     </div>
   )

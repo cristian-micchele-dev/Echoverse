@@ -149,6 +149,21 @@
 }
 .admin-delete-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
+/* ── Sections ──────────────────────────────── */
+
+.admin-section {
+  margin-top: 2.5rem;
+}
+
+.admin-section__title {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin: 0 0 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
 /* ── Responsive ────────────────────────────── */
 
 @media (max-width: 600px) {
