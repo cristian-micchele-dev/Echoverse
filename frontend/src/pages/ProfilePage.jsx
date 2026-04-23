@@ -26,12 +26,14 @@ function getRank(totalMessages) {
 }
 
 const MODE_META = {
-  interrogation: { label: 'Interrogatorio', emoji: '🕵️' },
-  swipe:         { label: 'Swipe',          emoji: '🃏' },
-  dilema:        { label: 'Dilemas',        emoji: '⚖️' },
-  story:         { label: 'Historia',       emoji: '📖' },
-  parecido:      { label: '¿A quién te parecés?', emoji: '🪞' },
-  guess:         { label: 'Adivina el Personaje', emoji: '🔍' },
+  interrogation:  { label: 'Interrogatorio',      emoji: '🕵️' },
+  swipe:          { label: 'Swipe',               emoji: '🃏' },
+  dilema:         { label: 'Dilemas',             emoji: '⚖️' },
+  story:          { label: 'Historia',            emoji: '📖' },
+  parecido:       { label: '¿A quién te parecés?',emoji: '🪞' },
+  guess:          { label: 'Adivina el Personaje',emoji: '🔍' },
+  confesionario:  { label: 'Confesionario',       emoji: '🪑' },
+  'este-o-ese':   { label: 'Este o Ese',          emoji: '⚡' },
 }
 
 function getActivityGrid(daysBack = 28) {

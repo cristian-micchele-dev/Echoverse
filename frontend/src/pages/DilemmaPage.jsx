@@ -12,6 +12,7 @@ import {
   pickDilemas
 } from '../data/dilemas'
 import { getAffinityData, getAffinityLevel } from '../utils/affinity'
+import { recordCompletion } from '../utils/recordCompletion'
 import './DilemmaPage.css'
 import { API_URL } from '../config/api.js'
 import { useAuth } from '../context/AuthContext'
@@ -71,6 +72,14 @@ export default function DilemmaPage() {
   useEffect(() => {
     requestAnimationFrame(() => setVisible(true))
   }, [])
+
+  const recordedRef = useRef(false)
+  useEffect(() => {
+    if (phase === 'profile' && !recordedRef.current) {
+      recordedRef.current = true
+      recordCompletion(session, 'dilema')
+    }
+  }, [phase, session])
 
   // ─── Transition helper ────────────────────────────────────────────────────
   function transitionTo(nextPhase, delay = 0) {
