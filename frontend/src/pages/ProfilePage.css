@@ -131,6 +131,19 @@
   flex-shrink: 0;
 }
 
+.pp-admin-link {
+  background: none;
+  border: 1px solid #7252E844;
+  color: #7252E8;
+  padding: 0.45rem 1rem;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  width: fit-content;
+  transition: border-color 0.2s, background 0.2s;
+}
+.pp-admin-link:hover { border-color: #7252E8; background: #7252E811; }
+
 .pp-logout {
   background: none;
   border: 1px solid #222;

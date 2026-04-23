@@ -305,6 +305,9 @@ export default function ProfilePage() {
             </div>
           </div>
 
+          {user?.email === 'cristian.aiki1@gmail.com' && (
+            <button className="pp-admin-link" onClick={() => navigate(ROUTES.ADMIN)}>Panel admin</button>
+          )}
           <button className="pp-logout" onClick={handleLogout}>Cerrar sesión</button>
         </div>
       </div>
