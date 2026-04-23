@@ -14,9 +14,15 @@ export default function ResetPasswordPage() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    // Supabase dispara PASSWORD_RECOVERY cuando el usuario llega desde el email
+    // El evento PASSWORD_RECOVERY puede haberse disparado antes de que este
+    // componente monte (race condition con AuthContext). Verificamos la sesión
+    // directamente como fallback.
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) setReady(true)
+    })
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'PASSWORD_RECOVERY') setReady(true)
+      if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') setReady(true)
     })
     return () => subscription.unsubscribe()
   }, [])
