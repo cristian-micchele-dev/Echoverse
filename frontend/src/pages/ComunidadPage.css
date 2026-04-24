@@ -169,11 +169,68 @@
   gap: 2px;
 }
 
-.comunidad-list .custom-char-item__name {
-  font-size: 1rem;
+/* Estilos de card (independientes de ChatModePage.css) */
+.custom-char-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+  position: relative;
+  width: 100%;
+  border: none;
+  text-align: left;
+}
+.custom-char-item:hover { background: rgba(255,255,255,0.06); }
+
+.custom-char-item__avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1.5px solid var(--ci-color, #7252E8);
+  background: rgba(255,255,255,0.04);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.custom-char-item__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-.comunidad-list .custom-char-item__tag {
+.custom-char-item__info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.custom-char-item__name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.9);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.custom-char-item__tag {
   font-size: 0.82rem;
   color: rgba(255, 255, 255, 0.5);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.custom-char-item__arrow {
+  color: rgba(255,255,255,0.2);
+  flex-shrink: 0;
 }
