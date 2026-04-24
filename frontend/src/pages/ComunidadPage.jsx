@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { ROUTES } from '../utils/constants'
 import './ComunidadPage.css'
+import { Helmet } from 'react-helmet-async'
 
 export default function ComunidadPage() {
   const navigate = useNavigate()
@@ -37,6 +38,11 @@ export default function ComunidadPage() {
 
   return (
     <div className={`cp-page${visible ? ' cp-page--visible' : ''}`}>
+      <Helmet>
+        <title>Comunidad — EchoVerse</title>
+        <meta name="description" content="Conocé a los fans de EchoVerse. Descubrí quién está chateando con tus personajes favoritos del cine y la TV." />
+        <link rel="canonical" href="https://echoverse-jet.vercel.app/comunidad" />
+      </Helmet>
 
       {/* ── Hero ── */}
       <div className="cp-hero">

@@ -7,6 +7,7 @@ import { ROUTES } from '../utils/constants'
 import { parseSseLine } from '../utils/ultimaCenaHelpers'
 import './UltimaCenaPage.css'
 import { API_URL } from '../config/api.js'
+import { Helmet } from 'react-helmet-async'
 
 // ─── Constantes de dominio ────────────────────────────────────────────────────
 const MIN_COMENSALES = 3
@@ -163,6 +164,11 @@ export default function UltimaCenaPage() {
   if (phase === 'setup') {
     return (
       <div className={`cena-page ${visible ? 'cena-page--visible' : ''}`}>
+        <Helmet>
+          <title>La Última Cena — EchoVerse</title>
+          <meta name="description" content="Elegí 5 personajes icónicos para tu última cena imaginaria. ¿Con quién querrías compartir la mesa? Sherlock, Gandalf, Joker y más." />
+          <link rel="canonical" href="https://echoverse-jet.vercel.app/ultima-cena" />
+        </Helmet>
         <div className="cena-bg" aria-hidden="true" />
 
         <header className="cena-header">

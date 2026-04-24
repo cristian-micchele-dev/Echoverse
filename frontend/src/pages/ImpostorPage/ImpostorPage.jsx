@@ -197,7 +197,8 @@ export default function ImpostorPage() {
     <div className="imp">
       <Helmet>
         <title>El Impostor — EchoVerse</title>
-        <meta name="description" content="Cuatro personajes responden. Uno miente. ¿Podés detectarlo?" />
+        <meta name="description" content="Cuatro personajes icónicos responden al mismo dilema. Uno es un impostor. ¿Podés detectarlo antes de que te engañe?" />
+        <link rel="canonical" href="https://echoverse-jet.vercel.app/impostor" />
       </Helmet>
 
       {/* ─── INTRO ─── */}

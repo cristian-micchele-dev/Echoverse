@@ -5,6 +5,7 @@ import { readSSEStream } from '../utils/sse'
 import { ROUTES } from '../utils/constants'
 import './DuoPage.css'
 import { API_URL } from '../config/api.js'
+import { Helmet } from 'react-helmet-async'
 
 async function fetchCharResponse(characterId, messages, duoMode = null) {
   const response = await fetch(`${API_URL}/chat`, {
@@ -151,6 +152,11 @@ export default function DuoPage() {
   if (phase === 'setup') {
     return (
       <div className="duo-page">
+        <Helmet>
+          <title>Duelo de Personajes — EchoVerse</title>
+          <meta name="description" content="Enfrentá dos personajes icónicos en una conversación épica. Elegí quién debate con quién y observá cómo chocan sus filosofías." />
+          <link rel="canonical" href="https://echoverse-jet.vercel.app/duo" />
+        </Helmet>
         <header className="duo-header">
           <button className="duo-back-btn" onClick={() => navigate(ROUTES.HOME)} aria-label="Volver al inicio">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">

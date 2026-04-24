@@ -41,13 +41,28 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://echoverse-jet.vercel.app/story</loc>
+    <loc>https://echoverse-jet.vercel.app/duo</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://echoverse-jet.vercel.app/critical</loc>
+    <loc>https://echoverse-jet.vercel.app/impostor</loc>
     <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://echoverse-jet.vercel.app/ultima-cena</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://echoverse-jet.vercel.app/parecido</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://echoverse-jet.vercel.app/comunidad</loc>
+    <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>

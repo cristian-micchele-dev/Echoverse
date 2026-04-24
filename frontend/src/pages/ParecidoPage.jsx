@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext'
 import { recordCompletion } from '../utils/recordCompletion'
 import { ROUTES } from '../utils/constants'
 import './ParecidoPage.css'
+import { Helmet } from 'react-helmet-async'
 
 const OPTION_LETTERS = ['A', 'B', 'C', 'D']
 
@@ -126,6 +127,11 @@ export default function ParecidoPage() {
   if (phase === 'intro') {
     return (
       <div className="par-page par-page--intro">
+        <Helmet>
+          <title>¿A quién te parecés? — EchoVerse</title>
+          <meta name="description" content="Respondé preguntas y descubrí qué personaje ficticio refleja tu personalidad. ¿Sos más Sherlock Holmes o Jack Sparrow?" />
+          <link rel="canonical" href="https://echoverse-jet.vercel.app/parecido" />
+        </Helmet>
         {AnimatedBg}
         <button className="par-back-btn" onClick={() => navigate(ROUTES.MODOS)}>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
