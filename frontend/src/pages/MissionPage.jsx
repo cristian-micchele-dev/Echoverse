@@ -7,7 +7,7 @@ import MissionVictory from '../components/MissionVictory/MissionVictory'
 import './MissionPage.css'
 import { API_URL } from '../config/api.js'
 import { CAMPAIGN_ARCS } from '../data/missionLevels.js'
-import { getMissionProgress, isLevelUnlocked, saveLevelComplete, resetProgress } from '../utils/missionProgress.js'
+import { getMissionProgress, saveLevelComplete, resetProgress } from '../utils/missionProgress.js'
 import { useAuth } from '../context/AuthContext'
 import { ROUTES } from '../utils/constants'
 import { Helmet } from 'react-helmet-async'
@@ -586,7 +586,7 @@ export default function MissionPage() {
                 const isSpecial = arc.levels[0].type === 'countdown'
                 const arcChar = isSpecial ? null : characters.find(c => c.id === arc.character)
                 const allLevelsCompleted = arc.levels.every(lvl => !!campaignProgress.completedLevels[lvl.level])
-                const firstUnlocked = isLevelUnlocked(arc.levels[0].level)
+                const firstUnlocked = arc.levels[0].level <= campaignProgress.highestUnlocked
                 const arcLocked = !firstUnlocked
                 const diff = arc.levels[0].difficulty
                 const diffColor = diff === 'easy' ? '#4ade80' : diff === 'normal' ? '#facc15' : '#f87171'
@@ -633,7 +633,7 @@ export default function MissionPage() {
                       </div>
                       <div className="campaign-card__levels">
                         {arc.levels.map(lvl => {
-                          const unlocked = isLevelUnlocked(lvl.level)
+                          const unlocked = lvl.level <= campaignProgress.highestUnlocked
                           const completed = !!campaignProgress.completedLevels[lvl.level]
                           return (
                             <button
