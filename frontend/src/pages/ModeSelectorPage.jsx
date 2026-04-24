@@ -144,7 +144,7 @@ const SECONDARY_MODES = [
   },
   {
     id: 'impostor',
-    characterId: 'hannibal',
+    image: '/images/amounguspeakyblinders.png',
     eyebrow: 'Deducción',
     label: 'El Impostor',
     desc: 'Cuatro responden. Uno miente. ¿Podés detectar al impostor?',
