@@ -9,6 +9,7 @@ import authRouter          from './routes/auth.js'
 import roomsRouter         from './routes/rooms.js'
 import adminRouter         from './routes/admin.js'
 import onlineRouter        from './routes/online.js'
+import rpgRouter           from './routes/rpg.js'
 const app = express()
 app.set('trust proxy', 1)
 const PORT = process.env.PORT || 3001
@@ -34,6 +35,7 @@ app.use('/api/auth', authRouter)
 app.use('/api', roomsRouter)
 app.use('/api/admin', adminRouter)
 app.use('/api', onlineRouter)
+app.use('/api', rpgRouter)
 
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`)

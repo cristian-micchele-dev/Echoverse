@@ -34,6 +34,7 @@ const MODE_META = {
   guess:          { label: 'Adivina el Personaje',emoji: '🔍' },
   confesionario:  { label: 'Confesionario',       emoji: '🪑' },
   'este-o-ese':   { label: 'Este o Ese',          emoji: '⚡' },
+  rpg:            { label: 'Forja tu Leyenda',    emoji: '⚔️' },
 }
 
 function getActivityGrid(daysBack = 28) {

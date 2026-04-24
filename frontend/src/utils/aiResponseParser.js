@@ -125,6 +125,78 @@ export function parseStoryResponse(text) {
 }
 
 /**
+ * Parsea opciones del modo RPG con formato [A|rasgo] texto.
+ * @param {string} block
+ * @returns {{ key: string, trait: string, text: string }[]}
+ */
+function parseRpgChoices(block) {
+  const pattern = /\[([A-C])\|([a-záéíóúüñ]+)\]\s*(.+?)(?=\s*\[[A-C]\||$)/gis
+  const choices = []
+  let match
+  while ((match = pattern.exec(block)) !== null) {
+    const text = match[3].trim()
+    if (text) choices.push({ key: match[1].toUpperCase(), trait: match[2].toLowerCase(), text })
+  }
+  return choices
+}
+
+/**
+ * Parsea la respuesta del modo Forja tu Leyenda.
+ * - No-final: narrativa + choices con rasgo { key, trait, text }
+ * - Final: narrativa + { title, dominantTrait, farewell } + isFinal: true
+ * @param {string} text
+ * @param {boolean} [isFinalTurn=false]
+ * @returns {{ narrative: string, choices: Array, isFinal: boolean, result: object|null }}
+ */
+export function parseRpgResponse(text, isFinalTurn = false) {
+  if (isFinalTurn || hasFinalFlag(text)) {
+    const cleanText = text
+      .replace(/\[FIN\]/g, '')
+      .replace(/\[TÍTULO\].*$/ms, '')
+      .replace(/\[RASGO\].*$/ms, '')
+      .replace(/\[FRASE\].*$/ms, '')
+      .trim()
+
+    const sepIdx = cleanText.search(/\n?\s*---\s*\n/)
+    const narrative = sepIdx !== -1 ? cleanText.slice(0, sepIdx).trim() : cleanText
+
+    const titleMatch = text.match(/\[TÍTULO\]\s*(.+)/)
+    const rasgMatch  = text.match(/\[RASGO\]\s*([a-záéíóúüñ]+)/i)
+    const fraseMatch = text.match(/\[FRASE\]\s*"?([^"[\n]+)"?/)
+
+    return {
+      narrative,
+      choices: [],
+      isFinal: true,
+      result: {
+        title: titleMatch ? titleMatch[1].trim() : 'El Aventurero',
+        dominantTrait: rasgMatch  ? rasgMatch[1].trim().toLowerCase() : '',
+        farewell: fraseMatch ? fraseMatch[1].trim() : ''
+      }
+    }
+  }
+
+  const sepMatch = text.match(/\n?\s*---\s*\n/)
+  if (sepMatch) {
+    const narrative    = text.slice(0, sepMatch.index).trim()
+    const choiceBlock  = text.slice(sepMatch.index + sepMatch[0].length)
+    return { narrative, choices: parseRpgChoices(choiceBlock), isFinal: false, result: null }
+  }
+
+  const firstChoice = text.search(/\[[A-C]\|/)
+  if (firstChoice !== -1) {
+    return {
+      narrative: text.slice(0, firstChoice).trim(),
+      choices: parseRpgChoices(text.slice(firstChoice)),
+      isFinal: false,
+      result: null
+    }
+  }
+
+  return { narrative: text, choices: [], isFinal: false, result: null }
+}
+
+/**
  * Parsea una pregunta del modo Confesionario.
  * Soporta [A], **[A]**, A) y A. con narrativa antes de las opciones.
  * @param {string} rawText

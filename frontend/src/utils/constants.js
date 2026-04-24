@@ -36,6 +36,7 @@ export const ROUTES = {
   SALAS:          '/salas',
   SALA:           (id) => `/salas/${id}`,
   ADMIN:          '/admin',
+  RPG:            '/rpg',
   CREAR_PERSONAJE:  '/crear-personaje',
   EDITAR_PERSONAJE: (id) => `/editar-personaje/${id}`,
 }
