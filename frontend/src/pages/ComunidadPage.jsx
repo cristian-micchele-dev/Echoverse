@@ -35,43 +35,8 @@ export default function ComunidadPage() {
     navigate(ROUTES.CHAT_CHARACTER(`custom-${id}`))
   }
 
-  const marqueeChars = chars.length > 0 ? [...chars, ...chars] : []
-
   return (
     <div className={`cp-page${visible ? ' cp-page--visible' : ''}`}>
-
-      {/* ── Marquee ── */}
-      {chars.length > 0 && (
-        <div className="cp-marquee-wrap">
-          <div className="cp-marquee-track">
-            {marqueeChars.map((char, i) => (
-              <button
-                key={`${char.id}-${i}`}
-                className="cp-mcard"
-                style={{ '--ci': char.color || '#7252E8' }}
-                onClick={() => handleSelect(char.id)}
-              >
-                <div className="cp-mcard__img">
-                  {char.avatar_url
-                    ? <img src={char.avatar_url} alt={char.name} loading="lazy" />
-                    : <span className="cp-mcard__emoji">{char.emoji || '🤖'}</span>
-                  }
-                  <div className="cp-mcard__fade" />
-                </div>
-                <div className="cp-mcard__info">
-                  <span className="cp-mcard__name">{char.name}</span>
-                  {char.description && (
-                    <span className="cp-mcard__desc">
-                      {char.description.length > 50 ? char.description.slice(0, 50) + '…' : char.description}
-                    </span>
-                  )}
-                </div>
-                <div className="cp-mcard__cta">Chatear →</div>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* ── Hero ── */}
       <div className="cp-hero">
