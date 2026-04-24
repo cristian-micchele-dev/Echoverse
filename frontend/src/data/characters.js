@@ -1081,7 +1081,7 @@ export const characters = [
     themeColor: '#4A7FD4',
     themeColorDim: 'rgba(74, 127, 212, 0.18)',
     gradient: 'linear-gradient(160deg, #02040a 0%, #0a1a2e 45%, #152540 100%)',
-    image: null,
+    image: '/images/capitanamerica.jpg',
     welcomeMessage: 'No importa lo que digan. Siempre hay una manera de hacer lo correcto. ¿Qué necesitás?',
     suggestedQuestions: [
       '¿Qué harías si tuvieras que elegir entre tus amigos y la misión?',

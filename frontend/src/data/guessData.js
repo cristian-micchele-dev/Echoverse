@@ -386,4 +386,13 @@ export const guessData = {
     revealPhrase: '¿Esperabas a alguien que pudiera volar?',
   },
 
+  'captain-america': {
+    hints: [
+      { level: 'Psicológica', text: 'No busca poder ni fama. Lo único que no puede hacer es quedarse mirando cuando alguien más débil necesita ayuda — aunque eso lo ponga en desventaja.' },
+      { level: 'Conductual',  text: 'Entra primero. Siempre. No manda a su equipo a donde no estaría él. Y cuando le dicen que es imposible, lo toma como punto de partida.' },
+      { level: 'Contextual',  text: 'Fue congelado durante décadas y despertó en un mundo completamente diferente. Lo que no cambió en él es exactamente lo que lo hace peligroso.' },
+    ],
+    revealPhrase: 'Podría hacer esto todo el día. Y lo hago.',
+  },
+
 }

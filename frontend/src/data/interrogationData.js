@@ -7,7 +7,7 @@
 export const INTERROGATION_CHAR_IDS = [
   'walter-white', 'hannibal', 'sherlock', 'jack-sparrow', 'el-profesor',
   'tony-stark', 'darth-vader', 'tyler-durden', 'tommy-shelby', 'james-bond',
-  'norman-bates', 'john-wick',
+  'norman-bates', 'john-wick', 'captain-america',
 ]
 
 export const LIE_PROFILES = {
@@ -70,6 +70,11 @@ export const LIE_PROFILES = {
     lieChance: 0.45, lieStyle: 'evasive',
     styleDesc: 'Habla lo mínimo. Cuando miente, lo hace por omisión — el silencio es su coartada.',
     tells:     'Respuestas de una sola oración cuando debería explicar más, evita detalles de tiempo y lugar.',
+  },
+  'captain-america': {
+    lieChance: 0.15, lieStyle: 'evasive',
+    styleDesc: 'Casi nunca miente. Cuando oculta algo, lo hace por clasificación o por proteger a otros, no por conveniencia propia.',
+    tells:     'Pausa breve antes de responder, apela a "protocolo" o "seguridad nacional", responde con principios generales cuando debería dar detalles.',
   },
 }
 
@@ -455,6 +460,41 @@ export const SCENARIOS = {
         'Cuatro vecinos distintos reportaron los mismos gritos. No era una película.',
         'El médico que atendió a tu madre encontró marcas que no calzan con lo que contaste.',
         'Norman, a veces las personas hacen cosas que no recuerdan. ¿Hay algo así que te preocupe?',
+      ],
+    },
+  ],
+
+  'captain-america': [
+    {
+      id: 'cap-escudo',
+      text: 'Un edificio civil fue destruido durante una operación de los Vengadores. Capitán América lideró la misión. Hay víctimas y ningún informe oficial.',
+      hiddenTruth: 'Rogers tomó una decisión unilateral que salió mal. Eligió el objetivo operativo sobre la evacuación completa del área.',
+      innocentVersion: 'Rogers siguió el protocolo de evacuación. El colapso fue consecuencia de una amenaza externa que no podía prever.',
+      suggestedQuestions: [
+        '¿Cuándo supiste que había civiles en el área?',
+        '¿Hubo algún momento en que consideraste abortar la operación?',
+        '¿El equipo recibió la orden de evacuar antes de iniciar el asalto?',
+      ],
+      confrontations: [
+        'Las comunicaciones internas muestran que recibiste el alerta civil cuatro minutos antes de dar la orden de avance.',
+        'Tres miembros del equipo declararon que pediste continuar cuando ya era evidente el riesgo.',
+        'No sos el primero en decir que lo hiciste por el bien mayor. Esa frase tiene un historial complicado, Rogers.',
+      ],
+    },
+    {
+      id: 'cap-hydra',
+      text: 'Un agente de SHIELD fue neutralizado durante una operación encubierta. Steve Rogers estuvo en el mismo sector. El agente tenía información clasificada sobre una célula de HYDRA.',
+      hiddenTruth: 'Rogers sabía que el agente era un infiltrado de HYDRA y tomó la decisión sin autorización para proteger la información.',
+      innocentVersion: 'Rogers llegó al sector después del incidente. No tuvo contacto con el agente.',
+      suggestedQuestions: [
+        '¿Conocías al agente personalmente?',
+        '¿Cuál era tu objetivo en ese sector esa noche?',
+        '¿Alguien más sabía que ibas a estar ahí?',
+      ],
+      confrontations: [
+        'Tus coordenadas de movimiento te ubican a 80 metros del agente en el momento exacto del incidente.',
+        'Tenías acceso al perfil de inteligencia de ese agente. Lo habías revisado 48 horas antes.',
+        'No te estoy acusando, Rogers. Te estoy dando la oportunidad de explicarlo antes de que lo haga alguien con menos paciencia.',
       ],
     },
   ],

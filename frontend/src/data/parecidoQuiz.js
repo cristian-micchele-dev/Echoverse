@@ -576,6 +576,7 @@ export const CHARACTER_PROFILES = {
   'the-punisher':    { moral: 2, metodo: 3, social: 1, emocion: 1, mundo: 2 },
   'william-wallace': { moral: 1, metodo: 3, social: 3, emocion: 3, mundo: 3 },
   'casey-ryback':    { moral: 1, metodo: 2, social: 1, emocion: 2, mundo: 3 },
+  'captain-america': { moral: 1, metodo: 2, social: 3, emocion: 2, mundo: 4 },
 }
 
 // ── Descripciones de resultado (por qué te parecés a ese personaje) ───────────
@@ -632,6 +633,7 @@ export const MATCH_DESCRIPTIONS = {
   'the-punisher':    'Tenés una guerra personal que no termina. Tu justicia es absoluta y eso te diferencia de los héroes — y de los villanos. Vivís en el gris y lo sabés.',
   'william-wallace': 'Tenés algo que defender y lo defendés aunque el costo sea desproporcionado. La libertad no es un concepto abstracto para vos — es personal y urgente.',
   'casey-ryback':    'No hacés alarde, no explicás, no anunciás. Simplemente actuás cuando hace falta y después seguís. La competencia sin ego es tu forma de estar.',
+  'captain-america': 'Tenés un código que no negocia. No por rigidez, sino porque encontraste algo en lo que creer y no lo soltás aunque el mundo cambie a tu alrededor. Ese tipo de constancia es más raro de lo que parece.',
 }
 
 // ── Funciones de scoring ──────────────────────────────────────────────────────
