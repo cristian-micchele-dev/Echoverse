@@ -201,7 +201,7 @@ export default function ProfilePage() {
   const displayName = user?.user_metadata?.username || user?.email
   const initial = displayName?.[0]?.toUpperCase()
 
-  const animChars   = useCountUp(loading ? 0 : activeAffinities.length)
+  const animChars   = useCountUp(loading ? 0 : affinities.filter(a => a.message_count > 0).length)
   const animMsgs    = useCountUp(loading ? 0 : totalMessages)
   const animLevels  = useCountUp(loading ? 0 : completedLevels)
   const animStreak  = useCountUp(loading ? 0 : streak.current)
