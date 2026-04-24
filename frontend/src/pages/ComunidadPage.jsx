@@ -36,8 +36,44 @@ export default function ComunidadPage() {
     navigate(ROUTES.CHAT_CHARACTER(`custom-${id}`))
   }
 
+  const marqueeChars = chars.length > 0 ? [...chars, ...chars] : []
+
   return (
     <div className="comunidad-page">
+
+      {chars.length > 0 && (
+        <div className="comunidad-marquee-wrap">
+          <div className="comunidad-marquee-track">
+            {marqueeChars.map((char, i) => (
+              <button
+                key={`${char.id}-${i}`}
+                className="comunidad-mcard"
+                style={{ '--ci-color': char.color || '#7252E8' }}
+                onClick={() => handleSelect(char.id)}
+              >
+                <div className="comunidad-mcard__avatar">
+                  {char.avatar_url
+                    ? <img src={char.avatar_url} alt={char.name} loading="lazy" />
+                    : <span className="comunidad-mcard__emoji">{char.emoji || '🤖'}</span>
+                  }
+                  <div className="comunidad-mcard__glow" />
+                </div>
+                <div className="comunidad-mcard__body">
+                  <span className="comunidad-mcard__badge">🌐 Comunidad</span>
+                  <span className="comunidad-mcard__name">{char.name}</span>
+                  {char.description && (
+                    <span className="comunidad-mcard__desc">
+                      {char.description.length > 55 ? char.description.slice(0, 55) + '…' : char.description}
+                    </span>
+                  )}
+                </div>
+                <div className="comunidad-mcard__enter">Chatear →</div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       <header className="comunidad-header">
         <button className="comunidad-back" onClick={() => navigate(-1)}>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
