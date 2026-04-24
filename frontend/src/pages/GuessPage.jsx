@@ -314,9 +314,10 @@ export default function GuessPage() {
         </div>
 
         <div className="gp-reveal-glow" style={{ '--cc': target.themeColor }} aria-hidden="true" />
+        {isWin && <div className="gp-reveal-burst" style={{ '--cc': target.themeColor }} aria-hidden="true" />}
 
         <div className="gp-reveal-card" style={{ '--cc': target.themeColor }}>
-          <div className="gp-reveal-avatar">
+          <div className={`gp-reveal-avatar ${isWin ? 'gp-reveal-avatar--win' : ''}`}>
             <img src={target.image} alt={target.name} loading="lazy" decoding="async" />
           </div>
 

@@ -429,6 +429,62 @@ router.post('/mode-completions', requireAuth, async (req, res) => {
   res.json({ ok: true, count: newCount })
 })
 
+// ─── Impostor Ranking ────────────────────────────────────────────────────────
+
+// GET /api/db/impostor-ranking  → top 20 (público)
+router.get('/impostor-ranking', async (req, res) => {
+  const { data, error } = await supabase
+    .from('impostor_scores')
+    .select('username, best_score, best_correct, best_difficulty, games_played')
+    .order('best_score', { ascending: false })
+    .limit(20)
+
+  if (error) return res.status(500).json({ error: error.message })
+  res.json(data ?? [])
+})
+
+// POST /api/db/impostor-score  { score, correct, difficulty }  (requiere auth)
+router.post('/impostor-score', requireAuth, async (req, res) => {
+  const { score, correct, difficulty } = req.body
+  if (typeof score !== 'number' || typeof correct !== 'number') {
+    return res.status(400).json({ error: 'score y correct son requeridos' })
+  }
+
+  const username =
+    req.user.user_metadata?.username ||
+    req.user.email?.split('@')[0] ||
+    'Jugador'
+
+  const { data: existing } = await supabase
+    .from('impostor_scores')
+    .select('best_score, games_played')
+    .eq('user_id', req.user.id)
+    .single()
+
+  const isNewBest = !existing || score > (existing.best_score ?? 0)
+  const gamesPlayed = (existing?.games_played ?? 0) + 1
+
+  const upsertData = {
+    user_id: req.user.id,
+    username,
+    games_played: gamesPlayed,
+    updated_at: new Date().toISOString(),
+  }
+
+  if (isNewBest) {
+    upsertData.best_score = score
+    upsertData.best_correct = correct
+    upsertData.best_difficulty = difficulty
+  }
+
+  const { error } = await supabase
+    .from('impostor_scores')
+    .upsert(upsertData, { onConflict: 'user_id' })
+
+  if (error) return res.status(500).json({ error: error.message })
+  res.json({ ok: true, isNewBest })
+})
+
 // ─── Custom Characters (requiere auth) ───────────────────────────────────────
 
 // GET /api/db/custom-characters

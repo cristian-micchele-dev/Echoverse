@@ -299,7 +299,6 @@ export default function MissionPage() {
     setCurrentEffects(null)
     setFetchError(false)
     let fullText = ''
-    let feedbackCleared = false
 
     try {
       await streamChat(
@@ -315,7 +314,6 @@ export default function MissionPage() {
           isCampaign: campaignMode
         },
         content => {
-          if (!feedbackCleared) { setChoiceFeedback(null); feedbackCleared = true }
           fullText += content
           let display = fullText
             .replace(/^\*{0,2}(?:MISIÓN|TITULO):\*{0,2}[^\n]*\n(?:[^\n]+\n)?/i, '')
@@ -400,6 +398,7 @@ export default function MissionPage() {
   }, [pendingStats, selectedChar]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleChoice = (choice) => {
+    setChoiceFeedback(null)
     setTimerActive(false)
     setCountdown(null)
     const fx = currentEffects?.[choice.key]

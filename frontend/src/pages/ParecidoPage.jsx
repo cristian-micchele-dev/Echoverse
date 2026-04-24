@@ -9,6 +9,14 @@ import './ParecidoPage.css'
 
 const OPTION_LETTERS = ['A', 'B', 'C', 'D']
 
+const DIM_CONFIG = [
+  { key: 'moral',   label: 'Moralidad', lo: 'Héroe puro',   hi: 'Oscuro / Villano' },
+  { key: 'metodo',  label: 'Método',    lo: 'Cerebral',     hi: 'Caos / Fuerza' },
+  { key: 'social',  label: 'Social',    lo: 'Solitario',    hi: 'Líder / Poder' },
+  { key: 'emocion', label: 'Emoción',   lo: 'Frío',         hi: 'Impulsivo' },
+  { key: 'mundo',   label: 'Mundo',     lo: 'Fantasía',     hi: 'Tecnología' },
+]
+
 // Personajes con imagen para el fondo animado (duplicados para loop sin cortes)
 const BG_CHARS = [...characters, ...characters].filter(c => c.image)
 
@@ -27,6 +35,8 @@ export default function ParecidoPage() {
   const [selected, setSelected]          = useState(null)
   const [animating, setAnimating]        = useState(false)
   const [topMatches, setTopMatches]      = useState([])
+  const [userProfile, setUserProfile]    = useState(null)
+  const [copied, setCopied]              = useState(false)
 
   useEffect(() => {
     if (phase === 'result' && !recordedRef.current) {
@@ -57,13 +67,14 @@ export default function ParecidoPage() {
     setTimeout(() => {
       if (currentIndex + 1 >= activeQuestions.length) {
         // Última pregunta — calcular resultado
-        const userProfile = computeUserProfile(newAnswers)
-        const top3 = rankCharacters(userProfile)
+        const profile = computeUserProfile(newAnswers)
+        const top3 = rankCharacters(profile)
         const enriched = top3.map(({ id, matchPct }) => ({
           id,
           matchPct,
           char: characters.find(c => c.id === id),
         }))
+        setUserProfile(profile)
         setTopMatches(enriched)
         setPhase('result')
       } else {
@@ -81,6 +92,18 @@ export default function ParecidoPage() {
     setSelected(null)
     setAnimating(false)
     setTopMatches([])
+    setUserProfile(null)
+    setCopied(false)
+  }
+
+  const handleShare = () => {
+    const top = topMatches[0]
+    if (!top?.char) return
+    const text = `Soy ${top.matchPct}% compatible con ${top.char.name} en EchoVerse ¿Y vos?`
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
   }
 
   // ── Fondo animado (compartido por todas las fases) ──────────────────────────
@@ -212,6 +235,33 @@ export default function ParecidoPage() {
           </div>
         )}
 
+        {/* Dimensiones del perfil */}
+        {userProfile && (
+          <div className="par-dims">
+            <p className="par-dims__title">Tu perfil en 5 dimensiones</p>
+            {DIM_CONFIG.map(({ key, label, lo, hi }) => {
+              const pct = Math.round(((userProfile[key] ?? 2.5) - 1) / 3 * 100)
+              return (
+                <div key={key} className="par-dim">
+                  <div className="par-dim__header">
+                    <span className="par-dim__label">{label}</span>
+                    <span className="par-dim__ends">
+                      <span>{lo}</span>
+                      <span>{hi}</span>
+                    </span>
+                  </div>
+                  <div className="par-dim__track">
+                    <div
+                      className="par-dim__fill"
+                      style={{ width: `${pct}%`, '--char-color': first?.char?.themeColor }}
+                    />
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+
         {/* También te parecés a… */}
         {(second || third) && (
           <div className="par-also">
@@ -241,6 +291,13 @@ export default function ParecidoPage() {
 
         {/* Acciones */}
         <div className="par-result__actions">
+          <button
+            className="par-action-btn par-action-btn--share"
+            onClick={handleShare}
+            style={{ '--char-color': first?.char?.themeColor }}
+          >
+            {copied ? '✓ ¡Copiado!' : '🔗 Compartir resultado'}
+          </button>
           <button className="par-action-btn par-action-btn--secondary" onClick={handleRestart}>
             Volver a intentar
           </button>

@@ -547,6 +547,77 @@
   border: 1px solid var(--border-subtle);
   color: var(--text-muted);
 }
+.par-action-btn--share {
+  background: color-mix(in srgb, var(--char-color, #9b59b6) 18%, rgba(14,14,22,0.9));
+  border: 1px solid color-mix(in srgb, var(--char-color, #9b59b6) 40%, transparent);
+  color: color-mix(in srgb, var(--char-color, #9b59b6) 90%, white);
+  box-shadow: 0 4px 18px -6px color-mix(in srgb, var(--char-color, #9b59b6) 35%, transparent);
+}
+.par-action-btn--share:hover {
+  opacity: 1;
+  background: color-mix(in srgb, var(--char-color, #9b59b6) 28%, rgba(14,14,22,0.9));
+}
+
+/* ─── Dimension bars ─────────────────────────────────────────────────────────── */
+.par-dims {
+  width: 100%;
+  max-width: 460px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: var(--radius-md);
+  padding: 1.1rem 1.25rem;
+  animation: par-fade-in 0.4s ease 0.4s both;
+}
+.par-dims__title {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0 0 0.25rem;
+}
+.par-dim {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.par-dim__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.par-dim__label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.par-dim__ends {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.58rem;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+.par-dim__ends span:last-child { text-align: right; }
+.par-dim__track {
+  height: 5px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.par-dim__fill {
+  height: 100%;
+  background: var(--char-color, #9b59b6);
+  border-radius: 999px;
+  animation: par-dim-fill 0.7s ease both;
+  box-shadow: 0 0 8px color-mix(in srgb, var(--char-color, #9b59b6) 50%, transparent);
+}
+@keyframes par-dim-fill {
+  from { width: 0 !important; }
+}
 
 /* ─── Animación ─────────────────────────────────────────────────────────────── */
 @keyframes par-fade-in {

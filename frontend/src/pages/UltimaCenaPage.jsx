@@ -13,6 +13,15 @@ const MIN_COMENSALES = 3
 const MAX_COMENSALES = 4
 const SCROLL_DELAY_MS = 60
 
+const QUICK_PROVOCATIONS = [
+  '¿Alguien tiene algo que confesar?',
+  '¿En quién de los presentes confiarían menos?',
+  '¿Cuál fue el mayor error que cometieron?',
+  '¿Qué harían si esta fuera la última vez que están juntos?',
+  '¿Qué piensan de verdad el uno del otro?',
+  'Si tuvieran que elegir solo a uno de los presentes para una misión imposible, ¿a quién elegirían?',
+]
+
 // ─── Component ───────────────────────────────────────────────────────────────
 export default function UltimaCenaPage() {
   const navigate = useNavigate()
@@ -414,30 +423,45 @@ export default function UltimaCenaPage() {
 
       {/* Input */}
       <div className="cena-input-area">
-        <textarea
-          ref={inputRef}
-          className="cena-input"
-          value={input}
-          onChange={e => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Lanzá un tema… o @Nombre para hablarle a uno solo"
-          rows={1}
-          disabled={isLoading}
-        />
-        <button
-          className="cena-send-btn"
-          onClick={sendMessage}
-          disabled={!input.trim() || isLoading}
-        >
-          {isLoading
-            ? <span className="cena-send-loading" />
-            : (
-              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                <path d="M2 9h14M9.5 3L16 9l-6.5 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            )
-          }
-        </button>
+        {/* Quick provocations */}
+        <div className="cena-provocations">
+          {QUICK_PROVOCATIONS.map((p, i) => (
+            <button
+              key={i}
+              className="cena-provocation-chip"
+              onClick={() => generateScene(p, false)}
+              disabled={isLoading}
+            >
+              {p}
+            </button>
+          ))}
+        </div>
+        <div className="cena-input-row">
+          <textarea
+            ref={inputRef}
+            className="cena-input"
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Lanzá un tema… o @Nombre para hablarle a uno solo"
+            rows={1}
+            disabled={isLoading}
+          />
+          <button
+            className="cena-send-btn"
+            onClick={sendMessage}
+            disabled={!input.trim() || isLoading}
+          >
+            {isLoading
+              ? <span className="cena-send-loading" />
+              : (
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                  <path d="M2 9h14M9.5 3L16 9l-6.5 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              )
+            }
+          </button>
+        </div>
       </div>
     </div>
   )

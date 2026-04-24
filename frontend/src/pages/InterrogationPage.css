@@ -1366,6 +1366,141 @@
   font-style: italic;
 }
 
+/* ── Flag button ───────────────────────────────────────────── */
+.ip-flag-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.25);
+  padding: 0 0.25rem;
+  line-height: 1;
+  transition: color 0.15s, transform 0.15s;
+  flex-shrink: 0;
+}
+.ip-flag-btn:hover { color: #f59e0b; transform: scale(1.2); }
+.ip-flag-btn--active { color: #ef4444; }
+.ip-flag-btn--active:hover { color: #fca5a5; }
+
+/* ── Notes panel ───────────────────────────────────────────── */
+.ip-notes-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.ip-notes-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: rgba(255,255,255,0.45);
+  font-size: 0.75rem;
+  font-family: inherit;
+  padding: 0.45rem 0.75rem;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+  text-align: left;
+}
+.ip-notes-toggle:hover,
+.ip-notes-toggle--open {
+  border-color: rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.7);
+}
+.ip-notes-toggle__count {
+  background: rgba(239,68,68,0.2);
+  border: 1px solid rgba(239,68,68,0.35);
+  color: #fca5a5;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.1rem 0.45rem;
+  border-radius: 100px;
+}
+.ip-notes-toggle__arrow { margin-left: auto; font-size: 0.6rem; opacity: 0.6; }
+.ip-notes-textarea {
+  width: 100%;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  color: rgba(255,255,255,0.8);
+  font-family: inherit;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  padding: 0.65rem 0.85rem;
+  resize: vertical;
+  min-height: 72px;
+  outline: none;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+.ip-notes-textarea:focus { border-color: rgba(255,255,255,0.25); }
+.ip-notes-textarea::placeholder { color: rgba(255,255,255,0.22); }
+
+/* ── Decision: flagged + notes ─────────────────────────────── */
+.ip-decision__flagged {
+  width: 100%;
+  background: rgba(239,68,68,0.06);
+  border: 1px solid rgba(239,68,68,0.2);
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.ip-decision__flagged-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #fca5a5;
+  margin: 0;
+}
+.ip-decision__flag-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(239,68,68,0.12);
+}
+.ip-decision__flag-q {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.38);
+  font-style: italic;
+  margin: 0;
+}
+.ip-decision__flag-a {
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.72);
+  line-height: 1.45;
+  margin: 0;
+}
+.ip-decision__notes {
+  width: 100%;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.ip-decision__notes-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+  margin: 0;
+}
+.ip-decision__notes-text {
+  font-size: 0.84rem;
+  color: rgba(255,255,255,0.65);
+  line-height: 1.55;
+  margin: 0;
+  white-space: pre-wrap;
+}
+
 /* ── Animations ────────────────────────────────────────────── */
 @keyframes fadeSlideUp {
   from { opacity: 0; transform: translateY(10px); }

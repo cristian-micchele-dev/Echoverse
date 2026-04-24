@@ -785,17 +785,50 @@
 }
 .cena-msg__bubble--user p { color: var(--text-primary); }
 
+/* ─── Quick provocations ─────────────────────────────────────────────────── */
+.cena-provocations {
+  display: flex;
+  gap: 0.4rem;
+  overflow-x: auto;
+  padding: 0.5rem 0.75rem 0.35rem;
+  scrollbar-width: none;
+}
+.cena-provocations::-webkit-scrollbar { display: none; }
+.cena-provocation-chip {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 100px;
+  color: rgba(255,255,255,0.5);
+  font-size: 0.72rem;
+  font-family: inherit;
+  padding: 0.3rem 0.8rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+.cena-provocation-chip:hover:not(:disabled) {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.22);
+  color: rgba(255,255,255,0.85);
+}
+.cena-provocation-chip:disabled { opacity: 0.3; cursor: not-allowed; }
+
 /* ─── Input area ─────────────────────────────────────────────────────────── */
 
 .cena-input-area {
   display: flex;
-  align-items: flex-end;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
+  flex-direction: column;
   background: color-mix(in srgb, var(--bg-deep) 92%, transparent);
   backdrop-filter: blur(8px);
   border-top: 1px solid var(--border-subtle);
   flex-shrink: 0;
+}
+.cena-input-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  padding: 0 0.75rem 0.75rem;
 }
 
 .cena-input {

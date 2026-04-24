@@ -33,6 +33,9 @@ export default function SwipePage() {
   const startX = useRef(null)
   const advanceRef = useRef(null)   // función para avanzar a la siguiente carta
   const autoTimerRef = useRef(null) // id del setTimeout automático
+  const timerRef = useRef(null)
+  const [timeLeft, setTimeLeft] = useState(15)
+  const [streak, setStreak] = useState(0)
 
   useEffect(() => {
     if (phase === 'result' && !recordedRef.current) {
@@ -44,6 +47,30 @@ export default function SwipePage() {
       }
     }
   }, [phase, session, selectedChar, notifyLevelUp])
+
+  // Start/reset countdown on each new card
+  useEffect(() => {
+    if (phase !== 'playing') return
+    setTimeLeft(15)
+    clearInterval(timerRef.current)
+    timerRef.current = setInterval(() => {
+      setTimeLeft(t => Math.max(0, t - 1))
+    }, 1000)
+    return () => clearInterval(timerRef.current)
+  }, [currentIndex, phase])
+
+  // Pause during feedback or leave animation
+  useEffect(() => {
+    if (feedbackData || leaving) clearInterval(timerRef.current)
+  }, [feedbackData, leaving])
+
+  // Auto-wrong on timeout
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (timeLeft === 0 && phase === 'playing' && !feedbackData && !leaving) {
+      handleAnswer(false)
+    }
+  }, [timeLeft])
 
   const handleCharSelect = async (char) => {
     setSelectedChar(char)
@@ -69,9 +96,13 @@ export default function SwipePage() {
 
   const handleAnswer = (userSaysTrue) => {
     if (leaving || feedbackData) return
+    clearInterval(timerRef.current)
     const card = cards[currentIndex]
     const correct = userSaysTrue === card.answer
-    const newAnswers = [...answers, { correct, difficulty: card.difficulty || 'easy' }]
+    const newStreak = correct ? streak + 1 : 0
+    setStreak(newStreak)
+    const multiplier = newStreak >= 5 ? 2.0 : newStreak >= 3 ? 1.5 : 1.0
+    const newAnswers = [...answers, { correct, difficulty: card.difficulty || 'easy', multiplier }]
     const isLast = currentIndex + 1 >= cards.length
     const dir = userSaysTrue ? 'right' : 'left'
     setLeaving(dir)
@@ -88,7 +119,7 @@ export default function SwipePage() {
         setFeedbackData(null)
         if (isLast) {
           const diffPts = { hard: 200, medium: 150, easy: 100 }
-          const score = newAnswers.reduce((acc, a) => acc + (a.correct ? (diffPts[a.difficulty] ?? 100) : 0), 0)
+          const score = newAnswers.reduce((acc, a) => acc + (a.correct ? Math.round((diffPts[a.difficulty] ?? 100) * a.multiplier) : 0), 0)
           setAnswers(newAnswers)
           setPhase('result')
           fetchResult(score, newAnswers.length)
@@ -140,9 +171,11 @@ export default function SwipePage() {
   }
 
   const handleRestart = () => {
+    clearInterval(timerRef.current)
     setPhase('chars'); setSelectedChar(null); setCards([]); setCurrentIndex(0)
     setAnswers([]); setLeaving(null); setDragX(0); setIsDragging(false)
     setFeedbackData(null); setResult({ score: null, analysis: '' }); setError(null)
+    setTimeLeft(15); setStreak(0)
   }
 
   /* ── Chars ── */
@@ -223,6 +256,14 @@ export default function SwipePage() {
           {selectedChar.image
             ? <img src={selectedChar.image} alt={selectedChar.name} className="swipe-play-avatar" loading="lazy" decoding="async" />
             : <span className="swipe-play-emoji">{selectedChar.emoji}</span>}
+        </div>
+
+        {/* Timer bar */}
+        <div className="swipe-timer-track">
+          <div
+            className={`swipe-timer-fill ${timeLeft <= 5 ? 'swipe-timer-fill--urgent' : ''}`}
+            style={{ width: `${(timeLeft / 15) * 100}%` }}
+          />
         </div>
 
         {/* Tinte de fondo dinámico */}
@@ -323,7 +364,10 @@ export default function SwipePage() {
           </button>
           <div className="swipe-counter-wrap">
             <div className="swipe-counter">{currentIndex + 1}<span>/{cards.length}</span></div>
-            <p className="swipe-counter__hint">deslizá o usá los botones</p>
+            {streak >= 2
+              ? <p className="swipe-streak">🔥 {streak}× racha{streak >= 5 ? ' ×2' : streak >= 3 ? ' ×1.5' : ''}</p>
+              : <p className="swipe-counter__hint">deslizá o usá los botones</p>
+            }
           </div>
           <button className="swipe-btn swipe-btn--true" onClick={() => handleAnswer(true)}>
             <svg width="26" height="26" viewBox="0 0 26 26" fill="none">

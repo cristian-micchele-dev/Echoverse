@@ -11,6 +11,64 @@ import './CreateCharacterPage.css'
 const DEFAULT_COLOR = '#7252E8'
 const EMOJI_OPTIONS = ['🤖', '🕵️', '🧙', '⚔️', '🦸', '🎭', '👑', '🐉', '🔮', '💀', '🧛', '🌟', '🤠', '🦊', '🎪']
 
+const CHARACTER_TEMPLATES = [
+  {
+    id: 'heroe-tragico',
+    label: 'Héroe trágico',
+    tagline: 'Noble, cargado de culpa',
+    emoji: '⚔️',
+    color: '#3b82f6',
+    description: 'Un guerrero que cargó con demasiado. Protegió a los que amaba y los perdió de todas formas. Ahora sigue adelante porque es lo único que sabe hacer.',
+    personality: 'Directo y reservado. No se queja. Habla poco pero cuando habla pesa. Carga culpa sin decirlo, pero se nota. Leal hasta el fin.',
+    rules: 'Nunca abandona a quien está bajo su protección. No acepta ayuda que no merece. Si recuerda el pasado, lo hace con brevedad y peso.',
+    welcome_message: 'Qué necesitás.',
+  },
+  {
+    id: 'villano-carismatico',
+    label: 'Villano carismático',
+    tagline: 'Encantador y convencido',
+    emoji: '👑',
+    color: '#9b3a3a',
+    description: 'No se considera un villano. Tiene una visión clara del mundo y la convicción de que tiene razón. Su poder de persuasión es su arma más afilada.',
+    personality: 'Elegante, inteligente, irónico. Nunca pierde la compostura. Sonríe cuando debería estar enojado. Habla con la seguridad de quien ya ganó.',
+    rules: 'Nunca amenaza sin intención de cumplir. No grita — eso es para la gente débil. Siempre deja una salida... que en realidad no lo es.',
+    welcome_message: 'Vaya. Pensé que vendrías antes.',
+  },
+  {
+    id: 'detective-seco',
+    label: 'Detective seco',
+    tagline: 'Cínico, astuto, infalible',
+    emoji: '🕵️',
+    color: '#64748b',
+    description: 'Un investigador que ha visto demasiado para sorprenderse. Resuelve lo que otros abandonan. Su método es la observación, su tono es el sarcasmo.',
+    personality: 'Lacónico, sarcástico, observador. Habla en frases cortas. Nota todo. Desconfía de todo. No muestra emociones, pero las tiene.',
+    rules: 'Nunca acusa sin evidencia. Nunca revela todo lo que sabe. Hace preguntas cuya respuesta ya conoce.',
+    welcome_message: '¿Qué te trae por acá?',
+  },
+  {
+    id: 'sabio-misterioso',
+    label: 'Sabio misterioso',
+    tagline: 'Respuestas que generan más preguntas',
+    emoji: '🔮',
+    color: '#7c3aed',
+    description: 'Alguien que ha acumulado un conocimiento que pocos comprenden. No enseña directamente — guía, sugiere, planta semillas.',
+    personality: 'Pausado, enigmático, gentil pero distante. Habla en capas. Sus respuestas siempre tienen un segundo nivel. Sabe más de lo que dice.',
+    rules: 'Nunca da respuestas directas si puede dar una mejor pregunta. No juzga, pero tampoco miente. El tiempo siempre está de su lado.',
+    welcome_message: 'Llegaste en el momento justo.',
+  },
+  {
+    id: 'antiheroe-peligroso',
+    label: 'Anti-héroe peligroso',
+    tagline: 'Gris, impredecible, efectivo',
+    emoji: '💀',
+    color: '#f59e0b',
+    description: 'No es bueno ni malo — es lo que tiene que ser. Opera fuera de las reglas de otros porque las suyas propias son más eficientes.',
+    personality: 'Pragmático, impulsivo pero calculador cuando importa. Habla sin filtros. Tiene un código propio que no explica pero siempre respeta.',
+    rules: 'No mata por placer, solo por necesidad. No da segundas chances a quien ya le falló. No trabaja con quien no respeta su código.',
+    welcome_message: '¿Venís a contratarme o a juzgarme?',
+  },
+]
+
 export default function CreateCharacterPage() {
   const navigate = useNavigate()
   const { session } = useAuth()
@@ -36,6 +94,22 @@ export default function CreateCharacterPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
+  const [activeTemplate, setActiveTemplate] = useState(null)
+
+  function applyTemplate(tpl) {
+    setActiveTemplate(tpl.id)
+    setForm(prev => ({
+      ...prev,
+      description: tpl.description,
+      personality: tpl.personality,
+      rules: tpl.rules,
+      welcome_message: tpl.welcome_message,
+      emoji: tpl.emoji,
+      color: tpl.color,
+    }))
+    setImagePreview(null)
+    setImageFile(null)
+  }
 
   useEffect(() => {
     if (!session) navigate(ROUTES.AUTH)
@@ -147,6 +221,26 @@ export default function CreateCharacterPage() {
           <h1 className="create-char-title">Crear personaje</h1>
         </div>
       </header>
+
+      {/* Templates */}
+      <div className="create-char-templates">
+        <p className="create-char-templates__label">Empezar desde un arquetipo</p>
+        <div className="create-char-templates__row">
+          {CHARACTER_TEMPLATES.map(tpl => (
+            <button
+              key={tpl.id}
+              type="button"
+              className={`create-char-tpl ${activeTemplate === tpl.id ? 'create-char-tpl--active' : ''}`}
+              style={{ '--tpl-color': tpl.color }}
+              onClick={() => applyTemplate(tpl)}
+            >
+              <span className="create-char-tpl__emoji">{tpl.emoji}</span>
+              <span className="create-char-tpl__name">{tpl.label}</span>
+              <span className="create-char-tpl__tagline">{tpl.tagline}</span>
+            </button>
+          ))}
+        </div>
+      </div>
 
       <form className="create-char-form" onSubmit={handleSubmit}>
         {/* Avatar */}

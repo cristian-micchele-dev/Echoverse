@@ -20,12 +20,7 @@ const SwipePage = lazy(() => import('./pages/SwipePage'))
 const DilemmaPage = lazy(() => import('./pages/DilemmaPage'))
 const InterrogationPage = lazy(() => import('./pages/InterrogationPage'))
 const ModeSelectorPage = lazy(() => import('./pages/ModeSelectorPage'))
-const BattlePage = lazy(() => import('./pages/BattlePage'))
-const FightPage = lazy(() => import('./pages/FightPage'))
-const ConfesionarioPage = lazy(() => import('./pages/ConfesionarioPage'))
-const EsteOEsePage = lazy(() => import('./pages/EsteOEsePage'))
-const StoryPage = lazy(() => import('./pages/StoryPage'))
-const CriticalPage = lazy(() => import('./pages/CriticalPage'))
+const ImpostorPage = lazy(() => import('./pages/ImpostorPage/ImpostorPage'))
 const UltimaCenaPage = lazy(() => import('./pages/UltimaCenaPage'))
 const ParecidoPage = lazy(() => import('./pages/ParecidoPage'))
 const RoomsPage = lazy(() => import('./pages/RoomsPage'))
@@ -58,12 +53,7 @@ function AnimatedRoutes() {
         <Route path={ROUTES.DILEMA} element={<DilemmaPage />} />
         <Route path={ROUTES.INTERROGATION} element={<InterrogationPage />} />
         <Route path={ROUTES.MODOS} element={<ModeSelectorPage />} />
-        <Route path={ROUTES.BATTLE} element={<BattlePage />} />
-        <Route path={ROUTES.FIGHT} element={<FightPage />} />
-        <Route path={ROUTES.CONFESIONARIO} element={<ConfesionarioPage />} />
-        <Route path={ROUTES.ESTE_O_ESE} element={<EsteOEsePage />} />
-        <Route path={ROUTES.STORY} element={<StoryPage />} />
-        <Route path={ROUTES.CRITICAL} element={<CriticalPage />} />
+
         <Route path={ROUTES.ULTIMA_CENA} element={<UltimaCenaPage />} />
         <Route path={ROUTES.PARECIDO} element={<ParecidoPage />} />
         <Route path={ROUTES.SALAS} element={<RoomsPage />} />
@@ -72,6 +62,7 @@ function AnimatedRoutes() {
         <Route path={ROUTES.CREAR_PERSONAJE} element={<CreateCharacterPage />} />
         <Route path="/editar-personaje/:id" element={<EditCharacterPage />} />
         <Route path={ROUTES.COMUNIDAD} element={<ComunidadPage />} />
+        <Route path={ROUTES.IMPOSTOR} element={<ImpostorPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </div>

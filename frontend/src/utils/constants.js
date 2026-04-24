@@ -39,4 +39,5 @@ export const ROUTES = {
   CREAR_PERSONAJE:  '/crear-personaje',
   EDITAR_PERSONAJE: (id) => `/editar-personaje/${id}`,
   COMUNIDAD:        '/comunidad',
+  IMPOSTOR:         '/impostor',
 }

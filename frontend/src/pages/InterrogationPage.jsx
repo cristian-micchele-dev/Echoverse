@@ -69,6 +69,11 @@ export default function InterrogationPage() {
   // Suggestion chips state
   const [usedSuggestions, setUsedSuggestions] = useState(new Set())
 
+  // Notes panel state
+  const [flagged, setFlagged] = useState(new Set())
+  const [notes, setNotes] = useState('')
+  const [notesOpen, setNotesOpen] = useState(false)
+
   // Confrontation phase state
   const [confrontationResponse, setConfrontationResponse] = useState(null)
   const [selectedConfrontation, setSelectedConfrontation] = useState(null)
@@ -199,6 +204,16 @@ export default function InterrogationPage() {
     sendMessage(q)
   }, [sendMessage])
 
+  // ── Toggle flag on exchange ───────────────────────────────────
+  const toggleFlag = useCallback((index) => {
+    setFlagged(prev => {
+      const next = new Set(prev)
+      if (next.has(index)) next.delete(index)
+      else next.add(index)
+      return next
+    })
+  }, [])
+
   // ── Submit verdict ────────────────────────────────────────────
   const submitVerdict = useCallback(async (verdict) => {
     if (!sessionId) return
@@ -275,6 +290,9 @@ export default function InterrogationPage() {
     setConfrontationResponse(null)
     setSelectedConfrontation(null)
     setConfrontationTone(null)
+    setFlagged(new Set())
+    setNotes('')
+    setNotesOpen(false)
   }
 
   // ════════════════════════════════════════════════════════════
@@ -491,6 +509,13 @@ export default function InterrogationPage() {
                           {TONE_LABELS[ex.emotionalTone]?.label ?? ex.emotionalTone}
                         </span>
                       )}
+                      <button
+                        className={`ip-flag-btn ${flagged.has(i) ? 'ip-flag-btn--active' : ''}`}
+                        onClick={() => toggleFlag(i)}
+                        title={flagged.has(i) ? 'Quitar marca' : 'Marcar como sospechoso'}
+                      >
+                        {flagged.has(i) ? '⚑' : '⚐'}
+                      </button>
                     </div>
                     <p className="ip-bubble__text">{ex.response}</p>
                   </div>
@@ -556,6 +581,27 @@ export default function InterrogationPage() {
               </div>
             </>
           )}
+
+          {/* Notes panel */}
+          <div className="ip-notes-wrap">
+            <button
+              className={`ip-notes-toggle ${notesOpen ? 'ip-notes-toggle--open' : ''}`}
+              onClick={() => setNotesOpen(o => !o)}
+            >
+              <span>📝 Notas</span>
+              {flagged.size > 0 && <span className="ip-notes-toggle__count">{flagged.size} marcadas</span>}
+              <span className="ip-notes-toggle__arrow">{notesOpen ? '▲' : '▼'}</span>
+            </button>
+            {notesOpen && (
+              <textarea
+                className="ip-notes-textarea"
+                placeholder="Anotá tus sospechas, contradicciones detectadas..."
+                value={notes}
+                onChange={e => setNotes(e.target.value)}
+                rows={3}
+              />
+            )}
+          </div>
 
           {canDecide && (
             <button
@@ -704,6 +750,25 @@ export default function InterrogationPage() {
                   </span>
                 ))}
               </div>
+            </div>
+          )}
+
+          {flagged.size > 0 && (
+            <div className="ip-decision__flagged">
+              <p className="ip-decision__flagged-label">⚑ Respuestas marcadas como sospechosas:</p>
+              {exchanges.filter((_, i) => flagged.has(i)).map((ex, i) => (
+                <div key={i} className="ip-decision__flag-item">
+                  <p className="ip-decision__flag-q">"{ex.question}"</p>
+                  <p className="ip-decision__flag-a">{ex.response}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {notes.trim() && (
+            <div className="ip-decision__notes">
+              <p className="ip-decision__notes-label">Tus notas:</p>
+              <p className="ip-decision__notes-text">{notes}</p>
             </div>
           )}
 
