@@ -38,4 +38,5 @@ export const ROUTES = {
   ADMIN:          '/admin',
   CREAR_PERSONAJE:  '/crear-personaje',
   EDITAR_PERSONAJE: (id) => `/editar-personaje/${id}`,
+  COMUNIDAD:        '/comunidad',
 }
