@@ -750,6 +750,7 @@ export const characters = [
     bgEffect: 'sparks',
     notificationTone: 'dark',
     uiTheme: 'cold',
+    unlockRank: 'explorador',
     cinematic: {
       missionIntro: { quote: 'Siempre fui el mejor en lo que hago.', missionLabel: 'Operación: Adamantio' }
     },
