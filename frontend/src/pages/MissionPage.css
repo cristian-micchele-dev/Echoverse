@@ -687,7 +687,8 @@
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 10px;
   flex-shrink: 0;
-  transition: background 0.18s, border-color 0.18s, box-shadow 0.18s, transform 0.15s;
+  color: rgba(255,255,255,0.75);
+  transition: background 0.18s, border-color 0.18s, box-shadow 0.18s, transform 0.15s, color 0.18s;
   z-index: 1;
 }
 .mission-setup__type-card:hover .mission-setup__type-icon {
@@ -697,6 +698,7 @@
   background: color-mix(in srgb, var(--char-color) 14%, transparent);
   border-color: color-mix(in srgb, var(--char-color) 38%, transparent);
   box-shadow: 0 0 12px color-mix(in srgb, var(--char-color) 22%, transparent);
+  color: var(--char-color);
   transform: scale(1.07);
 }
 
