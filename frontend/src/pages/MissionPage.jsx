@@ -53,11 +53,39 @@ const DIFFICULTIES = [
 ]
 
 const MISSION_TYPES = [
-  { id: 'combate',       label: '⚔ Combate',       desc: 'Supervivencia' },
-  { id: 'infiltracion',  label: '🕵 Infiltración',  desc: 'Espionaje' },
-  { id: 'rescate',       label: '🛡 Rescate',        desc: 'Protección' },
-  { id: 'investigacion', label: '🔍 Investigación', desc: 'Misterio' }
+  { id: 'combate',       label: 'Combate',       desc: 'Supervivencia' },
+  { id: 'infiltracion',  label: 'Infiltración',  desc: 'Espionaje' },
+  { id: 'rescate',       label: 'Rescate',       desc: 'Protección' },
+  { id: 'investigacion', label: 'Investigación', desc: 'Misterio' }
 ]
+
+const MISSION_TYPE_ICONS = {
+  combate: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/>
+      <line x1="13" y1="19" x2="19" y2="13"/>
+      <line x1="16" y1="16" x2="20" y2="20"/>
+      <line x1="19" y1="21" x2="21" y2="19"/>
+    </svg>
+  ),
+  infiltracion: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+      <circle cx="12" cy="12" r="3"/>
+    </svg>
+  ),
+  rescate: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+    </svg>
+  ),
+  investigacion: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="11" cy="11" r="8"/>
+      <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+  ),
+}
 
 function stripMd(str) {
   return str.replace(/\*\*/g, '').replace(/\*/g, '')
@@ -742,20 +770,17 @@ export default function MissionPage() {
             <div className="mission-setup__section mission-setup__section--reveal" style={{ '--reveal-delay': '0s' }}>
               <p className="mission-setup__question">¿Qué tipo de operación?</p>
               <div className="mission-setup__type-grid">
-                {MISSION_TYPES.map(m => {
-                  const [icon, ...words] = m.label.split(' ')
-                  return (
+                {MISSION_TYPES.map(m => (
                     <button
                       key={m.id}
                       className={`mission-setup__type-card ${missionType === m.id ? 'mission-setup__type-card--active' : ''}`}
                       onClick={() => setMissionType(m.id)}
                     >
-                      <span className="mission-setup__type-icon">{icon}</span>
-                      <span className="mission-setup__type-label">{words.join(' ')}</span>
+                      <span className="mission-setup__type-icon">{MISSION_TYPE_ICONS[m.id]}</span>
+                      <span className="mission-setup__type-label">{m.label}</span>
                       <span className="mission-setup__type-desc">{m.desc}</span>
                     </button>
-                  )
-                })}
+                  ))}
               </div>
             </div>
           )}
