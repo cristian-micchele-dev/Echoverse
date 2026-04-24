@@ -1108,7 +1108,7 @@ export const characters = [
     themeColor: '#C0392B',
     themeColorDim: 'rgba(192, 57, 43, 0.18)',
     gradient: 'linear-gradient(160deg, #0a0000 0%, #1a0202 45%, #2a0808 100%)',
-    image: null,
+    image: '/images/deadpooli.jpg',
     welcomeMessage: '¡Ey! Sé que estás leyendo esto. Sí, vos. Bienvenido a mi chat. Prometé que no le contás a Cable.',
     suggestedQuestions: [
       '¿Sabés que estás hablando con un personaje de IA, no?',

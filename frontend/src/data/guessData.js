@@ -395,4 +395,13 @@ export const guessData = {
     revealPhrase: 'Podría hacer esto todo el día. Y lo hago.',
   },
 
+  'deadpool': {
+    hints: [
+      { level: 'Psicológica', text: 'Sabe exactamente lo que es y no le molesta. De hecho, lo convierte en su mayor ventaja. La autoconciencia total es su superpoder más raro.' },
+      { level: 'Conductual',  text: 'Habla en medio de la acción, hace referencias que nadie más entiende, y toma decisiones caóticas que de alguna manera funcionan. Casi siempre.' },
+      { level: 'Contextual',  text: 'Sobrevivió un experimento que le cambió todo menos la actitud. Opera como mercenario independiente y tiene una relación complicada con los héroes convencionales.' },
+    ],
+    revealPhrase: '¡Sabía que ibas a adivinarme! Soy imposible de esconder. Lo sé. Es una maldición.',
+  },
+
 }

@@ -7,7 +7,7 @@
 export const INTERROGATION_CHAR_IDS = [
   'walter-white', 'hannibal', 'sherlock', 'jack-sparrow', 'el-profesor',
   'tony-stark', 'darth-vader', 'tyler-durden', 'tommy-shelby', 'james-bond',
-  'norman-bates', 'john-wick', 'captain-america',
+  'norman-bates', 'john-wick', 'captain-america', 'deadpool',
 ]
 
 export const LIE_PROFILES = {
@@ -75,6 +75,11 @@ export const LIE_PROFILES = {
     lieChance: 0.15, lieStyle: 'evasive',
     styleDesc: 'Casi nunca miente. Cuando oculta algo, lo hace por clasificación o por proteger a otros, no por conveniencia propia.',
     tells:     'Pausa breve antes de responder, apela a "protocolo" o "seguridad nacional", responde con principios generales cuando debería dar detalles.',
+  },
+  'deadpool': {
+    lieChance: 0.85, lieStyle: 'chaotic',
+    styleDesc: 'Miente, confiesa, vuelve a mentir y luego te dice que estaba mintiendo cuando confesó. Su honestidad es indistinguible de su trolleo.',
+    tells:     'Hace chistes cuando debería responder en serio, rompe la cuarta pared para "aclarar" algo que lo incrimina más, cambia de historia con entusiasmo.',
   },
 }
 
@@ -530,6 +535,41 @@ export const SCENARIOS = {
         'El patrón de las heridas es idéntico al de otros casos vinculados a vos.',
         'Te vieron a tres cuadras de su propiedad dos horas antes de que lo encontraran.',
         'No estoy aquí para juzgarte. Estoy aquí porque el Alto Mesa necesita una respuesta antes de actuar.',
+      ],
+    },
+  ],
+
+  'deadpool': [
+    {
+      id: 'dp-mercenario',
+      text: 'Un laboratorio de armas fue saqueado. Cámaras de seguridad muestran a alguien con un traje rojo y negro. El sospechoso habla con las cámaras antes de romperlas.',
+      hiddenTruth: 'Lo hizo por encargo. El cliente era un alias conocido de una organización de tráfico de armas. Deadpool cobró y no le importó el destino del cargamento.',
+      innocentVersion: 'Solo estaba "pasando por ahí" y entró porque le pareció interesante. No sabe nada del robo.',
+      suggestedQuestions: [
+        '¿Podés explicar por qué tu traje aparece en las grabaciones?',
+        '¿Trabajaste para alguien en las últimas 48 horas?',
+        '¿Qué sabés sobre el paradero de las armas robadas?',
+      ],
+      confrontations: [
+        'Tenemos grabaciones tuyas saludando a las cámaras que después aparecen destruidas. Con guante.',
+        'Tu cuenta bancaria recibió una transferencia de una empresa fantasma 12 horas antes del robo.',
+        'Sé que estás pensando en un chiste. No lo hagas. Esto es serio.',
+      ],
+    },
+    {
+      id: 'dp-cuarta-pared',
+      text: 'Un informante que iba a declarar contra una organización criminal apareció en paradero desconocido. El último contacto lo ubica en una cafetería donde Deadpool "estaba de casualidad".',
+      hiddenTruth: 'Deadpool fue contratado para hacer desaparecer al informante. Lo hizo sin violencia, pero lo entregó al cliente.',
+      innocentVersion: 'Deadpool solo fue a buscar chimichanga. El informante se fue por las suyas.',
+      suggestedQuestions: [
+        '¿Cuánto tiempo estuviste en esa cafetería?',
+        '¿Conocías al informante antes de ese día?',
+        '¿Alguien te contrató recientemente para un trabajo en esa zona?',
+      ],
+      confrontations: [
+        'Cinco testigos te vieron salir de la cafetería con un hombre que coincide con la descripción del informante.',
+        'Tu teléfono hizo ping en tres torres distintas siguiendo exactamente la misma ruta que el informante.',
+        'Wade. Sé que estás a punto de hacer una referencia a una película. Primero respondé la pregunta.',
       ],
     },
   ],

@@ -6,7 +6,7 @@ export const RECOMMENDED_CHAR_IDS = new Set([
   'walter-white', 'john-wick', 'darth-vader', 'sherlock',
   'tommy-shelby', 'katniss', 'eleven', 'hannibal', 'tyler-durden',
   'ragnar-lothbrok', 'el-profesor', 'jax-teller', 'la-novia',
-  'geralt', 'jon-snow', 'gandalf', 'lara-croft', 'captain-america'
+  'geralt', 'jon-snow', 'gandalf', 'lara-croft', 'captain-america', 'deadpool'
 ])
 
 // ─── Escenarios ────────────────────────────────────────────────────────────
