@@ -11,6 +11,7 @@ export default function ComunidadPage() {
   const [chars, setChars] = useState([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
+  const [visible, setVisible] = useState(false)
 
   useEffect(() => {
     supabase
@@ -21,6 +22,7 @@ export default function ComunidadPage() {
       .then(({ data }) => {
         if (data) setChars(data)
         setLoading(false)
+        requestAnimationFrame(() => setVisible(true))
       })
   }, [])
 
@@ -29,130 +31,166 @@ export default function ComunidadPage() {
   )
 
   function handleSelect(id) {
-    if (!session) {
-      navigate(ROUTES.AUTH)
-      return
-    }
+    if (!session) { navigate(ROUTES.AUTH); return }
     navigate(ROUTES.CHAT_CHARACTER(`custom-${id}`))
   }
 
   const marqueeChars = chars.length > 0 ? [...chars, ...chars] : []
 
   return (
-    <div className="comunidad-page">
+    <div className={`cp-page${visible ? ' cp-page--visible' : ''}`}>
 
+      {/* ── Marquee ── */}
       {chars.length > 0 && (
-        <div className="comunidad-marquee-wrap">
-          <div className="comunidad-marquee-track">
+        <div className="cp-marquee-wrap">
+          <div className="cp-marquee-track">
             {marqueeChars.map((char, i) => (
               <button
                 key={`${char.id}-${i}`}
-                className="comunidad-mcard"
-                style={{ '--ci-color': char.color || '#7252E8' }}
+                className="cp-mcard"
+                style={{ '--ci': char.color || '#7252E8' }}
                 onClick={() => handleSelect(char.id)}
               >
-                <div className="comunidad-mcard__avatar">
+                <div className="cp-mcard__img">
                   {char.avatar_url
                     ? <img src={char.avatar_url} alt={char.name} loading="lazy" />
-                    : <span className="comunidad-mcard__emoji">{char.emoji || '🤖'}</span>
+                    : <span className="cp-mcard__emoji">{char.emoji || '🤖'}</span>
                   }
-                  <div className="comunidad-mcard__glow" />
+                  <div className="cp-mcard__fade" />
                 </div>
-                <div className="comunidad-mcard__body">
-                  <span className="comunidad-mcard__badge">🌐 Comunidad</span>
-                  <span className="comunidad-mcard__name">{char.name}</span>
+                <div className="cp-mcard__info">
+                  <span className="cp-mcard__name">{char.name}</span>
                   {char.description && (
-                    <span className="comunidad-mcard__desc">
-                      {char.description.length > 55 ? char.description.slice(0, 55) + '…' : char.description}
+                    <span className="cp-mcard__desc">
+                      {char.description.length > 50 ? char.description.slice(0, 50) + '…' : char.description}
                     </span>
                   )}
                 </div>
-                <div className="comunidad-mcard__enter">Chatear →</div>
+                <div className="cp-mcard__cta">Chatear →</div>
               </button>
             ))}
           </div>
         </div>
       )}
 
-      <header className="comunidad-header">
-        <button className="comunidad-back" onClick={() => navigate(-1)}>
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      {/* ── Hero ── */}
+      <div className="cp-hero">
+        <button className="cp-back" onClick={() => navigate(-1)}>
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
             <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
           Volver
         </button>
-        <div className="comunidad-header__text">
-          <span className="comunidad-eyebrow">Comunidad</span>
-          <h1 className="comunidad-title">Personajes personalizados</h1>
-          {!loading && <span className="comunidad-count">{chars.length} personajes</span>}
-        </div>
-        {session && (
-          <button className="comunidad-crear-btn" onClick={() => navigate(ROUTES.CREAR_PERSONAJE)}>
-            + Crear el tuyo
-          </button>
-        )}
-      </header>
 
-      <div className="comunidad-search-wrap">
-        <svg className="comunidad-search-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.4"/>
-          <path d="M11 11l2.5 2.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-        </svg>
-        <input
-          className="comunidad-search"
-          type="text"
-          placeholder="Buscar personaje..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-        />
+        <div className="cp-hero__main">
+          <div>
+            <p className="cp-eyebrow">🌐 Comunidad</p>
+            <h1 className="cp-title">Personajes<br /><em>creados por jugadores</em></h1>
+            {!loading && (
+              <p className="cp-subtitle">
+                {chars.length} {chars.length === 1 ? 'personaje' : 'personajes'} disponibles · Chateá con cualquiera
+              </p>
+            )}
+          </div>
+
+          {session && (
+            <button className="cp-crear" onClick={() => navigate(ROUTES.CREAR_PERSONAJE)}>
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M7 1v12M1 7h12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+              </svg>
+              Crear el tuyo
+            </button>
+          )}
+        </div>
+
+        <div className="cp-search-wrap">
+          <svg className="cp-search-icon" width="15" height="15" viewBox="0 0 16 16" fill="none">
+            <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.4"/>
+            <path d="M11 11l2.5 2.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+          </svg>
+          <input
+            className="cp-search"
+            type="text"
+            placeholder="Buscar personaje..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
+          {search && (
+            <button className="cp-search-clear" onClick={() => setSearch('')}>✕</button>
+          )}
+        </div>
       </div>
 
+      {/* ── Grid ── */}
       {loading && (
-        <div className="comunidad-loading">
-          <div className="comunidad-skeleton" />
-          <div className="comunidad-skeleton" />
-          <div className="comunidad-skeleton" />
-          <div className="comunidad-skeleton" />
-          <div className="comunidad-skeleton" />
+        <div className="cp-grid">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="cp-skeleton" style={{ animationDelay: `${i * 0.08}s` }} />
+          ))}
         </div>
       )}
 
       {!loading && filtered.length === 0 && (
-        <div className="comunidad-empty">
-          <span className="comunidad-empty__icon">🌐</span>
-          <p className="comunidad-empty__text">
-            {search ? `No hay resultados para "${search}"` : 'Todavía no hay personajes públicos.'}
+        <div className="cp-empty">
+          <span className="cp-empty__icon">🌐</span>
+          <p className="cp-empty__text">
+            {search ? `Sin resultados para "${search}"` : 'Todavía no hay personajes públicos.'}
           </p>
+          {!search && session && (
+            <button className="cp-empty__cta" onClick={() => navigate(ROUTES.CREAR_PERSONAJE)}>
+              Sé el primero en crear uno
+            </button>
+          )}
         </div>
       )}
 
       {!loading && filtered.length > 0 && (
-        <div className="comunidad-list">
-          {filtered.map(char => (
+        <div className="cp-grid">
+          {filtered.map((char, i) => (
             <button
               key={char.id}
-              className="custom-char-item"
-              style={{ '--ci-color': char.color || '#7252E8' }}
+              className="cp-card"
+              style={{
+                '--ci': char.color || '#7252E8',
+                animationDelay: `${Math.min(i, 12) * 0.05}s`,
+              }}
               onClick={() => handleSelect(char.id)}
             >
-              <div className="custom-char-item__avatar">
+              {/* Fondo */}
+              <div className="cp-card__bg">
                 {char.avatar_url
                   ? <img src={char.avatar_url} alt={char.name} loading="lazy" />
-                  : <span>{char.emoji || '🤖'}</span>
+                  : (
+                    <div
+                      className="cp-card__bg-color"
+                      style={{ background: `radial-gradient(ellipse at 50% 30%, color-mix(in srgb, ${char.color || '#7252E8'} 30%, #1a1a2e), #0d0d1a)` }}
+                    >
+                      <span className="cp-card__bg-emoji">{char.emoji || '🤖'}</span>
+                    </div>
+                  )
                 }
+                <div className="cp-card__overlay" />
               </div>
-              <div className="custom-char-item__info">
-                <span className="custom-char-item__name">{char.name}</span>
-                <span className="custom-char-item__tag">
-                  {char.description
-                    ? (char.description.length > 70 ? char.description.slice(0, 70) + '…' : char.description)
-                    : '🌐 Comunidad'
-                  }
+
+              {/* Contenido */}
+              <div className="cp-card__content">
+                <span className="cp-card__badge">🌐 Comunidad</span>
+                <h3 className="cp-card__name">{char.name}</h3>
+                {char.description && (
+                  <p className="cp-card__desc">
+                    {char.description.length > 80 ? char.description.slice(0, 80) + '…' : char.description}
+                  </p>
+                )}
+                <span className="cp-card__cta">
+                  Chatear
+                  <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
+                    <path d="M3 7h8M7.5 3.5L11 7l-3.5 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
                 </span>
               </div>
-              <svg className="custom-char-item__arrow" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
+
+              {/* Borde glow */}
+              <div className="cp-card__border" />
             </button>
           ))}
         </div>
