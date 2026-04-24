@@ -1,7 +1,7 @@
 /* ─── DilemmaPage — Modo Dilemas Morales ────────────────────────────────── */
 
 .dilema-page {
-  min-height: 100vh;
+  min-height: 100dvh;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -457,7 +457,7 @@
 .dilema-intro {
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  min-height: 100dvh;
   padding-top: 5rem;
 }
 
@@ -535,7 +535,7 @@
 
 .dilema-dilemma {
   justify-content: flex-start;
-  min-height: 100vh;
+  min-height: 100dvh;
   padding-top: clamp(1.5rem, 4vh, 2.5rem);
   padding-bottom: clamp(2rem, 5vh, 4rem);
   gap: 1.75rem;
@@ -773,7 +773,7 @@
   justify-content: flex-start;
   padding-top: clamp(2rem, 5vh, 4rem);
   gap: 1.5rem;
-  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 .dilema-reaction__header {
