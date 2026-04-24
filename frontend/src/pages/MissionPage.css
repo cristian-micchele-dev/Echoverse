@@ -608,56 +608,131 @@
   opacity: 0.5;
 }
 
-/* Cards tipo de misión */
+/* Cards tipo de misión — Tactical Dossier */
 .mission-setup__type-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px;
+  overflow: hidden;
 }
 .mission-setup__type-card {
-  display: flex; flex-direction: column;
-  align-items: center; gap: 0.3rem;
-  padding: 1rem 0.75rem 0.85rem;
-  background: var(--ink-800);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  cursor: pointer; font-family: var(--font-body);
-  transition: transform 0.15s ease, border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  position: relative;
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 0.9rem;
+  align-items: center;
+  padding: 0.8rem 1.1rem 0.8rem 1.15rem;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  cursor: pointer;
+  font-family: var(--font-body);
+  text-align: left;
+  width: 100%;
+  overflow: hidden;
+  transition: background 0.18s ease;
+}
+.mission-setup__type-card:last-child { border-bottom: none; }
+
+/* Left glow bar */
+.mission-setup__type-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: transparent;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+/* Active gradient wash */
+.mission-setup__type-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--char-color) 10%, transparent) 0%,
+    transparent 65%
+  );
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s ease;
 }
 .mission-setup__type-card:hover {
-  transform: translateY(-2px);
-  border-color: color-mix(in srgb, var(--char-color) 40%, transparent);
-  background: color-mix(in srgb, var(--char-color) 5%, var(--ink-800));
+  background: rgba(255,255,255,0.025);
 }
 .mission-setup__type-card--active {
-  border-color: color-mix(in srgb, var(--char-color) 65%, transparent);
-  background: color-mix(in srgb, var(--char-color) 11%, var(--ink-800));
-  box-shadow: 0 0 20px -8px color-mix(in srgb, var(--char-color) 50%, transparent);
-  animation: type-select-flash 0.35s ease forwards;
+  background: color-mix(in srgb, var(--char-color) 6%, transparent);
 }
-@keyframes type-select-flash {
-  0%   { background: color-mix(in srgb, var(--char-color) 22%, var(--ink-800)); }
-  100% { background: color-mix(in srgb, var(--char-color) 11%, var(--ink-800)); }
+.mission-setup__type-card--active::before {
+  background: var(--char-color);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--char-color) 55%, transparent);
 }
+.mission-setup__type-card--active::after {
+  opacity: 1;
+}
+
+/* Icon box */
 .mission-setup__type-icon {
-  font-size: 1.55rem; line-height: 1;
-  transition: transform 0.18s ease, filter 0.18s ease;
+  grid-row: 1 / 3;
+  grid-column: 1;
+  font-size: 1.2rem;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  flex-shrink: 0;
+  transition: background 0.18s, border-color 0.18s, box-shadow 0.18s, transform 0.15s;
+  z-index: 1;
 }
-.mission-setup__type-card:hover .mission-setup__type-icon,
+.mission-setup__type-card:hover .mission-setup__type-icon {
+  transform: scale(1.07);
+}
 .mission-setup__type-card--active .mission-setup__type-icon {
-  transform: scale(1.15);
-  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--char-color) 45%, transparent));
+  background: color-mix(in srgb, var(--char-color) 14%, transparent);
+  border-color: color-mix(in srgb, var(--char-color) 38%, transparent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--char-color) 22%, transparent);
+  transform: scale(1.07);
 }
+
+/* Label */
 .mission-setup__type-label {
-  font-size: 0.82rem; font-weight: 700;
-  color: var(--text-primary); transition: color 0.2s;
+  grid-row: 1;
+  grid-column: 2;
+  align-self: end;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+  letter-spacing: 0.01em;
+  transition: color 0.18s;
+  z-index: 1;
 }
 .mission-setup__type-card--active .mission-setup__type-label {
   color: var(--char-color);
 }
+
+/* Desc */
 .mission-setup__type-desc {
-  font-size: 0.62rem; color: var(--text-muted);
-  letter-spacing: 0.07em; text-transform: uppercase;
+  grid-row: 2;
+  grid-column: 2;
+  align-self: start;
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-top: 0.22rem;
+  line-height: 1;
+  z-index: 1;
+  transition: color 0.18s;
+}
+.mission-setup__type-card--active .mission-setup__type-desc {
+  color: color-mix(in srgb, var(--char-color) 55%, var(--text-muted));
 }
 
 /* Pills de dificultad */
