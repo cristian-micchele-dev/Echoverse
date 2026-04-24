@@ -2032,6 +2032,27 @@
   overflow: hidden;
 }
 
+.lp-community__footer {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.lp-community__ver-todos {
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--lp-muted);
+  font-size: 0.88rem;
+  padding: 0.6rem 1.4rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+.lp-community__ver-todos:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #fff;
+}
+
 .lp-community__sub {
   font-size: 0.88rem;
   color: var(--lp-muted);

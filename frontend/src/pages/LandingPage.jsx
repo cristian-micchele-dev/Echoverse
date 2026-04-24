@@ -515,6 +515,14 @@ export default function LandingPage() {
               </button>
             ))}
           </div>
+
+          <div className="lp-container">
+            <div className="lp-community__footer">
+              <button className="lp-community__ver-todos" onClick={() => navigate('/chat')}>
+                Ver todos los personajes personalizados →
+              </button>
+            </div>
+          </div>
         </section>
       )}
 
