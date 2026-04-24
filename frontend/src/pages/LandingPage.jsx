@@ -398,6 +398,7 @@ export default function LandingPage() {
             <span className="lp-cast-card--more__num">+{characters.length - CAST.length}</span>
             <span className="lp-cast-card--more__label">Ver todos<br />los personajes</span>
           </button>
+        </div>
       </section>
 
       {/* ─── CONVERSATION PREVIEWS ────────────────────────────────────── */}
