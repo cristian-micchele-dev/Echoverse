@@ -11,6 +11,8 @@ export default defineConfig({
       includeAssets: ['favicon.svg', 'icons.svg', 'images/**/*'],
       manifest: false, // usamos el site.webmanifest existente en /public
       workbox: {
+        skipWaiting: true,
+        clientsClaim: true,
         maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
         globPatterns: ['**/*.{js,css,html,svg,webp,jpg,jpeg,png,avif,jfif,woff2}'],
         navigateFallbackDenylist: [/^\/robots\.txt$/, /^\/sitemap\.xml$/],
