@@ -168,3 +168,12 @@
   flex-direction: column;
   gap: 2px;
 }
+
+.comunidad-list .custom-char-item__name {
+  font-size: 1rem;
+}
+
+.comunidad-list .custom-char-item__tag {
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.5);
+}
