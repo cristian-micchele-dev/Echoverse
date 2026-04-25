@@ -30,6 +30,17 @@
   transition: color var(--duration-base);
 }
 .imp-back:hover { color: var(--text-primary); }
+.imp-back--game {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 10;
+  background: rgba(0,0,0,0.45);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 0.35rem 0.7rem;
+  backdrop-filter: blur(6px);
+}
 
 /* ════════════════════════════════
    INTRO

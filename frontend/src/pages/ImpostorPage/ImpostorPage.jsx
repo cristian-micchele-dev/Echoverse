@@ -201,6 +201,16 @@ export default function ImpostorPage() {
         <link rel="canonical" href="https://echoverse-jet.vercel.app/impostor" />
       </Helmet>
 
+      {/* ─── Botón abandonar (todas las fases excepto intro) ─── */}
+      {phase !== 'intro' && phase !== 'result' && (
+        <button className="imp-back imp-back--game" onClick={() => navigate(ROUTES.MODOS)}>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          Abandonar
+        </button>
+      )}
+
       {/* ─── INTRO ─── */}
       {phase === 'intro' && (
         <div className="imp-intro">
