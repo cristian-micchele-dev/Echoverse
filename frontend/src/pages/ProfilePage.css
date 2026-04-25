@@ -763,6 +763,65 @@
   .pp-activity__grid { grid-template-columns: repeat(14, 1fr); }
 }
 
+/* ── Interrogation history ── */
+.pp-intr-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.pp-intr-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px;
+  padding: 0.65rem 0.9rem;
+}
+.pp-intr-row--correct { border-color: rgba(52,211,153,0.2); }
+.pp-intr-row--wrong   { border-color: rgba(239,68,68,0.15); }
+.pp-intr-row__verdict {
+  font-size: 0.85rem;
+  font-weight: 700;
+  width: 1.2rem;
+  text-align: center;
+  flex-shrink: 0;
+}
+.pp-intr-row--correct .pp-intr-row__verdict { color: #34d399; }
+.pp-intr-row--wrong   .pp-intr-row__verdict { color: #ef4444; }
+.pp-intr-row__avatar {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.pp-intr-row__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+.pp-intr-row__char {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.85);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pp-intr-row__rank {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.4);
+}
+.pp-intr-row__meta {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.3);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
 /* ── Responsive ── */
 @media (max-width: 480px) {
   .pp-stats { gap: 1rem; padding: 0.9rem 1rem; }

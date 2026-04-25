@@ -89,6 +89,7 @@ export default function ProfilePage() {
   const [dailyCount, setDailyCount] = useState(0)
   const [modeCompletions, setModeCompletions] = useState({})
   const [customCharsCount, setCustomCharsCount] = useState(0)
+  const [interrogationResults, setInterrogationResults] = useState([])
   const { unlockedIds, checkAndUnlock, newlyUnlocked, dismissToast } = useAchievements()
   const { streak } = useStreak()
 
@@ -107,8 +108,10 @@ export default function ProfilePage() {
       fetch(`${API_URL}/db/daily-challenge`, { headers }).then(r => r.json()).catch(() => ({ completed: false })),
       fetch(`${API_URL}/db/mode-completions`, { headers }).then(r => r.json()).catch(() => ({})),
       fetch(`${API_URL}/db/custom-characters`, { headers }).then(r => r.json()).catch(() => []),
-    ]).then(([aff, mis, seen, dailyStatus, modeComp, customChars]) => {
+      fetch(`${API_URL}/db/interrogation-results`, { headers }).then(r => r.json()).catch(() => []),
+    ]).then(([aff, mis, seen, dailyStatus, modeComp, customChars, intrResults]) => {
       setCustomCharsCount(Array.isArray(customChars) ? customChars.length : 0)
+      setInterrogationResults(Array.isArray(intrResults) ? intrResults : [])
       const seenCount = Array.isArray(seen) ? seen.length : 0
       setDilemasCount(seenCount)
       // Contar desafíos completados (aproximado: si completó hoy, al menos 1)
@@ -488,6 +491,40 @@ export default function ProfilePage() {
                 </div>
               )}
             </section>
+            {/* ── INTERROGATORIOS ── */}
+            <section className="pp-section">
+              <div className="pp-section__header">
+                <span className="pp-section__eyebrow">HISTORIAL</span>
+                <h2 className="pp-section__title">Interrogatorios</h2>
+              </div>
+              {interrogationResults.length > 0 ? (
+                <div className="pp-intr-list">
+                  {interrogationResults.slice(0, 5).map(r => {
+                    const char = characters.find(c => c.id === r.character_id)
+                    return (
+                      <div key={r.id} className={`pp-intr-row ${r.correct ? 'pp-intr-row--correct' : 'pp-intr-row--wrong'}`}>
+                        <span className="pp-intr-row__verdict">{r.correct ? '✓' : '✗'}</span>
+                        {char && <img className="pp-intr-row__avatar" src={char.image} alt={char.name} loading="lazy" decoding="async" />}
+                        <div className="pp-intr-row__body">
+                          <span className="pp-intr-row__char">{char?.name ?? r.character_id}</span>
+                          <span className="pp-intr-row__rank">{r.rank}</span>
+                        </div>
+                        <span className="pp-intr-row__meta">{r.total_questions}P · {timeAgo(new Date(r.played_at).getTime())}</span>
+                      </div>
+                    )
+                  })}
+                </div>
+              ) : (
+                <div className="pp-empty-cta" onClick={() => navigate(ROUTES.INTERROGATION)}>
+                  <span className="pp-empty-cta__icon">🕵️</span>
+                  <div>
+                    <p className="pp-empty-cta__title">Todavía no hiciste ningún interrogatorio</p>
+                    <p className="pp-empty-cta__sub">Detectá mentiras. Descubrí la verdad →</p>
+                  </div>
+                </div>
+              )}
+            </section>
+
             {/* ── LOGROS ── */}
             <section className="pp-section">
               <div className="pp-section__header">

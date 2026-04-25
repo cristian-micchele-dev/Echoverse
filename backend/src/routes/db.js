@@ -403,6 +403,19 @@ router.post('/interrogation-result', requireAuth, async (req, res) => {
   res.json({ ok: true })
 })
 
+// GET /api/db/interrogation-results  → últimos 10 resultados del usuario
+router.get('/interrogation-results', requireAuth, async (req, res) => {
+  const { data, error } = await supabase
+    .from('interrogation_results')
+    .select('id, character_id, correct, rank, total_questions, played_at')
+    .eq('user_id', req.user.id)
+    .order('played_at', { ascending: false })
+    .limit(10)
+
+  if (error) return res.status(500).json({ error: error.message })
+  res.json(data ?? [])
+})
+
 // ─── Mode Completions (requiere auth) ────────────────────────────────────────
 
 // GET /api/db/mode-completions  → { swipe: 3, story: 1, ... }
