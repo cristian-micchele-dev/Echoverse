@@ -541,6 +541,42 @@ export default function LandingPage() {
             </h2>
           </div>
 
+          {/* Secondary mode cards */}
+          <div className="lp-mode-cards lp-reveal" style={{ '--reveal-delay': '0.05s' }}>
+            {SECONDARY_MODES.map(mode => {
+              const char = characters.find(c => c.id === mode.characterId)
+              return (
+                <button
+                  key={mode.id}
+                  className="lp-mode-card"
+                  style={{ '--mc': mode.color }}
+                  onClick={() => navigate(mode.route)}
+                >
+                  {char && (
+                    <div className="lp-mode-card__img-wrap">
+                      <img src={char.image} alt={char.name} className="lp-mode-card__img" loading="lazy" decoding="async" />
+                      <div className="lp-mode-card__img-fade" />
+                    </div>
+                  )}
+                  <div className="lp-mode-card__body">
+                    <span className="lp-mode-card__badge">{mode.badge}</span>
+                    <span className="lp-mode-card__eyebrow">{mode.eyebrow}</span>
+                    <h3 className="lp-mode-card__title">{mode.label}</h3>
+                    <p className="lp-mode-card__desc">{mode.desc}</p>
+                    <div className="lp-mode-card__stats">
+                      <span>{mode.duration}</span>
+                      <span className="lp-mode-card__dot" />
+                      <span>{mode.difficulty}</span>
+                    </div>
+                  </div>
+                  <div className="lp-mode-card__cta">
+                    Jugar ahora <ArrowIcon size={13} />
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+
           {/* Protagonist blocks */}
           <div className="lp-mode-blocks">
             {PROTAGONIST_MODES.map((mode, i) => {
@@ -597,7 +633,31 @@ export default function LandingPage() {
         </div>
       </section>
 
-{/* ─── FINAL CTA ────────────────────────────────────────────────── */}
+{/* ─── PILLARS ──────────────────────────────────────────────────── */}
+      <section className="lp-register">
+        <div className="lp-container">
+          <div className="lp-section-header lp-reveal">
+            <span className="lp-eyebrow lp-eyebrow--inline">
+              POR QUÉ ECHOVERSE
+              <span className="lp-eyebrow__rule lp-eyebrow__rule--right" />
+            </span>
+            <h2 className="lp-section-title">
+              No es un chatbot.<br /><em>Es otra cosa.</em>
+            </h2>
+          </div>
+          <div className="lp-pillars lp-reveal" style={{ '--reveal-delay': '0.1s' }}>
+            {PILLARS.map(p => (
+              <div key={p.num} className="lp-pillar">
+                <span className="lp-pillar__num">{p.num}</span>
+                <h3 className="lp-pillar__title">{p.title}</h3>
+                <p className="lp-pillar__desc">{p.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── FINAL CTA ────────────────────────────────────────────────── */}
       <section className="lp-end">
         <div className="lp-end__ambient" aria-hidden="true" />
         <div className="lp-container lp-end__inner">
@@ -683,13 +743,6 @@ function ArrowIcon({ size = 15 }) {
   )
 }
 
-function ArrowSmallIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-      <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-  )
-}
 
 function BenefitIcon({ name }) {
   if (name === 'fire') return (
