@@ -87,10 +87,16 @@ function resolveChatTokenLimit(body) {
 
 router.post('/chat', async (req, res) => {
   const { characterId, messages: rawMessages } = req.body
-  const messages = rawMessages?.slice(-MAX_HISTORY) ?? []
 
   const character = characters[characterId]
   if (!character) return res.status(404).json({ error: 'Personaje no encontrado' })
+
+  const messages = (Array.isArray(rawMessages) ? rawMessages : [])
+    .slice(-MAX_HISTORY)
+    .map(m => ({
+      role: m.role === 'assistant' ? 'assistant' : 'user',
+      content: typeof m.content === 'string' ? m.content.slice(0, 1000) : '',
+    }))
 
   initSseResponse(res)
 

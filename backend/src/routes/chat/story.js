@@ -66,6 +66,9 @@ router.post('/story', async (req, res) => {
   const { characterId, scenarioPrompt, history = [] } = req.body
   const character = characters[characterId]
   if (!character) return res.status(404).json({ error: 'Personaje no encontrado' })
+  if (!scenarioPrompt || typeof scenarioPrompt !== 'string') return res.status(400).json({ error: 'scenarioPrompt requerido' })
+  if (scenarioPrompt.length > 500) return res.status(400).json({ error: 'scenarioPrompt demasiado largo (máx. 500)' })
+  if (!Array.isArray(history)) return res.status(400).json({ error: 'history debe ser un array' })
 
   initSseResponse(res)
 

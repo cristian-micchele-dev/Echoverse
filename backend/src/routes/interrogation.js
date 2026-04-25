@@ -160,6 +160,8 @@ router.post('/interrogation/start', async (req, res) => {
   if (!characterId || !scenario) {
     return res.status(400).json({ error: 'Missing characterId or scenario' })
   }
+  if (typeof scenario !== 'string' || scenario.length > 500) return res.status(400).json({ error: 'scenario inválido (máx. 500)' })
+  if (hiddenTruth && typeof hiddenTruth === 'string' && hiddenTruth.length > 500) return res.status(400).json({ error: 'hiddenTruth demasiado largo (máx. 500)' })
 
   const char = characters[characterId]
   if (!char) return res.status(404).json({ error: 'Character not found' })
@@ -220,6 +222,7 @@ router.post('/interrogation/ask', async (req, res) => {
   const session = sessions.get(sessionId)
   if (!session) return res.status(404).json({ error: 'Session not found' })
   if (!question?.trim()) return res.status(400).json({ error: 'Empty question' })
+  if (question.length > 300) return res.status(400).json({ error: 'Pregunta demasiado larga (máx. 300 caracteres)' })
 
   const systemPrompt = buildSystemPrompt(session)
 

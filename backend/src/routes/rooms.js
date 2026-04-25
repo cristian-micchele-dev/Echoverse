@@ -99,6 +99,7 @@ router.post('/rooms/:roomId/messages', requireAuth, async (req, res) => {
   const username = req.user.user_metadata?.username || req.user.email?.split('@')[0] || 'Usuario'
 
   if (!content?.trim()) return res.status(400).json({ error: 'content requerido' })
+  if (content.length > 500) return res.status(400).json({ error: 'Mensaje demasiado largo (máx. 500 caracteres)' })
 
   const { data: room, error: roomErr } = await supabase
     .from('rooms')
