@@ -66,6 +66,13 @@ export default function AuthPage() {
   const SUBMIT_LABEL = { login: 'Entrar', register: 'Crear cuenta' }
   const submitLabel = loading ? 'Cargando…' : SUBMIT_LABEL[tab]
 
+  const pwChecks = tab === 'register' ? [
+    { ok: password.length >= 8,        label: 'Mínimo 8 caracteres' },
+    { ok: /[a-zA-Z]/.test(password),   label: 'Al menos una letra' },
+    { ok: /[0-9]/.test(password),      label: 'Al menos un número' },
+    { ok: !/\s/.test(password) && password.length > 0, label: 'Sin espacios' },
+  ] : []
+
   return (
     <div className="auth-page">
       <Helmet>
@@ -182,6 +189,15 @@ export default function AuthPage() {
                   autoComplete={tab === 'login' ? 'current-password' : 'new-password'}
                   minLength={8}
                 />
+                {tab === 'register' && password.length > 0 && (
+                  <ul className="auth-pw-checks">
+                    {pwChecks.map(c => (
+                      <li key={c.label} className={`auth-pw-check ${c.ok ? 'auth-pw-check--ok' : ''}`}>
+                        {c.ok ? '✓' : '○'} {c.label}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
 
               {error && <p className="auth-error">{error}</p>}

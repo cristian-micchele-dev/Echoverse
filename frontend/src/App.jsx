@@ -21,7 +21,6 @@ const SwipePage = lazy(() => import('./pages/SwipePage'))
 const DilemmaPage = lazy(() => import('./pages/DilemmaPage'))
 const InterrogationPage = lazy(() => import('./pages/InterrogationPage'))
 const ModeSelectorPage = lazy(() => import('./pages/ModeSelectorPage'))
-const ImpostorPage = lazy(() => import('./pages/ImpostorPage/ImpostorPage'))
 const UltimaCenaPage = lazy(() => import('./pages/UltimaCenaPage'))
 const ParecidoPage = lazy(() => import('./pages/ParecidoPage'))
 const RoomsPage = lazy(() => import('./pages/RoomsPage'))
@@ -63,7 +62,6 @@ function AnimatedRoutes() {
         <Route path={ROUTES.CREAR_PERSONAJE} element={<CreateCharacterPage />} />
         <Route path="/editar-personaje/:id" element={<EditCharacterPage />} />
         <Route path={ROUTES.COMUNIDAD} element={<ComunidadPage />} />
-        <Route path={ROUTES.IMPOSTOR} element={<ImpostorPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </div>

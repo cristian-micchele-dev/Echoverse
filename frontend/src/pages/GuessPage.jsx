@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext'
 import { recordCompletion } from '../utils/recordCompletion'
 import { ROUTES } from '../utils/constants'
 import { Helmet } from 'react-helmet-async'
+import { shareResult } from '../utils/share'
 import './GuessPage.css'
 
 const ROUNDS     = 8
@@ -63,6 +64,7 @@ export default function GuessPage() {
   const [round, setRound]             = useState(1)
   const [usedIds, setUsedIds]         = useState([])
   const [revealing, setRevealing]     = useState(false)
+  const [shareCopied, setShareCopied] = useState(false)
   const [history, setHistory]         = useState([])     // [{win, pts, char}]
 
   const hintAreaRef = useRef(null)
@@ -448,6 +450,12 @@ export default function GuessPage() {
           <div className="gp-summary__actions">
             <button className="gp-start-btn" onClick={startGame}>Jugar de nuevo</button>
             <button className="gp-back-btn" onClick={() => navigate(ROUTES.HOME)}>Inicio</button>
+            <button className="gp-back-btn" onClick={async () => {
+              const res = await shareResult(`${rank.label} — Adiviné ${correct}/${ROUNDS} personajes con ${totalScore} pts en EchoVerse. ¿Podés superarme? echoverse-jet.vercel.app`)
+              if (res === 'copied') { setShareCopied(true); setTimeout(() => setShareCopied(false), 2000) }
+            }}>
+              {shareCopied ? '✓ ¡Copiado!' : '↗ Compartir'}
+            </button>
           </div>
         </div>
       </div>

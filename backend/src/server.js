@@ -27,6 +27,18 @@ const limiter = rateLimit({
 })
 app.use('/api', limiter)
 
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  validate: { xForwardedForHeader: false },
+  message: { error: 'Demasiados intentos. Esperá 15 minutos antes de intentar de nuevo.' },
+  skipSuccessfulRequests: true, // solo cuenta los fallidos
+})
+app.use('/api/auth/login', authLimiter)
+app.use('/api/auth/register', authLimiter)
+
 app.use('/api', chatRouter)
 app.use('/api', interrogationRouter)
 app.use('/api/db', dbRouter)

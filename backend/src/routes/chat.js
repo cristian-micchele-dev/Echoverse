@@ -9,7 +9,6 @@ import dilemaRouter from './chat/dilema.js'
 import esteOEseRouter from './chat/esteoese.js'
 import ultimaCenaRouter from './chat/ultima-cena.js'
 import customRouter from './chat/custom.js'
-import impostorRouter from './chat/impostor.js'
 
 const router = Router()
 
@@ -23,6 +22,5 @@ router.use('/', dilemaRouter)
 router.use('/', esteOEseRouter)
 router.use('/', ultimaCenaRouter)
 router.use('/', customRouter)
-router.use('/', impostorRouter)
 
 export default router

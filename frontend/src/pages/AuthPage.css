@@ -213,6 +213,26 @@
   padding: 0.55rem 0.85rem;
 }
 
+/* ── Password strength ── */
+.auth-pw-checks {
+  list-style: none;
+  margin: 0.45rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.auth-pw-check {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.35);
+  transition: color 0.2s;
+}
+
+.auth-pw-check--ok {
+  color: #86efac;
+}
+
 /* ── Feedback ── */
 .auth-error {
   color: #fca5a5;

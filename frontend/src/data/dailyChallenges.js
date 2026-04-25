@@ -8,7 +8,6 @@ const MODE_ROUTES = {
   duo:           '/duo',
   ultima_cena:   '/ultima-cena',
   parecido:      '/parecido',
-  impostor:      '/impostor',
 }
 
 export const MODE_LABELS = {
@@ -21,7 +20,6 @@ export const MODE_LABELS = {
   duo:           'Duelo de personajes',
   ultima_cena:   'La Última Cena',
   parecido:      '¿A quién te parecés?',
-  impostor:      'El Impostor',
 }
 
 const RAW_CHALLENGES = [
@@ -31,7 +29,6 @@ const RAW_CHALLENGES = [
   { characterId: 'gandalf',        mode: 'dilema',        label: 'Dilema con Gandalf' },
   { characterId: 'tony-stark',     mode: 'swipe',         label: 'Swipe: Tony Stark' },
   { characterId: 'john-wick',      mode: 'mission',       label: 'Misión al estilo John Wick' },
-  { characterId: 'el-profesor',    mode: 'impostor',      label: 'Detectá al impostor' },
   { characterId: 'jack-sparrow',   mode: 'chat',          label: 'Chat con Jack Sparrow' },
   { characterId: 'joker',          mode: 'interrogation', label: 'Interrogatorio al Joker' },
   { characterId: 'hannibal',       mode: 'interrogation', label: 'Interrogatorio a Hannibal' },

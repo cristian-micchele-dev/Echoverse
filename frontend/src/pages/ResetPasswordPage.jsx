@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { ROUTES } from '../utils/constants'
+import { API_URL } from '../config/api.js'
 import { Helmet } from 'react-helmet-async'
 import './AuthPage.css'
 
@@ -11,6 +12,7 @@ export default function ResetPasswordPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [ready, setReady] = useState(false)
+  const [accessToken, setAccessToken] = useState(null)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -18,11 +20,14 @@ export default function ResetPasswordPage() {
     // componente monte (race condition con AuthContext). Verificamos la sesión
     // directamente como fallback.
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) setReady(true)
+      if (session) { setReady(true); setAccessToken(session.access_token) }
     })
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') setReady(true)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if ((event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') && session) {
+        setReady(true)
+        setAccessToken(session.access_token)
+      }
     })
     return () => subscription.unsubscribe()
   }, [])
@@ -46,8 +51,16 @@ export default function ResetPasswordPage() {
 
     setLoading(true)
     try {
-      const { error } = await supabase.auth.updateUser({ password })
-      if (error) throw error
+      const res = await fetch(`${API_URL}/auth/reset-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ password }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Error al actualizar la contraseña')
       await supabase.auth.signOut()
       navigate(ROUTES.AUTH, { replace: true, state: { info: 'Contraseña actualizada. Iniciá sesión.' } })
     } catch (err) {

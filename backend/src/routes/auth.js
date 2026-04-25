@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { supabase } from '../config/supabase.js'
-import { loginSchema, registerSchema } from '../schemas/auth.js'
+import { loginSchema, registerSchema, resetPasswordSchema } from '../schemas/auth.js'
+import { requireAuth } from '../middleware/auth.js'
 
 const router = Router()
 
@@ -115,6 +116,25 @@ router.post('/forgot-password', async (req, res) => {
   } catch (err) {
     console.error('[auth/forgot-password]', err)
     res.status(500).json({ error: 'No se pudo enviar el email. Intentá de nuevo.' })
+  }
+})
+
+// POST /api/auth/reset-password
+router.post('/reset-password', requireAuth, async (req, res) => {
+  const parsed = resetPasswordSchema.safeParse(req.body)
+  if (!parsed.success) {
+    return res.status(400).json({ error: parsed.error.issues[0].message })
+  }
+
+  const { password } = parsed.data
+
+  try {
+    const { error } = await supabase.auth.admin.updateUserById(req.user.id, { password })
+    if (error) return res.status(400).json({ error: 'No se pudo actualizar la contraseña. Intentá de nuevo.' })
+    res.json({ ok: true })
+  } catch (err) {
+    console.error('[auth/reset-password]', err)
+    res.status(500).json({ error: 'Error al actualizar la contraseña.' })
   }
 })
 

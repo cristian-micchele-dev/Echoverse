@@ -36,3 +36,7 @@ export const registerSchema = z.object({
   password: passwordRegisterField,
   username: usernameField
 })
+
+export const resetPasswordSchema = z.object({
+  password: passwordRegisterField
+})

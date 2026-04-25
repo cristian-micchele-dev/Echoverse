@@ -142,19 +142,6 @@ const SECONDARY_MODES = [
     badge: '✨ Nuevo',
     tag: 'Solo registrados',
   },
-  {
-    id: 'impostor',
-    image: '/images/amounguspeakyblinders.png',
-    eyebrow: 'Deducción',
-    label: 'El Impostor',
-    desc: 'Cuatro responden. Uno miente. ¿Podés detectar al impostor?',
-    route: '/impostor',
-    accent: '#9b3a3a',
-    badge: '🔥 Nuevo',
-    tag: 'Deducción',
-    difficulty: '🟡 Variable',
-    duration: '~8 min',
-  },
 ]
 
 

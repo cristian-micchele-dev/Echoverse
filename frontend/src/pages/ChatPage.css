@@ -895,3 +895,74 @@
 
   .suggested-questions { max-width: 100%; }
 }
+
+/* ─── Character flash effects ─────────────────────────────────────────── */
+
+.chat-flash {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* Hannibal — crimson vignette, slow & unsettling */
+.flash--disturbing {
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(120, 0, 0, 0.55) 100%);
+  animation: flash-disturbing 1.1s ease-in-out forwards;
+}
+@keyframes flash-disturbing {
+  0%   { opacity: 0; }
+  25%  { opacity: 1; }
+  60%  { opacity: 0.7; }
+  100% { opacity: 0; }
+}
+
+/* Joker — green glitch flash */
+.flash--chaos {
+  background: radial-gradient(ellipse at 30% 60%, rgba(0, 210, 80, 0.18) 0%, transparent 70%),
+              radial-gradient(ellipse at 70% 30%, rgba(160, 0, 200, 0.15) 0%, transparent 70%);
+  animation: flash-chaos 0.9s ease-out forwards;
+}
+@keyframes flash-chaos {
+  0%   { opacity: 0; transform: skewX(0deg); }
+  10%  { opacity: 1; transform: skewX(-1.5deg); }
+  20%  { opacity: 0.4; transform: skewX(1deg); }
+  35%  { opacity: 0.9; transform: skewX(-0.5deg); }
+  100% { opacity: 0; transform: skewX(0deg); }
+}
+
+/* Darth Vader — deep red vignette pulse */
+.flash--dark-side {
+  background: radial-gradient(ellipse at center, transparent 30%, rgba(180, 20, 20, 0.45) 100%);
+  animation: flash-dark 1.0s ease-in-out forwards;
+}
+@keyframes flash-dark {
+  0%   { opacity: 0; }
+  20%  { opacity: 1; }
+  80%  { opacity: 0.6; }
+  100% { opacity: 0; }
+}
+
+/* Walter White — blue-green chemical flash */
+.flash--chemical {
+  background: radial-gradient(ellipse at 50% 80%, rgba(0, 160, 200, 0.22) 0%, transparent 65%),
+              radial-gradient(ellipse at 50% 0%, rgba(0, 200, 140, 0.12) 0%, transparent 60%);
+  animation: flash-chemical 0.8s ease-out forwards;
+}
+@keyframes flash-chemical {
+  0%   { opacity: 0; }
+  15%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Sherlock — crisp white edge flash */
+.flash--deduction {
+  background: linear-gradient(to bottom, rgba(255,255,255,0.08) 0%, transparent 20%),
+              linear-gradient(to top,    rgba(255,255,255,0.06) 0%, transparent 20%);
+  animation: flash-deduction 0.7s ease-out forwards;
+}
+@keyframes flash-deduction {
+  0%   { opacity: 0; }
+  12%  { opacity: 1; }
+  100% { opacity: 0; }
+}
