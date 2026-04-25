@@ -119,10 +119,12 @@ export default function DuoPage() {
             otherCharName: charB.name,
             responseB
           })
-          const msgA2 = { role: 'charA', content: responseA2, char: charA, isRemate: true }
-          updatedMsgs.push(msgA2)
-          setMessages([...updatedMsgs])
-          scrollToBottom()
+          if (responseA2.trim() !== '[SKIP]') {
+            const msgA2 = { role: 'charA', content: responseA2, char: charA, isRemate: true }
+            updatedMsgs.push(msgA2)
+            setMessages([...updatedMsgs])
+            scrollToBottom()
+          }
         }
       } else if (addressed === 'B') {
         setTypingChar('charB')

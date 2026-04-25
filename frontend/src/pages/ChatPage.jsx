@@ -654,20 +654,42 @@ export default function ChatPage() {
         </div>
       )}
 
-      {!isCustom && messages.filter(m => !m.isVerdict).length >= 10 && (
-        <div className="verdict-prompt">
-          <button
-            className="verdict-prompt__btn"
-            onClick={handleVerdict}
-            disabled={isVerdictLoading || isLoading}
-          >
-            <svg width="15" height="15" viewBox="0 0 20 20" fill="none">
-              <ellipse cx="10" cy="10" rx="9" ry="5.5" stroke="currentColor" strokeWidth="1.5"/>
-              <circle cx="10" cy="10" r="2.5" fill="currentColor"/>
-            </svg>
-            {isVerdictLoading ? 'Analizando…' : '¿Qué pensás de mí?'}
-          </button>
-        </div>
+      {!isCustom && (
+        messages.some(m => m.isVerdict) && !isVerdictLoading
+          ? (
+            <div className="next-modes">
+              <p className="next-modes__title">¿Qué hacés ahora?</p>
+              <div className="next-modes__cards">
+                <button className="next-modes__card" onClick={() => navigate(ROUTES.CONFESIONARIO)}>
+                  <span className="next-modes__card-name">Confesionario</span>
+                  <span className="next-modes__card-desc">¿Qué piensa {character.name} de vos?</span>
+                </button>
+                <button className="next-modes__card" onClick={() => navigate(ROUTES.STORY)}>
+                  <span className="next-modes__card-name">Historia</span>
+                  <span className="next-modes__card-desc">Una aventura con {character.name}</span>
+                </button>
+                <button className="next-modes__card" onClick={() => navigate(ROUTES.BATTLE)}>
+                  <span className="next-modes__card-name">Batalla</span>
+                  <span className="next-modes__card-desc">{character.name} vs. otro personaje</span>
+                </button>
+              </div>
+            </div>
+          )
+          : messages.filter(m => !m.isVerdict).length >= 10 && (
+            <div className="verdict-prompt">
+              <button
+                className="verdict-prompt__btn"
+                onClick={handleVerdict}
+                disabled={isVerdictLoading || isLoading}
+              >
+                <svg width="15" height="15" viewBox="0 0 20 20" fill="none">
+                  <ellipse cx="10" cy="10" rx="9" ry="5.5" stroke="currentColor" strokeWidth="1.5"/>
+                  <circle cx="10" cy="10" r="2.5" fill="currentColor"/>
+                </svg>
+                {isVerdictLoading ? 'Analizando…' : '¿Qué pensás de mí?'}
+              </button>
+            </div>
+          )
       )}
 
       <div className="input-area">
