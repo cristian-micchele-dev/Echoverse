@@ -890,6 +890,76 @@
 .gp-summary__hist-item--win  .gp-summary__hist-mark { color: #4ade80; }
 .gp-summary__hist-item--lose .gp-summary__hist-mark { color: #f87171; }
 
+/* Ranking */
+.gp-ranking {
+  width: 100%;
+  margin-top: 1.5rem;
+}
+.gp-ranking__title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 0.75rem;
+  text-align: center;
+}
+.gp-ranking__loading {
+  text-align: center;
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.3);
+  padding: 0.5rem 0;
+}
+.gp-ranking__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.gp-ranking__row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(255,255,255,0.04);
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.06);
+  font-size: 0.875rem;
+}
+.gp-ranking__row--first {
+  background: rgba(251,191,36,0.08);
+  border-color: rgba(251,191,36,0.25);
+}
+.gp-ranking__pos {
+  width: 1.5rem;
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.35);
+  flex-shrink: 0;
+}
+.gp-ranking__row--first .gp-ranking__pos {
+  color: #fbbf24;
+}
+.gp-ranking__name {
+  flex: 1;
+  color: rgba(255,255,255,0.85);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.gp-ranking__score {
+  font-weight: 700;
+  color: rgba(255,255,255,0.6);
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+.gp-ranking__row--first .gp-ranking__score {
+  color: #fbbf24;
+}
+
 /* Actions */
 .gp-summary__actions {
   display: flex;

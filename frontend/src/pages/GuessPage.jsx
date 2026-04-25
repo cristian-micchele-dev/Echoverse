@@ -7,6 +7,7 @@ import { recordCompletion } from '../utils/recordCompletion'
 import { ROUTES } from '../utils/constants'
 import { Helmet } from 'react-helmet-async'
 import { shareResult } from '../utils/share'
+import { API_URL } from '../config/api'
 import './GuessPage.css'
 
 const ROUNDS     = 8
@@ -66,6 +67,8 @@ export default function GuessPage() {
   const [revealing, setRevealing]     = useState(false)
   const [shareCopied, setShareCopied] = useState(false)
   const [history, setHistory]         = useState([])     // [{win, pts, char}]
+  const [ranking, setRanking]         = useState([])
+  const [rankingFetched, setRankingFetched] = useState(false)
 
   const hintAreaRef = useRef(null)
 
@@ -132,8 +135,22 @@ export default function GuessPage() {
     if (phase === 'summary' && !recordedRef.current) {
       recordedRef.current = true
       recordCompletion(session, 'guess')
+
+      if (session) {
+        fetch(`${API_URL}/db/guess-score`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ score: totalScore }),
+        }).catch(() => {})
+      }
+
+      fetch(`${API_URL}/db/guess-ranking`)
+        .then(r => r.json())
+        .then(data => { if (Array.isArray(data)) setRanking(data) })
+        .catch(() => {})
+        .finally(() => setRankingFetched(true))
     }
-  }, [phase, session])
+  }, [phase, session, totalScore])
 
   // ── Next round or summary ────────────────────────────
   const nextRound = () => {
@@ -157,6 +174,9 @@ export default function GuessPage() {
     setResult(null)
     setGuessed(null)
     setHistory([])
+    setRanking([])
+    setRankingFetched(false)
+    recordedRef.current = false
   }
 
   // ─────────────────────────────────────────────────────
@@ -445,6 +465,26 @@ export default function GuessPage() {
                 <span className="gp-summary__hist-mark">{h.win ? '✔' : '✕'}</span>
               </div>
             ))}
+          </div>
+
+          {/* Global ranking */}
+          <div className="gp-ranking">
+            <h3 className="gp-ranking__title">Ranking global</h3>
+            {!rankingFetched ? (
+              <p className="gp-ranking__loading">Cargando...</p>
+            ) : ranking.length === 0 ? (
+              <p className="gp-ranking__loading">Sin datos aún.</p>
+            ) : (
+              <ol className="gp-ranking__list">
+                {ranking.map((entry, i) => (
+                  <li key={i} className={`gp-ranking__row${i === 0 ? ' gp-ranking__row--first' : ''}`}>
+                    <span className="gp-ranking__pos">{i + 1}</span>
+                    <span className="gp-ranking__name">{entry.username}</span>
+                    <span className="gp-ranking__score">{entry.best_score} pts</span>
+                  </li>
+                ))}
+              </ol>
+            )}
           </div>
 
           <div className="gp-summary__actions">
