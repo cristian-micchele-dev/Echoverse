@@ -587,6 +587,79 @@
    FEATURED TODAY
    ═══════════════════════════════════════════════════════════════════════════ */
 
+/* ─── Primera vez ── */
+.lp-firsttime {
+  padding: 2rem 0 0;
+}
+.lp-firsttime__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+.lp-firsttime__label {
+  font-family: var(--lp-font-ui);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--lp-violet-hi);
+}
+.lp-firsttime__dismiss {
+  background: none;
+  border: none;
+  color: var(--lp-muted);
+  font-size: 0.75rem;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.15s;
+}
+.lp-firsttime__dismiss:hover { opacity: 1; }
+
+.lp-firsttime__modes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+.lp-firsttime__mode {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1rem 1.1rem;
+  background: var(--lp-surface);
+  border: 1px solid var(--lp-border);
+  border-radius: var(--lp-radius);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+.lp-firsttime__mode:hover {
+  border-color: var(--lp-violet-hi);
+  background: var(--lp-surface-2);
+}
+.lp-firsttime__mode-eyebrow {
+  font-family: var(--lp-font-ui);
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--lp-violet-hi);
+}
+.lp-firsttime__mode-label {
+  font-family: var(--lp-font-ui);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--lp-text);
+}
+.lp-firsttime__mode-desc {
+  font-size: 0.78rem;
+  color: var(--lp-muted);
+  line-height: 1.4;
+}
+@media (max-width: 600px) {
+  .lp-firsttime__modes { grid-template-columns: 1fr; }
+}
+
 /* ─── Daily Challenge ── */
 .lp-daily {
   padding: 3rem 0 0;

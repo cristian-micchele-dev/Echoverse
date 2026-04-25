@@ -142,6 +142,7 @@ export default function LandingPage() {
   const [scrolled, setScrolled]       = useState(false)
   const [onlineCount, setOnlineCount] = useState(null)
   const [communityChars, setCommunityChars] = useState([])
+  const [showFirstTime, setShowFirstTime] = useState(() => !localStorage.getItem('echoverse-visited'))
   const sidRef = useRef(null)
   const heroRef                       = useRef(null)
   const lpRef                         = useRef(null)
@@ -342,6 +343,39 @@ export default function LandingPage() {
           <div className="lp-hero-scroll-hint__bar" />
         </div>
       </section>
+
+      {/* ─── PRIMERA VEZ ──────────────────────────────────────────────── */}
+      {showFirstTime && (
+        <section className="lp-firsttime lp-reveal">
+          <div className="lp-container">
+            <div className="lp-firsttime__header">
+              <span className="lp-firsttime__label">¿Primera vez? Empezá por acá</span>
+              <button
+                className="lp-firsttime__dismiss"
+                aria-label="Cerrar"
+                onClick={() => { localStorage.setItem('echoverse-visited', '1'); setShowFirstTime(false) }}
+              >✕</button>
+            </div>
+            <div className="lp-firsttime__modes">
+              {[
+                { route: ROUTES.CHAT,    label: 'Chat libre',          desc: 'Hablá con cualquier personaje',       eyebrow: 'Lo más fácil' },
+                { route: ROUTES.MISSION, label: 'Modo Misión',         desc: 'Tomá decisiones en una historia real', eyebrow: 'Campaña' },
+                { route: ROUTES.GUESS,   label: 'Adivina el Personaje', desc: 'Pistas de a una, puntaje que baja',   eyebrow: 'Trivia' },
+              ].map(m => (
+                <button
+                  key={m.route}
+                  className="lp-firsttime__mode"
+                  onClick={() => { localStorage.setItem('echoverse-visited', '1'); setShowFirstTime(false); navigate(m.route) }}
+                >
+                  <span className="lp-firsttime__mode-eyebrow">{m.eyebrow}</span>
+                  <span className="lp-firsttime__mode-label">{m.label}</span>
+                  <span className="lp-firsttime__mode-desc">{m.desc}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ─── DAILY CHALLENGE ──────────────────────────────────────────── */}
       {user && (
