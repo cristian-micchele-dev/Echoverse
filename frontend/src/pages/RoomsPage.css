@@ -104,7 +104,8 @@
 
 .rm-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, 260px);
+  justify-content: center;
   gap: 0.75rem;
 }
 
