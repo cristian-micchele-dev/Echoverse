@@ -142,6 +142,7 @@ export default function LandingPage() {
   const [scrolled, setScrolled]       = useState(false)
   const [onlineCount, setOnlineCount] = useState(null)
   const [communityChars, setCommunityChars] = useState([])
+  const [activeRooms, setActiveRooms] = useState([])
   const sidRef = useRef(null)
   const heroRef                       = useRef(null)
   const lpRef                         = useRef(null)
@@ -157,6 +158,14 @@ export default function LandingPage() {
 
   useEffect(() => {
     if (!user) return
+    fetch(`${API_URL}/rooms`)
+      .then(r => r.json())
+      .then(data => { if (Array.isArray(data)) setActiveRooms(data.slice(0, 6)) })
+      .catch(() => {})
+  }, [user])
+
+  useEffect(() => {
+    if (!user) return
     supabase
       .from('custom_characters')
       .select('id, name, emoji, color, avatar_url, description')
@@ -164,6 +173,7 @@ export default function LandingPage() {
       .order('created_at', { ascending: false })
       .limit(10)
       .then(({ data }) => { if (data) setCommunityChars(data) })
+      .catch(() => {})
   }, [user])
 
   useEffect(() => {
@@ -349,6 +359,63 @@ export default function LandingPage() {
           <div className="lp-container">
             <WelcomePanel user={user} navigate={navigate} />
             <DailyChallenge />
+          </div>
+        </section>
+      )}
+
+      {/* ─── SALAS EN VIVO ────────────────────────────────────────────── */}
+      {user && activeRooms.length > 0 && (
+        <section className="lp-rooms">
+          <div className="lp-container">
+            <div className="lp-rooms__header">
+              <div>
+                <span className="lp-eyebrow lp-eyebrow--inline">
+                  <span className="lp-rooms__dot" />
+                  EN VIVO
+                  <span className="lp-eyebrow__rule lp-eyebrow__rule--right" />
+                </span>
+                <h2 className="lp-section-title lp-rooms__title">
+                  Salas <em>activas.</em>
+                </h2>
+              </div>
+              <button className="lp-rooms__ver-todas" onClick={() => navigate(ROUTES.SALAS)}>
+                Ver todas <ArrowIcon size={12} />
+              </button>
+            </div>
+          </div>
+
+          <div className="lp-rooms-rail">
+            {activeRooms.map(room => {
+              const char = characters.find(c => c.id === room.character_id)
+              if (!char) return null
+              return (
+                <button
+                  key={room.id}
+                  className="lp-room-card"
+                  style={{ '--char-color': char.themeColor }}
+                  onClick={() => navigate(ROUTES.SALA(room.id))}
+                >
+                  <div className="lp-room-card__avatar">
+                    <img src={char.image} alt={char.name} loading="lazy" decoding="async" />
+                    <span className="lp-room-card__live">EN VIVO</span>
+                  </div>
+                  <div className="lp-room-card__body">
+                    <span className="lp-room-card__char">{char.name}</span>
+                    <span className="lp-room-card__name">
+                      {room.name || `Sala de ${char.name}`}
+                    </span>
+                  </div>
+                  <div className="lp-room-card__cta">
+                    Unirse <ArrowIcon size={11} />
+                  </div>
+                </button>
+              )
+            })}
+
+            <button className="lp-room-card lp-room-card--create" onClick={() => navigate(ROUTES.SALAS)}>
+              <span className="lp-room-card__create-icon">+</span>
+              <span className="lp-room-card__create-label">Crear sala</span>
+            </button>
           </div>
         </section>
       )}

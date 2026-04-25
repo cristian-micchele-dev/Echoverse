@@ -59,6 +59,7 @@ function playNotificationSound(tone) {
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.45)
     osc.start(ctx.currentTime)
     osc.stop(ctx.currentTime + 0.45)
+    osc.onended = () => ctx.close()
   } catch { /* audio context not available */ }
 }
 
@@ -160,6 +161,7 @@ export default function ChatPage() {
   const lastFailedInputRef = useRef('')
   const errorTimerRef = useRef(null)
   const [visible, setVisible] = useState(false)
+  const [flashEffect, setFlashEffect] = useState('')
   const [reactions, setReactions] = useState({})
   const [userReactions, setUserReactions] = useState(() => {
     try { return JSON.parse(localStorage.getItem(userReactionsKey) || '{}') } catch { return {} }
@@ -254,6 +256,18 @@ export default function ChatPage() {
     if (prevIsLoadingRef.current && !isLoading && messages.length > 0) {
       const lastMsg = messages[messages.length - 1]
       if (lastMsg.role === 'assistant' && lastMsg.content && !lastMsg.isVerdict) {
+        const CHAR_EFFECTS = {
+          'hannibal':     'flash--disturbing',
+          'joker':        'flash--chaos',
+          'darth-vader':  'flash--dark-side',
+          'walter-white': 'flash--chemical',
+          'sherlock':     'flash--deduction',
+        }
+        const effect = CHAR_EFFECTS[characterId]
+        if (effect) {
+          setFlashEffect(effect)
+          setTimeout(() => setFlashEffect(''), 1200)
+        }
         const reaction = detectReaction(lastMsg.content)
         if (reaction) {
           setReactions(prev => ({ ...prev, [messages.length - 1]: reaction }))
@@ -441,6 +455,7 @@ export default function ChatPage() {
         ...themeVars,
       }}
     >
+      {flashEffect && <div className={`chat-flash ${flashEffect}`} aria-hidden="true" />}
       <Helmet>
         <title>{character.name} — EchoVerse</title>
         <meta name="description" content={`Chateá con ${character.name} de ${character.universe}. ${character.description}`} />
