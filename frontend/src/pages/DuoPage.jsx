@@ -1,8 +1,10 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { characters } from '../data/characters'
 import { readSSEStream } from '../utils/sse'
 import { ROUTES } from '../utils/constants'
+import { useAuth } from '../context/AuthContext'
+import { recordCompletion } from '../utils/recordCompletion'
 import './DuoPage.css'
 import { API_URL } from '../config/api.js'
 import { Helmet } from 'react-helmet-async'
@@ -28,6 +30,8 @@ function buildHistory(msgs, myCharId) {
 
 export default function DuoPage() {
   const navigate = useNavigate()
+  const { session } = useAuth()
+  const recordedRef = useRef(false)
   const [charA, setCharA] = useState(null)
   const [charB, setCharB] = useState(null)
   const [phase, setPhase] = useState('setup') // setup | chat
@@ -85,7 +89,7 @@ export default function DuoPage() {
     try {
       if (addressed === 'A' || addressed === 'both') {
         setTypingChar('charA')
-        const histA = buildHistory(updatedMsgs, charA.id, charB)
+        const histA = buildHistory(updatedMsgs, charA.id)
         const responseA = await fetchCharResponse(charA.id, histA, {
           role: 'A',
           otherCharName: charB.name
@@ -97,7 +101,7 @@ export default function DuoPage() {
 
         if (addressed === 'both') {
           setTypingChar('charB')
-          const histB = buildHistory(updatedMsgs, charB.id, charA)
+          const histB = buildHistory(updatedMsgs, charB.id)
           const responseB = await fetchCharResponse(charB.id, histB, {
             role: 'B',
             otherCharName: charA.name,
@@ -122,7 +126,7 @@ export default function DuoPage() {
         }
       } else if (addressed === 'B') {
         setTypingChar('charB')
-        const histB = buildHistory(updatedMsgs, charB.id, charA)
+        const histB = buildHistory(updatedMsgs, charB.id)
         const responseB = await fetchCharResponse(charB.id, histB, {
           role: 'A',
           otherCharName: charA.name
@@ -140,6 +144,13 @@ export default function DuoPage() {
       inputRef.current?.focus()
     }
   }, [input, isLoading, messages, charA, charB])
+
+  useEffect(() => {
+    if (phase === 'chat' && !recordedRef.current) {
+      recordedRef.current = true
+      recordCompletion(session, 'duo')
+    }
+  }, [phase, session])
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -244,7 +255,7 @@ export default function DuoPage() {
   return (
     <div className="duo-page duo-page--chat">
       <header className="duo-chat-header">
-        <button className="duo-back-btn" onClick={() => { setPhase('setup'); setMessages([]) }}>
+        <button className="duo-back-btn" onClick={() => { setPhase('setup'); setMessages([]); recordedRef.current = false }}>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>

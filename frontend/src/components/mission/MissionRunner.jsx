@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import CriticalSituation from '../critical/CriticalSituation'
 import MissionSummary from './MissionSummary'
 import { getSituationById } from '../../data/situations'
@@ -10,14 +10,17 @@ function getFinalStatus(results, failThreshold) {
 }
 
 // Props:
-//   mission  — objeto de missions.js
-//   character — objeto de characters.js
-//   onReplay  — callback cuando el usuario quiere volver a elegir misión
-//   onHome    — callback para ir al inicio
-export default function MissionRunner({ mission, character, onReplay, onHome }) {
+//   mission    — objeto de missions.js
+//   character  — objeto de characters.js
+//   onReplay   — callback cuando el usuario quiere volver a elegir misión
+//   onHome     — callback para ir al inicio
+//   onComplete — callback opcional, se llama una vez cuando llega al summary
+export default function MissionRunner({ mission, character, onReplay, onHome, onComplete }) {
   const [stepIndex, setStepIndex] = useState(0)
   const [results,   setResults]   = useState([])
   const [phase,     setPhase]     = useState('playing') // playing | transitioning | summary
+  const onCompleteRef = useRef(onComplete)
+  useEffect(() => { onCompleteRef.current = onComplete }, [onComplete])
 
   const totalSteps          = mission.steps.length
   const currentSituationId  = mission.steps[stepIndex]
@@ -33,7 +36,7 @@ export default function MissionRunner({ mission, character, onReplay, onHome }) 
 
     if (isEarlyFail || isLastStep) {
       // Breve pausa para que se vea el resultado antes del summary
-      setTimeout(() => setPhase('summary'), 900)
+      setTimeout(() => { setPhase('summary'); onCompleteRef.current?.() }, 900)
     } else {
       // Transición entre escenas
       setPhase('transitioning')

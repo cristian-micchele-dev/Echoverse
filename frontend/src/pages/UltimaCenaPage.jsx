@@ -5,6 +5,8 @@ import { MESA_TEMAS } from '../data/mesaTemas'
 import { readSSEStream } from '../utils/sse'
 import { ROUTES } from '../utils/constants'
 import { parseSseLine } from '../utils/ultimaCenaHelpers'
+import { useAuth } from '../context/AuthContext'
+import { recordCompletion } from '../utils/recordCompletion'
 import './UltimaCenaPage.css'
 import { API_URL } from '../config/api.js'
 import { Helmet } from 'react-helmet-async'
@@ -26,6 +28,8 @@ const QUICK_PROVOCATIONS = [
 // ─── Component ───────────────────────────────────────────────────────────────
 export default function UltimaCenaPage() {
   const navigate = useNavigate()
+  const { session } = useAuth()
+  const recordedRef = useRef(false)
   const [selected, setSelected] = useState([]) // 3-4 chars
   const [tema, setTema] = useState('libre')
   const [phase, setPhase] = useState('setup') // setup | mesa
@@ -38,6 +42,13 @@ export default function UltimaCenaPage() {
   const [visible, setVisible] = useState(false)
 
   useEffect(() => { requestAnimationFrame(() => setVisible(true)) }, [])
+
+  useEffect(() => {
+    if (phase === 'mesa' && !recordedRef.current) {
+      recordedRef.current = true
+      recordCompletion(session, 'ultima-cena')
+    }
+  }, [phase, session])
 
   const bottomRef = useRef(null)
   const inputRef = useRef(null)
@@ -292,7 +303,7 @@ export default function UltimaCenaPage() {
       <header className="cena-mesa-header">
         <button
           className="cena-back-btn"
-          onClick={() => { setPhase('setup'); setMessages([]) }}
+          onClick={() => { setPhase('setup'); setMessages([]); recordedRef.current = false }}
         >
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>

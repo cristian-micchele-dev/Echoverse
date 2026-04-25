@@ -23,11 +23,15 @@ export function useStreaming() {
     setIsLoading(true)
     setIsTyping(true)
 
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 30_000)
+
     try {
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...extraHeaders },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
+        signal: controller.signal,
       })
 
       if (!response.ok) {
@@ -46,6 +50,7 @@ export function useStreaming() {
         onChunk(content, isFirst)
       })
     } finally {
+      clearTimeout(timeoutId)
       setIsLoading(false)
       setIsTyping(false)
     }

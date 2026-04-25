@@ -9,6 +9,7 @@ import { API_URL } from '../config/api.js'
 import { CAMPAIGN_ARCS } from '../data/missionLevels.js'
 import { getMissionProgress, saveLevelComplete, resetProgress } from '../utils/missionProgress.js'
 import { useAuth } from '../context/AuthContext'
+import { recordCompletion } from '../utils/recordCompletion'
 import { ROUTES } from '../utils/constants'
 import { Helmet } from 'react-helmet-async'
 
@@ -200,11 +201,19 @@ export default function MissionPage() {
   const nameInputRef = useRef(null)
   const audioRef = useRef(null)
   const mutedRef = useRef(muted)
+  const missionRecordedRef = useRef(false)
 
   useEffect(() => {
     document.title = 'Modo Misión — EchoVerse'
     return () => { document.title = 'EchoVerse' }
   }, [])
+
+  useEffect(() => {
+    if (phase === 'ended' && !missionRecordedRef.current) {
+      missionRecordedRef.current = true
+      recordCompletion(session, 'mission')
+    }
+  }, [phase, session])
 
   // Cargar progreso desde DB si hay sesión; si DB está vacía pero localStorage tiene datos, sincronizar
   useEffect(() => {
@@ -499,6 +508,7 @@ export default function MissionPage() {
     setSigilo(3)
     setChoiceFeedback(null)
     setVidaFlash(null)
+    missionRecordedRef.current = false
   }
 
   const handleShare = async () => {

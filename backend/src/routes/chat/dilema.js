@@ -9,10 +9,12 @@ router.post('/dilema', async (req, res) => {
 
   const character = characters[characterId]
   if (!character) return res.status(404).json({ error: 'Personaje no encontrado' })
+  if (!dilemmaQuestion || typeof dilemmaQuestion !== 'string') return res.status(400).json({ error: 'dilemmaQuestion requerido' })
 
   initSseResponse(res)
 
-  const historyLines = (choiceHistory ?? [])
+  const safeHistory = Array.isArray(choiceHistory) ? choiceHistory : []
+  const historyLines = safeHistory
     .slice(-4)
     .map((c, i) => `${i + 1}. Ante "${c.dilemmaQuestion}", eligió: "${c.choiceLabel}"`)
     .join('\n')

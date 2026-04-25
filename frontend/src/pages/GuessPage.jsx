@@ -145,7 +145,7 @@ export default function GuessPage() {
       }
 
       fetch(`${API_URL}/db/guess-ranking`)
-        .then(r => r.json())
+        .then(r => { if (!r.ok) throw new Error('ranking error'); return r.json() })
         .then(data => { if (Array.isArray(data)) setRanking(data) })
         .catch(() => {})
         .finally(() => setRankingFetched(true))

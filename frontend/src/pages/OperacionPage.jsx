@@ -1,14 +1,19 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { characters } from '../data/characters'
 import { missions } from '../data/missions'
 import MissionRunner from '../components/mission/MissionRunner'
 import CharacterSelector from '../components/CharacterSelector/CharacterSelector'
+import { useAuth } from '../context/AuthContext'
+import { recordCompletion } from '../utils/recordCompletion'
 import { ROUTES } from '../utils/constants'
+import { Helmet } from 'react-helmet-async'
 import './OperacionPage.css'
 
 export default function OperacionPage() {
   const navigate = useNavigate()
+  const { session } = useAuth()
+  const recordedRef = useRef(false)
 
   const [phase,      setPhase]      = useState('chars')   // chars | missions | playing
   const [character,  setCharacter]  = useState(null)
@@ -25,6 +30,7 @@ export default function OperacionPage() {
     setMission(m)
     setMissionKey(k => k + 1)
     setPhase('playing')
+    recordedRef.current = false
   }
 
   // El usuario quiere volver a elegir misión (desde MissionSummary)
@@ -36,6 +42,11 @@ export default function OperacionPage() {
   if (phase === 'chars') {
     return (
       <div className="operacion-page">
+        <Helmet>
+          <title>Operación — EchoVerse</title>
+          <meta name="description" content="Elegí un personaje y completá misiones de decisión. Cada elección tiene consecuencias." />
+          <link rel="canonical" href="https://echoverse-jet.vercel.app/operacion" />
+        </Helmet>
         <div className="operacion-page__top-bar">
           <button className="operacion-page__back" onClick={() => navigate(ROUTES.HOME)}>
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -131,6 +142,12 @@ export default function OperacionPage() {
         character={character}
         onReplay={handleReplay}
         onHome={() => navigate(ROUTES.HOME)}
+        onComplete={() => {
+          if (!recordedRef.current) {
+            recordedRef.current = true
+            recordCompletion(session, 'operacion')
+          }
+        }}
       />
     </div>
   )
