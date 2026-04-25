@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
+import { ToastProvider } from './context/ToastContext'
 import { useAuth } from './context/AuthContext'
 import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary'
 import PageLoader from './components/PageLoader/PageLoader'
@@ -72,13 +73,15 @@ function AnimatedRoutes() {
 export default function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <ErrorBoundary>
-          <Suspense fallback={<PageLoader />}>
-            <AnimatedRoutes />
-          </Suspense>
-        </ErrorBoundary>
-      </BrowserRouter>
+      <ToastProvider>
+        <BrowserRouter>
+          <ErrorBoundary>
+            <Suspense fallback={<PageLoader />}>
+              <AnimatedRoutes />
+            </Suspense>
+          </ErrorBoundary>
+        </BrowserRouter>
+      </ToastProvider>
     </AuthProvider>
   )
 }

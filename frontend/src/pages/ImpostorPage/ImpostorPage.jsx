@@ -7,6 +7,7 @@ import { recordCompletion } from '../../utils/recordCompletion'
 import { ROUTES } from '../../utils/constants'
 import { API_URL } from '../../config/api'
 import { Helmet } from 'react-helmet-async'
+import { useToast } from '../../context/ToastContext'
 import './ImpostorPage.css'
 
 const TOTAL_ROUNDS = 5
@@ -40,6 +41,7 @@ function pickRandom(arr) {
 export default function ImpostorPage() {
   const navigate = useNavigate()
   const { session } = useAuth()
+  const { showToast } = useToast()
   const recordedRef = useRef(false)
 
   const [phase, setPhase] = useState('intro')
@@ -91,6 +93,7 @@ export default function ImpostorPage() {
       setPhase('voting')
     } catch (err) {
       console.error(err)
+      showToast('No se pudo generar la ronda. Verificá tu conexión e intentá de nuevo.')
       setPhase('intro')
     }
   }
