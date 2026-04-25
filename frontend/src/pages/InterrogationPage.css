@@ -1157,6 +1157,56 @@
   line-height: 1.4;
 }
 
+/* Performance */
+.ip-reveal__performance {
+  width: 100%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 1rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  animation: fadeSlideUp 0.4s ease both;
+}
+.ip-performance__rank {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--cc, #fff);
+  margin: 0;
+  opacity: 0.9;
+}
+.ip-performance__desc {
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.65);
+  margin: 0;
+  line-height: 1.4;
+}
+.ip-performance__stats {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+  flex-wrap: wrap;
+}
+.ip-performance__stat {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.45);
+}
+.ip-performance__stat strong {
+  color: rgba(255,255,255,0.8);
+  font-weight: 700;
+}
+.ip-performance__stat-dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  flex-shrink: 0;
+}
+
 /* Actions */
 .ip-reveal__actions {
   display: flex;

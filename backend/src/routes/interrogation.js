@@ -264,6 +264,29 @@ router.post('/interrogation/ask', async (req, res) => {
   }
 })
 
+// ── Compute player performance from session exchanges ─────────────────────
+function computePerformance(exchanges, correct) {
+  const total = exchanges.length
+  const pressureCount = exchanges.filter(ex =>
+    ex.emotionalTone === 'irritated' || ex.emotionalTone === 'defensive'
+  ).length
+  const evasionCount = exchanges.filter(ex =>
+    ex.type === 'evasive' || ex.type === 'counter'
+  ).length
+
+  let rank, desc
+  if (correct) {
+    if (total <= 3)      { rank = 'Instinto élite';  desc = 'Lo detectaste sin rodeos. Pocas preguntas, respuesta correcta.' }
+    else if (total <= 5) { rank = 'Detective';        desc = 'Metódico y efectivo. Encontraste la verdad.' }
+    else                 { rank = 'Investigador';     desc = 'Lo lograste con perseverancia. La presión funcionó.' }
+  } else {
+    if (pressureCount >= 3) { rank = 'Presionador frustrado'; desc = 'Aplicaste presión, pero el personaje fue más hábil.' }
+    else                    { rank = 'Engañado';               desc = 'El personaje te tuvo en la palma de la mano desde el inicio.' }
+  }
+
+  return { rank, desc, totalQuestions: total, pressureCount, evasionCount }
+}
+
 // ── POST /api/interrogation/verdict ──────────────────────────────────────
 router.post('/interrogation/verdict', async (req, res) => {
   const { sessionId, verdict } = req.body  // verdict: 'lying' | 'truth'
@@ -309,15 +332,17 @@ Español rioplatense. Solo el texto, separado por "|||".`
     const revealText  = parts[0]?.trim() ?? ''
     const closingLine = parts[1]?.trim() ?? ''
 
+    const playerPerformance = computePerformance(session.exchanges, correct)
     sessions.delete(sessionId)  // clean up
 
     res.json({
       correct,
-      isLying:      session.isLying,
-      hiddenTruth:  session.hiddenTruth,
+      isLying:           session.isLying,
+      hiddenTruth:       session.hiddenTruth,
       cluesReview,
       revealText,
       closingLine,
+      playerPerformance,
     })
   } catch (err) {
     console.error('Interrogation verdict error:', err.message)

@@ -808,7 +808,7 @@ export default function InterrogationPage() {
   // ════════════════════════════════════════════════════════════
   if (phase === 'reveal' && revealData) {
     const charColor   = selectedChar?.themeColor ?? '#fff'
-    const { correct, isLying, hiddenTruth, cluesReview, revealText, closingLine } = revealData
+    const { correct, isLying, hiddenTruth, cluesReview, revealText, closingLine, playerPerformance } = revealData
 
     return (
       <div className={`ip ip--reveal ${correct ? 'ip--correct' : 'ip--wrong'}`} style={{ '--cc': charColor }}>
@@ -871,6 +871,27 @@ export default function InterrogationPage() {
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {/* Player performance */}
+          {playerPerformance && (
+            <div className="ip-reveal__performance">
+              <p className="ip-performance__rank">{playerPerformance.rank}</p>
+              <p className="ip-performance__desc">{playerPerformance.desc}</p>
+              <div className="ip-performance__stats">
+                <span className="ip-performance__stat">
+                  <strong>{playerPerformance.totalQuestions}</strong> preguntas
+                </span>
+                <span className="ip-performance__stat-dot" />
+                <span className="ip-performance__stat">
+                  <strong>{playerPerformance.pressureCount}</strong> bajo presión
+                </span>
+                <span className="ip-performance__stat-dot" />
+                <span className="ip-performance__stat">
+                  <strong>{playerPerformance.evasionCount}</strong> evasiones
+                </span>
               </div>
             </div>
           )}
