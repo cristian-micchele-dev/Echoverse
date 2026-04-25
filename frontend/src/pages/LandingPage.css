@@ -2307,6 +2307,7 @@
 
 .lp-rooms-rail {
   display: flex;
+  justify-content: center;
   gap: 0.9rem;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
