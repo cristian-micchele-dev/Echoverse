@@ -7,7 +7,6 @@ import { loadSession, timeAgo } from '../utils/session'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import DailyChallenge from '../components/DailyChallenge/DailyChallenge'
-import OnboardingModal from '../components/OnboardingModal/OnboardingModal'
 import { ROUTES } from '../utils/constants'
 import { API_URL } from '../config/api.js'
 import './LandingPage.css'
@@ -143,7 +142,6 @@ export default function LandingPage() {
   const [scrolled, setScrolled]       = useState(false)
   const [onlineCount, setOnlineCount] = useState(null)
   const [communityChars, setCommunityChars] = useState([])
-  const [showOnboarding, setShowOnboarding] = useState(false)
   const sidRef = useRef(null)
   const heroRef                       = useRef(null)
   const lpRef                         = useRef(null)
@@ -155,7 +153,6 @@ export default function LandingPage() {
 
   useEffect(() => {
     requestAnimationFrame(() => setVisible(true))
-    if (!localStorage.getItem('echoverse-visited')) setShowOnboarding(true)
   }, [])
 
   useEffect(() => {
@@ -227,8 +224,6 @@ export default function LandingPage() {
         <link rel="canonical" href="https://echoverse-jet.vercel.app/" />
         <meta property="og:url" content="https://echoverse-jet.vercel.app/" />
       </Helmet>
-
-      {showOnboarding && <OnboardingModal onClose={() => setShowOnboarding(false)} />}
 
       {/* Film grain overlay */}
       <div className="lp-grain" aria-hidden="true" />
