@@ -187,6 +187,7 @@
 }
 @media (max-width: 560px) {
   .ip-intro__features { grid-template-columns: 1fr; gap: 0.5rem; }
+  .ip-bg__ghost { display: none; }
 }
 .ip-intro__feature {
   display: flex;
