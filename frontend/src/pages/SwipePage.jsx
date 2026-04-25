@@ -65,11 +65,11 @@ export default function SwipePage() {
   }, [feedbackData, leaving])
 
   // Auto-wrong on timeout
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (timeLeft === 0 && phase === 'playing' && !feedbackData && !leaving) {
       handleAnswer(false)
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeLeft])
 
   const handleCharSelect = async (char) => {
