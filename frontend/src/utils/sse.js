@@ -30,7 +30,7 @@ export async function readSSEStream(response, onChunk) {
 
       const { content, error } = parsed
       if (error) throw new Error(error)
-      if (content) onChunk(content)
+      if (content) await onChunk(content)
     }
   }
 }

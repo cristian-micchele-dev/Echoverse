@@ -17,9 +17,11 @@ export function useStreaming() {
    * @param {string} url - Endpoint a llamar
    * @param {object} payload - Body del POST
    * @param {(content: string, isFirst: boolean) => void} onChunk - Callback por token
+   * @param {{ delay?: number, headers?: object }} options
    * @returns {Promise<void>}
    */
-  async function streamChat(url, payload, onChunk, extraHeaders = {}) {
+  async function streamChat(url, payload, onChunk, options = {}) {
+    const { delay = 0, headers: extraHeaders = {} } = options
     setIsLoading(true)
     setIsTyping(true)
 
@@ -41,12 +43,13 @@ export function useStreaming() {
       }
 
       let firstChunk = true
-      await readSSEStream(response, content => {
+      await readSSEStream(response, async content => {
         const isFirst = firstChunk
         if (firstChunk) {
           setIsTyping(false)
           firstChunk = false
         }
+        if (delay > 0) await new Promise(r => setTimeout(r, delay))
         onChunk(content, isFirst)
       })
     } finally {

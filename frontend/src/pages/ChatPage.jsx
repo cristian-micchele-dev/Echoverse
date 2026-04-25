@@ -12,6 +12,7 @@ import { getAffinityData, getAffinityLevel, getAffinityLabel, getAffinityEmoji, 
 import { useAuth } from '../context/AuthContext'
 import { useAchievements } from '../hooks/useAchievements'
 import { useStreaming } from '../hooks/useStreaming'
+import { CHARACTER_STREAM_DELAYS } from '../data/characterConfig'
 import AchievementToast from '../components/AchievementToast/AchievementToast'
 import ShareModal from '../components/ShareModal/ShareModal'
 import VerdictBubble from '../components/VerdictBubble/VerdictBubble'
@@ -365,7 +366,7 @@ export default function ChatPage() {
             })
           }
         },
-        chatHeaders
+        { headers: chatHeaders, delay: CHARACTER_STREAM_DELAYS[characterId] ?? 0 }
       )
     } catch (err) {
       let msg = 'Error al conectar con el servidor.'
