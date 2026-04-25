@@ -9,9 +9,14 @@ const router = Router()
 router.post('/chat/custom', requireAuth, async (req, res) => {
   const { systemPrompt, messages: rawMessages } = req.body
 
-  if (!systemPrompt) return res.status(400).json({ error: 'systemPrompt requerido' })
+  if (!systemPrompt || typeof systemPrompt !== 'string') return res.status(400).json({ error: 'systemPrompt requerido' })
+  if (systemPrompt.length > 2000) return res.status(400).json({ error: 'systemPrompt demasiado largo (máx. 2000 caracteres)' })
+  if (!Array.isArray(rawMessages)) return res.status(400).json({ error: 'messages debe ser un array' })
 
-  const messages = (rawMessages ?? []).slice(-MAX_HISTORY)
+  const messages = rawMessages.slice(-MAX_HISTORY).map(m => ({
+    role: m.role === 'assistant' ? 'assistant' : 'user',
+    content: typeof m.content === 'string' ? m.content.slice(0, 1000) : '',
+  }))
 
   initSseResponse(res)
 

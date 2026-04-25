@@ -1,6 +1,6 @@
 import { supabase } from '../config/supabase.js'
 
-const ADMIN_EMAIL = 'cristian.aiki1@gmail.com'
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'cristian.aiki1@gmail.com'
 
 export async function requireAuth(req, res, next) {
   const token = req.headers.authorization?.split(' ')[1]

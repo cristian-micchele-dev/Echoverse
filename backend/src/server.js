@@ -39,6 +39,19 @@ const authLimiter = rateLimit({
 app.use('/api/auth/login', authLimiter)
 app.use('/api/auth/register', authLimiter)
 
+const aiLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  validate: { xForwardedForHeader: false },
+  message: { error: 'Demasiadas solicitudes a la IA. Esperá un momento.' }
+})
+app.use('/api/chat', aiLimiter)
+app.use('/api/dilema', aiLimiter)
+app.use('/api/interrogation/ask', aiLimiter)
+app.use('/api/interrogation/start', aiLimiter)
+
 app.use('/api', chatRouter)
 app.use('/api', interrogationRouter)
 app.use('/api/db', dbRouter)
