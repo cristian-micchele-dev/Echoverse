@@ -8,6 +8,7 @@ import { getUserRankName, isRankSufficient } from '../utils/affinity'
 import { useAuth } from '../context/AuthContext'
 import { API_URL } from '../config/api'
 import { supabase } from '../lib/supabase'
+import { CHARACTER_CATEGORIES, CATEGORY_CHIPS } from '../data/characterConfig'
 import './ChatModePage.css'
 
 function formatChatTime(ts) {
@@ -45,6 +46,7 @@ export default function ChatModePage() {
   const [exiting, setExiting] = useState(false)
   const [search, setSearch] = useState('')
   const [selectedId, setSelectedId] = useState(null)
+  const [selectedCategory, setSelectedCategory] = useState('all')
 
   const [recentChats, setRecentChats] = useState(() => getRecentChats())
   const [activeTab, setActiveTab] = useState(recentChats.length > 0 ? 'recent' : 'all')
@@ -78,10 +80,13 @@ export default function ChatModePage() {
       .then(({ data }) => setCommunityChars(data ?? []))
   }, [session])
 
-  const filtered = characters.filter(c =>
-    c.name.toLowerCase().includes(search.toLowerCase()) ||
-    c.universe.toLowerCase().includes(search.toLowerCase())
-  )
+  const filtered = characters.filter(c => {
+    const matchesSearch = !search ||
+      c.name.toLowerCase().includes(search.toLowerCase()) ||
+      c.universe.toLowerCase().includes(search.toLowerCase())
+    const matchesCategory = selectedCategory === 'all' || CHARACTER_CATEGORIES[c.id] === selectedCategory
+    return matchesSearch && matchesCategory
+  })
 
   function handleSelect(characterId) {
     setSelectedId(characterId)
@@ -316,6 +321,18 @@ export default function ChatModePage() {
               onChange={e => setSearch(e.target.value)}
             />
           </div>
+          <div className="chat-mode-chips" role="group" aria-label="Filtrar por categoría">
+            {CATEGORY_CHIPS.map(({ key, label }) => (
+              <button
+                key={key}
+                className={`chat-mode-chip${selectedCategory === key ? ' chat-mode-chip--active' : ''}`}
+                onClick={() => setSelectedCategory(key)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
           <div className="chat-mode-grid">
             {filtered.map((char, i) => (
               <CharacterCard

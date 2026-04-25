@@ -59,3 +59,79 @@ export const CHARACTER_STREAM_DELAYS = {
   'captain-america': 20,
   'deadpool':         5,
 }
+
+/**
+ * Category per character — used for filter chips in character selection.
+ * Every character belongs to exactly one category.
+ */
+export const CHARACTER_CATEGORIES = {
+  // Superhéroes — powered heroes from comics / games
+  'harry-potter':    'superheroe',
+  'tony-stark':      'superheroe',
+  'spider-man':      'superheroe',
+  'batman':          'superheroe',
+  'superman':        'superheroe',
+  'captain-america': 'superheroe',
+  'deadpool':        'superheroe',
+  'wolverine':       'superheroe',
+  'venom':           'superheroe',
+  'the-punisher':    'superheroe',
+  'eleven':          'superheroe',
+  'kratos':          'superheroe',
+  'terminator':      'superheroe',
+
+  // Guerreros — warriors and fighters
+  'leonidas':        'guerrero',
+  'ragnar-lothbrok': 'guerrero',
+  'aquiles':         'guerrero',
+  'william-wallace': 'guerrero',
+  'ip-man':          'guerrero',
+  'bruce-lee':       'guerrero',
+  'john-wick':       'guerrero',
+  'bryan-mills':     'guerrero',
+  'kurt-sloane':     'guerrero',
+  'tony-ja':         'guerrero',
+  'iko-uwais':       'guerrero',
+  'nathan-algren':   'guerrero',
+  'la-novia':        'guerrero',
+  'aragorn':         'guerrero',
+  'geralt':          'guerrero',
+  'gandalf':         'guerrero',
+
+  // Villanos — dark, antagonist or deeply disturbing characters
+  'darth-vader':     'villano',
+  'joker':           'villano',
+  'hannibal':        'villano',
+  'norman-bates':    'villano',
+  'gollum':          'villano',
+  'tyler-durden':    'villano',
+
+  // Antihéroes — morally grey protagonists and icons
+  'walter-white':    'antihéroe',
+  'tommy-shelby':    'antihéroe',
+  'jack-sparrow':    'antihéroe',
+  'el-profesor':     'antihéroe',
+  'james-bond':      'antihéroe',
+  'jax-teller':      'antihéroe',
+  'frank-martin':    'antihéroe',
+  'ethan-hunt':      'antihéroe',
+  'john-mcclane':    'antihéroe',
+  'rocky-balboa':    'antihéroe',
+  'alice':           'antihéroe',
+  'casey-ryback':    'antihéroe',
+  'nascimento':      'antihéroe',
+  'furiosa':         'antihéroe',
+  'katniss':         'antihéroe',
+  'jon-snow':        'antihéroe',
+  'lara-croft':      'antihéroe',
+  'sherlock':        'antihéroe',
+  'capitan-flint':   'antihéroe',
+}
+
+export const CATEGORY_CHIPS = [
+  { key: 'all',        label: 'Todos'       },
+  { key: 'superheroe', label: 'Superhéroes' },
+  { key: 'guerrero',   label: 'Guerreros'   },
+  { key: 'antihéroe',  label: 'Antihéroes'  },
+  { key: 'villano',    label: 'Villanos'    },
+]
