@@ -228,12 +228,30 @@ export default function InterrogationPage() {
       if (!res.ok) throw new Error(data.error || 'Error')
       setRevealData({ ...data, userVerdict: verdict })
       setPhase('reveal')
+      if (session && selectedChar && selectedScenario && data.playerPerformance) {
+        fetch(`${API_URL}/db/interrogation-result`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({
+            characterId:    selectedChar.id,
+            scenario:       selectedScenario.text,
+            isLying:        data.isLying,
+            correct:        data.correct,
+            totalQuestions: data.playerPerformance.totalQuestions,
+            pressureCount:  data.playerPerformance.pressureCount,
+            rank:           data.playerPerformance.rank,
+          }),
+        }).catch(() => {})
+      }
     } catch (err) {
       console.error(err)
     } finally {
       setIsLoading(false)
     }
-  }, [sessionId])
+  }, [sessionId, session, selectedChar, selectedScenario])
 
   // ── Submit confrontation ──────────────────────────────────────
   const submitConfrontation = useCallback(async (text) => {

@@ -377,6 +377,32 @@ router.post('/daily-challenge', requireAuth, async (req, res) => {
   res.json({ ok: true })
 })
 
+// ─── Interrogation Results (requiere auth) ───────────────────────────────────
+
+// POST /api/db/interrogation-result  { characterId, scenario, isLying, correct, totalQuestions, pressureCount, rank }
+router.post('/interrogation-result', requireAuth, async (req, res) => {
+  const { characterId, scenario, isLying, correct, totalQuestions, pressureCount, rank } = req.body
+  if (!characterId || !scenario || typeof correct !== 'boolean') {
+    return res.status(400).json({ error: 'Missing required fields' })
+  }
+
+  const { error } = await supabase
+    .from('interrogation_results')
+    .insert({
+      user_id:         req.user.id,
+      character_id:    characterId,
+      scenario,
+      is_lying:        !!isLying,
+      correct:         !!correct,
+      total_questions: totalQuestions ?? 0,
+      pressure_count:  pressureCount ?? 0,
+      rank:            rank ?? '',
+    })
+
+  if (error) return res.status(500).json({ error: error.message })
+  res.json({ ok: true })
+})
+
 // ─── Mode Completions (requiere auth) ────────────────────────────────────────
 
 // GET /api/db/mode-completions  → { swipe: 3, story: 1, ... }
