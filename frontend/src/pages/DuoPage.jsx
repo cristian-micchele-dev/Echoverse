@@ -112,7 +112,7 @@ export default function DuoPage() {
           setMessages([...updatedMsgs])
           scrollToBottom()
 
-          setTypingChar('charA')
+          setTypingChar(null)
           const histA2 = buildHistory(updatedMsgs, charA.id)
           const responseA2 = await fetchCharResponse(charA.id, histA2, {
             role: 'A2',
