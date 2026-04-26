@@ -184,30 +184,19 @@ export default function DashboardPage() {
               <h2 className="dash-section-title">Elegí cómo<br /><em>entrás.</em></h2>
             </div>
             <div className="dash-modes-grid">
-              {MODES.map(mode => {
-                const char = characters.find(c => c.id === mode.characterId)
-                return (
-                  <button
-                    key={mode.route}
-                    className="dash-mode-card"
-                    style={{ '--mode-color': mode.color }}
-                    onClick={() => navigate(mode.route)}
-                  >
-                    {char && (
-                      <div className="dash-mode-card__visual">
-                        <img src={char.image} alt="" className="dash-mode-card__img" />
-                        <div className="dash-mode-card__fade" />
-                      </div>
-                    )}
-                    <div className="dash-mode-card__glow" />
-                    <div className="dash-mode-card__body">
-                      <span className="dash-mode-card__eyebrow">{mode.eyebrow}</span>
-                      <span className="dash-mode-card__label">{mode.label}</span>
-                      <span className="dash-mode-card__tag">{mode.tag}</span>
-                    </div>
-                  </button>
-                )
-              })}
+              {MODES.map(mode => (
+                <button
+                  key={mode.route}
+                  className="dash-mode-card"
+                  style={{ '--mode-color': mode.color }}
+                  onClick={() => navigate(mode.route)}
+                >
+                  <span className="dash-mode-card__emoji">{mode.emoji}</span>
+                  <span className="dash-mode-card__label">{mode.label}</span>
+                  <span className="dash-mode-card__eyebrow">{mode.eyebrow}</span>
+                  <span className="dash-mode-card__tag">{mode.tag}</span>
+                </button>
+              ))}
             </div>
           </section>
 
