@@ -29,6 +29,7 @@ const AdminPage = lazy(() => import('./pages/AdminPage'))
 const CreateCharacterPage = lazy(() => import('./pages/CreateCharacterPage'))
 const EditCharacterPage = lazy(() => import('./pages/EditCharacterPage'))
 const ComunidadPage = lazy(() => import('./pages/ComunidadPage'))
+const DashboardPage = lazy(() => import('./pages/DashboardPage'))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage/NotFoundPage'))
 
 function AnimatedRoutes() {
@@ -62,6 +63,7 @@ function AnimatedRoutes() {
         <Route path={ROUTES.CREAR_PERSONAJE} element={<CreateCharacterPage />} />
         <Route path="/editar-personaje/:id" element={<EditCharacterPage />} />
         <Route path={ROUTES.COMUNIDAD} element={<ComunidadPage />} />
+        <Route path={ROUTES.DASHBOARD} element={<DashboardPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </div>

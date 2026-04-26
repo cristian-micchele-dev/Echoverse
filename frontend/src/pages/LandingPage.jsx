@@ -152,6 +152,10 @@ export default function LandingPage() {
 
 
   useEffect(() => {
+    if (user) navigate(ROUTES.DASHBOARD, { replace: true })
+  }, [user, navigate])
+
+  useEffect(() => {
     requestAnimationFrame(() => setVisible(true))
   }, [])
 

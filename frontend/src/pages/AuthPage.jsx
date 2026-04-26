@@ -41,7 +41,7 @@ export default function AuthPage() {
     try {
       if (tab === 'login') await login(email, password)
       else await register(email, password, username)
-      navigate(ROUTES.HOME, { replace: true })
+      navigate(ROUTES.DASHBOARD, { replace: true })
     } catch (err) {
       setError(err.message || 'Error inesperado')
     } finally {
