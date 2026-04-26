@@ -174,7 +174,7 @@
 /* ── Hero ── */
 .dash-hero {
   position: relative;
-  min-height: 260px;
+  min-height: 180px;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -190,7 +190,7 @@
   align-items: flex-end;
   justify-content: space-between;
   gap: 2rem;
-  padding-bottom: 1.25rem;
+  padding-bottom: 1rem;
   flex-wrap: wrap;
 }
 
