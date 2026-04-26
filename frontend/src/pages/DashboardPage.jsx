@@ -8,17 +8,17 @@ import { FEATURED_LIST } from '../data/featured'
 import './DashboardPage.css'
 
 const MODES = [
-  { emoji: '💬', label: 'Chat',          eyebrow: 'Con personaje',        route: '/chat',          color: '#70a8e0', tag: 'Sin límite' },
-  { emoji: '🎯', label: 'Misión',        eyebrow: 'Historia interactiva', route: '/mission',       color: '#e05060', tag: '~10 min'   },
-  { emoji: '🔦', label: 'Interrogatorio',eyebrow: 'Detección de mentiras',route: '/interrogation', color: '#7ec87e', tag: '~8 min'    },
-  { emoji: '◈',  label: 'Dilemas',       eyebrow: 'Filosófico',           route: '/dilema',        color: '#a08cdc', tag: '~5 min'    },
-  { emoji: '🧩', label: 'Adivinar',      eyebrow: 'Trivia con puntaje',   route: '/guess',         color: '#7aab6e', tag: '~3 min'    },
-  { emoji: '⚡', label: 'Swipe',         eyebrow: 'Respuesta rápida',     route: '/swipe',         color: '#e87040', tag: '~2 min'    },
-  { emoji: '🍽️', label: 'Última Cena',   eyebrow: 'Debate grupal',        route: '/ultima-cena',   color: '#c9954a', tag: '~15 min'   },
-  { emoji: '👥', label: 'Duo',           eyebrow: '2 personajes',         route: '/duo',           color: '#9B7BFF', tag: 'Sin límite' },
-  { emoji: '🎭', label: 'Parecido',      eyebrow: 'Quiz visual',          route: '/parecido',      color: '#f06292', tag: '~5 min'    },
-  { emoji: '🚪', label: 'Salas',         eyebrow: 'Multijugador',         route: '/salas',         color: '#4dd0e1', tag: 'En vivo'   },
-  { emoji: '🌐', label: 'Comunidad',     eyebrow: 'Personajes de fans',   route: '/comunidad',     color: '#81c784', tag: 'Creados por fans' },
+  { label: 'Chat',           eyebrow: 'Con personaje',        route: '/chat',          color: '#70a8e0', tag: 'Sin límite',      characterId: 'sherlock'      },
+  { label: 'Misión',         eyebrow: 'Historia interactiva', route: '/mission',       color: '#e05060', tag: '~10 min',         characterId: 'el-profesor'   },
+  { label: 'Interrogatorio', eyebrow: 'Detección de mentiras',route: '/interrogation', color: '#7ec87e', tag: '~8 min',          characterId: 'walter-white'  },
+  { label: 'Dilemas',        eyebrow: 'Filosófico',           route: '/dilema',        color: '#a08cdc', tag: '~5 min',          characterId: 'gandalf'       },
+  { label: 'Adivinar',       eyebrow: 'Trivia con puntaje',   route: '/guess',         color: '#7aab6e', tag: '~3 min',          characterId: 'gollum'        },
+  { label: 'Swipe',          eyebrow: 'Respuesta rápida',     route: '/swipe',         color: '#e87040', tag: '~2 min',          characterId: 'tony-stark'    },
+  { label: 'Última Cena',    eyebrow: 'Debate grupal',        route: '/ultima-cena',   color: '#c9954a', tag: '~15 min',         characterId: 'darth-vader'   },
+  { label: 'Duo',            eyebrow: '2 personajes',         route: '/duo',           color: '#9B7BFF', tag: 'Sin límite',      characterId: 'jack-sparrow'  },
+  { label: 'Parecido',       eyebrow: 'Quiz visual',          route: '/parecido',      color: '#f06292', tag: '~5 min',          characterId: 'john-wick'     },
+  { label: 'Salas',          eyebrow: 'Multijugador',         route: '/salas',         color: '#4dd0e1', tag: 'En vivo',         characterId: 'frodo'         },
+  { label: 'Comunidad',      eyebrow: 'Personajes de fans',   route: '/comunidad',     color: '#81c784', tag: 'Creados por fans',characterId: 'tyrion'        },
 ]
 
 export default function DashboardPage() {
@@ -68,19 +68,30 @@ export default function DashboardPage() {
         <section className="dash-section">
           <h2 className="dash-section-title">Modos</h2>
           <div className="dash-modes-grid">
-            {MODES.map(mode => (
-              <button
-                key={mode.route}
-                className="dash-mode-card"
-                style={{ '--mode-color': mode.color }}
-                onClick={() => navigate(mode.route)}
-              >
-                <span className="dash-mode-card__emoji">{mode.emoji}</span>
-                <span className="dash-mode-card__label">{mode.label}</span>
-                <span className="dash-mode-card__eyebrow">{mode.eyebrow}</span>
-                <span className="dash-mode-card__tag">{mode.tag}</span>
-              </button>
-            ))}
+            {MODES.map(mode => {
+              const char = characters.find(c => c.id === mode.characterId)
+              return (
+                <button
+                  key={mode.route}
+                  className="dash-mode-card"
+                  style={{ '--mode-color': mode.color }}
+                  onClick={() => navigate(mode.route)}
+                >
+                  {char && (
+                    <div className="dash-mode-card__visual">
+                      <img src={char.image} alt="" className="dash-mode-card__img" />
+                      <div className="dash-mode-card__fade" />
+                    </div>
+                  )}
+                  <div className="dash-mode-card__glow" />
+                  <div className="dash-mode-card__body">
+                    <span className="dash-mode-card__eyebrow">{mode.eyebrow}</span>
+                    <span className="dash-mode-card__label">{mode.label}</span>
+                    <span className="dash-mode-card__tag">{mode.tag}</span>
+                  </div>
+                </button>
+              )
+            })}
           </div>
         </section>
 
