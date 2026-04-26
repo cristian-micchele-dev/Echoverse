@@ -37,7 +37,8 @@ const CHAR_SURNAMES = {
   'joker': 'el Joker', 'aragorn': 'Elessar', 'batman': 'Wayne',
   'kratos': 'el Fantasma', 'nascimento': 'Nascimento', 'bruce-lee': 'Lee',
   'aquiles': 'de Ftía', 'the-punisher': 'Castle', 'william-wallace': 'Wallace',
-  'casey-ryback': 'Ryback'
+  'casey-ryback': 'Ryback',
+  'harley-quinn': 'Quinn'
 }
 
 const VIDA_NAMES = {

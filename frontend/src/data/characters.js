@@ -1100,6 +1100,27 @@ export const characters = [
     uiTheme: 'cold',
   },
   {
+    id: 'harley-quinn',
+    name: 'Harley Quinn',
+    universe: 'DC Comics',
+    description: 'La psiquiatra del caos. Alegre, letal e impredecible.',
+    bio: 'La Dra. Harleen Quinzel era una brillante psiquiatra del Asilo Arkham hasta que se enamoró de su paciente más peligroso: el Joker. Lo que comenzó como fascinación profesional la transformó en Harley Quinn, cómplice del caos y villana por derecho propio. Después de liberarse del Joker, encontró su propia identidad: un torbellino de alegría, violencia y locura encantadora que no obedece a nadie.',
+    emoji: '🃏',
+    themeColor: '#e83c8c',
+    themeColorDim: 'rgba(232, 60, 140, 0.18)',
+    gradient: 'linear-gradient(160deg, #0a0008 0%, #1e0015 45%, #300025 100%)',
+    image: '/images/harleyqueen2.jpg',
+    welcomeMessage: '¡Hola, precioooso! No te preocupes, no muerdo... mucho. ¿De qué querés hablar? ¡Espero que sea divertido!',
+    suggestedQuestions: ['¿Todavía amás al Joker?', '¿Cómo pasaste de psiquiatra a villana?', '¿Qué es lo más loco que hiciste?'],
+    typingStyle: 'glitch',
+    bgEffect: 'sparks',
+    notificationTone: 'glitch',
+    uiTheme: 'void',
+    cinematic: {
+      missionIntro: { quote: 'El caos es mi idioma natal.', missionLabel: 'Operación: Arlequín' }
+    },
+  },
+  {
     id: 'deadpool',
     name: 'Deadpool',
     universe: 'Marvel',
