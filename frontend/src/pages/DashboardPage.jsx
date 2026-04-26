@@ -1,57 +1,117 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useStreak } from '../hooks/useStreak'
+import { useAchievements } from '../hooks/useAchievements'
+import { ACHIEVEMENTS } from '../data/achievements'
 import { supabase } from '../lib/supabase'
 import { characters } from '../data/characters'
 import { pickByDay, shuffleByDay } from '../utils/daily'
 import { loadSession, clearSession, timeAgo, hoursUntilMidnight } from '../utils/session'
 import { FEATURED_LIST } from '../data/featured'
-import { ROUTES, ACHIEVEMENTS_KEY } from '../utils/constants'
+import { ROUTES } from '../utils/constants'
+import DailyChallenge from '../components/DailyChallenge/DailyChallenge'
+import { API_URL } from '../config/api'
 import './DashboardPage.css'
 
 const BG_IMAGES = [...characters, ...characters]
 
-const MODES = [
-  { label: 'Chat',           eyebrow: 'Con personaje',        route: '/chat',          color: '#70a8e0', tag: 'Sin límite',       characterId: 'sherlock'     },
-  { label: 'Misión',         eyebrow: 'Historia interactiva', route: '/mission',       color: '#e05060', tag: '~10 min',          characterId: 'el-profesor'  },
-  { label: 'Interrogatorio', eyebrow: 'Detección de mentiras',route: '/interrogation', color: '#7ec87e', tag: '~8 min',           characterId: 'walter-white' },
-  { label: 'Dilemas',        eyebrow: 'Filosófico',           route: '/dilema',        color: '#a08cdc', tag: '~5 min',           characterId: 'gandalf'      },
-  { label: 'Adivinar',       eyebrow: 'Trivia con puntaje',   route: '/guess',         color: '#7aab6e', tag: '~3 min',           characterId: 'gollum'       },
-  { label: 'Swipe',          eyebrow: 'Respuesta rápida',     route: '/swipe',         color: '#e87040', tag: '~2 min',           characterId: 'tony-stark'   },
-  { label: 'Última Cena',    eyebrow: 'Debate grupal',        route: '/ultima-cena',   color: '#c9954a', tag: '~15 min',          characterId: 'darth-vader'  },
-  { label: 'Duo',            eyebrow: '2 personajes',         route: '/duo',           color: '#9B7BFF', tag: 'Sin límite',       characterId: 'jack-sparrow' },
-  { label: 'Parecido',       eyebrow: 'Quiz visual',          route: '/parecido',      color: '#f06292', tag: '~5 min',           characterId: 'john-wick'    },
-  { label: 'Salas',          eyebrow: 'Multijugador',         route: '/salas',         color: '#4dd0e1', tag: 'En vivo',          characterId: 'frodo'        },
-  { label: 'Comunidad',      eyebrow: 'Personajes de fans',   route: '/comunidad',     color: '#81c784', tag: 'Creados por fans', characterId: 'tyrion'       },
-]
-
-function getLocalStats() {
-  const achievements = JSON.parse(localStorage.getItem(ACHIEVEMENTS_KEY) || '[]')
-  const chatCount = Object.keys(localStorage).filter(
-    k => k.startsWith('chat-') && !k.startsWith('chat-custom-') && k !== 'chat-history-meta'
-  ).length
-  return {
-    achievements: Array.isArray(achievements) ? achievements.length : 0,
-    chats: chatCount,
-  }
+const ACH_CHAR = {
+  first_message:       'sherlock',
+  chatty:              'sherlock',
+  verbose:             'sherlock',
+  daily_hero:          'sherlock',
+  daily_dedicated:     'sherlock',
+  mission_starter:     'el-profesor',
+  mission_veteran:     'el-profesor',
+  mission_elite:       'el-profesor',
+  story_first:         'el-profesor',
+  story_5:             'el-profesor',
+  interrogation_first: 'walter-white',
+  interrogation_5:     'walter-white',
+  philosopher:         'gandalf',
+  deep_thinker:        'gandalf',
+  streak_3:            'gandalf',
+  streak_7:            'gandalf',
+  streak_30:           'gandalf',
+  guess_good:          'gollum',
+  guess_master:        'gollum',
+  guess_first:         'gollum',
+  guess_5:             'gollum',
+  swipe_first:         'tony-stark',
+  swipe_10:            'tony-stark',
+  este_o_ese_first:    'tony-stark',
+  confesionario_first: 'darth-vader',
+  polyglot:            'jack-sparrow',
+  universe_explorer:   'jack-sparrow',
+  parecido_first:      'john-wick',
+  all_modes:           'frodo',
+  custom_char_created: 'tyrion',
 }
 
+function getGreeting() {
+  const h = new Date().getHours()
+  if (h < 12) return 'Buenos días'
+  if (h < 19) return 'Buenas tardes'
+  return 'Buenas noches'
+}
+
+function useCountUp(target, active = true, duration = 900) {
+  const [value, setValue] = useState(0)
+  useEffect(() => {
+    if (!active) return
+    if (target === 0) { setValue(0); return }
+    let start = null
+    let raf
+    const step = (timestamp) => {
+      if (!start) start = timestamp
+      const progress = Math.min((timestamp - start) / duration, 1)
+      const eased = 1 - Math.pow(1 - progress, 3)
+      setValue(Math.floor(eased * target))
+      if (progress < 1) raf = requestAnimationFrame(step)
+    }
+    raf = requestAnimationFrame(step)
+    return () => cancelAnimationFrame(raf)
+  }, [target, active, duration])
+  return value
+}
+
+const MODES = [
+  { label: 'Chat',           eyebrow: 'Con personaje',        route: '/chat',          color: '#4A9B7B', tag: 'Sin límite',       image: '/images/ragnarchat1a1.webp'              },
+  { label: 'Misión',         eyebrow: 'Historia interactiva', route: '/mission',       color: '#D4576B', tag: '~10 min',          image: '/images/modomision.jfif'                 },
+  { label: 'Interrogatorio', eyebrow: 'Detección de mentiras',route: '/interrogation', color: '#6D4AFF', tag: '~8 min',           image: '/images/interrogatoriojpg.jpg'           },
+  { label: 'Dilemas',        eyebrow: 'Filosófico',           route: '/dilema',        color: '#C9954A', tag: '~5 min',           characterId: 'gandalf'                           },
+  { label: 'Adivinar',       eyebrow: 'Trivia con puntaje',   route: '/guess',         color: '#9B4A7B', tag: '~3 min',           image: '/images/adivinaelpersonaje.webp'         },
+  { label: 'Swipe',          eyebrow: 'Respuesta rápida',     route: '/swipe',         color: '#4A7B9B', tag: '~2 min',           image: '/images/wolverineSwipe.jpg'              },
+  { label: 'Última Cena',    eyebrow: 'Debate grupal',        route: '/ultima-cena',   color: '#8B4A2A', tag: '~15 min',          image: '/images/ultimacena2.jfif'                },
+  { label: 'Duo',            eyebrow: '2 personajes',         route: '/duo',           color: '#7B9B4A', tag: 'Sin límite',       image: '/images/ipmanstevenseagal.webp'          },
+  { label: 'Parecido',       eyebrow: 'Quiz visual',          route: '/parecido',      color: '#9475F0', tag: '~5 min',           image: '/images/aquientepareces.jfif'            },
+  { label: 'Salas',          eyebrow: 'Multijugador',         route: '/salas',         color: '#C9954A', tag: 'En vivo',          image: '/images/jaxtellersupermanchatenvivo.webp'},
+  { label: 'Comunidad',      eyebrow: 'Personajes de fans',   route: '/comunidad',     color: '#81c784', tag: 'Creados por fans', image: '/images/ninja.png'                       },
+]
+
+
 export default function DashboardPage() {
-  const { user, logout } = useAuth()
+  const { user, logout, session } = useAuth()
   const { streak } = useStreak()
+  const { unlockedIds } = useAchievements()
   const [loggingOut, setLoggingOut] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const navigate = useNavigate()
   const [visible, setVisible] = useState(false)
   const [countdown, setCountdown] = useState(hoursUntilMidnight())
-  const [session, setSession] = useState(() => loadSession())
-  const [localStats] = useState(() => getLocalStats())
+  const [activeSession, setActiveSession] = useState(() => loadSession())
   const [communityChars, setCommunityChars] = useState([])
+  const [affinityStats, setAffinityStats] = useState({ chars: 0, messages: 0 })
 
   const featured = pickByDay(FEATURED_LIST)
   const featuredChar = characters.find(c => c.id === featured?.characterId)
   const popularChars = shuffleByDay(characters).slice(0, 8)
-  const sessionChar = session ? characters.find(c => c.id === session.characterId) : null
+  const sessionChar = activeSession ? characters.find(c => c.id === activeSession.characterId) : null
+
+  const streakDisplay   = useCountUp(streak.current,       visible)
+  const charsDisplay    = useCountUp(affinityStats.chars,   visible)
+  const messagesDisplay = useCountUp(affinityStats.messages, visible)
 
   const username = user?.user_metadata?.username || user?.email?.split('@')[0] || 'Viajero'
   const initial = username[0].toUpperCase()
@@ -69,7 +129,7 @@ export default function DashboardPage() {
   function handleClearSession(e) {
     e.stopPropagation()
     clearSession()
-    setSession(null)
+    setActiveSession(null)
   }
 
   useEffect(() => {
@@ -84,6 +144,21 @@ export default function DashboardPage() {
   }, [])
 
   useEffect(() => {
+    if (!session?.access_token) return
+    fetch(`${API_URL}/db/affinity`, {
+      headers: { Authorization: `Bearer ${session.access_token}` }
+    })
+      .then(r => r.json())
+      .then(data => {
+        if (!Array.isArray(data)) return
+        const chars = data.filter(a => a.message_count > 0).length
+        const messages = data.reduce((sum, a) => sum + (a.message_count || 0), 0)
+        setAffinityStats({ chars, messages })
+      })
+      .catch(() => {})
+  }, [session])
+
+  useEffect(() => {
     requestAnimationFrame(() => setVisible(true))
   }, [])
 
@@ -91,6 +166,31 @@ export default function DashboardPage() {
     const id = setInterval(() => setCountdown(hoursUntilMidnight()), 60_000)
     return () => clearInterval(id)
   }, [])
+
+  useEffect(() => {
+    if (!visible) return
+    const sections = Array.from(document.querySelectorAll('.dash-section'))
+    const pending = sections.filter(s => !s.classList.contains('dash-section--visible'))
+    const vh = window.innerHeight
+    let staggerIdx = 0
+    pending.forEach(s => {
+      const rect = s.getBoundingClientRect()
+      if (rect.top < vh) {
+        s.style.transitionDelay = `${staggerIdx * 0.09}s`
+        staggerIdx++
+      }
+    })
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('dash-section--visible')
+          observer.unobserve(entry.target)
+        }
+      })
+    }, { threshold: 0.08 })
+    pending.forEach(s => observer.observe(s))
+    return () => observer.disconnect()
+  }, [visible, communityChars.length])
 
   return (
     <>
@@ -147,27 +247,27 @@ export default function DashboardPage() {
             <div className="dash-hero__id">
               <div className="dash-avatar">{initial}</div>
               <div>
-                <p className="dash-hero__eyebrow">Bienvenido de nuevo</p>
+                <p className="dash-hero__eyebrow">{getGreeting()}</p>
                 <h1 className="dash-hero__name">{username}</h1>
               </div>
             </div>
             <div className="dash-stats">
               <div className="dash-stat">
                 <span className="dash-stat__icon">🔥</span>
-                <span className="dash-stat__value">{streak.current}</span>
+                <span className="dash-stat__value">{streakDisplay}</span>
                 <span className="dash-stat__label">días de racha</span>
               </div>
               <div className="dash-stat-sep" />
               <div className="dash-stat">
-                <span className="dash-stat__icon">🏆</span>
-                <span className="dash-stat__value">{localStats.achievements}</span>
-                <span className="dash-stat__label">logros</span>
+                <span className="dash-stat__icon">👤</span>
+                <span className="dash-stat__value">{charsDisplay}</span>
+                <span className="dash-stat__label">personajes</span>
               </div>
               <div className="dash-stat-sep" />
               <div className="dash-stat">
                 <span className="dash-stat__icon">💬</span>
-                <span className="dash-stat__value">{localStats.chats}</span>
-                <span className="dash-stat__label">personajes chateados</span>
+                <span className="dash-stat__value">{messagesDisplay}</span>
+                <span className="dash-stat__label">mensajes</span>
               </div>
             </div>
           </div>
@@ -177,38 +277,8 @@ export default function DashboardPage() {
         {/* ── CONTENT ── */}
         <div className="dash-inner">
 
-          {/* ── MODOS ── */}
-          <section className="dash-section">
-            <div className="dash-section-header">
-              <span className="dash-eyebrow">Modos de juego <span className="dash-eyebrow__rule" /></span>
-              <h2 className="dash-section-title">Elegí cómo<br /><em>entrás.</em></h2>
-            </div>
-            <div className="dash-modes-rail">
-              {MODES.map(mode => {
-                const char = characters.find(c => c.id === mode.characterId)
-                return (
-                  <button
-                    key={mode.route}
-                    className="dash-mode-card"
-                    style={{ '--mode-color': mode.color }}
-                    onClick={() => navigate(mode.route)}
-                  >
-                    <div className="dash-mode-card__thumb">
-                      {char && <img src={char.image} alt="" />}
-                    </div>
-                    <div className="dash-mode-card__info">
-                      <span className="dash-mode-card__label">{mode.label}</span>
-                      <span className="dash-mode-card__eyebrow">{mode.eyebrow}</span>
-                      <span className="dash-mode-card__tag">{mode.tag}</span>
-                    </div>
-                  </button>
-                )
-              })}
-            </div>
-          </section>
-
           {/* ── CONTINUAR ── */}
-          {session && sessionChar && (
+          {activeSession && sessionChar && (
             <section className="dash-section">
               <div className="dash-section-header">
                 <span className="dash-eyebrow">Sesión activa <span className="dash-eyebrow__rule" /></span>
@@ -217,25 +287,25 @@ export default function DashboardPage() {
               <div
                 className="dash-resume"
                 style={{ '--char-color': sessionChar.themeColor }}
-                onClick={() => navigate(session.route || `/chat/${sessionChar.id}`)}
+                onClick={() => navigate(activeSession.route || `/chat/${sessionChar.id}`)}
               >
                 <div className="dash-resume__img-wrap">
                   <img src={sessionChar.image} alt={sessionChar.name} className="dash-resume__img" />
                 </div>
                 <div className="dash-resume__info">
                   <span className="dash-resume__char">{sessionChar.name}</span>
-                  <span className="dash-resume__meta">{session.modeLabel} · {timeAgo(session.timestamp)}</span>
-                  {session.lastMessage && (
+                  <span className="dash-resume__meta">{activeSession.modeLabel} · {timeAgo(activeSession.timestamp)}</span>
+                  {activeSession.lastMessage && (
                     <span className="dash-resume__quote">
-                      &ldquo;{session.lastMessage.length > 80
-                        ? session.lastMessage.slice(0, 80) + '…'
-                        : session.lastMessage}&rdquo;
+                      &ldquo;{activeSession.lastMessage.length > 80
+                        ? activeSession.lastMessage.slice(0, 80) + '…'
+                        : activeSession.lastMessage}&rdquo;
                     </span>
                   )}
                 </div>
                 <button
                   className="dash-resume__cta"
-                  onClick={e => { e.stopPropagation(); navigate(session.route || `/chat/${sessionChar.id}`) }}
+                  onClick={e => { e.stopPropagation(); navigate(activeSession.route || `/chat/${sessionChar.id}`) }}
                 >
                   Retomar
                   <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
@@ -292,6 +362,46 @@ export default function DashboardPage() {
               </div>
             </section>
           )}
+
+          {/* ── DESAFÍO DIARIO ── */}
+          <section className="dash-section">
+            <div className="dash-section-header">
+              <span className="dash-eyebrow">Hoy <span className="dash-eyebrow__rule" /></span>
+              <h2 className="dash-section-title">Desafío<br /><em>del día.</em></h2>
+            </div>
+            <DailyChallenge />
+          </section>
+
+          {/* ── MODOS ── */}
+          <section className="dash-section">
+            <div className="dash-section-header">
+              <span className="dash-eyebrow">Modos de juego <span className="dash-eyebrow__rule" /></span>
+              <h2 className="dash-section-title">Elegí cómo<br /><em>entrás.</em></h2>
+            </div>
+            <div className="dash-modes-grid">
+              {MODES.map(mode => {
+                const char = characters.find(c => c.id === mode.characterId)
+                const img = mode.image ?? char?.image
+                return (
+                  <button
+                    key={mode.route}
+                    className="dash-mode-card"
+                    style={{ '--mode-color': mode.color }}
+                    onClick={() => navigate(mode.route)}
+                  >
+                    <div className="dash-mode-card__thumb">
+                      {img && <img src={img} alt="" />}
+                    </div>
+                    <div className="dash-mode-card__info">
+                      <span className="dash-mode-card__label">{mode.label}</span>
+                      <span className="dash-mode-card__eyebrow">{mode.eyebrow}</span>
+                      <span className="dash-mode-card__tag">{mode.tag}</span>
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+          </section>
 
           {/* ── PERSONAJES POPULARES ── */}
           <section className="dash-section">
@@ -365,6 +475,52 @@ export default function DashboardPage() {
 
         </div>
       </div>
+
+      {/* ── SIDEBAR LOGROS ── */}
+      <button
+        className={`dash-ach-tab ${sidebarOpen ? 'dash-ach-tab--open' : ''}`}
+        onClick={() => setSidebarOpen(o => !o)}
+        aria-label="Ver logros"
+      >
+        <span className="dash-ach-tab__icon">🏆</span>
+        <span className="dash-ach-tab__label">Logros</span>
+        <span className="dash-ach-tab__count">{unlockedIds.size}/{ACHIEVEMENTS.length}</span>
+      </button>
+
+      <aside className={`dash-ach-panel ${sidebarOpen ? 'dash-ach-panel--open' : ''}`}>
+        <div className="dash-ach-panel__header">
+          <span className="dash-ach-panel__title">Logros</span>
+          <span className="dash-ach-panel__sub">{unlockedIds.size} de {ACHIEVEMENTS.length} desbloqueados</span>
+        </div>
+        <div className="dash-ach-panel__list">
+          {ACHIEVEMENTS.map(a => {
+            const unlocked = unlockedIds.has(a.id)
+            const char = characters.find(c => c.id === ACH_CHAR[a.id])
+            return (
+              <div
+                key={a.id}
+                className={`dash-ach-item ${unlocked ? 'dash-ach-item--unlocked' : 'dash-ach-item--locked'}`}
+                data-rarity={a.rarity}
+                style={char ? { '--ach-color': char.themeColor } : {}}
+              >
+                <div className="dash-ach-item__thumb">
+                  {char && <img src={char.image} alt="" />}
+                  {!unlocked && <div className="dash-ach-item__lock">🔒</div>}
+                </div>
+                <div className="dash-ach-item__body">
+                  <span className="dash-ach-item__name">{a.name}</span>
+                  <span className="dash-ach-item__desc">{a.desc}</span>
+                </div>
+                <span className="dash-ach-item__rarity" />
+              </div>
+            )
+          })}
+        </div>
+      </aside>
+
+      {sidebarOpen && (
+        <div className="dash-ach-backdrop" onClick={() => setSidebarOpen(false)} />
+      )}
     </>
   )
 }
