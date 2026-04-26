@@ -229,12 +229,11 @@ export default function ChatPage() {
 
   useEffect(() => {
     if (messages.length === 0) return
-    if (session && !isCustom) return // Supabase maneja la persistencia para usuarios registrados
     try {
       const toSave = messages.filter(m => !m.isVerdict).slice(-MAX_STORED_MESSAGES)
       localStorage.setItem(storageKey, JSON.stringify(toSave))
     } catch { /* localStorage unavailable */ }
-  }, [messages, storageKey, session, isCustom])
+  }, [messages, storageKey, isCustom])
 
   // Persistir reacciones del usuario en localStorage
   useEffect(() => {
