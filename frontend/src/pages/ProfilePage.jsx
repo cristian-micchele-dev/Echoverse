@@ -222,27 +222,6 @@ export default function ProfilePage() {
 
   if (authLoading || !user) return null
 
-  // ── CTA contextual "Próximo paso" ──
-  const SUGGESTED_MODES = [
-    { key: 'interrogation', label: 'Interrogatorio', desc: '¿Podés detectar la mentira?', route: '/interrogation', duration: '~8 min' },
-    { key: 'swipe',         label: 'Swipe',          desc: 'Verdad o mentira en segundos.',   route: '/swipe',         duration: '~2 min' },
-    { key: 'dilema',        label: 'Dilemas',         desc: 'Sin respuesta correcta.',          route: '/dilema',        duration: '~5 min' },
-    { key: 'story',         label: 'Historia',        desc: 'Una narrativa que cambia con vos.',route: '/story',         duration: '~10 min' },
-    { key: 'parecido',      label: '¿A quién te parecés?', desc: 'Descubrí tu personaje.',    route: '/parecido',      duration: '~4 min' },
-    { key: 'guess',         label: 'Adivina el Personaje', desc: 'Pistas de a una. Cada una baja tu puntaje.', route: '/guess', duration: '~3 min' },
-  ]
-
-  const nextStep = (() => {
-    if (!loading) {
-      if (streak.current > 0 && dailyCount === 0) {
-        return { type: 'daily', label: 'Desafío del día', desc: `No rompas tu racha de ${streak.current} ${streak.current === 1 ? 'día' : 'días'}`, route: '/', duration: null }
-      }
-      const untriedMode = SUGGESTED_MODES.find(m => !modeCompletions[m.key])
-      if (untriedMode) return { type: 'mode', ...untriedMode }
-      if (activeAffinities.length === 0) return { type: 'chat' }
-    }
-    return null
-  })()
 
   return (
     <div className="pp">
@@ -346,32 +325,6 @@ export default function ProfilePage() {
         </div>
       )}
 
-      {/* ── PRÓXIMO PASO ── */}
-      {!loading && nextStep && (
-        <div className="pp-next-step-wrap">
-          <div
-            className="pp-next-step"
-            onClick={() => navigate(nextStep.type === 'chat' ? ROUTES.CHAT : nextStep.route)}
-            role="button"
-            tabIndex={0}
-            onKeyDown={e => e.key === 'Enter' && navigate(nextStep.type === 'chat' ? ROUTES.CHAT : nextStep.route)}
-          >
-            <div className="pp-next-step__left">
-              <span className="pp-next-step__eyebrow">
-                {nextStep.type === 'daily' ? '🔥 Racha en riesgo' : 'Próximo paso'}
-              </span>
-              <span className="pp-next-step__title">
-                {nextStep.type === 'chat' ? 'Empezá a chatear con un personaje' : nextStep.label}
-              </span>
-              <span className="pp-next-step__desc">
-                {nextStep.type === 'chat' ? 'Todavía no tenés afinidad con nadie. Empezá ahora.' : nextStep.desc}
-                {nextStep.duration && <span className="pp-next-step__dur"> · {nextStep.duration}</span>}
-              </span>
-            </div>
-            <span className="pp-next-step__arrow">→</span>
-          </div>
-        </div>
-      )}
 
       <div className="pp-body">
 
