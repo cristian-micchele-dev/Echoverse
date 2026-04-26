@@ -8,7 +8,7 @@ import { getUserRankName, isRankSufficient } from '../utils/affinity'
 import { useAuth } from '../context/AuthContext'
 import { API_URL } from '../config/api'
 import { supabase } from '../lib/supabase'
-import { CHARACTER_CATEGORIES, CATEGORY_CHIPS } from '../data/characterConfig'
+import { CHARACTER_CATEGORIES, CATEGORY_CHIPS, CHARACTER_ORDER } from '../data/characterConfig'
 import './ChatModePage.css'
 
 function formatChatTime(ts) {
@@ -80,13 +80,21 @@ export default function ChatModePage() {
       .then(({ data }) => setCommunityChars(data ?? []))
   }, [session])
 
-  const filtered = characters.filter(c => {
-    const matchesSearch = !search ||
-      c.name.toLowerCase().includes(search.toLowerCase()) ||
-      c.universe.toLowerCase().includes(search.toLowerCase())
-    const matchesCategory = selectedCategory === 'all' || CHARACTER_CATEGORIES[c.id] === selectedCategory
-    return matchesSearch && matchesCategory
-  })
+  const filtered = characters
+    .filter(c => {
+      const matchesSearch = !search ||
+        c.name.toLowerCase().includes(search.toLowerCase()) ||
+        c.universe.toLowerCase().includes(search.toLowerCase())
+      const matchesCategory = selectedCategory === 'all' || CHARACTER_CATEGORIES[c.id] === selectedCategory
+      return matchesSearch && matchesCategory
+    })
+    .sort((a, b) => {
+      const ai = CHARACTER_ORDER.indexOf(a.id)
+      const bi = CHARACTER_ORDER.indexOf(b.id)
+      const aIdx = ai === -1 ? Infinity : ai
+      const bIdx = bi === -1 ? Infinity : bi
+      return aIdx - bIdx
+    })
 
   function handleSelect(characterId) {
     setSelectedId(characterId)
