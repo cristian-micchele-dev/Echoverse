@@ -18,22 +18,9 @@
 /* ── Hero ── */
 .pp-hero {
   position: relative;
-  background: linear-gradient(180deg, #17172a 0%, #10101e 55%, #0a0a0f 100%);
+  background: linear-gradient(180deg, #13131f 0%, #0a0a0f 100%);
   border-bottom: 1px solid #1e1e2a;
   padding: 1.5rem 1rem 2rem;
-  overflow: hidden;
-}
-
-.pp-hero::before {
-  content: '';
-  position: absolute;
-  top: -60px;
-  left: -10%;
-  width: 55%;
-  height: 220px;
-  background: radial-gradient(ellipse, rgba(108,99,255,0.14) 0%, transparent 70%);
-  pointer-events: none;
-  z-index: 0;
 }
 
 .pp-hero__inner {
@@ -42,8 +29,6 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  position: relative;
-  z-index: 1;
 }
 
 .pp-back {
@@ -91,17 +76,10 @@
 }
 
 .pp-tag {
-  display: inline-flex;
-  align-items: center;
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
+  font-size: 0.75rem;
+  color: #555;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  background: color-mix(in srgb, currentColor 12%, transparent);
-  border: 1px solid color-mix(in srgb, currentColor 28%, transparent);
-  border-radius: 20px;
-  padding: 0.2rem 0.65rem;
-  width: fit-content;
 }
 
 /* Stats */
@@ -133,11 +111,10 @@
 }
 
 .pp-stat__num {
-  font-size: 1.65rem;
+  font-size: 1.5rem;
   font-weight: 800;
   color: #fff;
   line-height: 1;
-  letter-spacing: -0.02em;
 }
 
 .pp-stat__label {
@@ -346,23 +323,10 @@
 }
 
 .pp-section__eyebrow {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.65rem;
+  font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.12em;
-  color: #555;
-}
-
-.pp-section__eyebrow::before {
-  content: '';
-  display: inline-block;
-  width: 14px;
-  height: 2px;
-  background: linear-gradient(90deg, #6c63ff, #9d74ff);
-  border-radius: 1px;
-  flex-shrink: 0;
+  color: #444;
 }
 
 .pp-section__title {
@@ -498,7 +462,6 @@
 .pp-char-card:hover {
   transform: translateY(-4px);
   border-color: var(--cc, #6c63ff);
-  box-shadow: 0 8px 28px -8px color-mix(in srgb, var(--cc, #6c63ff) 45%, transparent);
 }
 
 .pp-char-card__img-wrap {
@@ -641,16 +604,13 @@
 }
 
 .pp-badge--unlocked {
-  border-color: rgba(251,191,36,0.18);
-  background: color-mix(in srgb, #fbbf24 6%, #0f0f1a);
-  box-shadow: 0 0 16px rgba(251, 191, 36, 0.1);
+  border-color: #2a2a3a;
+  box-shadow: 0 0 14px rgba(251, 191, 36, 0.08);
 }
 
 .pp-badge--unlocked:hover {
-  border-color: rgba(251,191,36,0.35);
-  background: color-mix(in srgb, #fbbf24 10%, #0f0f1a);
+  border-color: #fbbf2444;
   transform: translateY(-2px);
-  box-shadow: 0 4px 20px rgba(251, 191, 36, 0.15);
 }
 
 .pp-badge--locked {
@@ -713,7 +673,7 @@
 }
 
 .pp-badge--unlocked .pp-badge__name {
-  color: #c9a026;
+  color: #bbb;
 }
 
 /* ── Insights: actividad + modo favorito ── */
