@@ -76,7 +76,7 @@ function buildMissionMessages({ history, recentHistory, alias, isFinal, difficul
       content: isLast && isFinal
         ? `${alias} eligió: ${entry.choice}. Desenlace final. Terminá con [FIN].`
         : isLast
-          ? `${alias} eligió: ${entry.choice}. Continuá — ESCENA: / ${optionReminder} / EFECTOS: con sigilo y desc.`
+          ? `${alias} eligió: ${entry.choice}. Continuá — escena nueva y distinta a la anterior — ESCENA: / ${optionReminder} / EFECTOS: con sigilo y desc.`
           : `${alias} eligió: ${entry.choice}. Continuá.`
     })
   }
@@ -136,7 +136,7 @@ ${finalResult === 'lose'
     : `FORMATO OBLIGATORIO — no salirse de esta estructura:
 
 ${history.length === 0 ? 'TITULO:\n[frase épica de 3-5 palabras]\n\n' : ''}ESCENA:
-[máx 2 líneas, segunda persona, ir directo al conflicto, alta tensión${difficulty === 'hard' ? ' — omití un dato clave que el jugador necesita para decidir con certeza' : ''}]
+[máx 2 líneas — NUEVA situación: locación, obstáculo o giro distinto a la escena anterior — nunca repetir lo que ya ocurrió — segunda persona — ir directo al conflicto${difficulty === 'hard' ? ' — omití un dato clave que el jugador necesita para decidir con certeza' : ''}]
 
 OPCIONES:
 ${OPTION_FORMAT[difficulty] || OPTION_FORMAT.normal}
