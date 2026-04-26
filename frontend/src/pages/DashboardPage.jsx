@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useStreak } from '../hooks/useStreak'
-import { ROUTES } from '../utils/constants'
+import { supabase } from '../lib/supabase'
 import { characters } from '../data/characters'
 import { pickByDay, shuffleByDay } from '../utils/daily'
 import { loadSession, clearSession, timeAgo, hoursUntilMidnight } from '../utils/session'
 import { FEATURED_LIST } from '../data/featured'
-import { ACHIEVEMENTS_KEY } from '../utils/constants'
+import { ROUTES, ACHIEVEMENTS_KEY } from '../utils/constants'
 import './DashboardPage.css'
 
 const BG_IMAGES = [...characters, ...characters]
@@ -46,6 +46,7 @@ export default function DashboardPage() {
   const [countdown, setCountdown] = useState(hoursUntilMidnight())
   const [session, setSession] = useState(() => loadSession())
   const [localStats] = useState(() => getLocalStats())
+  const [communityChars, setCommunityChars] = useState([])
 
   const featured = pickByDay(FEATURED_LIST)
   const featuredChar = characters.find(c => c.id === featured?.characterId)
@@ -70,6 +71,17 @@ export default function DashboardPage() {
     clearSession()
     setSession(null)
   }
+
+  useEffect(() => {
+    supabase
+      .from('custom_characters')
+      .select('id, name, emoji, color, avatar_url, description')
+      .eq('is_public', true)
+      .order('created_at', { ascending: false })
+      .limit(12)
+      .then(({ data }) => { if (data) setCommunityChars(data) })
+      .catch(() => {})
+  }, [])
 
   useEffect(() => {
     requestAnimationFrame(() => setVisible(true))
@@ -167,7 +179,10 @@ export default function DashboardPage() {
 
           {/* ── MODOS ── */}
           <section className="dash-section">
-            <h2 className="dash-section-title">Modos</h2>
+            <div className="dash-section-header">
+              <span className="dash-eyebrow">Modos de juego <span className="dash-eyebrow__rule" /></span>
+              <h2 className="dash-section-title">Elegí cómo<br /><em>entrás.</em></h2>
+            </div>
             <div className="dash-modes-grid">
               {MODES.map(mode => {
                 const char = characters.find(c => c.id === mode.characterId)
@@ -199,7 +214,10 @@ export default function DashboardPage() {
           {/* ── CONTINUAR ── */}
           {session && sessionChar && (
             <section className="dash-section">
-              <h2 className="dash-section-title">Retomar</h2>
+              <div className="dash-section-header">
+                <span className="dash-eyebrow">Sesión activa <span className="dash-eyebrow__rule" /></span>
+                <h2 className="dash-section-title">Seguís<br /><em>donde lo dejaste.</em></h2>
+              </div>
               <div
                 className="dash-resume"
                 style={{ '--char-color': sessionChar.themeColor }}
@@ -241,8 +259,11 @@ export default function DashboardPage() {
           {featured && featuredChar && (
             <section className="dash-section">
               <div className="dash-section-header">
-                <h2 className="dash-section-title">Destacado del día</h2>
-                <span className="dash-countdown">Cambia en {countdown}</span>
+                <span className="dash-eyebrow">Destacado del día <span className="dash-eyebrow__rule" /></span>
+                <div className="dash-section-header__row">
+                  <h2 className="dash-section-title">El universo<br /><em>te llama.</em></h2>
+                  <span className="dash-countdown">Cambia en {countdown}</span>
+                </div>
               </div>
               <div
                 className="dash-featured"
@@ -278,7 +299,10 @@ export default function DashboardPage() {
 
           {/* ── PERSONAJES POPULARES ── */}
           <section className="dash-section">
-            <h2 className="dash-section-title">Con quién vas hoy</h2>
+            <div className="dash-section-header">
+              <span className="dash-eyebrow">Elenco <span className="dash-eyebrow__rule" /></span>
+              <h2 className="dash-section-title">Con quién<br /><em>vas hoy.</em></h2>
+            </div>
             <div className="dash-popular-scroll">
               {popularChars.map(char => (
                 <button
@@ -298,6 +322,50 @@ export default function DashboardPage() {
               ))}
             </div>
           </section>
+
+        {/* ── COMUNIDAD ── */}
+          {communityChars.length > 0 && (
+            <section className="dash-section">
+              <div className="dash-section-header">
+                <span className="dash-eyebrow">Comunidad <span className="dash-eyebrow__rule" /></span>
+                <h2 className="dash-section-title">Creados por<br /><em>jugadores.</em></h2>
+              </div>
+              <div className="dash-community-rail">
+                {communityChars.map(char => (
+                  <button
+                    key={char.id}
+                    className="dash-community-card"
+                    style={{ '--ci-color': char.color || '#7252E8' }}
+                    onClick={() => navigate(`/chat/custom-${char.id}`)}
+                  >
+                    <div className="dash-community-card__avatar">
+                      {char.avatar_url
+                        ? <img src={char.avatar_url} alt={char.name} loading="lazy" />
+                        : <span className="dash-community-card__emoji">{char.emoji || '🤖'}</span>
+                      }
+                      <div className="dash-community-card__glow" />
+                    </div>
+                    <div className="dash-community-card__body">
+                      <span className="dash-community-card__badge">🌐 Comunidad</span>
+                      <span className="dash-community-card__name">{char.name}</span>
+                      {char.description && (
+                        <span className="dash-community-card__desc">
+                          {char.description.length > 55 ? char.description.slice(0, 55) + '…' : char.description}
+                        </span>
+                      )}
+                    </div>
+                    <div className="dash-community-card__cta">Chatear →</div>
+                  </button>
+                ))}
+              </div>
+              <button
+                className="dash-community-ver-todos"
+                onClick={() => navigate(ROUTES.COMUNIDAD)}
+              >
+                Ver todos los personajes de la comunidad →
+              </button>
+            </section>
+          )}
 
         </div>
       </div>
