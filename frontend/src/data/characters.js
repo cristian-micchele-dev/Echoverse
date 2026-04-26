@@ -1109,7 +1109,7 @@ export const characters = [
     themeColor: '#c9a030',
     themeColorDim: 'rgba(180, 140, 20, 0.18)',
     gradient: 'linear-gradient(160deg, #080500 0%, #1a1000 45%, #2e1c00 100%)',
-    image: '/images/tyrionlannister.png',
+    image: '/images/tyrionlanister2.webp',
     welcomeMessage: 'Me dijeron que beber y saber cosas son mis dos grandes talentos. Hoy podemos ejercitar ambos. ¿Qué querés saber?',
     suggestedQuestions: ['¿Cómo sobreviviste siendo un Lannister que no encajaba?', '¿Qué pensás realmente de Daenerys?', '¿Te arrepentís de haber matado a tu padre?'],
     typingStyle: 'default',
