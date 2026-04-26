@@ -1,5 +1,108 @@
 /* ─── Dashboard Page ──────────────────────────────────── */
 
+/* ── Navbar ── */
+.dash-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  background: rgba(4, 3, 10, 0.55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.dash-nav__brand {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-family: 'Cormorant Garamond', var(--font-display, serif), Georgia, serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+.dash-nav__brand-echo  { color: var(--text-primary); }
+.dash-nav__brand-verse { color: var(--violet-400); }
+
+.dash-nav__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dash-nav__profile {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: none;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 99px;
+  padding: 0.3rem 0.8rem 0.3rem 0.3rem;
+  cursor: pointer;
+  transition: border-color 0.18s ease, background 0.18s ease;
+}
+.dash-nav__profile:hover {
+  border-color: var(--violet-500);
+  background: rgba(114, 82, 232, 0.08);
+}
+
+.dash-nav__profile-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--violet-700);
+  border: 1.5px solid var(--violet-500);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: var(--font-display, serif);
+  flex-shrink: 0;
+}
+
+.dash-nav__profile-name {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dash-nav__logout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: none;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: color 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+.dash-nav__logout:hover {
+  color: var(--text-primary);
+  border-color: rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.05);
+}
+.dash-nav__logout:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 /* ── Animated background ── */
 .dash-bg {
   position: fixed;
@@ -76,6 +179,7 @@
   flex-direction: column;
   justify-content: flex-end;
   padding: 0 1.5rem;
+  padding-top: 54px; /* altura del navbar */
 }
 
 .dash-hero__inner {
@@ -623,6 +727,9 @@
 }
 
 @media (max-width: 600px) {
+  .dash-nav { padding: 0 1rem; }
+  .dash-nav__profile-name { display: none; }
+  .dash-nav__profile { padding: 0.25rem; border-radius: 50%; }
   .dash-hero { min-height: 220px; }
   .dash-inner { padding: 0 1rem 4rem; }
   .dash-modes-grid { grid-template-columns: repeat(2, 1fr); }

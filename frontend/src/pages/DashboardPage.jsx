@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useStreak } from '../hooks/useStreak'
+import { ROUTES } from '../utils/constants'
 import { characters } from '../data/characters'
 import { pickByDay, shuffleByDay } from '../utils/daily'
 import { loadSession, clearSession, timeAgo, hoursUntilMidnight } from '../utils/session'
@@ -37,8 +38,9 @@ function getLocalStats() {
 }
 
 export default function DashboardPage() {
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
   const { streak } = useStreak()
+  const [loggingOut, setLoggingOut] = useState(false)
   const navigate = useNavigate()
   const [visible, setVisible] = useState(false)
   const [countdown, setCountdown] = useState(hoursUntilMidnight())
@@ -52,6 +54,16 @@ export default function DashboardPage() {
 
   const username = user?.user_metadata?.username || user?.email?.split('@')[0] || 'Viajero'
   const initial = username[0].toUpperCase()
+
+  async function handleLogout() {
+    setLoggingOut(true)
+    try {
+      await logout()
+      navigate(ROUTES.HOME, { replace: true })
+    } catch {
+      setLoggingOut(false)
+    }
+  }
 
   function handleClearSession(e) {
     e.stopPropagation()
@@ -70,6 +82,36 @@ export default function DashboardPage() {
 
   return (
     <>
+      {/* ── Navbar ── */}
+      <nav className="dash-nav">
+        <button className="dash-nav__brand" onClick={() => navigate(ROUTES.DASHBOARD)}>
+          <span className="dash-nav__brand-echo">Echo</span>
+          <span className="dash-nav__brand-verse">Verse</span>
+        </button>
+        <div className="dash-nav__actions">
+          <button
+            className="dash-nav__profile"
+            onClick={() => navigate(ROUTES.PERFIL)}
+            title="Ver perfil"
+          >
+            <span className="dash-nav__profile-avatar">{initial}</span>
+            <span className="dash-nav__profile-name">{username}</span>
+          </button>
+          <button
+            className="dash-nav__logout"
+            onClick={handleLogout}
+            disabled={loggingOut}
+            title="Cerrar sesión"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+          </button>
+        </div>
+      </nav>
+
       {/* ── Fondo animado ── */}
       <div className={`dash-bg ${visible ? 'dash-bg--visible' : ''}`} aria-hidden="true">
         <div className="dash-bg-track dash-bg-track--1">
