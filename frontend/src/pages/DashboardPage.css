@@ -174,7 +174,7 @@
 /* ── Hero ── */
 .dash-hero {
   position: relative;
-  min-height: 160px;
+  min-height: 260px;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -976,37 +976,14 @@
 }
 .dash-ach-item--unlocked:hover { background: rgba(255,255,255,0.03); }
 
-/* Thumbnail */
-.dash-ach-item__thumb {
-  width: 44px;
-  height: 52px;
+.dash-ach-item__emoji {
+  font-size: 1.5rem;
+  line-height: 1;
   flex-shrink: 0;
-  border-radius: 6px;
-  overflow: hidden;
-  position: relative;
-  background: var(--bg-float);
-  border: 1px solid color-mix(in srgb, var(--ach-color, #555) 30%, transparent);
+  width: 36px;
+  text-align: center;
 }
-.dash-ach-item__thumb img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: top center;
-  display: block;
-  transition: transform 0.3s ease;
-}
-.dash-ach-item--unlocked:hover .dash-ach-item__thumb img { transform: scale(1.08); }
-.dash-ach-item--locked .dash-ach-item__thumb img { filter: grayscale(1) brightness(0.35); }
-
-.dash-ach-item__lock {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1rem;
-  background: rgba(0,0,0,0.45);
-}
+.dash-ach-item--locked .dash-ach-item__emoji { opacity: 0.3; }
 
 .dash-ach-item__body {
   display: flex;

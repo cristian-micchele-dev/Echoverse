@@ -501,12 +501,8 @@ export default function DashboardPage() {
                 key={a.id}
                 className={`dash-ach-item ${unlocked ? 'dash-ach-item--unlocked' : 'dash-ach-item--locked'}`}
                 data-rarity={a.rarity}
-                style={char ? { '--ach-color': char.themeColor } : {}}
               >
-                <div className="dash-ach-item__thumb">
-                  {char && <img src={char.image} alt="" />}
-                  {!unlocked && <div className="dash-ach-item__lock">🔒</div>}
-                </div>
+                <span className="dash-ach-item__emoji">{unlocked ? a.emoji : '🔒'}</span>
                 <div className="dash-ach-item__body">
                   <span className="dash-ach-item__name">{a.name}</span>
                   <span className="dash-ach-item__desc">{a.desc}</span>
