@@ -184,18 +184,26 @@ export default function DashboardPage() {
               <h2 className="dash-section-title">Elegí cómo<br /><em>entrás.</em></h2>
             </div>
             <div className="dash-modes-rail">
-              {MODES.map(mode => (
-                <button
-                  key={mode.route}
-                  className="dash-mode-chip"
-                  style={{ '--mode-color': mode.color }}
-                  onClick={() => navigate(mode.route)}
-                >
-                  <span className="dash-mode-chip__emoji">{mode.emoji}</span>
-                  <span className="dash-mode-chip__label">{mode.label}</span>
-                  <span className="dash-mode-chip__tag">{mode.tag}</span>
-                </button>
-              ))}
+              {MODES.map(mode => {
+                const char = characters.find(c => c.id === mode.characterId)
+                return (
+                  <button
+                    key={mode.route}
+                    className="dash-mode-card"
+                    style={{ '--mode-color': mode.color }}
+                    onClick={() => navigate(mode.route)}
+                  >
+                    <div className="dash-mode-card__thumb">
+                      {char && <img src={char.image} alt="" />}
+                    </div>
+                    <div className="dash-mode-card__info">
+                      <span className="dash-mode-card__label">{mode.label}</span>
+                      <span className="dash-mode-card__eyebrow">{mode.eyebrow}</span>
+                      <span className="dash-mode-card__tag">{mode.tag}</span>
+                    </div>
+                  </button>
+                )
+              })}
             </div>
           </section>
 
