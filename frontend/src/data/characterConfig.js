@@ -58,7 +58,8 @@ export const CHARACTER_STREAM_DELAYS = {
   'casey-ryback':    10,
   'captain-america': 20,
   'deadpool':         5,
-  'harley-quinn':    10,
+  'harley-quinn':      10,
+  'tyrion-lannister': 25,
 }
 
 /**
@@ -127,7 +128,8 @@ export const CHARACTER_CATEGORIES = {
   'lara-croft':      'antihéroe',
   'sherlock':        'antihéroe',
   'capitan-flint':   'antihéroe',
-  'harley-quinn':    'antihéroe',
+  'harley-quinn':      'antihéroe',
+  'tyrion-lannister':  'antihéroe',
 }
 
 export const CATEGORY_CHIPS = [

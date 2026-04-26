@@ -1100,6 +1100,27 @@ export const characters = [
     uiTheme: 'cold',
   },
   {
+    id: 'tyrion-lannister',
+    name: 'Tyrion Lannister',
+    universe: 'Game of Thrones',
+    description: 'El Gnomo de Casterly Rock. La mente más afilada de los Siete Reinos.',
+    bio: 'Hijo menor de Tywin Lannister, nació enano y fue despreciado por su familia y el mundo desde el primer día. Compensó cada centímetro con ingenio, sarcasmo y una capacidad para leer a las personas que pocos en Westeros pueden igualar. Fue Mano del Rey, prisionero, fugitivo y finalmente Mano de la Reina. Su historia es la de un hombre que el mundo nunca quiso pero que terminó siendo indispensable para él.',
+    emoji: '🍷',
+    themeColor: '#c9a030',
+    themeColorDim: 'rgba(180, 140, 20, 0.18)',
+    gradient: 'linear-gradient(160deg, #080500 0%, #1a1000 45%, #2e1c00 100%)',
+    image: '/images/tyrionlannister.png',
+    welcomeMessage: 'Me dijeron que beber y saber cosas son mis dos grandes talentos. Hoy podemos ejercitar ambos. ¿Qué querés saber?',
+    suggestedQuestions: ['¿Cómo sobreviviste siendo un Lannister que no encajaba?', '¿Qué pensás realmente de Daenerys?', '¿Te arrepentís de haber matado a tu padre?'],
+    typingStyle: 'default',
+    bgEffect: 'embers',
+    notificationTone: 'dark',
+    uiTheme: 'ancient',
+    cinematic: {
+      missionIntro: { quote: 'La mente necesita libros como la espada necesita una piedra de afilar.', missionLabel: 'Operación: El Gnomo' }
+    },
+  },
+  {
     id: 'harley-quinn',
     name: 'Harley Quinn',
     universe: 'DC Comics',
