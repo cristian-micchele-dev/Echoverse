@@ -79,10 +79,11 @@ export default function CreateCharacterPage() {
   const { session } = useAuth()
   const { checkAndUnlock, newlyUnlocked, dismissToast } = useAchievements()
   const [savedOk, setSavedOk] = useState(false)
+  const [createdId, setCreatedId] = useState(null)
 
   useEffect(() => {
-    if (savedOk && newlyUnlocked.length === 0) navigate(ROUTES.CHAT)
-  }, [savedOk, newlyUnlocked, navigate])
+    if (savedOk && createdId && newlyUnlocked.length === 0) navigate(ROUTES.CHAT_CHARACTER(createdId))
+  }, [savedOk, createdId, newlyUnlocked, navigate])
   const fileInputRef = useRef(null)
 
   const [form, setForm] = useState({
@@ -205,6 +206,7 @@ export default function CreateCharacterPage() {
       }
 
       await checkAndUnlock({ customCharCreated: 1 })
+      setCreatedId(id)
       setSavedOk(true)
     } catch (err) {
       setError(err.message)
