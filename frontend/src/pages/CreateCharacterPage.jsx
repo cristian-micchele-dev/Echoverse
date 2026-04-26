@@ -326,8 +326,8 @@ export default function CreateCharacterPage() {
             <label className="create-char-label">
               Descripción <span className="create-char-required">*</span>
             </label>
-            <span className={`create-char-count ${form.description.length >= 360 ? 'create-char-count--warn' : ''}`}>
-              {form.description.length}/400
+            <span className={`create-char-count ${form.description.length >= 540 ? 'create-char-count--warn' : ''}`}>
+              {form.description.length}/600
             </span>
           </div>
           <textarea
@@ -337,7 +337,7 @@ export default function CreateCharacterPage() {
             onChange={handleChange}
             placeholder="Un detective cínico de los años 40 que resuelve casos imposibles"
             rows={3}
-            maxLength={400}
+            maxLength={600}
             required
           />
         </div>
