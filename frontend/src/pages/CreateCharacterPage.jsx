@@ -10,6 +10,11 @@ import './CreateCharacterPage.css'
 
 const DEFAULT_COLOR = '#7252E8'
 const EMOJI_OPTIONS = ['🤖', '🕵️', '🧙', '⚔️', '🦸', '🎭', '👑', '🐉', '🔮', '💀', '🧛', '🌟', '🤠', '🦊', '🎪']
+const COLOR_PALETTE = [
+  '#7252E8', '#6366f1', '#3b82f6', '#0ea5e9', '#14b8a6',
+  '#10b981', '#f59e0b', '#f97316', '#ef4444', '#e84393',
+  '#9b3a3a', '#64748b',
+]
 
 const CHARACTER_TEMPLATES = [
   {
@@ -100,6 +105,7 @@ export default function CreateCharacterPage() {
     setActiveTemplate(tpl.id)
     setForm(prev => ({
       ...prev,
+      name: prev.name.trim() ? prev.name : tpl.label,
       description: tpl.description,
       personality: tpl.personality,
       rules: tpl.rules,
@@ -295,9 +301,14 @@ export default function CreateCharacterPage() {
 
         {/* Nombre */}
         <div className="create-char-field">
-          <label className="create-char-label">
-            Nombre <span className="create-char-required">*</span>
-          </label>
+          <div className="create-char-label-row">
+            <label className="create-char-label">
+              Nombre <span className="create-char-required">*</span>
+            </label>
+            <span className={`create-char-count ${form.name.length >= 54 ? 'create-char-count--warn' : ''}`}>
+              {form.name.length}/60
+            </span>
+          </div>
           <input
             className="create-char-input"
             name="name"
@@ -311,9 +322,14 @@ export default function CreateCharacterPage() {
 
         {/* Descripción */}
         <div className="create-char-field">
-          <label className="create-char-label">
-            Descripción <span className="create-char-required">*</span>
-          </label>
+          <div className="create-char-label-row">
+            <label className="create-char-label">
+              Descripción <span className="create-char-required">*</span>
+            </label>
+            <span className={`create-char-count ${form.description.length >= 360 ? 'create-char-count--warn' : ''}`}>
+              {form.description.length}/400
+            </span>
+          </div>
           <textarea
             className="create-char-textarea"
             name="description"
@@ -328,9 +344,14 @@ export default function CreateCharacterPage() {
 
         {/* Personalidad */}
         <div className="create-char-field">
-          <label className="create-char-label">
-            Personalidad <span className="create-char-required">*</span>
-          </label>
+          <div className="create-char-label-row">
+            <label className="create-char-label">
+              Personalidad <span className="create-char-required">*</span>
+            </label>
+            <span className={`create-char-count ${form.personality.length >= 360 ? 'create-char-count--warn' : ''}`}>
+              {form.personality.length}/400
+            </span>
+          </div>
           <textarea
             className="create-char-textarea"
             name="personality"
@@ -345,9 +366,14 @@ export default function CreateCharacterPage() {
 
         {/* Reglas opcionales */}
         <div className="create-char-field">
-          <label className="create-char-label">
-            Reglas <span className="create-char-optional">(opcional)</span>
-          </label>
+          <div className="create-char-label-row">
+            <label className="create-char-label">
+              Reglas <span className="create-char-optional">(opcional)</span>
+            </label>
+            <span className={`create-char-count ${form.rules.length >= 270 ? 'create-char-count--warn' : ''}`}>
+              {form.rules.length}/300
+            </span>
+          </div>
           <textarea
             className="create-char-textarea"
             name="rules"
@@ -361,9 +387,14 @@ export default function CreateCharacterPage() {
 
         {/* Mensaje de bienvenida */}
         <div className="create-char-field">
-          <label className="create-char-label">
-            Mensaje de bienvenida <span className="create-char-optional">(opcional)</span>
-          </label>
+          <div className="create-char-label-row">
+            <label className="create-char-label">
+              Mensaje de bienvenida <span className="create-char-optional">(opcional)</span>
+            </label>
+            <span className={`create-char-count ${form.welcome_message.length >= 270 ? 'create-char-count--warn' : ''}`}>
+              {form.welcome_message.length}/300
+            </span>
+          </div>
           <textarea
             className="create-char-textarea"
             name="welcome_message"
@@ -376,16 +407,27 @@ export default function CreateCharacterPage() {
         </div>
 
         {/* Color del tema */}
-        <div className="create-char-field create-char-field--row">
+        <div className="create-char-field">
           <label className="create-char-label">Color del tema</label>
-          <div className="create-char-color-wrap">
-            <input
-              type="color"
-              className="create-char-color-input"
-              value={form.color}
-              onChange={e => setForm(p => ({ ...p, color: e.target.value }))}
-            />
-            <span className="create-char-color-value">{form.color}</span>
+          <div className="create-char-color-palette">
+            {COLOR_PALETTE.map(c => (
+              <button
+                key={c}
+                type="button"
+                className={`create-char-color-swatch ${form.color === c ? 'create-char-color-swatch--active' : ''}`}
+                style={{ background: c, '--swatch-color': c }}
+                onClick={() => setForm(p => ({ ...p, color: c }))}
+                aria-label={`Color ${c}`}
+              />
+            ))}
+            <label className="create-char-color-custom" title="Color personalizado">
+              <input
+                type="color"
+                value={form.color}
+                onChange={e => setForm(p => ({ ...p, color: e.target.value }))}
+              />
+              <span>+</span>
+            </label>
           </div>
         </div>
 
@@ -404,6 +446,24 @@ export default function CreateCharacterPage() {
       {newlyUnlocked.map(a => (
         <AchievementToast key={a.id} achievement={a} onDismiss={() => dismissToast(a.id)} />
       ))}
+
+      {/* Preview bar */}
+      <div className="create-char-preview" style={{ '--char-color': form.color }}>
+        <div className="create-char-preview__avatar">
+          {imagePreview
+            ? <img src={imagePreview} alt="" />
+            : <span>{form.emoji}</span>
+          }
+        </div>
+        <div className="create-char-preview__chat">
+          <span className="create-char-preview__name">
+            {form.name || 'Nombre del personaje'}
+          </span>
+          <div className="create-char-preview__bubble">
+            {form.welcome_message || (form.name ? `Hola, soy ${form.name}.` : 'Vista previa del mensaje de bienvenida')}
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
