@@ -1109,11 +1109,120 @@
   background: rgba(0,0,0,0.3);
 }
 
+/* ── Skeleton ── */
+@keyframes dash-shimmer {
+  from { background-position: -200% center; }
+  to   { background-position:  200% center; }
+}
+.dash-skeleton {
+  display: inline-block;
+  background: linear-gradient(90deg, #1a1a2a 25%, #252540 50%, #1a1a2a 75%);
+  background-size: 200% 100%;
+  animation: dash-shimmer 1.4s ease infinite;
+  border-radius: 5px;
+}
+.dash-skeleton--val {
+  width: 28px;
+  height: 1.1rem;
+  vertical-align: middle;
+}
+
+/* ── HOY grid (Featured + Daily side by side) ── */
+.dash-hoy-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 0.75rem;
+  align-items: stretch;
+}
+
+/* ── Mode card played badge ── */
+.dash-mode-card__played {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 2;
+  background: rgba(0,0,0,0.65);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 99px;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: #a0ffb0;
+  letter-spacing: 0.04em;
+  backdrop-filter: blur(4px);
+}
+
+/* ── Logros inline ── */
+.dash-logros {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  background: var(--bg-raised);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.dash-logros:hover {
+  border-color: var(--violet-500);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+}
+
+.dash-logros__counter {
+  display: flex;
+  align-items: baseline;
+  gap: 0.1rem;
+  flex-shrink: 0;
+}
+.dash-logros__num {
+  font-family: 'Cormorant Garamond', var(--font-display, serif), Georgia, serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--violet-300);
+  line-height: 1;
+}
+.dash-logros__denom {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.dash-logros__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  flex: 1;
+  min-width: 0;
+}
+.dash-logros__badge {
+  font-size: 1.35rem;
+  line-height: 1;
+}
+.dash-logros__empty {
+  font-size: 0.75rem;
+  color: var(--text-faint);
+  font-style: italic;
+}
+
+.dash-logros__cta {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: color 0.18s;
+}
+.dash-logros:hover .dash-logros__cta { color: var(--violet-300); }
+
 /* ── Responsive ── */
 @media (max-width: 860px) {
   .dash-featured__img-wrap { width: 140px; }
   .dash-hero__inner { flex-direction: column; align-items: flex-start; }
   .dash-stats { align-self: stretch; justify-content: space-around; }
+}
+
+@media (max-width: 680px) {
+  .dash-hoy-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 600px) {

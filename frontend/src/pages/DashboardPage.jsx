@@ -78,17 +78,17 @@ function useCountUp(target, active = true, duration = 900) {
 }
 
 const MODES = [
-  { label: 'Chat',           eyebrow: 'Con personaje',        route: '/chat',          color: '#4A9B7B', tag: 'Sin límite',       image: '/images/ragnarchat1a1.webp'              },
-  { label: 'Misión',         eyebrow: 'Historia interactiva', route: '/mission',       color: '#D4576B', tag: '~10 min',          image: '/images/modomision.jfif'                 },
-  { label: 'Interrogatorio', eyebrow: 'Detección de mentiras',route: '/interrogation', color: '#6D4AFF', tag: '~8 min',           image: '/images/interrogatoriojpg.jpg'           },
-  { label: 'Dilemas',        eyebrow: 'Filosófico',           route: '/dilema',        color: '#C9954A', tag: '~5 min',           characterId: 'gandalf'                           },
-  { label: 'Adivinar',       eyebrow: 'Trivia con puntaje',   route: '/guess',         color: '#9B4A7B', tag: '~3 min',           image: '/images/adivinaelpersonaje.webp'         },
-  { label: 'Swipe',          eyebrow: 'Respuesta rápida',     route: '/swipe',         color: '#4A7B9B', tag: '~2 min',           image: '/images/wolverineSwipe.jpg'              },
-  { label: 'Última Cena',    eyebrow: 'Debate grupal',        route: '/ultima-cena',   color: '#8B4A2A', tag: '~15 min',          image: '/images/ultimacena2.jfif'                },
-  { label: 'Duo',            eyebrow: '2 personajes',         route: '/duo',           color: '#7B9B4A', tag: 'Sin límite',       image: '/images/ipmanstevenseagal.webp'          },
-  { label: 'Parecido',       eyebrow: 'Quiz visual',          route: '/parecido',      color: '#9475F0', tag: '~5 min',           image: '/images/aquientepareces.jfif'            },
-  { label: 'Salas',          eyebrow: 'Multijugador',         route: '/salas',         color: '#C9954A', tag: 'En vivo',          image: '/images/jaxtellersupermanchatenvivo.webp'},
-  { label: 'Comunidad',      eyebrow: 'Personajes de fans',   route: '/comunidad',     color: '#81c784', tag: 'Creados por fans', image: '/images/ninja.png'                       },
+  { label: 'Chat',           eyebrow: 'Con personaje',        route: '/chat',          color: '#4A9B7B', tag: 'Sin límite',       image: '/images/ragnarchat1a1.webp',               completionKey: null            },
+  { label: 'Misión',         eyebrow: 'Historia interactiva', route: '/mission',       color: '#D4576B', tag: '~10 min',          image: '/images/modomision.jfif',                  completionKey: 'story'         },
+  { label: 'Interrogatorio', eyebrow: 'Detección de mentiras',route: '/interrogation', color: '#6D4AFF', tag: '~8 min',           image: '/images/interrogatoriojpg.jpg',            completionKey: 'interrogation' },
+  { label: 'Dilemas',        eyebrow: 'Filosófico',           route: '/dilema',        color: '#C9954A', tag: '~5 min',           characterId: 'gandalf',                            completionKey: 'dilema'        },
+  { label: 'Adivinar',       eyebrow: 'Trivia con puntaje',   route: '/guess',         color: '#9B4A7B', tag: '~3 min',           image: '/images/adivinaelpersonaje.webp',          completionKey: 'guess'         },
+  { label: 'Swipe',          eyebrow: 'Respuesta rápida',     route: '/swipe',         color: '#4A7B9B', tag: '~2 min',           image: '/images/wolverineSwipe.jpg',               completionKey: 'swipe'         },
+  { label: 'Última Cena',    eyebrow: 'Debate grupal',        route: '/ultima-cena',   color: '#8B4A2A', tag: '~15 min',          image: '/images/ultimacena2.jfif',                 completionKey: null            },
+  { label: 'Duo',            eyebrow: '2 personajes',         route: '/duo',           color: '#7B9B4A', tag: 'Sin límite',       image: '/images/ipmanstevenseagal.webp',           completionKey: null            },
+  { label: 'Parecido',       eyebrow: 'Quiz visual',          route: '/parecido',      color: '#9475F0', tag: '~5 min',           image: '/images/aquientepareces.jfif',             completionKey: 'parecido'      },
+  { label: 'Salas',          eyebrow: 'Multijugador',         route: '/salas',         color: '#C9954A', tag: 'En vivo',          image: '/images/jaxtellersupermanchatenvivo.webp', completionKey: null            },
+  { label: 'Comunidad',      eyebrow: 'Personajes de fans',   route: '/comunidad',     color: '#81c784', tag: 'Creados por fans', image: '/images/ninja.png',                        completionKey: null            },
 ]
 
 
@@ -97,7 +97,6 @@ export default function DashboardPage() {
   const { streak } = useStreak()
   const { unlockedIds } = useAchievements()
   const [loggingOut, setLoggingOut] = useState(false)
-  const [sidebarOpen, setSidebarOpen] = useState(false)
   const navigate = useNavigate()
   const [visible, setVisible] = useState(false)
   const [countdown, setCountdown] = useState(hoursUntilMidnight())
@@ -105,6 +104,9 @@ export default function DashboardPage() {
   const [communityChars, setCommunityChars] = useState([])
   const [affinityStats, setAffinityStats] = useState({ chars: 0, messages: 0 })
   const [mission, setMission] = useState(() => getMissionProgress())
+  const [fetchingStats, setFetchingStats] = useState(true)
+  const [fetchingMission, setFetchingMission] = useState(true)
+  const [modeCompletions, setModeCompletions] = useState({})
 
   const featured = pickByDay(FEATURED_LIST)
   const featuredChar = characters.find(c => c.id === featured?.characterId)
@@ -153,6 +155,7 @@ export default function DashboardPage() {
       .then(r => r.json())
       .then(data => { if (data?.highestUnlocked) setMission(data) })
       .catch(() => {})
+      .finally(() => setFetchingMission(false))
   }, [session])
 
   useEffect(() => {
@@ -167,6 +170,17 @@ export default function DashboardPage() {
         const messages = data.reduce((sum, a) => sum + (a.message_count || 0), 0)
         setAffinityStats({ chars, messages })
       })
+      .catch(() => {})
+      .finally(() => setFetchingStats(false))
+  }, [session])
+
+  useEffect(() => {
+    if (!session?.access_token) return
+    fetch(`${API_URL}/db/mode-completions`, {
+      headers: { Authorization: `Bearer ${session.access_token}` }
+    })
+      .then(r => r.json())
+      .then(data => { if (typeof data === 'object' && data !== null) setModeCompletions(data) })
       .catch(() => {})
   }, [session])
 
@@ -266,19 +280,25 @@ export default function DashboardPage() {
             <div className="dash-stats">
               <div className="dash-stat">
                 <span className="dash-stat__icon">🔥</span>
-                <span className="dash-stat__value">{streakDisplay}</span>
+                {fetchingStats
+                  ? <span className="dash-skeleton dash-skeleton--val" />
+                  : <span className="dash-stat__value">{streakDisplay}</span>}
                 <span className="dash-stat__label">días de racha</span>
               </div>
               <div className="dash-stat-sep" />
               <div className="dash-stat">
                 <span className="dash-stat__icon">👤</span>
-                <span className="dash-stat__value">{charsDisplay}</span>
+                {fetchingStats
+                  ? <span className="dash-skeleton dash-skeleton--val" />
+                  : <span className="dash-stat__value">{charsDisplay}</span>}
                 <span className="dash-stat__label">personajes</span>
               </div>
               <div className="dash-stat-sep" />
               <div className="dash-stat">
                 <span className="dash-stat__icon">💬</span>
-                <span className="dash-stat__value">{messagesDisplay}</span>
+                {fetchingStats
+                  ? <span className="dash-skeleton dash-skeleton--val" />
+                  : <span className="dash-stat__value">{messagesDisplay}</span>}
                 <span className="dash-stat__label">mensajes</span>
               </div>
             </div>
@@ -292,10 +312,7 @@ export default function DashboardPage() {
           {/* ── CONTINUAR ── */}
           {activeSession && sessionChar && (
             <section className="dash-section">
-              <div className="dash-section-header">
-                <span className="dash-eyebrow">Sesión activa <span className="dash-eyebrow__rule" /></span>
-                <h2 className="dash-section-title">Seguís<br /><em>donde lo dejaste.</em></h2>
-              </div>
+              <span className="dash-eyebrow">Sesión activa <span className="dash-eyebrow__rule" /></span>
               <div
                 className="dash-resume"
                 style={{ '--char-color': sessionChar.themeColor }}
@@ -333,67 +350,58 @@ export default function DashboardPage() {
             </section>
           )}
 
-          {/* ── DESTACADO DEL DÍA ── */}
-          {featured && featuredChar && (
-            <section className="dash-section">
-              <div className="dash-section-header">
-                <span className="dash-eyebrow">Destacado del día <span className="dash-eyebrow__rule" /></span>
-                <div className="dash-section-header__row">
-                  <h2 className="dash-section-title">El universo<br /><em>te llama.</em></h2>
-                  <span className="dash-countdown">Cambia en {countdown}</span>
-                </div>
-              </div>
-              <div
-                className="dash-featured"
-                style={{ '--char-color': featuredChar.themeColor, '--char-gradient': featuredChar.gradient }}
-                onClick={() => navigate(featured.route)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={e => e.key === 'Enter' && navigate(featured.route)}
-              >
-                <div className="dash-featured__body">
-                  <span className="dash-featured__badge">{featured.badge}</span>
-                  <h3 className="dash-featured__hook">
-                    {featured.hook}
-                    <span className="dash-featured__hook-accent"> {featured.hookAccent}</span>
-                  </h3>
-                  <button
-                    className="dash-featured__cta"
-                    onClick={e => { e.stopPropagation(); navigate(featured.route) }}
-                  >
-                    {featured.cta}
-                    <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-                      <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </button>
-                </div>
-                <div className="dash-featured__img-wrap">
-                  <img src={featuredChar.image} alt={featuredChar.name} className="dash-featured__img" />
-                  <div className="dash-featured__img-fade" />
-                </div>
-              </div>
-            </section>
-          )}
-
-          {/* ── DESAFÍO DIARIO ── */}
+          {/* ── HOY: Destacado + Desafío ── */}
           <section className="dash-section">
             <div className="dash-section-header">
               <span className="dash-eyebrow">Hoy <span className="dash-eyebrow__rule" /></span>
-              <h2 className="dash-section-title">Desafío<br /><em>del día.</em></h2>
+              <div className="dash-section-header__row">
+                <h2 className="dash-section-title">El universo<br /><em>y el desafío.</em></h2>
+                <span className="dash-countdown">Cambia en {countdown}</span>
+              </div>
             </div>
-            <DailyChallenge />
+            <div className="dash-hoy-grid">
+              {featured && featuredChar && (
+                <div
+                  className="dash-featured"
+                  style={{ '--char-color': featuredChar.themeColor, '--char-gradient': featuredChar.gradient }}
+                  onClick={() => navigate(featured.route)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={e => e.key === 'Enter' && navigate(featured.route)}
+                >
+                  <div className="dash-featured__body">
+                    <span className="dash-featured__badge">{featured.badge}</span>
+                    <h3 className="dash-featured__hook">
+                      {featured.hook}
+                      <span className="dash-featured__hook-accent"> {featured.hookAccent}</span>
+                    </h3>
+                    <button
+                      className="dash-featured__cta"
+                      onClick={e => { e.stopPropagation(); navigate(featured.route) }}
+                    >
+                      {featured.cta}
+                      <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+                        <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </button>
+                  </div>
+                  <div className="dash-featured__img-wrap">
+                    <img src={featuredChar.image} alt={featuredChar.name} className="dash-featured__img" />
+                    <div className="dash-featured__img-fade" />
+                  </div>
+                </div>
+              )}
+              <DailyChallenge />
+            </div>
           </section>
 
           {/* ── CAMPAÑA ── */}
-          {mission.highestUnlocked > 1 && (() => {
+          {!fetchingMission && mission.highestUnlocked > 1 && (() => {
             const level = mission.highestUnlocked - 1
             const pct = Math.min((level / 30) * 100, 100)
             return (
               <section className="dash-section">
-                <div className="dash-section-header">
-                  <span className="dash-eyebrow">Campaña <span className="dash-eyebrow__rule" /></span>
-                  <h2 className="dash-section-title">Tu progreso<br /><em>hasta ahora.</em></h2>
-                </div>
+                <span className="dash-eyebrow">Campaña <span className="dash-eyebrow__rule" /></span>
                 <div className="dash-campaign" onClick={() => navigate('/mission')} role="button" tabIndex={0}>
                   <div className="dash-campaign__top">
                     <div className="dash-campaign__level">
@@ -426,6 +434,7 @@ export default function DashboardPage() {
               {MODES.map(mode => {
                 const char = characters.find(c => c.id === mode.characterId)
                 const img = mode.image ?? char?.image
+                const timesPlayed = mode.completionKey ? (modeCompletions[mode.completionKey] || 0) : 0
                 return (
                   <button
                     key={mode.route}
@@ -435,6 +444,9 @@ export default function DashboardPage() {
                   >
                     <div className="dash-mode-card__thumb">
                       {img && <img src={img} alt="" />}
+                      {timesPlayed > 0 && (
+                        <span className="dash-mode-card__played">✓ {timesPlayed}x</span>
+                      )}
                     </div>
                     <div className="dash-mode-card__info">
                       <span className="dash-mode-card__label">{mode.label}</span>
@@ -470,6 +482,29 @@ export default function DashboardPage() {
                   <span className="dash-popular-card__name">{char.name.split(' ')[0]}</span>
                 </button>
               ))}
+            </div>
+          </section>
+
+          {/* ── LOGROS ── */}
+          <section className="dash-section">
+            <div className="dash-section-header">
+              <span className="dash-eyebrow">Logros <span className="dash-eyebrow__rule" /></span>
+              <h2 className="dash-section-title">Tus<br /><em>conquistas.</em></h2>
+            </div>
+            <div className="dash-logros" onClick={() => navigate(ROUTES.PERFIL)} role="button" tabIndex={0}>
+              <div className="dash-logros__counter">
+                <span className="dash-logros__num">{unlockedIds.size}</span>
+                <span className="dash-logros__denom">/{ACHIEVEMENTS.length}</span>
+              </div>
+              <div className="dash-logros__badges">
+                {ACHIEVEMENTS.filter(a => unlockedIds.has(a.id)).slice(-10).map(a => (
+                  <span key={a.id} className="dash-logros__badge" title={a.name}>{a.emoji}</span>
+                ))}
+                {unlockedIds.size === 0 && (
+                  <span className="dash-logros__empty">Completá modos para desbloquear logros</span>
+                )}
+              </div>
+              <span className="dash-logros__cta">Ver todos →</span>
             </div>
           </section>
 
@@ -520,47 +555,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* ── SIDEBAR LOGROS ── */}
-      <button
-        className={`dash-ach-tab ${sidebarOpen ? 'dash-ach-tab--open' : ''}`}
-        onClick={() => setSidebarOpen(o => !o)}
-        aria-label="Ver logros"
-      >
-        <span className="dash-ach-tab__icon">🏆</span>
-        <span className="dash-ach-tab__label">Logros</span>
-        <span className="dash-ach-tab__count">{unlockedIds.size}/{ACHIEVEMENTS.length}</span>
-      </button>
-
-      <aside className={`dash-ach-panel ${sidebarOpen ? 'dash-ach-panel--open' : ''}`}>
-        <div className="dash-ach-panel__header">
-          <span className="dash-ach-panel__title">Logros</span>
-          <span className="dash-ach-panel__sub">{unlockedIds.size} de {ACHIEVEMENTS.length} desbloqueados</span>
-        </div>
-        <div className="dash-ach-panel__list">
-          {ACHIEVEMENTS.map(a => {
-            const unlocked = unlockedIds.has(a.id)
-            const char = characters.find(c => c.id === ACH_CHAR[a.id])
-            return (
-              <div
-                key={a.id}
-                className={`dash-ach-item ${unlocked ? 'dash-ach-item--unlocked' : 'dash-ach-item--locked'}`}
-                data-rarity={a.rarity}
-              >
-                <span className="dash-ach-item__emoji">{unlocked ? a.emoji : '🔒'}</span>
-                <div className="dash-ach-item__body">
-                  <span className="dash-ach-item__name">{a.name}</span>
-                  <span className="dash-ach-item__desc">{a.desc}</span>
-                </div>
-                <span className="dash-ach-item__rarity" />
-              </div>
-            )
-          })}
-        </div>
-      </aside>
-
-      {sidebarOpen && (
-        <div className="dash-ach-backdrop" onClick={() => setSidebarOpen(false)} />
-      )}
     </>
   )
 }
