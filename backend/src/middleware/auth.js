@@ -1,6 +1,6 @@
 import { supabase } from '../config/supabase.js'
 
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'cristian.aiki1@gmail.com'
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL
 
 export async function requireAuth(req, res, next) {
   const token = req.headers.authorization?.split(' ')[1]
@@ -11,7 +11,7 @@ export async function requireAuth(req, res, next) {
     const user = result?.data?.user
     const error = result?.error
     if (error || !user) {
-      console.error('[requireAuth] getUser error:', error?.code, error?.message, '| user:', user)
+      console.error('[requireAuth] getUser error:', error?.code, error?.message)
       return res.status(401).json({ error: 'Token inválido' })
     }
     req.user = user

@@ -53,6 +53,27 @@ app.use('/api/dilema', aiLimiter)
 app.use('/api/interrogation/ask', aiLimiter)
 app.use('/api/interrogation/start', aiLimiter)
 
+const quoteLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  validate: { xForwardedForHeader: false },
+  message: { error: 'Demasiadas solicitudes.' }
+})
+app.use('/api/daily-quote', quoteLimiter)
+
+const voteLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 15,
+  standardHeaders: true,
+  legacyHeaders: false,
+  validate: { xForwardedForHeader: false },
+  message: { error: 'Demasiados votos. Esperá un momento.' }
+})
+app.use('/api/db/battle-votes', voteLimiter)
+app.use('/api/db/dilema-votes', voteLimiter)
+
 app.use('/api', chatRouter)
 app.use('/api', interrogationRouter)
 app.use('/api/db', dbRouter)
