@@ -11,6 +11,7 @@ export default function AuthPage() {
   const [email, setEmail] = useState('')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [acceptedTerms, setAcceptedTerms] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const { login, register, forgotPassword } = useAuth()
@@ -37,6 +38,10 @@ export default function AuthPage() {
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
+    if (tab === 'register' && !acceptedTerms) {
+      setError('Debés aceptar los Términos y la Política de Privacidad para continuar.')
+      return
+    }
     setLoading(true)
     try {
       if (tab === 'login') await login(email, password)
@@ -200,9 +205,25 @@ export default function AuthPage() {
                 )}
               </div>
 
+              {tab === 'register' && (
+                <label className="auth-terms">
+                  <input
+                    type="checkbox"
+                    checked={acceptedTerms}
+                    onChange={e => setAcceptedTerms(e.target.checked)}
+                  />
+                  <span>
+                    Tengo al menos 13 años y acepto los{' '}
+                    <a href="/terms" target="_blank" rel="noopener noreferrer">Términos</a>
+                    {' '}y la{' '}
+                    <a href="/privacy" target="_blank" rel="noopener noreferrer">Política de Privacidad</a>
+                  </span>
+                </label>
+              )}
+
               {error && <p className="auth-error">{error}</p>}
 
-              <button className="auth-btn" type="submit" disabled={loading}>
+              <button className="auth-btn" type="submit" disabled={loading || (tab === 'register' && !acceptedTerms)}>
                 {submitLabel}
               </button>
             </form>

@@ -104,7 +104,6 @@ export default function DashboardPage() {
   const [communityChars, setCommunityChars] = useState([])
   const [affinityStats, setAffinityStats] = useState({ chars: 0, messages: 0 })
   const [chattedCharIds, setChattedCharIds] = useState(new Set())
-  const [favoriteCharId, setFavoriteCharId] = useState(null)
   const [mission, setMission] = useState(() => getMissionProgress())
   const [fetchingStats, setFetchingStats] = useState(true)
   const [fetchingMission, setFetchingMission] = useState(true)
@@ -120,7 +119,6 @@ export default function DashboardPage() {
     return [...unknown, ...known].slice(0, 8)
   }, [chattedCharIds])
   const sessionChar   = activeSession ? characters.find(c => c.id === activeSession.characterId) : null
-  const favoriteChar  = favoriteCharId ? characters.find(c => c.id === favoriteCharId) : null
 
   const heroContext = useMemo(() => {
     if (fetchingStats) return null
@@ -186,8 +184,6 @@ export default function DashboardPage() {
         const active = data.filter(a => a.message_count > 0)
         setChattedCharIds(new Set(active.map(a => a.character_id)))
         setAffinityStats({ chars: active.length, messages: data.reduce((sum, a) => sum + (a.message_count || 0), 0) })
-        const top = [...active].sort((a, b) => b.message_count - a.message_count)[0]
-        if (top) setFavoriteCharId(top.character_id)
       })
       .catch(() => {})
       .finally(() => setFetchingStats(false))

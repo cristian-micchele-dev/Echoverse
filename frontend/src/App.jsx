@@ -31,6 +31,8 @@ const EditCharacterPage = lazy(() => import('./pages/EditCharacterPage'))
 const ComunidadPage = lazy(() => import('./pages/ComunidadPage'))
 const DashboardPage = lazy(() => import('./pages/DashboardPage'))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage/NotFoundPage'))
+const PrivacyPage = lazy(() => import('./pages/PrivacyPage'))
+const TermsPage = lazy(() => import('./pages/TermsPage'))
 
 function AnimatedRoutes() {
   const location = useLocation()
@@ -64,6 +66,8 @@ function AnimatedRoutes() {
         <Route path="/editar-personaje/:id" element={<EditCharacterPage />} />
         <Route path={ROUTES.COMUNIDAD} element={<ComunidadPage />} />
         <Route path={ROUTES.DASHBOARD} element={<DashboardPage />} />
+        <Route path={ROUTES.PRIVACY} element={<PrivacyPage />} />
+        <Route path={ROUTES.TERMS} element={<TermsPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </div>

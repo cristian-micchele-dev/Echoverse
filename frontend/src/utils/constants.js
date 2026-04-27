@@ -40,4 +40,6 @@ export const ROUTES = {
   EDITAR_PERSONAJE: (id) => `/editar-personaje/${id}`,
   COMUNIDAD:        '/comunidad',
   DASHBOARD:        '/dashboard',
+  PRIVACY:          '/privacy',
+  TERMS:            '/terms',
 }

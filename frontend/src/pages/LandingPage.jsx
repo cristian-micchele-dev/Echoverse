@@ -710,7 +710,13 @@ export default function LandingPage() {
         <div className="lp-container lp-footer__inner">
           <span className="lp-footer__logo">ECHOVERSE</span>
           <span className="lp-footer__powered">Powered by Mistral AI</span>
-          <span className="lp-footer__year">© 2026</span>
+          <div className="lp-footer__legal">
+            <a href="/terms" className="lp-footer__legal-link">Términos</a>
+            <span className="lp-footer__legal-sep">·</span>
+            <a href="/privacy" className="lp-footer__legal-link">Privacidad</a>
+            <span className="lp-footer__legal-sep">·</span>
+            <span className="lp-footer__year">© 2026</span>
+          </div>
         </div>
       </footer>
 

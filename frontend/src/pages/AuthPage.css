@@ -403,3 +403,38 @@
 .auth-skip:hover {
   color: #7a778f;
 }
+
+/* ── Terms checkbox ── */
+.auth-terms {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  cursor: pointer;
+  width: 100%;
+}
+
+.auth-terms input[type="checkbox"] {
+  margin-top: 2px;
+  flex-shrink: 0;
+  width: 15px;
+  height: 15px;
+  accent-color: #7252e8;
+  cursor: pointer;
+}
+
+.auth-terms span {
+  font-size: 0.78rem;
+  color: #4a4768;
+  line-height: 1.5;
+}
+
+.auth-terms a {
+  color: #9475f0;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.auth-terms a:hover {
+  color: #c4b5fd;
+  text-decoration: underline;
+}

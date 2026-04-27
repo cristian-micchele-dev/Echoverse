@@ -2442,3 +2442,23 @@
   text-transform: uppercase;
   color: var(--lp-muted);
 }
+
+/* ── Footer legal links ── */
+.lp-footer__legal {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.lp-footer__legal-link {
+  font-family: var(--lp-font-ui);
+  font-size: 0.58rem;
+  color: var(--lp-faint);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.lp-footer__legal-link:hover { color: var(--lp-muted); }
+.lp-footer__legal-sep {
+  font-size: 0.55rem;
+  color: var(--lp-faint);
+  opacity: 0.5;
+}
