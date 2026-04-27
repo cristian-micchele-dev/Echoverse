@@ -109,6 +109,7 @@ export default function DashboardPage() {
   const [fetchingStats, setFetchingStats] = useState(true)
   const [fetchingMission, setFetchingMission] = useState(true)
   const [modeCompletions, setModeCompletions] = useState({})
+  const [dailyQuote, setDailyQuote] = useState(null)
 
   const featured = pickByDay(FEATURED_LIST)
   const featuredChar = characters.find(c => c.id === featured?.characterId)
@@ -201,6 +202,13 @@ export default function DashboardPage() {
       .then(data => { if (typeof data === 'object' && data !== null) setModeCompletions(data) })
       .catch(() => {})
   }, [session])
+
+  useEffect(() => {
+    fetch(`${API_URL}/daily-quote`)
+      .then(r => r.json())
+      .then(data => { if (data?.quote) setDailyQuote(data) })
+      .catch(() => {})
+  }, [])
 
   useEffect(() => {
     requestAnimationFrame(() => setVisible(true))
@@ -370,6 +378,32 @@ export default function DashboardPage() {
               </div>
             </section>
           )}
+
+          {/* ── FRASE DEL DÍA ── */}
+          {dailyQuote && (() => {
+            const char = characters.find(c => c.id === dailyQuote.characterId)
+            if (!char) return null
+            return (
+              <section className="dash-section">
+                <span className="dash-eyebrow">Frase del día <span className="dash-eyebrow__rule" /></span>
+                <div
+                  className="dash-quote"
+                  style={{ '--char-color': char.themeColor }}
+                  onClick={() => navigate(`/chat/${char.id}`)}
+                  role="button"
+                  tabIndex={0}
+                >
+                  <div className="dash-quote__img-wrap">
+                    <img src={char.image} alt={char.name} className="dash-quote__img" />
+                  </div>
+                  <div className="dash-quote__body">
+                    <p className="dash-quote__text">"{dailyQuote.quote}"</p>
+                    <span className="dash-quote__char">— {char.name}</span>
+                  </div>
+                </div>
+              </section>
+            )
+          })()}
 
           {/* ── HOY: Destacado + Desafío ── */}
           <section className="dash-section">

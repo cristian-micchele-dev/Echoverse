@@ -496,6 +496,61 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* ── Daily Quote ── */
+.dash-quote {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  background: color-mix(in srgb, var(--char-color) 6%, var(--bg-raised));
+  border: 1px solid color-mix(in srgb, var(--char-color) 22%, transparent);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.dash-quote:hover {
+  border-color: color-mix(in srgb, var(--char-color) 40%, transparent);
+  box-shadow: 0 6px 24px rgba(0,0,0,0.3);
+}
+
+.dash-quote__img-wrap {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 2px solid color-mix(in srgb, var(--char-color) 40%, transparent);
+}
+.dash-quote__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}
+
+.dash-quote__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.dash-quote__text {
+  font-family: 'Cormorant Garamond', var(--font-display, serif), Georgia, serif;
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
+  font-style: italic;
+  color: var(--text-primary);
+  line-height: 1.5;
+  margin: 0 0 0.45rem;
+}
+
+.dash-quote__char {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--char-color);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
 /* ── Resume ── */
 .dash-resume {
   position: relative;
