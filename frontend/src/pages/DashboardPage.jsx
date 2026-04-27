@@ -388,7 +388,7 @@ export default function DashboardPage() {
           {mission.highestUnlocked > 1 && (() => {
             const level = mission.highestUnlocked - 1
             const completed = Object.keys(mission.completedLevels || {}).length
-            const pct = Math.min((completed / 30) * 100, 100)
+            const pct = Math.min((level / 30) * 100, 100)
             return (
               <section className="dash-section">
                 <div className="dash-section-header">

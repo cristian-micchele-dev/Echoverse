@@ -90,6 +90,7 @@ export default function ProfilePage() {
   const [modeCompletions, setModeCompletions] = useState({})
   const [customCharsCount, setCustomCharsCount] = useState(0)
   const [interrogationResults, setInterrogationResults] = useState([])
+  const [guessScore] = useState(() => { try { return parseInt(localStorage.getItem('guess-best-score') || '0') } catch { return 0 } })
   const { unlockedIds, checkAndUnlock, newlyUnlocked, dismissToast } = useAchievements()
   const { streak } = useStreak()
 
@@ -208,6 +209,9 @@ export default function ProfilePage() {
   const animMsgs    = useCountUp(loading ? 0 : totalMessages)
   const animLevels  = useCountUp(loading ? 0 : completedLevels)
   const animStreak  = useCountUp(loading ? 0 : streak.current)
+  const animGuess   = useCountUp(loading ? 0 : guessScore)
+  const animDilemas = useCountUp(loading ? 0 : dilemasCount)
+  const animCustom  = useCountUp(loading ? 0 : customCharsCount)
 
   const rank = getRank(totalMessages)
 
@@ -325,6 +329,32 @@ export default function ProfilePage() {
         </div>
       )}
 
+
+      {!loading && (guessScore > 0 || dilemasCount > 0 || customCharsCount > 0) && (
+        <div className="pp-mini-stats">
+          {guessScore > 0 && (
+            <div className="pp-mini-stat">
+              <span className="pp-mini-stat__icon">🎯</span>
+              <span className="pp-mini-stat__num">{animGuess}</span>
+              <span className="pp-mini-stat__label">Mejor puntaje Adivina</span>
+            </div>
+          )}
+          {dilemasCount > 0 && (
+            <div className="pp-mini-stat">
+              <span className="pp-mini-stat__icon">⚖️</span>
+              <span className="pp-mini-stat__num">{animDilemas}</span>
+              <span className="pp-mini-stat__label">Dilemas vistos</span>
+            </div>
+          )}
+          {customCharsCount > 0 && (
+            <div className="pp-mini-stat">
+              <span className="pp-mini-stat__icon">🤖</span>
+              <span className="pp-mini-stat__num">{animCustom}</span>
+              <span className="pp-mini-stat__label">Personajes creados</span>
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="pp-body">
 
