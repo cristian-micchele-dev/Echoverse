@@ -1135,6 +1135,33 @@
   align-items: stretch;
 }
 
+/* ── Modes explored counter ── */
+.dash-modes-explored {
+  font-size: 0.62rem;
+  color: var(--text-faint);
+  letter-spacing: 0.05em;
+  align-self: flex-end;
+  margin-bottom: 0.15rem;
+}
+
+/* ── Mode card NEW badge ── */
+.dash-mode-card--new {
+  border-color: color-mix(in srgb, var(--mode-color) 30%, transparent);
+}
+.dash-mode-card__new-badge {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 2;
+  background: var(--mode-color);
+  border-radius: 4px;
+  padding: 0.15rem 0.45rem;
+  font-size: 0.55rem;
+  font-weight: 800;
+  color: #000;
+  letter-spacing: 0.08em;
+}
+
 /* ── Mode card played badge ── */
 .dash-mode-card__played {
   position: absolute;
@@ -1150,6 +1177,50 @@
   color: #a0ffb0;
   letter-spacing: 0.04em;
   backdrop-filter: blur(4px);
+}
+
+/* ── Popular card known indicator ── */
+.dash-popular-card__known {
+  position: absolute;
+  bottom: 0.3rem;
+  right: 0.3rem;
+  width: 18px;
+  height: 18px;
+  background: rgba(0,0,0,0.7);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.55rem;
+  color: #a0ffb0;
+  font-weight: 700;
+}
+
+/* ── Campaign empty CTA ── */
+.dash-campaign--empty {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border-style: dashed;
+}
+.dash-campaign__empty-icon {
+  font-size: 1.75rem;
+  flex-shrink: 0;
+}
+.dash-campaign__empty-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.dash-campaign__empty-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.dash-campaign__empty-sub {
+  font-size: 0.78rem;
+  color: var(--text-muted);
 }
 
 /* ── Logros inline ── */

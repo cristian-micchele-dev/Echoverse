@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useStreak } from '../hooks/useStreak'
@@ -103,6 +103,7 @@ export default function DashboardPage() {
   const [activeSession, setActiveSession] = useState(() => loadSession())
   const [communityChars, setCommunityChars] = useState([])
   const [affinityStats, setAffinityStats] = useState({ chars: 0, messages: 0 })
+  const [chattedCharIds, setChattedCharIds] = useState(new Set())
   const [mission, setMission] = useState(() => getMissionProgress())
   const [fetchingStats, setFetchingStats] = useState(true)
   const [fetchingMission, setFetchingMission] = useState(true)
@@ -110,7 +111,12 @@ export default function DashboardPage() {
 
   const featured = pickByDay(FEATURED_LIST)
   const featuredChar = characters.find(c => c.id === featured?.characterId)
-  const popularChars = shuffleByDay(characters).slice(0, 8)
+  const popularChars = useMemo(() => {
+    const shuffled = shuffleByDay(characters)
+    const unknown = shuffled.filter(c => !chattedCharIds.has(c.id))
+    const known   = shuffled.filter(c =>  chattedCharIds.has(c.id))
+    return [...unknown, ...known].slice(0, 8)
+  }, [chattedCharIds])
   const sessionChar = activeSession ? characters.find(c => c.id === activeSession.characterId) : null
 
   const streakDisplay   = useCountUp(streak.current,       visible)
@@ -166,9 +172,9 @@ export default function DashboardPage() {
       .then(r => r.json())
       .then(data => {
         if (!Array.isArray(data)) return
-        const chars = data.filter(a => a.message_count > 0).length
-        const messages = data.reduce((sum, a) => sum + (a.message_count || 0), 0)
-        setAffinityStats({ chars, messages })
+        const active = data.filter(a => a.message_count > 0)
+        setChattedCharIds(new Set(active.map(a => a.character_id)))
+        setAffinityStats({ chars: active.length, messages: data.reduce((sum, a) => sum + (a.message_count || 0), 0) })
       })
       .catch(() => {})
       .finally(() => setFetchingStats(false))
@@ -396,6 +402,18 @@ export default function DashboardPage() {
           </section>
 
           {/* ── CAMPAÑA ── */}
+          {!fetchingMission && mission.highestUnlocked <= 1 && (
+            <section className="dash-section">
+              <span className="dash-eyebrow">Campaña <span className="dash-eyebrow__rule" /></span>
+              <div className="dash-campaign dash-campaign--empty" onClick={() => navigate('/mission')} role="button" tabIndex={0}>
+                <span className="dash-campaign__empty-icon">⚔️</span>
+                <div className="dash-campaign__empty-body">
+                  <span className="dash-campaign__empty-title">30 niveles te esperan</span>
+                  <span className="dash-campaign__empty-sub">Empezá la campaña y desbloqueá personajes exclusivos →</span>
+                </div>
+              </div>
+            </section>
+          )}
           {!fetchingMission && mission.highestUnlocked > 1 && (() => {
             const level = mission.highestUnlocked - 1
             const pct = Math.min((level / 30) * 100, 100)
@@ -425,63 +443,94 @@ export default function DashboardPage() {
           })()}
 
           {/* ── MODOS ── */}
-          <section className="dash-section">
-            <div className="dash-section-header">
-              <span className="dash-eyebrow">Modos de juego <span className="dash-eyebrow__rule" /></span>
-              <h2 className="dash-section-title">Elegí cómo<br /><em>entrás.</em></h2>
-            </div>
-            <div className="dash-modes-grid">
-              {MODES.map(mode => {
-                const char = characters.find(c => c.id === mode.characterId)
-                const img = mode.image ?? char?.image
-                const timesPlayed = mode.completionKey ? (modeCompletions[mode.completionKey] || 0) : 0
-                return (
-                  <button
-                    key={mode.route}
-                    className="dash-mode-card"
-                    style={{ '--mode-color': mode.color }}
-                    onClick={() => navigate(mode.route)}
-                  >
-                    <div className="dash-mode-card__thumb">
-                      {img && <img src={img} alt="" />}
-                      {timesPlayed > 0 && (
-                        <span className="dash-mode-card__played">✓ {timesPlayed}x</span>
-                      )}
-                    </div>
-                    <div className="dash-mode-card__info">
-                      <span className="dash-mode-card__label">{mode.label}</span>
-                      <span className="dash-mode-card__eyebrow">{mode.eyebrow}</span>
-                      <span className="dash-mode-card__tag">{mode.tag}</span>
-                    </div>
-                  </button>
-                )
-              })}
-            </div>
-          </section>
+          {(() => {
+            const exploredCount = MODES.filter(m => m.completionKey && modeCompletions[m.completionKey] > 0).length
+            const trackableTotal = MODES.filter(m => m.completionKey).length
+            const modeTitle = exploredCount === 0
+              ? { line1: 'Todo por', line2: 'descubrir.' }
+              : exploredCount < 4
+              ? { line1: 'Seguís', line2: 'explorando.' }
+              : exploredCount < trackableTotal
+              ? { line1: 'Elegí cómo', line2: 'entrás.' }
+              : { line1: 'Tu zona', line2: 'de confort.' }
+            const sortedModes = [...MODES].sort((a, b) => {
+              const aOrder = a.completionKey === null ? 1 : (modeCompletions[a.completionKey] || 0) === 0 ? 0 : 2
+              const bOrder = b.completionKey === null ? 1 : (modeCompletions[b.completionKey] || 0) === 0 ? 0 : 2
+              return aOrder - bOrder
+            })
+            return (
+              <section className="dash-section">
+                <div className="dash-section-header">
+                  <span className="dash-eyebrow">Modos de juego <span className="dash-eyebrow__rule" /></span>
+                  <div className="dash-section-header__row">
+                    <h2 className="dash-section-title">{modeTitle.line1}<br /><em>{modeTitle.line2}</em></h2>
+                    {exploredCount > 0 && (
+                      <span className="dash-modes-explored">{exploredCount}/{trackableTotal} explorados</span>
+                    )}
+                  </div>
+                </div>
+                <div className="dash-modes-grid">
+                  {sortedModes.map(mode => {
+                    const char = characters.find(c => c.id === mode.characterId)
+                    const img = mode.image ?? char?.image
+                    const timesPlayed = mode.completionKey ? (modeCompletions[mode.completionKey] || 0) : 0
+                    const isNew = mode.completionKey !== null && timesPlayed === 0
+                    return (
+                      <button
+                        key={mode.route}
+                        className={`dash-mode-card${isNew ? ' dash-mode-card--new' : ''}`}
+                        style={{ '--mode-color': mode.color }}
+                        onClick={() => navigate(mode.route)}
+                      >
+                        <div className="dash-mode-card__thumb">
+                          {img && <img src={img} alt="" />}
+                          {isNew && <span className="dash-mode-card__new-badge">NUEVO</span>}
+                          {timesPlayed > 0 && (
+                            <span className="dash-mode-card__played">✓ {timesPlayed}x</span>
+                          )}
+                        </div>
+                        <div className="dash-mode-card__info">
+                          <span className="dash-mode-card__label">{mode.label}</span>
+                          <span className="dash-mode-card__eyebrow">{mode.eyebrow}</span>
+                          <span className="dash-mode-card__tag">{mode.tag}</span>
+                        </div>
+                      </button>
+                    )
+                  })}
+                </div>
+              </section>
+            )
+          })()}
 
           {/* ── PERSONAJES POPULARES ── */}
           <section className="dash-section">
             <div className="dash-section-header">
               <span className="dash-eyebrow">Elenco <span className="dash-eyebrow__rule" /></span>
-              <h2 className="dash-section-title">Con quién<br /><em>vas hoy.</em></h2>
+              <h2 className="dash-section-title">
+                {chattedCharIds.size === 0 ? <>Empezá a<br /><em>conocerlos.</em></> : <>Con quién<br /><em>vas hoy.</em></>}
+              </h2>
             </div>
             <div className="dash-popular-scroll">
-              {popularChars.map(char => (
-                <button
-                  key={char.id}
-                  className="dash-popular-card"
-                  style={{ '--char-color': char.themeColor }}
-                  onClick={() => navigate(`/chat/${char.id}`)}
-                >
-                  <div className="dash-popular-card__img-wrap">
-                    <img src={char.image} alt={char.name} className="dash-popular-card__img" />
-                    <div className="dash-popular-card__overlay">
-                      <span className="dash-popular-card__overlay-text">Chatear</span>
+              {popularChars.map(char => {
+                const known = chattedCharIds.has(char.id)
+                return (
+                  <button
+                    key={char.id}
+                    className="dash-popular-card"
+                    style={{ '--char-color': char.themeColor }}
+                    onClick={() => navigate(`/chat/${char.id}`)}
+                  >
+                    <div className="dash-popular-card__img-wrap">
+                      <img src={char.image} alt={char.name} className="dash-popular-card__img" />
+                      <div className="dash-popular-card__overlay">
+                        <span className="dash-popular-card__overlay-text">{known ? 'Volver' : 'Chatear'}</span>
+                      </div>
+                      {known && <span className="dash-popular-card__known">✓</span>}
                     </div>
-                  </div>
-                  <span className="dash-popular-card__name">{char.name.split(' ')[0]}</span>
-                </button>
-              ))}
+                    <span className="dash-popular-card__name">{char.name.split(' ')[0]}</span>
+                  </button>
+                )
+              })}
             </div>
           </section>
 
