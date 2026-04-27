@@ -110,6 +110,9 @@ export default function DashboardPage() {
   const [modeCompletions, setModeCompletions] = useState({})
   const [dailyQuote, setDailyQuote] = useState(null)
 
+  const modesRef   = useRef(null)
+  const popularRef = useRef(null)
+
   const featured = pickByDay(FEATURED_LIST)
   const featuredChar = characters.find(c => c.id === featured?.characterId)
   const popularChars = useMemo(() => {
@@ -208,6 +211,21 @@ export default function DashboardPage() {
 
   useEffect(() => {
     requestAnimationFrame(() => setVisible(true))
+  }, [])
+
+  // Nudge: scroll hint una sola vez al cargar, solo en mobile
+  useEffect(() => {
+    if (typeof window === 'undefined' || window.innerWidth > 768) return
+    const nudge = (ref) => {
+      const el = ref.current
+      if (!el || el.scrollWidth <= el.clientWidth) return
+      const t1 = setTimeout(() => el.scrollTo({ left: 48, behavior: 'smooth' }), 900)
+      const t2 = setTimeout(() => el.scrollTo({ left: 0,  behavior: 'smooth' }), 1500)
+      return () => { clearTimeout(t1); clearTimeout(t2) }
+    }
+    const c1 = nudge(modesRef)
+    const c2 = nudge(popularRef)
+    return () => { c1?.(); c2?.() }
   }, [])
 
   useEffect(() => {
@@ -520,7 +538,7 @@ export default function DashboardPage() {
                     )}
                   </div>
                 </div>
-                <div className="dash-modes-grid">
+                <div className="dash-modes-grid" ref={modesRef}>
                   {sortedModes.map(mode => {
                     const char = characters.find(c => c.id === mode.characterId)
                     const img = mode.image ?? char?.image
@@ -561,7 +579,7 @@ export default function DashboardPage() {
                 {chattedCharIds.size === 0 ? <>Empezá a<br /><em>conocerlos.</em></> : <>Con quién<br /><em>vas hoy.</em></>}
               </h2>
             </div>
-            <div className="dash-popular-scroll">
+            <div className="dash-popular-scroll" ref={popularRef}>
               {popularChars.map(char => {
                 const known = chattedCharIds.has(char.id)
                 return (
