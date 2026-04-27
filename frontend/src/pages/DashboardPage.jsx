@@ -202,7 +202,7 @@ export default function DashboardPage() {
     }, { threshold: 0.08 })
     pending.forEach(s => observer.observe(s))
     return () => observer.disconnect()
-  }, [visible, communityChars.length])
+  }, [visible, communityChars.length, mission.highestUnlocked])
 
   return (
     <>
