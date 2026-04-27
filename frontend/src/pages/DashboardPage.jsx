@@ -104,6 +104,7 @@ export default function DashboardPage() {
   const [communityChars, setCommunityChars] = useState([])
   const [affinityStats, setAffinityStats] = useState({ chars: 0, messages: 0 })
   const [chattedCharIds, setChattedCharIds] = useState(new Set())
+  const [favoriteCharId, setFavoriteCharId] = useState(null)
   const [mission, setMission] = useState(() => getMissionProgress())
   const [fetchingStats, setFetchingStats] = useState(true)
   const [fetchingMission, setFetchingMission] = useState(true)
@@ -117,7 +118,16 @@ export default function DashboardPage() {
     const known   = shuffled.filter(c =>  chattedCharIds.has(c.id))
     return [...unknown, ...known].slice(0, 8)
   }, [chattedCharIds])
-  const sessionChar = activeSession ? characters.find(c => c.id === activeSession.characterId) : null
+  const sessionChar   = activeSession ? characters.find(c => c.id === activeSession.characterId) : null
+  const favoriteChar  = favoriteCharId ? characters.find(c => c.id === favoriteCharId) : null
+
+  const heroContext = useMemo(() => {
+    if (fetchingStats) return null
+    if (streak.current > 0) return `🔥 ${streak.current} ${streak.current === 1 ? 'día' : 'días'} de racha`
+    if (activeSession && sessionChar) return `↩ Retomando con ${sessionChar.name}`
+    if (affinityStats.chars > 0) return `${affinityStats.chars} personajes en tu universo`
+    return null
+  }, [fetchingStats, streak.current, activeSession, sessionChar, affinityStats.chars])
 
   const streakDisplay   = useCountUp(streak.current,       visible)
   const charsDisplay    = useCountUp(affinityStats.chars,   visible)
@@ -175,6 +185,8 @@ export default function DashboardPage() {
         const active = data.filter(a => a.message_count > 0)
         setChattedCharIds(new Set(active.map(a => a.character_id)))
         setAffinityStats({ chars: active.length, messages: data.reduce((sum, a) => sum + (a.message_count || 0), 0) })
+        const top = [...active].sort((a, b) => b.message_count - a.message_count)[0]
+        if (top) setFavoriteCharId(top.character_id)
       })
       .catch(() => {})
       .finally(() => setFetchingStats(false))
@@ -281,6 +293,9 @@ export default function DashboardPage() {
               <div>
                 <p className="dash-hero__eyebrow">{getGreeting()}</p>
                 <h1 className="dash-hero__name">{username}</h1>
+                {heroContext && (
+                  <span className="dash-hero__context">{heroContext}</span>
+                )}
               </div>
             </div>
             <div className="dash-stats">
@@ -484,6 +499,7 @@ export default function DashboardPage() {
                       >
                         <div className="dash-mode-card__thumb">
                           {img && <img src={img} alt="" />}
+                          <span className="dash-mode-card__genre">{mode.eyebrow}</span>
                           {isNew && <span className="dash-mode-card__new-badge">NUEVO</span>}
                           {timesPlayed > 0 && (
                             <span className="dash-mode-card__played">✓ {timesPlayed}x</span>
@@ -491,7 +507,6 @@ export default function DashboardPage() {
                         </div>
                         <div className="dash-mode-card__info">
                           <span className="dash-mode-card__label">{mode.label}</span>
-                          <span className="dash-mode-card__eyebrow">{mode.eyebrow}</span>
                           <span className="dash-mode-card__tag">{mode.tag}</span>
                         </div>
                       </button>
@@ -516,18 +531,19 @@ export default function DashboardPage() {
                 return (
                   <button
                     key={char.id}
-                    className="dash-popular-card"
+                    className={`dash-popular-card${known ? ' dash-popular-card--known' : ''}`}
                     style={{ '--char-color': char.themeColor }}
                     onClick={() => navigate(`/chat/${char.id}`)}
                   >
                     <div className="dash-popular-card__img-wrap">
                       <img src={char.image} alt={char.name} className="dash-popular-card__img" />
-                      <div className="dash-popular-card__overlay">
-                        <span className="dash-popular-card__overlay-text">{known ? 'Volver' : 'Chatear'}</span>
-                      </div>
+                      <div className="dash-popular-card__fade" />
                       {known && <span className="dash-popular-card__known">✓</span>}
+                      <div className="dash-popular-card__footer">
+                        <span className="dash-popular-card__name">{char.name.split(' ')[0]}</span>
+                        <span className="dash-popular-card__action">{known ? 'Volver' : 'Chatear'}</span>
+                      </div>
                     </div>
-                    <span className="dash-popular-card__name">{char.name.split(' ')[0]}</span>
                   </button>
                 )
               })}
@@ -540,21 +556,31 @@ export default function DashboardPage() {
               <span className="dash-eyebrow">Logros <span className="dash-eyebrow__rule" /></span>
               <h2 className="dash-section-title">Tus<br /><em>conquistas.</em></h2>
             </div>
-            <div className="dash-logros" onClick={() => navigate(ROUTES.PERFIL)} role="button" tabIndex={0}>
-              <div className="dash-logros__counter">
-                <span className="dash-logros__num">{unlockedIds.size}</span>
-                <span className="dash-logros__denom">/{ACHIEVEMENTS.length}</span>
-              </div>
-              <div className="dash-logros__badges">
-                {ACHIEVEMENTS.filter(a => unlockedIds.has(a.id)).slice(-10).map(a => (
-                  <span key={a.id} className="dash-logros__badge" title={a.name}>{a.emoji}</span>
-                ))}
-                {unlockedIds.size === 0 && (
-                  <span className="dash-logros__empty">Completá modos para desbloquear logros</span>
-                )}
-              </div>
-              <span className="dash-logros__cta">Ver todos →</span>
-            </div>
+            {(() => {
+              const lastAch = ACHIEVEMENTS.filter(a => unlockedIds.has(a.id)).at(-1)
+              const achChar = lastAch ? characters.find(c => c.id === ACH_CHAR[lastAch.id]) : null
+              return (
+                <div className="dash-logros" onClick={() => navigate(ROUTES.PERFIL)} role="button" tabIndex={0}>
+                  <div className="dash-logros__counter">
+                    <span className="dash-logros__num">{unlockedIds.size}</span>
+                    <span className="dash-logros__denom">/{ACHIEVEMENTS.length}</span>
+                  </div>
+                  {lastAch ? (
+                    <div className="dash-logros__last" style={{ '--char-color': achChar?.themeColor || 'var(--violet-400)' }}>
+                      {achChar && <img src={achChar.image} alt={achChar.name} className="dash-logros__last-img" />}
+                      <div className="dash-logros__last-body">
+                        <span className="dash-logros__last-emoji">{lastAch.emoji}</span>
+                        <span className="dash-logros__last-name">{lastAch.name}</span>
+                        <span className="dash-logros__last-desc">{lastAch.desc}</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <span className="dash-logros__empty">Completá modos para desbloquear logros</span>
+                  )}
+                  <span className="dash-logros__cta">Ver todos →</span>
+                </div>
+              )
+            })()}
           </section>
 
         {/* ── COMUNIDAD ── */}
