@@ -60,7 +60,6 @@ export const challenges = RAW_CHALLENGES.map(c => ({
 }))
 
 export function getTodayChallenge() {
-  const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '') // '20260411'
-  const seed = parseInt(dateStr) % challenges.length
-  return challenges[seed]
+  const daysSinceEpoch = Math.floor(Date.now() / 86_400_000)
+  return challenges[daysSinceEpoch % challenges.length]
 }
