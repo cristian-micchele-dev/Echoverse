@@ -7,7 +7,7 @@ import './AuthPage.css'
 
 export default function AuthPage() {
   const [tab, setTab] = useState('login')
-  const [mode, setMode] = useState('auth') // 'auth' | 'forgot' | 'forgot-sent'
+  const [mode, setMode] = useState('auth') // 'auth' | 'forgot' | 'forgot-sent' | 'verify-sent'
   const [email, setEmail] = useState('')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -44,9 +44,14 @@ export default function AuthPage() {
     }
     setLoading(true)
     try {
-      if (tab === 'login') await login(email, password)
-      else await register(email, password, username)
-      navigate(ROUTES.DASHBOARD, { replace: true })
+      if (tab === 'login') {
+        await login(email, password)
+        navigate(ROUTES.DASHBOARD, { replace: true })
+      } else {
+        const result = await register(email, password, username)
+        if (result?.pending) { setMode('verify-sent'); return }
+        navigate(ROUTES.DASHBOARD, { replace: true })
+      }
     } catch (err) {
       setError(err.message || 'Error inesperado')
     } finally {
@@ -101,8 +106,19 @@ export default function AuthPage() {
           </div>
         )}
 
-        {/* ── Forgot sent ── */}
-        {mode === 'forgot-sent' ? (
+        {/* ── Verify sent ── */}
+        {mode === 'verify-sent' ? (
+          <div className="auth-sent">
+            <div className="auth-sent__icon">✉️</div>
+            <p className="auth-sent__title">Confirmá tu email</p>
+            <p className="auth-sent__sub">
+              Te enviamos un enlace de verificación a <strong>{email}</strong>. Revisá tu bandeja de entrada y hacé clic en el link para activar tu cuenta.
+            </p>
+            <button className="auth-btn" onClick={() => { setMode('auth'); switchTab('login') }}>
+              Ir al inicio de sesión
+            </button>
+          </div>
+        ) : mode === 'forgot-sent' ? (
           <div className="auth-sent">
             <div className="auth-sent__icon">✉️</div>
             <p className="auth-sent__title">Revisá tu email</p>

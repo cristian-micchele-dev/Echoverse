@@ -834,3 +834,21 @@
   font-size: 0.72rem;
   color: var(--text-faint);
 }
+
+/* ── Delete account ── */
+.pp-delete-account {
+  background: none;
+  border: 1px solid transparent;
+  color: var(--text-faint);
+  padding: 0.35rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  width: fit-content;
+  transition: border-color 0.2s, color 0.2s;
+  margin-top: 0.25rem;
+}
+.pp-delete-account:hover {
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+}

@@ -64,6 +64,7 @@ export function AuthProvider({ children }) {
 
   async function register(email, password, username) {
     const data = await authFetch('/auth/register', { email, password, username })
+    if (data.pending) return { pending: true }
     if (data.session) {
       const { error } = await supabase.auth.setSession(data.session)
       if (error) throw error

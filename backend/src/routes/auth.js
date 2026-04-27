@@ -81,21 +81,54 @@ router.post('/register', async (req, res) => {
     const { error: createError } = await supabase.auth.admin.createUser({
       email,
       password,
-      email_confirm: true,
+      email_confirm: false,
       user_metadata: { username: username.trim() }
     })
 
     if (createError) return res.status(400).json({ error: translateError(createError) })
 
-    const { session, error: signInError } = await supabaseSignIn(email, password)
-    if (signInError) {
-      return res.status(500).json({ error: 'Cuenta creada. Iniciá sesión manualmente.' })
-    }
+    // Send verification email via Supabase REST API (anon key)
+    const anonKey = process.env.SUPABASE_ANON_KEY
+    await fetch(`${process.env.SUPABASE_URL}/auth/v1/resend`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': anonKey,
+        'Authorization': `Bearer ${anonKey}`
+      },
+      body: JSON.stringify({ type: 'signup', email })
+    }).catch(err => console.error('[auth/register] resend email failed:', err))
 
-    res.json({ session })
+    res.json({ pending: true })
   } catch (err) {
     console.error('[auth/register]', err)
     res.status(500).json({ error: 'Error al crear la cuenta. Intentá de nuevo más tarde' })
+  }
+})
+
+// DELETE /api/auth/account
+router.delete('/account', requireAuth, async (req, res) => {
+  const userId = req.user.id
+  try {
+    const tables = [
+      'chat_history', 'character_affinity', 'mission_progress',
+      'dilema_seen', 'daily_challenge_completions', 'mode_completions',
+      'interrogation_results', 'achievements',
+    ]
+    await Promise.all(
+      tables.map(t => supabase.from(t).delete().eq('user_id', userId).then(() => {}))
+    )
+    await supabase.from('custom_characters').delete().eq('created_by', userId).then(() => {})
+
+    const { error } = await supabase.auth.admin.deleteUser(userId)
+    if (error) {
+      console.error('[auth/delete-account]', error)
+      return res.status(500).json({ error: 'No se pudo eliminar la cuenta. Intentá de nuevo.' })
+    }
+    res.json({ ok: true })
+  } catch (err) {
+    console.error('[auth/delete-account]', err)
+    res.status(500).json({ error: 'Error al eliminar la cuenta.' })
   }
 })
 

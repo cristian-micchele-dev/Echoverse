@@ -186,6 +186,28 @@ export default function ProfilePage() {
     navigate(ROUTES.HOME)
   }
 
+  async function handleDeleteAccount() {
+    const confirmed = window.confirm(
+      '¿Estás seguro de que querés eliminar tu cuenta? Esta acción es permanente e irreversible. Se borrarán todos tus datos, historial y progreso.'
+    )
+    if (!confirmed) return
+    try {
+      const res = await fetch(`${API_URL}/auth/account`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${session.access_token}` }
+      })
+      if (!res.ok) {
+        const data = await res.json()
+        alert(data.error || 'No se pudo eliminar la cuenta.')
+        return
+      }
+      await logout().catch(() => {})
+      navigate(ROUTES.HOME, { replace: true })
+    } catch {
+      alert('Error al eliminar la cuenta. Intentá de nuevo.')
+    }
+  }
+
   const activeAffinities = affinities
     .map(a => {
       const char = characters.find(c => c.id === a.character_id)
@@ -297,6 +319,7 @@ export default function ProfilePage() {
             <button className="pp-admin-link" onClick={() => navigate(ROUTES.ADMIN)}>Panel admin</button>
           )}
           <button className="pp-logout" onClick={handleLogout}>Cerrar sesión</button>
+          <button className="pp-delete-account" onClick={handleDeleteAccount}>Eliminar cuenta</button>
         </div>
       </div>
 
