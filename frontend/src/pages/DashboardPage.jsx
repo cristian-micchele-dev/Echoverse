@@ -216,16 +216,20 @@ export default function DashboardPage() {
   // Nudge: scroll hint una sola vez al cargar, solo en mobile
   useEffect(() => {
     if (typeof window === 'undefined' || window.innerWidth > 768) return
-    const nudge = (ref) => {
-      const el = ref.current
-      if (!el || el.scrollWidth <= el.clientWidth) return
-      const t1 = setTimeout(() => el.scrollTo({ left: 48, behavior: 'smooth' }), 900)
-      const t2 = setTimeout(() => el.scrollTo({ left: 0,  behavior: 'smooth' }), 1500)
-      return () => { clearTimeout(t1); clearTimeout(t2) }
+    const timers = []
+    const nudge = (ref, delay) => {
+      const t = setTimeout(() => {
+        const el = ref.current
+        if (!el || el.scrollWidth <= el.clientWidth) return
+        el.scrollTo({ left: 48, behavior: 'smooth' })
+        const t2 = setTimeout(() => el.scrollTo({ left: 0, behavior: 'smooth' }), 600)
+        timers.push(t2)
+      }, delay)
+      timers.push(t)
     }
-    const c1 = nudge(modesRef)
-    const c2 = nudge(popularRef)
-    return () => { c1?.(); c2?.() }
+    nudge(modesRef, 900)
+    nudge(popularRef, 1100)
+    return () => timers.forEach(clearTimeout)
   }, [])
 
   useEffect(() => {
