@@ -1457,14 +1457,36 @@
     display: flex;
     overflow-x: auto;
     padding-bottom: 0.5rem;
+    padding-inline: 1rem;
     scrollbar-width: none;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
   }
   .dash-modes-grid::-webkit-scrollbar { display: none; }
   .dash-mode-card {
     flex-shrink: 0;
     width: 160px;
+    scroll-snap-align: start;
   }
   .dash-mode-card__thumb { height: 100px; }
+
+  .dash-popular-scroll {
+    padding-inline: 1rem;
+    scrollbar-width: none;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+  .dash-popular-scroll::-webkit-scrollbar { display: none; }
+  .dash-popular-card { scroll-snap-align: start; }
+
+  .dash-community-rail {
+    padding-inline: 1rem;
+    scrollbar-width: none;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+  .dash-community-rail::-webkit-scrollbar { display: none; }
+  .dash-community-card { scroll-snap-align: start; }
 }
 
 /* ── Footer legal ── */
