@@ -8,12 +8,15 @@ export function pickByDay(items, offset = 0) {
 }
 
 export function shuffleByDay(items) {
-  const seed = getDailySeed()
-  return [...items].sort((a, b) => {
-    const ia = items.indexOf(a)
-    const ib = items.indexOf(b)
-    const ha = (((ia + 1) * 2654435761) ^ seed) >>> 0
-    const hb = (((ib + 1) * 2654435761) ^ seed) >>> 0
-    return ha - hb
-  })
+  const arr = [...items]
+  let s = getDailySeed()
+  function rand() {
+    s = (Math.imul(s, 1664525) + 1013904223) & 0xffffffff
+    return (s >>> 0) / 4294967296
+  }
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]]
+  }
+  return arr
 }
