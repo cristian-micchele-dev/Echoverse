@@ -44,12 +44,15 @@ export default function DailyChallenge() {
         <div className="dc__header">
           <span className="dc__eyebrow">HOY · DESAFÍO DEL DÍA</span>
           <div className="dc__header-right">
-            {streak.current > 0 && (
-              <span className={`dc__streak ${streak.current >= 3 ? 'dc__streak--hot' : ''}`}>
-                🔥 {streak.current} {streak.current === 1 ? 'día' : 'días'}
-              </span>
+            {completed ? (
+              <span className="dc__done-badge">✓ Completado hoy</span>
+            ) : (
+              streak.current > 0 && (
+                <span className={`dc__streak ${streak.current >= 3 ? 'dc__streak--hot' : ''}`}>
+                  🔥 {streak.current} {streak.current === 1 ? 'día' : 'días'}
+                </span>
+              )
             )}
-            {completed && <span className="dc__done-badge">✓ Completado</span>}
           </div>
         </div>
 
