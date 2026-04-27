@@ -387,7 +387,6 @@ export default function DashboardPage() {
           {/* ── CAMPAÑA ── */}
           {mission.highestUnlocked > 1 && (() => {
             const level = mission.highestUnlocked - 1
-            const completed = Object.keys(mission.completedLevels || {}).length
             const pct = Math.min((level / 30) * 100, 100)
             return (
               <section className="dash-section">
@@ -399,7 +398,7 @@ export default function DashboardPage() {
                   <div className="dash-campaign__top">
                     <div className="dash-campaign__level">
                       <span className="dash-campaign__level-num">Nivel {level}</span>
-                      <span className="dash-campaign__level-sub">{completed} de 30 completados</span>
+                      <span className="dash-campaign__level-sub">{level} de 30 completados</span>
                     </div>
                     <button className="dash-campaign__cta" onClick={e => { e.stopPropagation(); navigate('/mission') }}>
                       Continuar

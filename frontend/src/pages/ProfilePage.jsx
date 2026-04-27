@@ -399,7 +399,7 @@ export default function ProfilePage() {
                   <div className="pp-mission__top">
                     <div>
                       <span className="pp-mission__lvl">Nivel {highestLevel - 1}</span>
-                      <span className="pp-mission__sub">{completedLevels} de 30 niveles completados</span>
+                      <span className="pp-mission__sub">{highestLevel - 1} de 30 niveles completados</span>
                     </div>
                     <button className="pp-mission__cta" onClick={() => navigate(ROUTES.MISSION)}>
                       Continuar →
