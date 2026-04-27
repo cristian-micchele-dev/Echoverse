@@ -865,6 +865,87 @@
 }
 .dash-community-ver-todos:hover { color: var(--violet-300); }
 
+/* ── Campaign widget ── */
+.dash-campaign {
+  background: var(--bg-raised);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px;
+  padding: 1.1rem 1.25rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.dash-campaign:hover {
+  border-color: var(--violet-500);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+}
+
+.dash-campaign__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.dash-campaign__level {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.dash-campaign__level-num {
+  font-family: 'Cormorant Garamond', var(--font-display, serif), Georgia, serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.dash-campaign__level-sub {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.dash-campaign__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.9rem;
+  background: rgba(114, 82, 232, 0.12);
+  border: 1px solid rgba(114, 82, 232, 0.3);
+  border-radius: 6px;
+  color: var(--violet-300);
+  font-size: 0.78rem;
+  font-weight: 600;
+  font-family: var(--font-body);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.18s ease;
+}
+.dash-campaign__cta:hover { background: rgba(114, 82, 232, 0.22); }
+
+.dash-campaign__bar {
+  height: 5px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.dash-campaign__bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--violet-600, #7c3aed), var(--violet-400, #a78bfa));
+  border-radius: 3px;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dash-campaign__pct {
+  font-size: 0.62rem;
+  color: var(--text-faint);
+  letter-spacing: 0.04em;
+}
+
 /* ── Achievement sidebar ── */
 .dash-ach-tab {
   position: fixed;

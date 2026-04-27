@@ -8,6 +8,7 @@ import { supabase } from '../lib/supabase'
 import { characters } from '../data/characters'
 import { pickByDay, shuffleByDay } from '../utils/daily'
 import { loadSession, clearSession, timeAgo, hoursUntilMidnight } from '../utils/session'
+import { getMissionProgress } from '../utils/missionProgress'
 import { FEATURED_LIST } from '../data/featured'
 import { ROUTES } from '../utils/constants'
 import DailyChallenge from '../components/DailyChallenge/DailyChallenge'
@@ -103,6 +104,7 @@ export default function DashboardPage() {
   const [activeSession, setActiveSession] = useState(() => loadSession())
   const [communityChars, setCommunityChars] = useState([])
   const [affinityStats, setAffinityStats] = useState({ chars: 0, messages: 0 })
+  const [mission, setMission] = useState(() => getMissionProgress())
 
   const featured = pickByDay(FEATURED_LIST)
   const featuredChar = characters.find(c => c.id === featured?.characterId)
@@ -142,6 +144,16 @@ export default function DashboardPage() {
       .then(({ data }) => { if (data) setCommunityChars(data) })
       .catch(() => {})
   }, [])
+
+  useEffect(() => {
+    if (!session?.access_token) return
+    fetch(`${API_URL}/db/mission-progress`, {
+      headers: { Authorization: `Bearer ${session.access_token}` }
+    })
+      .then(r => r.json())
+      .then(data => { if (data?.highestUnlocked) setMission(data) })
+      .catch(() => {})
+  }, [session])
 
   useEffect(() => {
     if (!session?.access_token) return
@@ -371,6 +383,39 @@ export default function DashboardPage() {
             </div>
             <DailyChallenge />
           </section>
+
+          {/* ── CAMPAÑA ── */}
+          {mission.highestUnlocked > 1 && (() => {
+            const level = mission.highestUnlocked - 1
+            const completed = Object.keys(mission.completedLevels || {}).length
+            const pct = Math.min((completed / 30) * 100, 100)
+            return (
+              <section className="dash-section">
+                <div className="dash-section-header">
+                  <span className="dash-eyebrow">Campaña <span className="dash-eyebrow__rule" /></span>
+                  <h2 className="dash-section-title">Tu progreso<br /><em>hasta ahora.</em></h2>
+                </div>
+                <div className="dash-campaign" onClick={() => navigate('/mission')} role="button" tabIndex={0}>
+                  <div className="dash-campaign__top">
+                    <div className="dash-campaign__level">
+                      <span className="dash-campaign__level-num">Nivel {level}</span>
+                      <span className="dash-campaign__level-sub">{completed} de 30 completados</span>
+                    </div>
+                    <button className="dash-campaign__cta" onClick={e => { e.stopPropagation(); navigate('/mission') }}>
+                      Continuar
+                      <svg width="11" height="11" viewBox="0 0 16 16" fill="none">
+                        <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </button>
+                  </div>
+                  <div className="dash-campaign__bar">
+                    <div className="dash-campaign__bar-fill" style={{ width: `${pct}%` }} />
+                  </div>
+                  <span className="dash-campaign__pct">{Math.round(pct)}% completado</span>
+                </div>
+              </section>
+            )
+          })()}
 
           {/* ── MODOS ── */}
           <section className="dash-section">
