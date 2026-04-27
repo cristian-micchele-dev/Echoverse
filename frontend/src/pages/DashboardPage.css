@@ -270,8 +270,10 @@
 }
 
 .dash-stat__icon {
-  font-size: 1.1rem;
-  line-height: 1;
+  width: 18px;
+  height: 18px;
+  color: var(--violet-400);
+  flex-shrink: 0;
 }
 
 .dash-stat__value {
