@@ -217,18 +217,42 @@ export default function DashboardPage() {
   useEffect(() => {
     if (typeof window === 'undefined' || window.innerWidth > 768) return
     const timers = []
-    const nudge = (ref, delay) => {
+
+    function easeInOut(t) {
+      return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t
+    }
+
+    function animateScrollLeft(el, from, to, duration, onDone) {
+      const start = performance.now()
+      function step(now) {
+        const progress = Math.min((now - start) / duration, 1)
+        el.scrollLeft = from + (to - from) * easeInOut(progress)
+        if (progress < 1) requestAnimationFrame(step)
+        else onDone?.()
+      }
+      requestAnimationFrame(step)
+    }
+
+    const nudge = (ref, delay, duration) => {
       const t = setTimeout(() => {
         const el = ref.current
         if (!el || el.scrollWidth <= el.clientWidth) return
-        el.scrollTo({ left: 48, behavior: 'smooth' })
-        const t2 = setTimeout(() => el.scrollTo({ left: 0, behavior: 'smooth' }), 600)
-        timers.push(t2)
+        const target = el.scrollWidth - el.clientWidth
+        el.style.scrollSnapType = 'none'
+        animateScrollLeft(el, 0, target, duration, () => {
+          const t2 = setTimeout(() => {
+            animateScrollLeft(el, el.scrollLeft, 0, 600, () => {
+              el.style.scrollSnapType = ''
+            })
+          }, 400)
+          timers.push(t2)
+        })
       }, delay)
       timers.push(t)
     }
-    nudge(modesRef, 900)
-    nudge(popularRef, 1100)
+
+    nudge(modesRef, 900, 25000)
+    nudge(popularRef, 1300, 14000)
     return () => timers.forEach(clearTimeout)
   }, [])
 
