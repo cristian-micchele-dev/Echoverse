@@ -936,17 +936,38 @@
 /* ─── Mobile responsive ───────────────────────────── */
 @media (max-width: 480px) {
   .chat-header {
-    padding: 0.75rem 1rem;
-    gap: 0.6rem;
+    padding: 0.6rem 0.75rem;
+    gap: 0.5rem;
   }
 
+  /* Botones laterales — solo icono, sin texto */
   .back-btn span { display: none; }
   .back-btn { padding: 0.4rem 0.5rem; }
 
-  .chat-header__status span:last-child { display: none; }
+  /* Cambiar personaje — no esencial en mobile, accessible desde atrás */
+  .change-char-btn { display: none; }
 
-  .chat-header__name { font-size: 0.85rem; }
+  /* Avatar — más chico */
+  .chat-header__avatar {
+    width: 32px;
+    height: 32px;
+  }
+
+  /* Nombre — truncar en vez de desbordar */
+  .chat-header__name {
+    font-size: 0.82rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 130px;
+  }
+
   .chat-header__universe { display: none; }
+  .chat-header__affinity { display: none; }
+
+  /* Status — solo el punto, sin texto */
+  .chat-header__status span { display: none; }
+  .chat-header__status .status-dot { display: block; }
 
   .messages-container { padding: 1rem 0.75rem; }
 
