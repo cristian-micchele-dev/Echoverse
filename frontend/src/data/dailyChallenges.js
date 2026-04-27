@@ -61,5 +61,5 @@ export const challenges = RAW_CHALLENGES.map(c => ({
 
 export function getTodayChallenge() {
   const daysSinceEpoch = Math.floor(Date.now() / 86_400_000)
-  return challenges[daysSinceEpoch % challenges.length]
+  return challenges[(daysSinceEpoch + 2) % challenges.length]
 }
