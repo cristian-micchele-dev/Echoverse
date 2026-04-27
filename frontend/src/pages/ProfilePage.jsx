@@ -545,6 +545,14 @@ export default function ProfilePage() {
           </>
         )}
       </div>
+
+      <footer className="pp-legal-footer">
+        <a href="/terms" className="pp-legal-footer__link">Términos</a>
+        <span className="pp-legal-footer__sep">·</span>
+        <a href="/privacy" className="pp-legal-footer__link">Privacidad</a>
+        <span className="pp-legal-footer__sep">·</span>
+        <span className="pp-legal-footer__copy">© 2026 EchoVerse</span>
+      </footer>
     </div>
   )
 }

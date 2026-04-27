@@ -664,6 +664,16 @@ export default function DashboardPage() {
           )}
 
         </div>
+
+        {/* ── FOOTER LEGAL ── */}
+        <footer className="dash-legal-footer">
+          <a href="/terms" className="dash-legal-footer__link">Términos</a>
+          <span className="dash-legal-footer__sep">·</span>
+          <a href="/privacy" className="dash-legal-footer__link">Privacidad</a>
+          <span className="dash-legal-footer__sep">·</span>
+          <span className="dash-legal-footer__copy">© 2026 EchoVerse</span>
+        </footer>
+
       </div>
 
     </>

@@ -1466,3 +1466,29 @@
   }
   .dash-mode-card__thumb { height: 100px; }
 }
+
+/* ── Footer legal ── */
+.dash-legal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 2rem 1rem 3rem;
+  margin-top: 1rem;
+}
+.dash-legal-footer__link {
+  font-size: 0.72rem;
+  color: var(--text-faint);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.dash-legal-footer__link:hover { color: var(--text-muted); }
+.dash-legal-footer__sep {
+  font-size: 0.65rem;
+  color: var(--text-faint);
+  opacity: 0.4;
+}
+.dash-legal-footer__copy {
+  font-size: 0.72rem;
+  color: var(--text-faint);
+}

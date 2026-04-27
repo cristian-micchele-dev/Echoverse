@@ -808,3 +808,29 @@
   .pp-chars { grid-template-columns: repeat(2, 1fr); }
   .pp-mission__top { flex-direction: column; }
 }
+
+/* ── Footer legal ── */
+.pp-legal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 2rem 1rem 3rem;
+  margin-top: 1rem;
+}
+.pp-legal-footer__link {
+  font-size: 0.72rem;
+  color: var(--text-faint);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.pp-legal-footer__link:hover { color: var(--text-muted); }
+.pp-legal-footer__sep {
+  font-size: 0.65rem;
+  color: var(--text-faint);
+  opacity: 0.4;
+}
+.pp-legal-footer__copy {
+  font-size: 0.72rem;
+  color: var(--text-faint);
+}
