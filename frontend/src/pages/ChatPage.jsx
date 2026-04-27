@@ -659,17 +659,13 @@ export default function ChatPage() {
             <div className="next-modes">
               <p className="next-modes__title">¿Qué hacés ahora?</p>
               <div className="next-modes__cards">
-                <button className="next-modes__card" onClick={() => navigate(ROUTES.CONFESIONARIO)}>
-                  <span className="next-modes__card-name">Confesionario</span>
-                  <span className="next-modes__card-desc">¿Qué piensa {character.name} de vos?</span>
+                <button className="next-modes__card" onClick={() => navigate(ROUTES.DASHBOARD)}>
+                  <span className="next-modes__card-name">Dashboard</span>
+                  <span className="next-modes__card-desc">Explorá más modos</span>
                 </button>
-                <button className="next-modes__card" onClick={() => navigate(ROUTES.STORY)}>
-                  <span className="next-modes__card-name">Historia</span>
-                  <span className="next-modes__card-desc">Una aventura con {character.name}</span>
-                </button>
-                <button className="next-modes__card" onClick={() => navigate(ROUTES.BATTLE)}>
-                  <span className="next-modes__card-name">Batalla</span>
-                  <span className="next-modes__card-desc">{character.name} vs. otro personaje</span>
+                <button className="next-modes__card" onClick={() => navigate(ROUTES.MODOS)}>
+                  <span className="next-modes__card-name">Modos</span>
+                  <span className="next-modes__card-desc">Elegí tu próximo desafío</span>
                 </button>
               </div>
             </div>
