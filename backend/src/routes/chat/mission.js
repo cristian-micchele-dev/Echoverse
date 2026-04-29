@@ -190,7 +190,9 @@ Scene: ${narrative.trim()}`
       temperature: 0.8,
     })
 
-    res.json({ imagePrompt: imagePrompt.trim() })
+    const clean = imagePrompt.trim().replace(/^["']|["']$/g, '')
+    const truncated = clean.length > 180 ? clean.slice(0, 180) + '...' : clean
+    res.json({ imagePrompt: truncated })
   } catch (error) {
     console.error('Error /mission/image-prompt:', error.message)
     // Fallback: simple deterministic prompt

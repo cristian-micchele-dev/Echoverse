@@ -190,6 +190,7 @@ export default function MissionPage() {
   const [vidaFlash, setVidaFlash] = useState(null) // 'hit' | 'heal' | null
   const [missionResult, setMissionResult] = useState(null) // 'win' | 'lose' | null
   const [sceneImage, setSceneImage] = useState(null)
+  const [imageError, setImageError] = useState(false)
   const [pendingStats,  setPendingStats]  = useState(null)
   const [muted, setMuted] = useState(false)
   const [victoryDismissed, setVictoryDismissed] = useState(false)
@@ -339,6 +340,7 @@ export default function MissionPage() {
     setCurrentEffects(null)
     setFetchError(false)
     setSceneImage(null)
+    setImageError(false)
     let fullText = ''
 
     try {
@@ -987,9 +989,14 @@ export default function MissionPage() {
           {missionTitle && (
             <div className="mission-title-badge">{missionTitle}</div>
           )}
-          {sceneImage && (
+          {sceneImage && !imageError && (
             <div className="mission-scene-image">
-              <img src={sceneImage} alt="Escena de la misión" loading="lazy" />
+              <img
+                src={sceneImage}
+                alt="Escena de la misión"
+                loading="lazy"
+                onError={() => setImageError(true)}
+              />
             </div>
           )}
           {!isEnded && (
