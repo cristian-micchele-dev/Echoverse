@@ -189,6 +189,7 @@ export default function MissionPage() {
   const [choiceFeedback, setChoiceFeedback] = useState(null) // { text, vida, riesgo, sigilo }
   const [vidaFlash, setVidaFlash] = useState(null) // 'hit' | 'heal' | null
   const [missionResult, setMissionResult] = useState(null) // 'win' | 'lose' | null
+  const [sceneImage, setSceneImage] = useState(null)
   const [pendingStats,  setPendingStats]  = useState(null)
   const [muted, setMuted] = useState(false)
   const [victoryDismissed, setVictoryDismissed] = useState(false)
@@ -337,6 +338,7 @@ export default function MissionPage() {
     setChoices([])
     setCurrentEffects(null)
     setFetchError(false)
+    setSceneImage(null)
     let fullText = ''
 
     try {
@@ -370,6 +372,24 @@ export default function MissionPage() {
         setCurrentText(narrative)
         if (effects) setCurrentEffects(effects)
         if (!finalResult) setChoices(parsed)
+
+        // Generar imagen de la escena con Pollinations.ai
+        if (narrative && !finalResult) {
+          try {
+            const imgRes = await fetch(`${API_URL}/mission/image-prompt`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ narrative, characterId: char.id })
+            })
+            const imgData = await imgRes.json()
+            if (imgData.imagePrompt) {
+              const encoded = encodeURIComponent(imgData.imagePrompt)
+              setSceneImage(`https://image.pollinations.ai/prompt/${encoded}?width=1024&height=576&seed=${Date.now()}&nologo=true`)
+            }
+          } catch {
+            // silencioso — la imagen es opcional
+          }
+        }
       }
     } catch {
       setFetchError(true)
@@ -966,6 +986,11 @@ export default function MissionPage() {
           )}
           {missionTitle && (
             <div className="mission-title-badge">{missionTitle}</div>
+          )}
+          {sceneImage && (
+            <div className="mission-scene-image">
+              <img src={sceneImage} alt="Escena de la misión" loading="lazy" />
+            </div>
           )}
           {!isEnded && (
             <div className="mission-turn-badge">

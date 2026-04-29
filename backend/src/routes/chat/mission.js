@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { characters } from '../../data/characters.js'
-import { streamMistral, withSseStream } from '../../utils/mistral.js'
+import { streamMistral, withSseStream, callMistral } from '../../utils/mistral.js'
 import { MISSION_MAX_RECENT } from '../../config/constants.js'
 
 const router = Router()
@@ -153,6 +153,50 @@ ${EFECTOS_NOTE[difficulty] || EFECTOS_NOTE.normal}`
     logPrefix: 'Error Mistral /mission',
     errorMessage: 'Error al generar misión',
   })
+})
+
+// ─── POST /api/mission/image-prompt ─────────────────────────────────────────
+// Genera un prompt visual en inglés para Pollinations.ai a partir del narrative
+
+router.post('/mission/image-prompt', async (req, res) => {
+  const { narrative, characterId } = req.body
+  const character = characters[characterId]
+
+  if (!narrative || typeof narrative !== 'string') {
+    return res.status(400).json({ error: 'narrative requerido' })
+  }
+
+  const systemPrompt = `You are an expert image-generation prompt engineer. Your job is to convert a scene description into a concise, vivid English prompt for an AI image generator (Pollinations.ai).
+
+Rules:
+- Max 30 words
+- Cinematic, dramatic, dark atmosphere style
+- Include the character and the environment
+- No text, no UI elements, no watermark
+- English only
+
+Respond with ONLY the prompt. No quotes, no explanation.`
+
+  const userContent = `Character: ${character?.name || characterId}
+Scene: ${narrative.trim()}`
+
+  try {
+    const imagePrompt = await callMistral({
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userContent }
+      ],
+      maxTokens: 120,
+      temperature: 0.8,
+    })
+
+    res.json({ imagePrompt: imagePrompt.trim() })
+  } catch (error) {
+    console.error('Error /mission/image-prompt:', error.message)
+    // Fallback: simple deterministic prompt
+    const fallback = `cinematic scene, ${character?.name || characterId}, ${narrative.slice(0, 60)}, dark atmosphere, dramatic lighting, movie still`
+    res.json({ imagePrompt: fallback })
+  }
 })
 
 export default router
