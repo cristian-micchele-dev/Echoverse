@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { characters } from '../../data/characters.js'
 import { buildSceneSystemPrompt } from '../../utils/ultimaCenaSceneBuilder.js'
-import { initSseResponse, sendSseError, streamMistral } from '../../utils/mistral.js'
+import { streamMistral, withSseStream } from '../../utils/mistral.js'
 import { SCENE_MAX_TOKENS } from '../../config/constants.js'
 
 const router = Router()
@@ -23,20 +23,16 @@ router.post('/ultima-cena/scene', async (req, res) => {
     return { name: name || id, systemPrompt: `Sos ${name || id}, un personaje icónico. Respondé siempre en español.` }
   })
 
-  initSseResponse(res)
-
   const temaLine = tema ? `\nCONTEXTO DE LA REUNIÓN: ${tema}` : ''
   const triggerType = isEvento ? 'EVENTO QUE IRRUMPE EN LA MESA' : 'SITUACIÓN'
   const dialogueLine = dialogueRules ? `\nTONO Y ESTILO ESPECÍFICO: ${dialogueRules}` : ''
 
   const systemPrompt = buildSceneSystemPrompt({ resolvedChars, temaLine, dialogueLine, triggerType })
 
-  try {
-    await streamMistral(res, systemPrompt, [{ role: 'user', content: trigger }], SCENE_MAX_TOKENS)
-  } catch (error) {
-    console.error('Error /ultima-cena/scene:', error.message)
-    sendSseError(res, 'Error al generar la escena')
-  }
+  await withSseStream(res, () => streamMistral(res, systemPrompt, [{ role: 'user', content: trigger }], SCENE_MAX_TOKENS), {
+    logPrefix: 'Error /ultima-cena/scene',
+    errorMessage: 'Error al generar la escena',
+  })
 })
 
 export default router

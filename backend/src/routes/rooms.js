@@ -1,16 +1,11 @@
 import { Router } from 'express'
-import OpenAI from 'openai'
 import { supabase } from '../config/supabase.js'
 import { characters } from '../data/characters.js'
 import { BASE_PROMPT } from '../data/prompts.js'
 import { requireAuth, requireAdmin } from '../middleware/auth.js'
+import { streamMistralGenerator } from '../utils/mistral.js'
 
 const router = Router()
-
-const mistral = new OpenAI({
-  apiKey: process.env.MISTRAL_API_KEY,
-  baseURL: 'https://api.mistral.ai/v1'
-})
 
 // Convierte 'john-wick' → 'John Wick' para usarlo como username del personaje
 function charIdToName(id) {
@@ -203,26 +198,13 @@ async function streamToRoom(roomId, character, latestContent = '', participants 
   const timeoutId = setTimeout(() => controller.abort(), 45000)
 
   try {
-    const stream = await mistral.chat.completions.create(
-      {
-        model: 'mistral-small-latest',
-        messages: [{ role: 'system', content: systemPrompt }, ...context],
-        stream: true,
-        max_tokens: MAX_ROOM_TOKENS,
-      },
-      { signal: controller.signal }
-    )
-
-    for await (const chunk of stream) {
-      const text = chunk.choices[0]?.delta?.content || ''
-      if (text) {
-        fullContent += text
-        channel.send({
-          type: 'broadcast',
-          event: 'ai_chunk',
-          payload: { content: text }
-        })
-      }
+    for await (const text of streamMistralGenerator(systemPrompt, context, MAX_ROOM_TOKENS, controller.signal)) {
+      fullContent += text
+      channel.send({
+        type: 'broadcast',
+        event: 'ai_chunk',
+        payload: { content: text }
+      })
     }
   } finally {
     clearTimeout(timeoutId)

@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { requireAuth } from '../../middleware/auth.js'
-import { initSseResponse, sendSseError, streamMistral } from '../../utils/mistral.js'
+import { streamMistral, withSseStream } from '../../utils/mistral.js'
 import { MAX_HISTORY } from '../../config/constants.js'
 
 const router = Router()
@@ -18,14 +18,10 @@ router.post('/chat/custom', requireAuth, async (req, res) => {
     content: typeof m.content === 'string' ? m.content.slice(0, 1000) : '',
   }))
 
-  initSseResponse(res)
-
-  try {
-    await streamMistral(res, systemPrompt, messages, 512)
-  } catch (error) {
-    console.error('Error Mistral /chat/custom:', error.message)
-    sendSseError(res, 'Error al contactar la IA')
-  }
+  await withSseStream(res, () => streamMistral(res, systemPrompt, messages, 512), {
+    logPrefix: 'Error Mistral /chat/custom',
+    errorMessage: 'Error al contactar la IA',
+  })
 })
 
 export default router

@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { characters } from '../../data/characters.js'
-import { initSseResponse, sendSseError, streamMistral } from '../../utils/mistral.js'
+import { streamMistral, withSseStream } from '../../utils/mistral.js'
 import { MISSION_MAX_RECENT } from '../../config/constants.js'
 
 const router = Router()
@@ -89,8 +89,6 @@ router.post('/mission', async (req, res) => {
   const character = characters[characterId]
   if (!character) return res.status(404).json({ error: 'Personaje no encontrado' })
 
-  initSseResponse(res)
-
   const isFinal = history.length >= 5 || !!finalResult
   const recentHistory = history.slice(-MISSION_MAX_RECENT)
 
@@ -151,12 +149,10 @@ ${EFECTOS_NOTE[difficulty] || EFECTOS_NOTE.normal}`
 
   const messages = buildMissionMessages({ history, recentHistory, alias, isFinal, difficulty })
 
-  try {
-    await streamMistral(res, missionSystemPrompt, messages, isFinal ? 450 : 480)
-  } catch (error) {
-    console.error('Error Mistral /mission:', error.message)
-    sendSseError(res, 'Error al generar misión')
-  }
+  await withSseStream(res, () => streamMistral(res, missionSystemPrompt, messages, isFinal ? 450 : 480), {
+    logPrefix: 'Error Mistral /mission',
+    errorMessage: 'Error al generar misión',
+  })
 })
 
 export default router

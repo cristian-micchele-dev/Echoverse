@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { mistral } from '../utils/mistral.js'
+import { callMistral } from '../utils/mistral.js'
 import { characters } from '../data/characters.js'
 
 const router = Router()
@@ -60,17 +60,14 @@ router.get('/daily-quote', async (req, res) => {
     const character = characters[characterId]
     if (!character) return res.status(500).json({ error: 'Personaje no encontrado' })
 
-    const completion = await mistral.chat.completions.create({
-      model: 'mistral-small-latest',
+    const quote = await callMistral({
       messages: [
         { role: 'system', content: character.systemPrompt },
         { role: 'user', content: 'Di una frase tuya memorable. Solo la frase, sin comillas ni explicaciones. Máximo 2 oraciones cortas. En español.' }
       ],
-      max_tokens: 100,
+      maxTokens: 100,
       temperature: 0.9,
-    })
-
-    const quote = completion.choices[0]?.message?.content?.trim() || FALLBACK_QUOTES[characterId]
+    }) || FALLBACK_QUOTES[characterId]
     const data = { quote, characterId }
     cache = { date: today, data }
     res.json(data)

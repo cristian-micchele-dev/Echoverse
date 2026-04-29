@@ -1,12 +1,8 @@
 import { Router } from 'express'
-import OpenAI from 'openai'
 import { characters } from '../data/characters.js'
+import { callMistral } from '../utils/mistral.js'
 
 const router = Router()
-const mistral = new OpenAI({
-  apiKey: process.env.MISTRAL_API_KEY,
-  baseURL: 'https://api.mistral.ai/v1'
-})
 
 // ── In-memory sessions (MVP — resets on server restart) ───────────────────
 const sessions = new Map()
@@ -202,13 +198,11 @@ Dá una declaración inicial de 2 oraciones MÁXIMO:
 En tu voz. Español rioplatense. Nada de JSON — solo el texto.`
 
   try {
-    const completion = await mistral.chat.completions.create({
-      model:       'mistral-small-latest',
+    const openingStatement = await callMistral({
       messages:    [{ role: 'user', content: openingPrompt }],
-      max_tokens:  120,
+      maxTokens:   120,
       temperature: 0.85,
     })
-    const openingStatement = completion.choices[0]?.message?.content?.trim() ?? ''
     res.json({ sessionId, openingStatement })
   } catch (err) {
     console.error('Interrogation start error:', err.message)
@@ -235,13 +229,11 @@ router.post('/interrogation/ask', async (req, res) => {
   messages.push({ role: 'user', content: question })
 
   try {
-    const completion = await mistral.chat.completions.create({
-      model:       'mistral-small-latest',
+    const raw = await callMistral({
       messages:    [{ role: 'system', content: systemPrompt }, ...messages],
-      max_tokens:  200,
+      maxTokens:   200,
       temperature: 0.9,
     })
-    const raw    = completion.choices[0]?.message?.content?.trim() ?? ''
     const parsed = parseAIResponse(raw)
 
     // Store in session (hiddenClue never sent to client during game)
@@ -324,13 +316,11 @@ Escribí DOS cosas separadas por "|||":
 Español rioplatense. Solo el texto, separado por "|||".`
 
   try {
-    const completion = await mistral.chat.completions.create({
-      model:       'mistral-small-latest',
+    const raw = await callMistral({
       messages:    [{ role: 'user', content: revealPrompt }],
-      max_tokens:  150,
+      maxTokens:   150,
       temperature: 0.85,
     })
-    const raw   = completion.choices[0]?.message?.content?.trim() ?? ''
     const parts = raw.split('|||')
     const revealText  = parts[0]?.trim() ?? ''
     const closingLine = parts[1]?.trim() ?? ''

@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { characters } from '../../data/characters.js'
 import { FIGHT_ROUND_SYSTEM_PROMPT } from '../../data/prompts.js'
-import { initSseResponse, sendSseError, streamMistral } from '../../utils/mistral.js'
+import { streamMistral, withSseStream } from '../../utils/mistral.js'
 
 const router = Router()
 
@@ -10,8 +10,6 @@ router.post('/fight/round', async (req, res) => {
   const playerChar = characters[playerCharId]
   const enemyChar = characters[enemyCharId]
   if (!playerChar || !enemyChar) return res.status(404).json({ error: 'Personaje no encontrado' })
-
-  initSseResponse(res)
 
   const isFinal = round >= totalRounds || playerHP <= 0 || enemyHP <= 0
 
@@ -39,12 +37,10 @@ Exactamente 3 movimientos para ${playerChar.name}:
 [B] movimiento corto
 [C] movimiento corto`
 
-  try {
-    await streamMistral(res, FIGHT_ROUND_SYSTEM_PROMPT, [{ role: 'user', content: userMessage }], isFinal ? 300 : 250)
-  } catch (error) {
-    console.error('Error Mistral /fight/round:', error.message)
-    sendSseError(res, 'Error al generar combate')
-  }
+  await withSseStream(res, () => streamMistral(res, FIGHT_ROUND_SYSTEM_PROMPT, [{ role: 'user', content: userMessage }], isFinal ? 300 : 250), {
+    logPrefix: 'Error Mistral /fight/round',
+    errorMessage: 'Error al generar combate',
+  })
 })
 
 export default router

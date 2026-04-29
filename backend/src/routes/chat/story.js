@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { characters } from '../../data/characters.js'
-import { initSseResponse, sendSseError, streamMistral } from '../../utils/mistral.js'
+import { streamMistral, withSseStream } from '../../utils/mistral.js'
 import { STORY_MAX_RECENT } from '../../config/constants.js'
 
 const router = Router()
@@ -70,18 +70,14 @@ router.post('/story', async (req, res) => {
   if (scenarioPrompt.length > 500) return res.status(400).json({ error: 'scenarioPrompt demasiado largo (máx. 500)' })
   if (!Array.isArray(history)) return res.status(400).json({ error: 'history debe ser un array' })
 
-  initSseResponse(res)
-
   const isFinal = history.length >= 5
   const storySystemPrompt = buildStorySystemPrompt(character.systemPrompt, isFinal, history.length + 1)
   const messages = buildStoryMessages(scenarioPrompt, history, isFinal)
 
-  try {
-    await streamMistral(res, storySystemPrompt, messages, isFinal ? 1000 : 900)
-  } catch (error) {
-    console.error('Error Mistral /story:', error.message)
-    sendSseError(res, 'Error al generar historia')
-  }
+  await withSseStream(res, () => streamMistral(res, storySystemPrompt, messages, isFinal ? 1000 : 900), {
+    logPrefix: 'Error Mistral /story',
+    errorMessage: 'Error al generar historia',
+  })
 })
 
 export default router

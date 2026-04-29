@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { characters } from '../../data/characters.js'
 import { SWIPE_CARDS_SUFFIX } from '../../data/prompts.js'
-import { mistral, initSseResponse, sendSseError, streamMistral } from '../../utils/mistral.js'
+import { callMistral, streamMistral, withSseStream } from '../../utils/mistral.js'
 
 const router = Router()
 
@@ -13,16 +13,14 @@ router.post('/swipe/cards', async (req, res) => {
   const systemPrompt = `${character.systemPrompt}${SWIPE_CARDS_SUFFIX}`
 
   try {
-    const completion = await mistral.chat.completions.create({
-      model: 'mistral-large-latest',
+    const text = await callMistral({
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: 'Generá las 10 afirmaciones.' }
       ],
-      stream: false,
-      max_tokens: 900
+      maxTokens: 900,
+      model: 'mistral-large-latest',
     })
-    const text = completion.choices[0].message.content
     const jsonMatch = text.match(/\[[\s\S]*\]/)
     if (!jsonMatch) throw new Error('No JSON')
     const cards = JSON.parse(jsonMatch[0])
@@ -38,20 +36,16 @@ router.post('/swipe/result', async (req, res) => {
   const character = characters[characterId]
   if (!character) return res.status(404).json({ error: 'Personaje no encontrado' })
 
-  initSseResponse(res)
-
   const systemPrompt = `${character.systemPrompt}
 
 El jugador acaba de responder un quiz de verdad/mentira sobre tu universo. Sacó ${score} de ${total} preguntas correctas.
 Reaccioná en tu voz característica: 2-3 oraciones. Si sacó mucho (8-10): impresionado o retador. Si sacó poco (0-4): burlón o decepcionado. Si sacó regular (5-7): neutro pero con tu sarcasmo habitual.
 Respondé en español, sin saludos, directo.`
 
-  try {
-    await streamMistral(res, systemPrompt, [{ role: 'user', content: `Saqué ${score}/${total}. ¿Qué opinás?` }], 200)
-  } catch (error) {
-    console.error('Error Mistral /swipe/result:', error.message)
-    sendSseError(res, 'Error al generar resultado')
-  }
+  await withSseStream(res, () => streamMistral(res, systemPrompt, [{ role: 'user', content: `Saqué ${score}/${total}. ¿Qué opinás?` }], 200), {
+    logPrefix: 'Error Mistral /swipe/result',
+    errorMessage: 'Error al generar resultado',
+  })
 })
 
 export default router

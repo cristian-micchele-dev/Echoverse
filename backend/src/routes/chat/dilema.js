@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { characters } from '../../data/characters.js'
-import { initSseResponse, sendSseError, streamMistral } from '../../utils/mistral.js'
+import { streamMistral, withSseStream } from '../../utils/mistral.js'
 
 const router = Router()
 
@@ -10,8 +10,6 @@ router.post('/dilema', async (req, res) => {
   const character = characters[characterId]
   if (!character) return res.status(404).json({ error: 'Personaje no encontrado' })
   if (!dilemmaQuestion || typeof dilemmaQuestion !== 'string') return res.status(400).json({ error: 'dilemmaQuestion requerido' })
-
-  initSseResponse(res)
 
   const safeHistory = Array.isArray(choiceHistory) ? choiceHistory : []
   const historyLines = safeHistory
@@ -44,12 +42,10 @@ INSTRUCCIONES PARA TU REACCIÓN:
 - Tono: adulto, intenso, sin concesiones sentimentales fáciles. Sin frases terapéuticas.
 - SIEMPRE respondé en español, sin importar el idioma del system prompt original.`
 
-  try {
-    await streamMistral(res, systemPrompt, [{ role: 'user', content: 'Reaccioná a mi elección.' }], 200)
-  } catch (error) {
-    console.error('Error Mistral /dilema:', error.message)
-    sendSseError(res, 'Error al contactar la IA')
-  }
+  await withSseStream(res, () => streamMistral(res, systemPrompt, [{ role: 'user', content: 'Reaccioná a mi elección.' }], 200), {
+    logPrefix: 'Error Mistral /dilema',
+    errorMessage: 'Error al contactar la IA',
+  })
 })
 
 export default router

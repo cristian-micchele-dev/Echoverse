@@ -58,13 +58,16 @@ function getGreeting() {
 }
 
 function useCountUp(target, active = true, duration = 900) {
-  const [value, setValue] = useState(0)
+  const [value, setValue] = useState(target)
   useEffect(() => {
     if (!active) return
-    if (target === 0) { setValue(0); return }
     let start = null
     let raf
     const step = (timestamp) => {
+      if (target === 0) {
+        setValue(0)
+        return
+      }
       if (!start) start = timestamp
       const progress = Math.min((timestamp - start) / duration, 1)
       const eased = 1 - Math.pow(1 - progress, 3)
@@ -129,7 +132,7 @@ export default function DashboardPage() {
     if (activeSession && sessionChar) return `↩ Retomando con ${sessionChar.name}`
     if (affinityStats.chars > 0) return `${affinityStats.chars} personajes en tu universo`
     return null
-  }, [fetchingStats, streak.current, activeSession, sessionChar, affinityStats.chars])
+  }, [fetchingStats, streak, activeSession, sessionChar, affinityStats.chars])
 
   const streakDisplay   = useCountUp(streak.current,       visible)
   const charsDisplay    = useCountUp(affinityStats.chars,   visible)
