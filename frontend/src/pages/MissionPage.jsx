@@ -375,7 +375,7 @@ export default function MissionPage() {
         if (effects) setCurrentEffects(effects)
         if (!finalResult) setChoices(parsed)
 
-        // Generar imagen de la escena con Pollinations.ai
+        // Generar imagen de la escena con Pollinations.ai (precarga para evitar cuadrado vacío)
         if (narrative && !finalResult) {
           try {
             const imgRes = await fetch(`${API_URL}/mission/image-prompt`, {
@@ -386,7 +386,11 @@ export default function MissionPage() {
             const imgData = await imgRes.json()
             if (imgData.imagePrompt) {
               const encoded = encodeURIComponent(imgData.imagePrompt)
-              setSceneImage(`https://image.pollinations.ai/prompt/${encoded}?width=1024&height=576&seed=${Date.now()}&nologo=true`)
+              const imageUrl = `https://image.pollinations.ai/prompt/${encoded}?width=1024&height=576&seed=${Date.now()}&nologo=true`
+              const img = new Image()
+              img.onload = () => setSceneImage(imageUrl)
+              img.onerror = () => setImageError(true)
+              img.src = imageUrl
             }
           } catch {
             // silencioso — la imagen es opcional
