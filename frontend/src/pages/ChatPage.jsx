@@ -8,7 +8,7 @@ import { saveSession } from '../utils/session'
 import { chatHistoryKey, MAX_STORED_MESSAGES, ROUTES } from '../utils/constants'
 import './ChatPage.css'
 import { API_URL } from '../config/api.js'
-import { getAffinityData, getAffinityLevel, getAffinityLabel, getAffinityEmoji, getUserRankName, isRankSufficient } from '../utils/affinity'
+import { getAffinityData, getAffinityLevel, getUserRankName, isRankSufficient } from '../utils/affinity'
 import { useAuth } from '../context/AuthContext'
 import { useAchievements } from '../hooks/useAchievements'
 import { useStreaming } from '../hooks/useStreaming'
@@ -17,96 +17,11 @@ import AchievementToast from '../components/AchievementToast/AchievementToast'
 import ShareModal from '../components/ShareModal/ShareModal'
 import VerdictBubble from '../components/VerdictBubble/VerdictBubble'
 import { supabase } from '../lib/supabase'
-
-function playNotificationSound(tone) {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)()
-    const osc = ctx.createOscillator()
-    const gain = ctx.createGain()
-    osc.connect(gain)
-    gain.connect(ctx.destination)
-
-    switch (tone) {
-      case 'dark':
-        osc.type = 'sine'
-        osc.frequency.setValueAtTime(160, ctx.currentTime)
-        osc.frequency.exponentialRampToValueAtTime(110, ctx.currentTime + 0.35)
-        break
-      case 'mystical':
-        osc.type = 'sine'
-        osc.frequency.setValueAtTime(528, ctx.currentTime)
-        osc.frequency.exponentialRampToValueAtTime(660, ctx.currentTime + 0.2)
-        osc.frequency.exponentialRampToValueAtTime(528, ctx.currentTime + 0.4)
-        break
-      case 'glitch':
-        osc.type = 'square'
-        osc.frequency.setValueAtTime(300, ctx.currentTime)
-        osc.frequency.setValueAtTime(900, ctx.currentTime + 0.05)
-        osc.frequency.setValueAtTime(200, ctx.currentTime + 0.1)
-        osc.frequency.setValueAtTime(600, ctx.currentTime + 0.15)
-        break
-      case 'viking':
-        osc.type = 'sawtooth'
-        osc.frequency.setValueAtTime(220, ctx.currentTime)
-        osc.frequency.exponentialRampToValueAtTime(330, ctx.currentTime + 0.25)
-        break
-      default:
-        osc.type = 'sine'
-        osc.frequency.setValueAtTime(440, ctx.currentTime)
-        osc.frequency.exponentialRampToValueAtTime(560, ctx.currentTime + 0.15)
-    }
-
-    gain.gain.setValueAtTime(0.06, ctx.currentTime)
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.45)
-    osc.start(ctx.currentTime)
-    osc.stop(ctx.currentTime + 0.45)
-    osc.onended = () => ctx.close()
-  } catch { /* audio context not available */ }
-}
-
-// eslint-disable-next-line react-refresh/only-export-components
-export function detectReaction(content) {
-  const t = content.toLowerCase()
-  if (/gracias|te quiero|amor|hermoso|brillante|perfecto/.test(t)) return '❤️'
-  if (/jajaj|gracioso|divertid|risas|humor/.test(t)) return '😄'
-  if (/peligro|cuidado|guerra|batalla|pelea|muerte|destruir/.test(t)) return '⚔️'
-  if (/magia|hechizo|fuerza|poder|misterio|destino/.test(t)) return '✨'
-  if (/imposible|increíble|asombroso|impresionante/.test(t)) return '🤯'
-  if (/triste|sol[ao]|llorar|dolor|sufrimiento/.test(t)) return '💫'
-  if (/rum|cerveza|festejo|beber|brindis/.test(t)) return '🍺'
-  return null
-}
-
-function formatDateSeparator(ts) {
-  const d = new Date(ts)
-  const today = new Date()
-  const yesterday = new Date(today)
-  yesterday.setDate(today.getDate() - 1)
-  if (d.toDateString() === today.toDateString()) return 'Hoy'
-  if (d.toDateString() === yesterday.toDateString()) return 'Ayer'
-  return d.toLocaleDateString('es-AR', { day: 'numeric', month: 'long' })
-}
-
-function updateHistoryMeta(characterId, messageCount) {
-  try {
-    const meta = JSON.parse(localStorage.getItem('chat-history-meta') || '{}')
-    meta[characterId] = { messageCount, lastChat: Date.now() }
-    localStorage.setItem('chat-history-meta', JSON.stringify(meta))
-  } catch { /* localStorage unavailable */ }
-}
-
-function BgParticles({ effect }) {
-  if (!effect || effect === 'none') return null
-  const counts = { stars: 22, rain: 16, particles: 14, embers: 12, lightning: 5, sparks: 14, smoke: 10, snow: 18 }
-  const count = counts[effect] || 0
-  return (
-    <div className={`chat-bg-effect chat-bg-effect--${effect}`}>
-      {Array.from({ length: count }).map((_, i) => (
-        <span key={i} className="bg-particle" style={{ '--i': i }} />
-      ))}
-    </div>
-  )
-}
+import { playNotificationSound, detectReaction, formatDateSeparator, updateHistoryMeta } from './chat/utils.js'
+import BgParticles from './chat/BgParticles.jsx'
+import ChatHeader from './chat/ChatHeader.jsx'
+import ChatEmpty from './chat/ChatEmpty.jsx'
+import ChatInputArea from './chat/ChatInputArea.jsx'
 
 export default function ChatPage() {
   const { characterId } = useParams()
@@ -476,70 +391,20 @@ export default function ChatPage() {
       <div className="chat-page__ambient" />
       <BgParticles effect={character.bgEffect} />
 
-      <header className="chat-header">
-        <button className="back-btn" onClick={() => navigate(ROUTES.HOME)}>
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          Volver
-        </button>
-        <button className="change-char-btn" onClick={() => navigate(ROUTES.CHAT)} title="Cambiar personaje">
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-            <circle cx="6" cy="5" r="2.5" stroke="currentColor" strokeWidth="1.4"/>
-            <circle cx="11" cy="5" r="2.5" stroke="currentColor" strokeWidth="1.4"/>
-            <path d="M1 13c0-2.2 2.2-4 5-4M15 13c0-2.2-2.2-4-5-4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-          </svg>
-          <span>Cambiar</span>
-        </button>
-
-        <div className="chat-header__character">
-          <div className={`chat-header__avatar ${isTyping ? 'chat-header__avatar--typing' : ''}`}>
-            {character.image && !headerImgError
-              ? <img src={character.image} alt={character.name} onError={() => setHeaderImgError(true)} />
-              : <span>{character.emoji}</span>
-            }
-          </div>
-          <div>
-            <h2 className="chat-header__name">{character.name}</h2>
-            <span className="chat-header__universe">{character.universe}</span>
-            {!isCustom && (() => {
-              const level = getAffinityLevel(getAffinityData(characterId).messageCount)
-              return level >= 1 ? (
-                <span className="chat-header__affinity">
-                  {getAffinityEmoji(level)} {getAffinityLabel(level)}
-                </span>
-              ) : null
-            })()}
-          </div>
-        </div>
-
-        <div className="chat-header__actions">
-          <div className="chat-header__status">
-            <span className="status-dot" />
-            <span>{isTyping ? 'Escribiendo...' : 'En línea'}</span>
-            {cloudSaved && (
-              <span className="cloud-saved-indicator">✓ Guardado</span>
-            )}
-          </div>
-          {messages.length > 0 && (
-            <>
-              <button className="share-btn" onClick={() => setShowShare(true)} title="Compartir conversación">
-                <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-                  <circle cx="12" cy="2.5" r="1.8" stroke="currentColor" strokeWidth="1.4"/>
-                  <circle cx="12" cy="12.5" r="1.8" stroke="currentColor" strokeWidth="1.4"/>
-                  <circle cx="3" cy="7.5" r="1.8" stroke="currentColor" strokeWidth="1.4"/>
-                  <path d="M10.3 3.4L4.7 6.6M10.3 11.6L4.7 8.4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-                </svg>
-              </button>
-              <button className="clear-btn" onClick={clearChat} title="Nueva conversación">
-                <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-                  <path d="M1.5 7.5a6 6 0 1 0 6-6 6 6 0 0 0-4.24 1.76M1.5 1.5v4h4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </button>
-            </>
-          )}
-        </div>
-      </header>
+      <ChatHeader
+        character={character}
+        characterId={characterId}
+        isCustom={isCustom}
+        isTyping={isTyping}
+        cloudSaved={cloudSaved}
+        messages={messages}
+        headerImgError={headerImgError}
+        onHeaderImgError={() => setHeaderImgError(true)}
+        onBack={() => navigate(ROUTES.HOME)}
+        onChangeChar={() => navigate(ROUTES.CHAT)}
+        onShare={() => setShowShare(true)}
+        onClear={clearChat}
+      />
 
       <div
         className="messages-container"
@@ -547,34 +412,12 @@ export default function ChatPage() {
         onScroll={handleScroll}
       >
         {messages.length === 0 && !isTyping && (
-          <div className="empty-chat">
-            <div className="empty-chat__avatar">
-              {character.image && !emptyImgError
-                ? <img src={character.image} alt={character.name} onError={() => setEmptyImgError(true)} />
-                : <span>{character.emoji}</span>
-              }
-            </div>
-            <p className="empty-chat__name">{character.name}</p>
-            {character.welcomeMessage && (
-              <div className="empty-chat__welcome">
-                <p>{character.welcomeMessage}</p>
-              </div>
-            )}
-            {character.suggestedQuestions?.length > 0 && (
-              <div className="suggested-questions">
-                {character.suggestedQuestions.map((q, i) => (
-                  <button
-                    key={i}
-                    className="suggested-q"
-                    style={{ '--sq-i': i }}
-                    onClick={() => { setInput(q); inputRef.current?.focus() }}
-                  >
-                    {q}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          <ChatEmpty
+            character={character}
+            emptyImgError={emptyImgError}
+            onEmptyImgError={() => setEmptyImgError(true)}
+            onSelectQuestion={q => { setInput(q); inputRef.current?.focus() }}
+          />
         )}
 
         {messages.map((msg, i) => {
@@ -687,33 +530,15 @@ export default function ChatPage() {
           )
       )}
 
-      <div className="input-area">
-        <textarea
-          ref={inputRef}
-          className="message-input"
-          value={input}
-          onChange={e => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder={`Escribile a ${character.name}...`}
-          rows={1}
-          disabled={isLoading}
-        />
-        <button
-          className="send-btn"
-          onClick={() => sendMessage()}
-          disabled={!input.trim() || isLoading}
-          aria-label="Enviar mensaje"
-        >
-          {isLoading
-            ? <span className="send-btn__loading" />
-            : (
-              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                <path d="M2 9h14M9.5 3L16 9l-6.5 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            )
-          }
-        </button>
-      </div>
+      <ChatInputArea
+        inputRef={inputRef}
+        input={input}
+        onChange={e => setInput(e.target.value)}
+        onKeyDown={handleKeyDown}
+        onSend={() => sendMessage()}
+        isLoading={isLoading}
+        characterName={character.name}
+      />
 
       {showShare && (
         <ShareModal

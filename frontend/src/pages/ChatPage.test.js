@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest'
-import { detectReaction } from './ChatPage.jsx'
+import { detectReaction } from './chat/utils.js'
 
 describe('detectReaction', () => {
   test.each([
