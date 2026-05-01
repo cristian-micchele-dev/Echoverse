@@ -120,9 +120,11 @@ El jugador ENCARNA a ${alias}. Narrá en segunda persona estricta como si el jug
 - Las opciones deben reflejar lo que ESTE personaje haría — no un agente genérico
 - Su personalidad, miedos, obsesiones y estilo deben impregnar cada escena y cada decisión
 - Tratalo como el protagonista que ES, no como un agente externo
-- Usá segunda persona: "Entrás", "Ves", "Sentís", "Tus manos..."`
+- Usá segunda persona: "Entrás", "Ves", "Sentís", "Tus manos..."
+- UNIVERSO: Narrá siempre dentro del universo ficticio de este personaje. Usá locaciones, facciones y atmósfera de su mundo — nunca Argentina ni ningún país real sudamericano.`
     : `MODO MISIÓN — NARRADOR EN SEGUNDA PERSONA:
-El jugador se llama ${alias}. Usá siempre segunda persona ("Entrás", "Ves", "Tenés que").`}
+El jugador se llama ${alias}. Usá siempre segunda persona ("Entrás", "Ves", "Tenés que").
+UNIVERSO: Narrá siempre dentro del universo ficticio de este personaje. Usá locaciones, facciones y atmósfera de su mundo — nunca Argentina ni ningún país real sudamericano.`}
 ${DIFFICULTY_INSTRUCTIONS[difficulty] || DIFFICULTY_INSTRUCTIONS.normal}
 ${MISSION_TYPE_MAP[missionType] || MISSION_TYPE_MAP.combate}
 ${statsLine}${loseConditionsNote}
