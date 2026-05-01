@@ -97,7 +97,7 @@ function stripMd(str) {
 // eslint-disable-next-line react-refresh/only-export-components
 export function parseChoices(block) {
   const choices = []
-  const pattern = /\[([ABC])\]\s*([\s\S]*?)(?=\s*\[[ABC]\]|EFECTOS:|$)/g
+  const pattern = /\[([ABC])[)\]]\s*([\s\S]*?)(?=\s*\[[ABC][)\]]|EFECTOS:|$)/g
   let match
   while ((match = pattern.exec(block)) !== null) {
     let text = stripMd(match[2].replace(/,\s*$/, '').trim())
@@ -160,7 +160,7 @@ export function parseMissionResponse(text) {
     return { narrative, choices: parseChoices(choiceBlock), isFinal, title, effects }
   }
 
-  const firstChoice = cleanText.search(/\[A\]/)
+  const firstChoice = cleanText.search(/\[A[)\]]/)
   if (firstChoice !== -1) {
     const narrative = stripMd(cleanText.slice(0, firstChoice).replace(/---/g, '').trim())
     return { narrative, choices: parseChoices(cleanText.slice(firstChoice)), isFinal, title, effects }

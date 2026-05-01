@@ -16,6 +16,15 @@ describe('parseChoices', () => {
     expect(parseChoices('Texto sin corchetes')).toEqual([])
   })
 
+  test('parsea opciones con paréntesis de cierre [A) en lugar de [A]', () => {
+    const block = '[A) Abrir el sobre\n[B) Pedir detalles\n[C) Salir por la puerta'
+    const result = parseChoices(block)
+    expect(result).toHaveLength(3)
+    expect(result[0]).toEqual({ key: 'A', text: 'Abrir el sobre', type: null })
+    expect(result[1]).toEqual({ key: 'B', text: 'Pedir detalles', type: null })
+    expect(result[2]).toEqual({ key: 'C', text: 'Salir por la puerta', type: null })
+  })
+
   test('elimina comas finales en el texto de las opciones', () => {
     const block = '[A] Primera opción,\n[B] Segunda opción,'
     const result = parseChoices(block)
