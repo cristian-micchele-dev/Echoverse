@@ -199,6 +199,7 @@ export default function MissionPage() {
   const [pendingStats,  setPendingStats]  = useState(null)
   const [muted, setMuted] = useState(false)
   const [victoryDismissed, setVictoryDismissed] = useState(false)
+  const [victoryReady, setVictoryReady] = useState(false)
   const { session } = useAuth()
   const { isLoading: streaming, streamChat } = useStreaming()
   const [campaignMode, setCampaignMode] = useState(false)
@@ -344,6 +345,15 @@ export default function MissionPage() {
     const t = setTimeout(() => setCountdown(c => c - 1), 1000)
     return () => clearTimeout(t)
   }, [timerActive, countdown]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Delay del overlay de victoria ────────────────────────────────────────
+  const isEnded = phase === 'ended'
+  useEffect(() => {
+    if (isEnded && missionResult === 'win' && !streaming) {
+      const t = setTimeout(() => setVictoryReady(true), 7000)
+      return () => clearTimeout(t)
+    }
+  }, [isEnded, missionResult, streaming])
 
   const surname = selectedChar ? (CHAR_SURNAMES[selectedChar.id] || '') : ''
   const playerAlias = playerName.trim() ? `${playerName.trim()} ${surname}`.trim() : ''
@@ -492,6 +502,7 @@ export default function MissionPage() {
     setCurrentEffects(null)
     setMissionResult(null)
     setVictoryDismissed(false)
+    setVictoryReady(false)
     setPendingStats(stats)
     setPhase('intro')   // ← mostrar intro antes de jugar
   }
@@ -578,6 +589,7 @@ export default function MissionPage() {
     setSceneImage(null)
     setImageError(false)
     setImageLoading(false)
+    setVictoryReady(false)
     missionRecordedRef.current = false
   }
 
@@ -916,8 +928,6 @@ export default function MissionPage() {
     )
   }
 
-  const isEnded = phase === 'ended'
-
   /* ── Misión en curso ─────────────────────────────── */
   return (
     <div
@@ -1205,7 +1215,7 @@ export default function MissionPage() {
       </div>
 
       {/* ── Victory overlay ──────────────────────────────── */}
-      {isEnded && missionResult === 'win' && !streaming && !victoryDismissed && (
+      {isEnded && missionResult === 'win' && !streaming && victoryReady && !victoryDismissed && (
         <MissionVictory
           missionTitle={missionTitle}
           campaignMode={campaignMode}
