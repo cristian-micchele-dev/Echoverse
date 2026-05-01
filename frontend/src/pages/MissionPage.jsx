@@ -191,6 +191,8 @@ export default function MissionPage() {
   const [missionResult, setMissionResult] = useState(null) // 'win' | 'lose' | null
   const [sceneImage, setSceneImage] = useState(null)
   const [imageError, setImageError] = useState(false)
+  const [imageLoading, setImageLoading] = useState(false)
+  const [sceneKey, setSceneKey] = useState(0)
   const [pendingStats,  setPendingStats]  = useState(null)
   const [muted, setMuted] = useState(false)
   const [victoryDismissed, setVictoryDismissed] = useState(false)
@@ -206,10 +208,14 @@ export default function MissionPage() {
   const audioRef = useRef(null)
   const mutedRef = useRef(muted)
   const missionRecordedRef = useRef(false)
+  const objectUrlRef = useRef(null)
 
   useEffect(() => {
     document.title = 'Modo Misión — EchoVerse'
-    return () => { document.title = 'EchoVerse' }
+    return () => {
+      document.title = 'EchoVerse'
+      if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current)
+    }
   }, [])
 
   useEffect(() => {
@@ -252,6 +258,11 @@ export default function MissionPage() {
   useEffect(() => {
     if (phase === 'setup') setTimeout(() => nameInputRef.current?.focus(), 100)
   }, [phase])
+
+  // Reset imageError cuando cambia la imagen para permitir reintentos en nuevos rounds
+  useEffect(() => {
+    if (sceneImage) setImageError(false)
+  }, [sceneImage])
 
   // ── Mute toggle ──────────────────────────────────────────────────────────
   useEffect(() => {
@@ -339,8 +350,8 @@ export default function MissionPage() {
     setChoices([])
     setCurrentEffects(null)
     setFetchError(false)
-    setSceneImage(null)
-    setImageError(false)
+    setSceneKey(k => k + 1)
+
     let fullText = ''
 
     try {
@@ -374,27 +385,8 @@ export default function MissionPage() {
         setCurrentText(narrative)
         if (effects) setCurrentEffects(effects)
         if (!finalResult) setChoices(parsed)
-
-        // Generar imagen de la escena con Pollinations.ai (precarga para evitar cuadrado vacío)
-        if (narrative && !finalResult) {
-          try {
-            const imgRes = await fetch(`${API_URL}/mission/image-prompt`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ narrative, characterId: char.id })
-            })
-            const imgData = await imgRes.json()
-            if (imgData.imagePrompt) {
-              const encoded = encodeURIComponent(imgData.imagePrompt)
-              const imageUrl = `https://image.pollinations.ai/prompt/${encoded}?width=1024&height=576&seed=${Date.now()}&nologo=true`
-              const img = new Image()
-              img.onload = () => setSceneImage(imageUrl)
-              img.onerror = () => setImageError(true)
-              img.src = imageUrl
-            }
-          } catch {
-            // silencioso — la imagen es opcional
-          }
+        if (historyArray.length === 0) {
+          fetchMissionImage(char, difficulty, missionType, narrative, title || '')
         }
       }
     } catch {
@@ -437,6 +429,53 @@ export default function MissionPage() {
 
   const initialVida   = { easy: 5, normal: 4, hard: 3 }
   const initialSigilo = { easy: 4, normal: 3, hard: 2 }
+
+  const fetchMissionImage = async (char, currentDifficulty, currentMissionType, narrative = '', title = '') => {
+    setImageError(false)
+    setImageLoading(true)
+
+    let imagePrompt = ''
+    try {
+      const promptRes = await fetch(`${API_URL}/mission/scene-image-prompt`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          narrative,
+          characterId: char.id,
+          title,
+          difficulty: currentDifficulty,
+          missionType: currentMissionType,
+        })
+      })
+      const data = await promptRes.json()
+      imagePrompt = data.imagePrompt || ''
+
+      if (!imagePrompt) return
+
+      const seed = [char.id, currentMissionType, currentDifficulty, narrative.slice(0, 60)]
+        .join('|')
+        .split('')
+        .reduce((a, b) => (a * 31 + b.charCodeAt(0)) & 0xfffff, 0)
+
+      const proxyUrl = `${API_URL}/mission/image-proxy?prompt=${encodeURIComponent(imagePrompt)}&width=768&height=432&seed=${seed}&nologo=true`
+      let res
+      for (let attempt = 0; attempt < 2; attempt++) {
+        res = await fetch(proxyUrl)
+        if (res.ok) break
+        if (attempt === 0) await new Promise(r => setTimeout(r, 1500))
+      }
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const blob = await res.blob()
+      if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current)
+      const objectUrl = URL.createObjectURL(blob)
+      objectUrlRef.current = objectUrl
+      setSceneImage(objectUrl)
+    } catch {
+      setImageError(true)
+    } finally {
+      setImageLoading(false)
+    }
+  }
 
   const handleStartMission = () => {
     if (!campaignMode && !playerName.trim()) return
@@ -536,6 +575,9 @@ export default function MissionPage() {
     setSigilo(3)
     setChoiceFeedback(null)
     setVidaFlash(null)
+    setSceneImage(null)
+    setImageError(false)
+    setImageLoading(false)
     missionRecordedRef.current = false
   }
 
@@ -993,14 +1035,38 @@ export default function MissionPage() {
           {missionTitle && (
             <div className="mission-title-badge">{missionTitle}</div>
           )}
-          {sceneImage && !imageError && (
+          {sceneImage && !imageError ? (
             <div className="mission-scene-image">
               <img
+                key={sceneImage}
                 src={sceneImage}
                 alt="Escena de la misión"
-                loading="lazy"
                 onError={() => setImageError(true)}
               />
+            </div>
+          ) : imageLoading ? (
+            <div className="mission-scene-image mission-scene-image--loading">
+              <span className="mission-scene-image__loading-label">Generando escena…</span>
+            </div>
+          ) : selectedChar?.image ? (
+            <div className="mission-scene-image mission-scene-image--fallback">
+              <img
+                src={selectedChar.image}
+                alt={selectedChar.name}
+              />
+              <div className="mission-scene-image__overlay" />
+            </div>
+          ) : (
+            <div
+              className="mission-scene-placeholder"
+              style={{ '--char-gradient': selectedChar?.gradient || 'linear-gradient(135deg, #333, #111)' }}
+            >
+              <div className="mission-scene-placeholder__overlay" />
+              <div className="mission-scene-placeholder__content">
+                <span className="mission-scene-placeholder__label">Misión</span>
+                <span className="mission-scene-placeholder__name">{selectedChar?.name}</span>
+                <span className="mission-scene-placeholder__type">{MISSION_TYPES.find(m => m.id === missionType)?.label}</span>
+              </div>
             </div>
           )}
           {!isEnded && (
@@ -1008,7 +1074,7 @@ export default function MissionPage() {
               {history.length === 0 ? '⚡ La misión comienza' : `— Turno ${history.length + 1}`}
             </div>
           )}
-          <div className="mission-scene">
+          <div key={sceneKey} className="mission-scene">
             <p className="mission-narrative">
               {currentText}
               {streaming && <span className="mission-cursor">▋</span>}
@@ -1032,10 +1098,11 @@ export default function MissionPage() {
           <div className="mission-choices">
             <div className="mission-choices__label">⚡ Tomá una decisión</div>
             <div className="mission-choices__list">
-              {choices.map(choice => (
+              {choices.map((choice, index) => (
                 <button
                   key={choice.key}
                   className={`mission-choice-btn ${choice.type ? `mission-choice-btn--${choice.type}` : ''}`}
+                  style={{ '--i': index }}
                   onClick={() => handleChoice(choice)}
                 >
                   <span className="mission-choice-btn__key">{choice.key}</span>

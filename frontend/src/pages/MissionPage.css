@@ -282,7 +282,108 @@
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: opacity 0.4s ease;
+  animation: mission-img-fadein 0.7s ease forwards;
+}
+@keyframes mission-img-fadein {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.mission-scene-image--fallback {
+  position: relative;
+}
+.mission-scene-image--fallback img {
+  filter: brightness(0.4) contrast(1.1) saturate(0.8);
+}
+.mission-scene-image__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 40%, rgba(0,0,0,0.5) 100%);
+  pointer-events: none;
+}
+.mission-scene-image--loading {
+  position: relative;
+  background: #000;
+  overflow: hidden;
+}
+.mission-scene-image--loading::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 25%,
+    rgba(255, 255, 255, 0.06) 50%,
+    transparent 75%
+  );
+  background-size: 200% 100%;
+  animation: mission-shimmer 2s linear infinite;
+  pointer-events: none;
+}
+@keyframes mission-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.mission-scene-image__loading-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.25);
+  z-index: 1;
+}
+
+.mission-scene-placeholder {
+  width: 100%;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: 1rem;
+  border: 1px solid color-mix(in srgb, var(--char-color) 14%, var(--border-faint));
+  aspect-ratio: 16 / 9;
+  background: var(--char-gradient, linear-gradient(135deg, #1a1a2e, #0f0f1a));
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: mission-fade-in 0.6s ease;
+}
+.mission-scene-placeholder__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.4) 100%);
+}
+.mission-scene-placeholder__content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  text-align: center;
+}
+.mission-scene-placeholder__label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--char-color);
+  opacity: 0.85;
+}
+.mission-scene-placeholder__name {
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 3.5vw, 1.6rem);
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.06em;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.5);
+}
+.mission-scene-placeholder__type {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .mission-scene {
@@ -301,6 +402,18 @@
   background: var(--char-color);
   opacity: 0.45;
   border-radius: 3px 0 0 3px;
+}
+
+.mission-scene {
+  animation: scene-enter 0.45s ease both;
+}
+@keyframes scene-enter {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes choice-enter {
+  from { opacity: 0; transform: translateX(-10px); }
+  to   { opacity: 1; transform: translateX(0); }
 }
 
 .mission-narrative {
@@ -365,6 +478,8 @@
   padding: 0.9rem 1.1rem;
   background: var(--ink-800);
   border: 1px solid var(--border-subtle);
+  animation: choice-enter 0.3s ease both;
+  animation-delay: calc(var(--i, 0) * 0.08s);
   border-radius: var(--radius-md);
   cursor: pointer; font-family: var(--font-body);
   text-align: left;
@@ -943,6 +1058,14 @@
 .mission-stat--injured  .mission-stat__icon--vida { color: #facc15; opacity: 1; }
 .mission-stat--critical .mission-stat__icon--vida {
   color: #f87171; opacity: 1;
+  animation: vida-pip-pulse 1.1s ease-in-out infinite;
+}
+/* Pulse para riesgo y sigilo en estado crítico */
+.mission-stat--critical .mission-stat__pip--on.mission-stat__pip--riesgo,
+.mission-stat--critical .mission-stat__pip--on.mission-stat__pip--sigilo {
+  animation: vida-pip-pulse 1.1s ease-in-out infinite;
+}
+.mission-stat--critical .mission-stat__icon:not(.mission-stat__icon--vida) {
   animation: vida-pip-pulse 1.1s ease-in-out infinite;
 }
 

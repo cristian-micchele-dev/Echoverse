@@ -3,6 +3,8 @@ import { characters } from '../../data/characters.js'
 import { streamMistral, withSseStream, callMistral } from '../../utils/mistral.js'
 import { MISSION_MAX_RECENT } from '../../config/constants.js'
 
+const POLLINATIONS_BASE = 'https://image.pollinations.ai/prompt'
+
 const router = Router()
 
 const DIFFICULTY_INSTRUCTIONS = {
@@ -156,29 +158,29 @@ ${EFECTOS_NOTE[difficulty] || EFECTOS_NOTE.normal}`
 })
 
 // ─── POST /api/mission/image-prompt ─────────────────────────────────────────
-// Genera un prompt visual en inglés para Pollinations.ai a partir del narrative
+// Genera UN prompt visual de portada cinematográfica al inicio de la misión.
+// No por turno — una sola imagen que acompaña toda la misión.
 
 router.post('/mission/image-prompt', async (req, res) => {
-  const { narrative, characterId } = req.body
+  const { characterId, difficulty, missionType } = req.body
   const character = characters[characterId]
+  if (!character) return res.status(404).json({ error: 'Personaje no encontrado' })
 
-  if (!narrative || typeof narrative !== 'string') {
-    return res.status(400).json({ error: 'narrative requerido' })
-  }
-
-  const systemPrompt = `You are an expert image-generation prompt engineer. Your job is to convert a scene description into a concise, vivid English prompt for an AI image generator (Pollinations.ai).
+  const systemPrompt = `You are an expert image-generation prompt engineer. Create a single cinematic cover image prompt for a mission.
 
 Rules:
-- Max 30 words
-- Cinematic, dramatic, dark atmosphere style
-- Include the character and the environment
+- Max 25 words
+- Cinematic, dramatic, dark atmosphere
+- Include the character, the environment and the mood
 - No text, no UI elements, no watermark
 - English only
 
 Respond with ONLY the prompt. No quotes, no explanation.`
 
-  const userContent = `Character: ${character?.name || characterId}
-Scene: ${narrative.trim()}`
+  const userContent = `Character: ${character.name}
+Difficulty: ${difficulty || 'normal'}
+Mission type: ${missionType || 'combate'}
+Character vibe: ${character.systemPrompt.slice(0, 200)}`
 
   try {
     const imagePrompt = await callMistral({
@@ -195,9 +197,118 @@ Scene: ${narrative.trim()}`
     res.json({ imagePrompt: truncated })
   } catch (error) {
     console.error('Error /mission/image-prompt:', error.message)
-    // Fallback: simple deterministic prompt
-    const fallback = `cinematic scene, ${character?.name || characterId}, ${narrative.slice(0, 60)}, dark atmosphere, dramatic lighting, movie still`
+    const fallback = `cinematic scene, ${character.name}, ${missionType || 'action'} mission, ${difficulty || 'normal'} difficulty, dark atmosphere, dramatic lighting, movie still`
     res.json({ imagePrompt: fallback })
+  }
+})
+
+// ─── POST /api/mission/scene-image-prompt ───────────────────────────────────
+// Recibe la narrativa de una escena y genera un prompt de imagen en inglés
+// que capture el contexto visual completo (lugar, acción, atmósfera).
+
+router.post('/mission/scene-image-prompt', async (req, res) => {
+  const { narrative, characterId, title, difficulty, missionType } = req.body
+  const character = characters[characterId]
+
+  if (!narrative) return res.status(400).json({ error: 'Missing narrative' })
+
+  const systemPrompt = `You are an expert image-generation prompt engineer. Translate the Spanish mission scene into a vivid cinematic image prompt in ENGLISH.
+
+Rules:
+- Max 25 words. Be concise but visual.
+- Include: location, main character, action, atmosphere.
+- Match the mission type and difficulty in tone (hard = darker, tense).
+- No text, no UI, no watermark, no quotes.
+- Respond with ONLY the prompt. No explanation.`
+
+  const missionContext = [
+    title ? `Mission: "${title}"` : '',
+    missionType ? `Type: ${missionType}` : '',
+    difficulty ? `Difficulty: ${difficulty}` : '',
+  ].filter(Boolean).join(' | ')
+
+  const userContent = `Character: ${character ? character.name : 'agent'}
+${missionContext}
+Scene: ${narrative.slice(0, 500)}`
+
+  try {
+    const imagePrompt = await callMistral({
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userContent }
+      ],
+      maxTokens: 180,
+      temperature: 0.6,
+    })
+
+    const clean = imagePrompt.trim().replace(/^["']|["']$/g, '')
+    const truncated = clean.length > 200 ? clean.slice(0, 200) + '...' : clean
+    res.json({ imagePrompt: truncated })
+  } catch (error) {
+    console.error('Error /mission/scene-image-prompt:', error.message)
+    const fallback = `cinematic scene, ${character ? character.name : 'agent'}, dark atmosphere, dramatic lighting, movie still`
+    res.json({ imagePrompt: fallback })
+  }
+})
+
+// ─── GET /api/mission/image-proxy ───────────────────────────────────────────
+// Proxy para evitar bloqueos CORS / 403 desde el navegador hacia Pollinations.
+// El frontend pide la imagen acá y el backend la retransmite como stream.
+
+const sleep = (ms) => new Promise(r => setTimeout(r, ms))
+
+async function fetchPollinations(url, retries = 2) {
+  const attempt = async (left, delayMs) => {
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 30000)
+    try {
+      const response = await fetch(url, {
+        signal: controller.signal,
+        headers: {
+          'Accept': 'image/*',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        }
+      })
+      clearTimeout(timeout)
+      return response
+    } catch (err) {
+      clearTimeout(timeout)
+      if (left > 0) {
+        await sleep(delayMs)
+        return attempt(left - 1, delayMs * 2)
+      }
+      throw err
+    }
+  }
+  return attempt(retries, 2000)
+}
+
+router.get('/mission/image-proxy', async (req, res) => {
+  const { prompt, width = 1024, height = 576, seed, nologo = 'true' } = req.query
+  if (!prompt) return res.status(400).json({ error: 'Missing prompt' })
+
+  const url = `${POLLINATIONS_BASE}/${encodeURIComponent(prompt)}?width=${width}&height=${height}&seed=${seed || Math.floor(Math.random() * 10000)}&nologo=${nologo}&model=flux-schnell&enhance=false`
+
+  try {
+    const response = await fetchPollinations(url)
+    if (!response.ok) {
+      console.error(`[image-proxy] Upstream error: ${response.status} for prompt "${prompt.slice(0, 60)}..."`)
+      if (response.status === 429) {
+        const retryAfter = response.headers.get('retry-after') || '10'
+        res.setHeader('Retry-After', retryAfter)
+        return res.status(429).json({ error: 'Rate limited by image provider', retryAfter: Number(retryAfter) })
+      }
+      throw new Error(`Upstream ${response.status}`)
+    }
+    const contentType = response.headers.get('content-type') || 'image/png'
+    res.setHeader('Content-Type', contentType)
+    res.setHeader('Cache-Control', 'public, max-age=300')
+    const buffer = Buffer.from(await response.arrayBuffer())
+    res.send(buffer)
+    return
+  } catch (err) {
+    console.error(`[image-proxy] Error fetching image:`, err.message || err)
+    res.status(502).json({ error: 'Failed to fetch image' })
   }
 })
 
