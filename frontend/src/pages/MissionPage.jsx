@@ -206,7 +206,7 @@ export default function MissionPage() {
           }
         }
         const worstChoice = choices.find(c => c.key === worstKey) || choices[0]
-        handleChoice(worstChoice)
+        handleChoice(worstChoice) // eslint-disable-line react-hooks/immutability
       }
       return
     }
