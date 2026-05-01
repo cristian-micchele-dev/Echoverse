@@ -352,6 +352,11 @@ export default function MissionPage() {
     setFetchError(false)
     setSceneKey(k => k + 1)
 
+    // Arrancar imagen en paralelo con el streaming (solo primera escena)
+    if (historyArray.length === 0) {
+      fetchMissionImage(char, difficulty, missionType)
+    }
+
     let fullText = ''
 
     try {
@@ -385,9 +390,6 @@ export default function MissionPage() {
         setCurrentText(narrative)
         if (effects) setCurrentEffects(effects)
         if (!finalResult) setChoices(parsed)
-        if (historyArray.length === 0) {
-          fetchMissionImage(char, difficulty, missionType, narrative, title || '')
-        }
       }
     } catch {
       setFetchError(true)
@@ -430,29 +432,16 @@ export default function MissionPage() {
   const initialVida   = { easy: 5, normal: 4, hard: 3 }
   const initialSigilo = { easy: 4, normal: 3, hard: 2 }
 
-  const fetchMissionImage = async (char, currentDifficulty, currentMissionType, narrative = '', title = '') => {
+  const fetchMissionImage = async (char, currentDifficulty, currentMissionType) => {
     setImageError(false)
     setImageLoading(true)
 
-    let imagePrompt = ''
+    const moodMap = { easy: 'tense atmosphere', normal: 'dark dramatic atmosphere', hard: 'brutal intense atmosphere high stakes' }
+    const typeMap = { combate: 'combat action', infiltracion: 'stealth infiltration', rescate: 'rescue operation', investigacion: 'investigation mystery' }
+    const imagePrompt = `${char.name}, ${char.universe}, ${typeMap[currentMissionType] || currentMissionType}, cinematic, ${moodMap[currentDifficulty] || 'dark atmosphere'}, movie still, no text`
+
     try {
-      const promptRes = await fetch(`${API_URL}/mission/scene-image-prompt`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          narrative,
-          characterId: char.id,
-          title,
-          difficulty: currentDifficulty,
-          missionType: currentMissionType,
-        })
-      })
-      const data = await promptRes.json()
-      imagePrompt = data.imagePrompt || ''
-
-      if (!imagePrompt) return
-
-      const seed = [char.id, currentMissionType, currentDifficulty, narrative.slice(0, 60)]
+      const seed = [char.id, currentMissionType, currentDifficulty]
         .join('|')
         .split('')
         .reduce((a, b) => (a * 31 + b.charCodeAt(0)) & 0xfffff, 0)
