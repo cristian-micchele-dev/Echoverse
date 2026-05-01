@@ -62,6 +62,9 @@ const MISSION_TYPES = [
   { id: 'investigacion', label: 'Investigación', desc: 'Misterio' }
 ]
 
+const INITIAL_VIDA   = { easy: 5, normal: 4, hard: 3 }
+const INITIAL_SIGILO = { easy: 4, normal: 3, hard: 2 }
+
 const MISSION_TYPE_ICONS = {
   combate: (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
@@ -427,9 +430,6 @@ export default function MissionPage() {
     }
   }
 
-  const initialVida   = { easy: 5, normal: 4, hard: 3 }
-  const initialSigilo = { easy: 4, normal: 3, hard: 2 }
-
   const fetchMissionImage = async (char, currentDifficulty, currentMissionType, narrative = '', title = '') => {
     setImageError(false)
     setImageLoading(true)
@@ -480,8 +480,8 @@ export default function MissionPage() {
   const handleStartMission = () => {
     if (!campaignMode && !playerName.trim()) return
     if (campaignMode && !playerName.trim() && selectedChar) setPlayerName(selectedChar.name)
-    const startVida   = initialVida[difficulty]   ?? 4
-    const startSigilo = initialSigilo[difficulty] ?? 3
+    const startVida   = INITIAL_VIDA[difficulty]   ?? 4
+    const startSigilo = INITIAL_SIGILO[difficulty] ?? 3
     const stats = { vida: startVida, riesgo: 0, sigilo: startSigilo }
     setHistory([])
     setMissionTitle('')
@@ -536,7 +536,7 @@ export default function MissionPage() {
       setMissionResult('win')
       setPhase('ended')
       if (campaignMode && selectedLevel) {
-        saveLevelComplete(selectedLevel?.level ?? selectedLevel)
+        saveLevelComplete(selectedLevel.level)
         const updated = getMissionProgress()
         setCampaignProgress(updated)
         if (session) {
