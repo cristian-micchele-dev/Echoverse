@@ -151,7 +151,7 @@ ${EFECTOS_NOTE[difficulty] || EFECTOS_NOTE.normal}`
 
   const messages = buildMissionMessages({ history, recentHistory, alias, isFinal, difficulty })
 
-  await withSseStream(res, () => streamMistral(res, missionSystemPrompt, messages, isFinal ? 450 : 480), {
+  await withSseStream(res, () => streamMistral(res, missionSystemPrompt, messages, isFinal ? 480 : 600), {
     logPrefix: 'Error Mistral /mission',
     errorMessage: 'Error al generar misión',
   })
