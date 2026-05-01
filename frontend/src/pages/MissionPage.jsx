@@ -2,8 +2,12 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { characters } from '../data/characters'
 import { useStreaming } from '../hooks/useStreaming'
+import { useMissionImage } from '../hooks/useMissionImage'
+import { useMissionAudio } from '../hooks/useMissionAudio'
 import CinematicIntro from '../components/CinematicIntro/CinematicIntro'
 import MissionVictory from '../components/MissionVictory/MissionVictory'
+import MissionCharSelect from './mission/MissionCharSelect'
+import MissionSetup from './mission/MissionSetup'
 import './MissionPage.css'
 import { API_URL } from '../config/api.js'
 import { CAMPAIGN_ARCS } from '../data/missionLevels.js'
@@ -11,87 +15,10 @@ import { getMissionProgress, saveLevelComplete, resetProgress } from '../utils/m
 import { useAuth } from '../context/AuthContext'
 import { recordCompletion } from '../utils/recordCompletion'
 import { ROUTES } from '../utils/constants'
-import { Helmet } from 'react-helmet-async'
-
-const MISSION_TRACKS = [
-  '/sounds/ArcSound - Dark Suspense Cinematic.mp3',
-  '/sounds/ArcSound - Cinema Cinematic Trailer.mp3',
-]
-let trackIndex = 0
-
-const CHAR_SURNAMES = {
-  'harry-potter': 'Potter', 'gollum': 'el Maldito', 'john-wick': 'Wick',
-  'walter-white': 'White', 'darth-vader': 'Vader', 'tony-stark': 'Stark',
-  'sherlock': 'Holmes', 'jack-sparrow': 'Sparrow', 'gandalf': 'el Gris',
-  'goku': 'Son', 'ip-man': 'Ip', 'el-profesor': 'Alves', 'capitan-flint': 'Flint',
-  'jax-teller': 'Teller', 'nathan-algren': 'Algren', 'lara-croft': 'Croft',
-  'spider-man': 'Parker', 'terminator': 'T-800', 'ragnar-lothbrok': 'Lothbrok',
-  'leonidas': 'de Esparta', 'tommy-shelby': 'Shelby', 'eleven': 'Hopper',
-  'geralt': 'de Rivia', 'jon-snow': 'Snow', 'kurt-sloane': 'Sloane',
-  'venom': 'Brock', 'furiosa': 'Furiosa', 'alice': 'Abernathy',
-  'katniss': 'Everdeen', 'bryan-mills': 'Mills', 'frank-martin': 'Martin',
-  'rocky-balboa': 'Balboa', 'tony-ja': 'Ja', 'james-bond': 'Bond',
-  'la-novia': 'Dragonfly', 'tyler-durden': 'Durden', 'hannibal': 'Lecter',
-  'norman-bates': 'Bates', 'wolverine': 'Logan', 'john-mcclane': 'McClane',
-  'iko-uwais': 'Rama', 'superman': 'Kent', 'ethan-hunt': 'Hunt',
-  'joker': 'el Joker', 'aragorn': 'Elessar', 'batman': 'Wayne',
-  'kratos': 'el Fantasma', 'nascimento': 'Nascimento', 'bruce-lee': 'Lee',
-  'aquiles': 'de Ftía', 'the-punisher': 'Castle', 'william-wallace': 'Wallace',
-  'casey-ryback': 'Ryback',
-  'harley-quinn': 'Quinn',
-  'tyrion-lannister': 'Lannister'
-}
-
-const VIDA_NAMES = {
-  combate:       'Resistencia',
-  infiltracion:  'Cobertura',
-  rescate:       'Margen',
-  investigacion: 'Control'
-}
-
-const DIFFICULTIES = [
-  { id: 'easy',   label: 'Fácil',   desc: 'El personaje te guía', color: '#4ade80' },
-  { id: 'normal', label: 'Normal',  desc: 'Equilibrado',          color: '#facc15' },
-  { id: 'hard',   label: 'Difícil', desc: 'Sin piedad',           color: '#f87171' }
-]
-
-const MISSION_TYPES = [
-  { id: 'combate',       label: 'Combate',       desc: 'Supervivencia' },
-  { id: 'infiltracion',  label: 'Infiltración',  desc: 'Espionaje' },
-  { id: 'rescate',       label: 'Rescate',       desc: 'Protección' },
-  { id: 'investigacion', label: 'Investigación', desc: 'Misterio' }
-]
-
-const INITIAL_VIDA   = { easy: 5, normal: 4, hard: 3 }
-const INITIAL_SIGILO = { easy: 4, normal: 3, hard: 2 }
-
-const MISSION_TYPE_ICONS = {
-  combate: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/>
-      <line x1="13" y1="19" x2="19" y2="13"/>
-      <line x1="16" y1="16" x2="20" y2="20"/>
-      <line x1="19" y1="21" x2="21" y2="19"/>
-    </svg>
-  ),
-  infiltracion: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-      <circle cx="12" cy="12" r="3"/>
-    </svg>
-  ),
-  rescate: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-    </svg>
-  ),
-  investigacion: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="11" cy="11" r="8"/>
-      <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-    </svg>
-  ),
-}
+import {
+  CHAR_SURNAMES, VIDA_NAMES, INITIAL_VIDA, INITIAL_SIGILO,
+  DIFFICULTIES, MISSION_TYPES,
+} from './mission/constants.jsx'
 
 function stripMd(str) {
   return str.replace(/\*\*/g, '').replace(/\*/g, '')
@@ -133,7 +60,6 @@ export function parseMissionResponse(text) {
   let title = null
   let cleanText = text
 
-  // Handle "TITULO:\ntítulo", "MISIÓN: título", "**TITULO:**\n*título*", etc.
   const titleMatch = text.match(/^\*{0,2}(?:MISIÓN|TITULO):\*{0,2}\s*\n?\s*(.+?)(?:\n|$)/i)
   if (titleMatch) {
     title = titleMatch[1].trim().replace(/^\*+|\*+$/g, '')
@@ -143,7 +69,6 @@ export function parseMissionResponse(text) {
   const isFinal = cleanText.includes('[FIN]')
   if (isFinal) cleanText = cleanText.replace('[FIN]', '').trim()
 
-  // Extract EFECTOS before parsing options
   let effects = null
   const efectosMatch = cleanText.match(/\nEFECTOS:\n([\s\S]*?)(\n\n|$)/)
   if (efectosMatch) {
@@ -151,7 +76,6 @@ export function parseMissionResponse(text) {
     cleanText = cleanText.slice(0, efectosMatch.index).trim()
   }
 
-  // Strip ESCENA: label and normalize OPCIONES: to --- separator (handles **ESCENA:** etc.)
   cleanText = cleanText
     .replace(/^\*{0,2}ESCENA:\*{0,2}\s*\n?/im, '')
     .replace(/\n\*{0,2}OPCIONES:\*{0,2}\s*\n/i, '\n\n---\n')
@@ -189,15 +113,10 @@ export default function MissionPage() {
   const [vida, setVida] = useState(4)
   const [riesgo, setRiesgo] = useState(0)
   const [sigilo, setSigilo] = useState(3)
-  const [choiceFeedback, setChoiceFeedback] = useState(null) // { text, vida, riesgo, sigilo }
-  const [vidaFlash, setVidaFlash] = useState(null) // 'hit' | 'heal' | null
-  const [missionResult, setMissionResult] = useState(null) // 'win' | 'lose' | null
-  const [sceneImage, setSceneImage] = useState(null)
-  const [imageError, setImageError] = useState(false)
-  const [imageLoading, setImageLoading] = useState(false)
-  const [sceneKey, setSceneKey] = useState(0)
-  const [pendingStats,  setPendingStats]  = useState(null)
-  const [muted, setMuted] = useState(false)
+  const [choiceFeedback, setChoiceFeedback] = useState(null)
+  const [vidaFlash, setVidaFlash] = useState(null)
+  const [missionResult, setMissionResult] = useState(null)
+  const [pendingStats, setPendingStats] = useState(null)
   const [victoryDismissed, setVictoryDismissed] = useState(false)
   const [victoryReady, setVictoryReady] = useState(false)
   const { session } = useAuth()
@@ -209,17 +128,18 @@ export default function MissionPage() {
   const [campaignProgress, setCampaignProgress] = useState(() => getMissionProgress())
   const bottomRef = useRef(null)
   const nameInputRef = useRef(null)
-  const audioRef = useRef(null)
-  const mutedRef = useRef(muted)
   const missionRecordedRef = useRef(false)
-  const objectUrlRef = useRef(null)
+
+  const { muted, setMuted } = useMissionAudio(phase)
+  const {
+    sceneImage, imageError, setImageError,
+    imageLoading, sceneKey, bumpSceneKey,
+    resetImageState, fetchMissionImage,
+  } = useMissionImage()
 
   useEffect(() => {
     document.title = 'Modo Misión — EchoVerse'
-    return () => {
-      document.title = 'EchoVerse'
-      if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current)
-    }
+    return () => { document.title = 'EchoVerse' }
   }, [])
 
   useEffect(() => {
@@ -229,7 +149,6 @@ export default function MissionPage() {
     }
   }, [phase, session])
 
-  // Cargar progreso desde DB si hay sesión; si DB está vacía pero localStorage tiene datos, sincronizar
   useEffect(() => {
     if (!session) return
     fetch(`${API_URL}/db/mission-progress`, {
@@ -240,7 +159,6 @@ export default function MissionPage() {
         if (data && data.highestUnlocked > 1) {
           setCampaignProgress(data)
         } else {
-          // DB vacía — si localStorage tiene progreso, subirlo a la DB ahora
           const local = getMissionProgress()
           if (local.highestUnlocked > 1) {
             fetch(`${API_URL}/db/mission-progress`, {
@@ -263,57 +181,8 @@ export default function MissionPage() {
     if (phase === 'setup') setTimeout(() => nameInputRef.current?.focus(), 100)
   }, [phase])
 
-  // Reset imageError cuando cambia la imagen para permitir reintentos en nuevos rounds
-  useEffect(() => {
-    if (sceneImage) setImageError(false)
-  }, [sceneImage])
-
-  // ── Mute toggle ──────────────────────────────────────────────────────────
-  useEffect(() => {
-    mutedRef.current = muted
-    if (audioRef.current) audioRef.current.muted = muted
-  }, [muted])
-
-  // ── Música de misión ──────────────────────────────────────────────────────
-  useEffect(() => {
-    if (phase !== 'playing') return
-
-    const track = MISSION_TRACKS[trackIndex % MISSION_TRACKS.length]
-    trackIndex++
-    const audio = new Audio(track)
-    audio.loop = true
-    audio.volume = 0
-    audio.muted = mutedRef.current
-    audio.play().catch(() => {})
-    audioRef.current = audio
-
-    // Fade in hasta 0.35
-    let v = 0
-    const fadeIn = setInterval(() => {
-      v = Math.min(v + 0.02, 0.35)
-      audio.volume = v
-      if (v >= 0.35) clearInterval(fadeIn)
-    }, 80)
-
-    return () => {
-      clearInterval(fadeIn)
-      // Fade out al salir de 'playing'
-      let vol = audio.volume
-      const fadeOut = setInterval(() => {
-        vol = Math.max(vol - 0.04, 0)
-        audio.volume = vol
-        if (vol <= 0) {
-          clearInterval(fadeOut)
-          audio.pause()
-          audio.src = ''
-        }
-      }, 50)
-    }
-  }, [phase])
-
   const isCountdownLevel = selectedLevel?.type === 'countdown'
 
-  // ── Timer de cuenta regresiva (nivel 31) ─────────────────────────────────
   useEffect(() => {
     if (!isCountdownLevel) return
     if (choices.length > 0 && !streaming) {
@@ -326,7 +195,6 @@ export default function MissionPage() {
     if (!timerActive || countdown === null) return
     if (countdown <= 0) {
       setTimerActive(false)
-      // Elige automáticamente la opción con peor score
       if (currentEffects && choices.length > 0) {
         let worstKey = choices[0].key
         let worstScore = Infinity
@@ -363,7 +231,7 @@ export default function MissionPage() {
     setChoices([])
     setCurrentEffects(null)
     setFetchError(false)
-    setSceneKey(k => k + 1)
+    bumpSceneKey()
 
     let fullText = ''
 
@@ -409,9 +277,7 @@ export default function MissionPage() {
 
   const handleCharSelect = (char) => {
     setSelectedChar(char)
-    if (isCountdownLevel) {
-      setPlayerName(char.name)
-    }
+    if (isCountdownLevel) setPlayerName(char.name)
     setPhase('setup')
   }
 
@@ -419,7 +285,7 @@ export default function MissionPage() {
     if (levelConfig.type === 'countdown') {
       setSelectedLevel(levelConfig)
       setDifficulty('hard')
-      setPhase('chars') // el usuario elige el personaje
+      setPhase('chars')
       return
     }
     const char = characters.find(c => c.id === levelConfig.character)
@@ -440,53 +306,6 @@ export default function MissionPage() {
     }
   }
 
-  const fetchMissionImage = async (char, currentDifficulty, currentMissionType, narrative = '', title = '') => {
-    setImageError(false)
-    setImageLoading(true)
-
-    let imagePrompt = ''
-    try {
-      const promptRes = await fetch(`${API_URL}/mission/scene-image-prompt`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          narrative,
-          characterId: char.id,
-          title,
-          difficulty: currentDifficulty,
-          missionType: currentMissionType,
-        })
-      })
-      const data = await promptRes.json()
-      imagePrompt = data.imagePrompt || ''
-
-      if (!imagePrompt) return
-
-      const seed = [char.id, currentMissionType, currentDifficulty, narrative.slice(0, 60)]
-        .join('|')
-        .split('')
-        .reduce((a, b) => (a * 31 + b.charCodeAt(0)) & 0xfffff, 0)
-
-      const proxyUrl = `${API_URL}/mission/image-proxy?prompt=${encodeURIComponent(imagePrompt)}&width=768&height=432&seed=${seed}&nologo=true`
-      let res
-      for (let attempt = 0; attempt < 3; attempt++) {
-        res = await fetch(proxyUrl)
-        if (res.ok) break
-        if (attempt < 2) await new Promise(r => setTimeout(r, (attempt + 1) * 4000))
-      }
-      if (!res.ok) throw new Error(`HTTP ${res.status}`)
-      const blob = await res.blob()
-      if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current)
-      const objectUrl = URL.createObjectURL(blob)
-      objectUrlRef.current = objectUrl
-      setSceneImage(objectUrl)
-    } catch {
-      setImageError(true)
-    } finally {
-      setImageLoading(false)
-    }
-  }
-
   const handleStartMission = () => {
     if (!campaignMode && !playerName.trim()) return
     if (campaignMode && !playerName.trim() && selectedChar) setPlayerName(selectedChar.name)
@@ -504,7 +323,7 @@ export default function MissionPage() {
     setVictoryDismissed(false)
     setVictoryReady(false)
     setPendingStats(stats)
-    setPhase('intro')   // ← mostrar intro antes de jugar
+    setPhase('intro')
   }
 
   const handleIntroFinish = useCallback(() => {
@@ -517,9 +336,9 @@ export default function MissionPage() {
     setTimerActive(false)
     setCountdown(null)
     const fx = currentEffects?.[choice.key]
-    const newVida   = fx ? Math.max(0, Math.min(5, vida   + fx.vida))            : vida
-    const newRiesgo = fx ? Math.max(0, Math.min(5, riesgo + fx.riesgo))          : riesgo
-    const newSigilo = fx ? Math.max(0, Math.min(5, sigilo + (fx.sigilo ?? 0)))   : sigilo
+    const newVida   = fx ? Math.max(0, Math.min(5, vida   + fx.vida))          : vida
+    const newRiesgo = fx ? Math.max(0, Math.min(5, riesgo + fx.riesgo))        : riesgo
+    const newSigilo = fx ? Math.max(0, Math.min(5, sigilo + (fx.sigilo ?? 0))) : sigilo
     setVida(newVida)
     setRiesgo(newRiesgo)
     setSigilo(newSigilo)
@@ -586,9 +405,7 @@ export default function MissionPage() {
     setSigilo(3)
     setChoiceFeedback(null)
     setVidaFlash(null)
-    setSceneImage(null)
-    setImageError(false)
-    setImageLoading(false)
+    resetImageState()
     setVictoryReady(false)
     missionRecordedRef.current = false
   }
@@ -636,295 +453,35 @@ export default function MissionPage() {
   /* ── Selección de personaje ──────────────────────── */
   if (phase === 'chars') {
     return (
-      <div className="mission-page">
-        <Helmet>
-          <title>Modo Misión — EchoVerse</title>
-          <meta name="description" content="Tomá decisiones dentro de historias interactivas con personajes como El Profesor. Cada elección tiene consecuencias reales." />
-          <link rel="canonical" href="https://echoverse-jet.vercel.app/mission" />
-        </Helmet>
-        <div className="mission-top-bar">
-          <button className="mission-back-btn" onClick={() => navigate(ROUTES.HOME)}>
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            Volver
-          </button>
-        </div>
-        <div className="mission-intro">
-          <span className="mission-intro__eyebrow">⚔ Modo Misión</span>
-          <h1 className="mission-intro__title">
-            {campaignMode ? 'Campaña — 31 Niveles' : 'Entrá al Universo'}
-          </h1>
-          <p className="mission-intro__sub">
-            {campaignMode
-              ? 'Progresá nivel a nivel encarnando a cada personaje. Dificultad creciente.'
-              : 'Elegí un personaje. Él te lanzará directo a una misión en su mundo — vos sos el protagonista.'}
-          </p>
-        </div>
-
-        <div className="mission-mode-tabs">
-          <button
-            className={`mission-mode-tab ${!campaignMode ? 'mission-mode-tab--active' : ''}`}
-            onClick={() => setCampaignMode(false)}
-          >
-            Libre
-          </button>
-          <button
-            className={`mission-mode-tab ${campaignMode ? 'mission-mode-tab--active' : ''}`}
-            onClick={() => setCampaignMode(true)}
-          >
-            Campaña
-          </button>
-        </div>
-
-        {!campaignMode && (
-          <div className="mission-chars-grid">
-            {characters.map((char, i) => (
-              <button
-                key={char.id}
-                className="mission-char-card"
-                style={{ '--char-color': char.themeColor, '--char-gradient': char.gradient, '--card-delay': `${i * 0.03}s` }}
-                onClick={() => handleCharSelect(char)}
-              >
-                <div className="mission-char-card__bg" style={{ background: char.gradient }}>
-                  {char.image && <img src={char.image} alt={char.name} className="mission-char-card__img" loading="lazy" decoding="async" />}
-                </div>
-                <div className="mission-char-card__overlay" />
-                <div className="mission-char-card__info">
-                  <span className="mission-char-card__universe">{char.universe}</span>
-                  <span className="mission-char-card__name">{char.name}</span>
-                </div>
-              </button>
-            ))}
-          </div>
-        )}
-
-        {campaignMode && (
-          <div className="campaign-grid-wrapper">
-            <div className="campaign-grid">
-              {CAMPAIGN_ARCS.map((arc, arcIdx) => {
-                const isSpecial = arc.levels[0].type === 'countdown'
-                const arcChar = isSpecial ? null : characters.find(c => c.id === arc.character)
-                const allLevelsCompleted = arc.levels.every(lvl => !!campaignProgress.completedLevels[lvl.level])
-                const firstUnlocked = arc.levels[0].level <= campaignProgress.highestUnlocked
-                const arcLocked = !firstUnlocked
-                const diff = arc.levels[0].difficulty
-                const diffColor = diff === 'easy' ? '#4ade80' : diff === 'normal' ? '#facc15' : '#f87171'
-                const diffLabel = diff === 'easy' ? 'Fácil' : diff === 'normal' ? 'Normal' : 'Difícil'
-                return (
-                  <div
-                    key={arc.arcName}
-                    className={`campaign-card ${arcLocked ? 'campaign-card--locked' : allLevelsCompleted ? 'campaign-card--done' : 'campaign-card--open'} ${isSpecial ? 'campaign-card--special' : ''}`}
-                    style={{ '--char-color': isSpecial ? '#ef4444' : (arcChar?.themeColor || '#888'), '--card-delay': `${arcIdx * 0.04}s` }}
-                  >
-                    {/* Background image */}
-                    <div className="campaign-card__bg">
-                      {arcChar?.image && <img src={arcChar.image} alt={arcChar.name} className="campaign-card__img" loading="lazy" decoding="async" />}
-                      {isSpecial && <div className="campaign-card__special-bg">⏱</div>}
-                      <div className="campaign-card__overlay" />
-                    </div>
-
-                    {/* Difficulty badge — top right */}
-                    <div className="campaign-card__diff" style={{ color: diffColor, borderColor: `color-mix(in srgb, ${diffColor} 35%, transparent)` }}>
-                      <span className="campaign-card__diff-dot" style={{ background: diffColor }} />
-                      {diffLabel}
-                    </div>
-
-                    {/* Completed ribbon */}
-                    {allLevelsCompleted && (
-                      <div className="campaign-card__ribbon">✔ Completado</div>
-                    )}
-
-                    {/* Lock overlay */}
-                    {arcLocked && (
-                      <div className="campaign-card__lock-overlay">
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                        </svg>
-                      </div>
-                    )}
-
-                    {/* Content */}
-                    <div className="campaign-card__content">
-                      <div className="campaign-card__meta">
-                        <span className="campaign-card__char">{isSpecial ? 'Cualquier personaje' : arcChar?.name}</span>
-                        <h3 className="campaign-card__title">{arc.arcName}</h3>
-                      </div>
-                      <div className="campaign-card__levels">
-                        {arc.levels.map(lvl => {
-                          const unlocked = lvl.level <= campaignProgress.highestUnlocked
-                          const completed = !!campaignProgress.completedLevels[lvl.level]
-                          return (
-                            <button
-                              key={lvl.level}
-                              className={`campaign-card-lvl ${completed ? 'campaign-card-lvl--done' : unlocked ? 'campaign-card-lvl--open' : 'campaign-card-lvl--locked'}`}
-                              disabled={!unlocked}
-                              onClick={() => handleCampaignLevelSelect(lvl)}
-                            >
-                              <span className="campaign-card-lvl__num">{lvl.level}</span>
-                              <span className="campaign-card-lvl__icon">
-                                {completed ? '✔' : unlocked ? (isSpecial ? '⏱' : '▶') : '🔒'}
-                              </span>
-                            </button>
-                          )
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-            <div className="campaign-reset">
-              <button className="campaign-reset-btn" onClick={() => { resetProgress(); setCampaignProgress(getMissionProgress()) }}>
-                Reiniciar progreso
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
+      <MissionCharSelect
+        campaignMode={campaignMode}
+        setCampaignMode={setCampaignMode}
+        campaignProgress={campaignProgress}
+        setCampaignProgress={setCampaignProgress}
+        handleCharSelect={handleCharSelect}
+        handleCampaignLevelSelect={handleCampaignLevelSelect}
+      />
     )
   }
 
   /* ── Setup ──────────────────────────────────────── */
   if (phase === 'setup') {
-    const step1Done = campaignMode || playerName.trim().length > 0
-    const activeDiff = DIFFICULTIES.find(d => d.id === difficulty)
-
     return (
-      <div className="mission-page mission-page--setup" style={{ '--char-color': selectedChar.themeColor }}>
-        <div className="mission-top-bar">
-          <button className="mission-back-btn" onClick={() => setPhase('chars')}>
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            Volver
-          </button>
-        </div>
-
-        <div className="mission-setup">
-          {/* Indicador de pasos */}
-          {!campaignMode && (
-            <div className="mission-setup__steps">
-              <div className={`mission-setup__step-dot ${step1Done ? 'mission-setup__step-dot--done' : 'mission-setup__step-dot--active'}`} />
-              <div className={`mission-setup__step-line ${step1Done ? 'mission-setup__step-line--done' : ''}`} />
-              <div className={`mission-setup__step-dot ${step1Done ? 'mission-setup__step-dot--done' : ''}`} />
-              <div className={`mission-setup__step-line ${step1Done ? 'mission-setup__step-line--done' : ''}`} />
-              <div className={`mission-setup__step-dot ${step1Done ? 'mission-setup__step-dot--active' : ''}`} />
-            </div>
-          )}
-
-          {/* Personaje */}
-          <div className="mission-setup__char">
-            {selectedChar.image
-              ? <img src={selectedChar.image} alt={selectedChar.name} className="mission-setup__avatar" loading="lazy" decoding="async" />
-              : <span className="mission-setup__emoji">{selectedChar.emoji}</span>
-            }
-            <p className="mission-setup__char-name">{selectedChar.name}</p>
-            <p className="mission-setup__char-universe">{selectedChar.universe}</p>
-            {campaignMode && selectedLevel && (
-              <div className="mission-setup__level-badge">Nivel {selectedLevel.level}</div>
-            )}
-          </div>
-
-          {/* Paso 1: Identidad */}
-          {campaignMode ? (
-            <div className="mission-setup__section mission-setup__section--reveal" style={{ '--reveal-delay': '0s' }}>
-              <p className="mission-setup__question">En esta misión sos</p>
-              <p className="mission-setup__campaign-identity">{selectedChar.name}</p>
-            </div>
-          ) : (
-            <div className="mission-setup__section">
-              <p className="mission-setup__question">¿Cómo te llamás?</p>
-              <input
-                ref={nameInputRef}
-                className="mission-setup__name-input"
-                type="text"
-                placeholder="Tu nombre..."
-                value={playerName}
-                onChange={e => setPlayerName(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && handleStartMission()}
-                maxLength={24}
-                aria-label="Tu nombre de agente"
-              />
-              {playerAlias && (
-                <div className="mission-setup__alias-block">
-                  <span className="mission-setup__alias-label">Serás conocido como</span>
-                  <p className="mission-setup__alias-name">{playerAlias}</p>
-                  <div className="mission-setup__alias-line" />
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Paso 2: Tipo de misión */}
-          {step1Done && (
-            <div className="mission-setup__section mission-setup__section--reveal" style={{ '--reveal-delay': '0s' }}>
-              <p className="mission-setup__question">¿Qué tipo de operación?</p>
-              <div className="mission-setup__type-grid">
-                {MISSION_TYPES.map(m => (
-                    <button
-                      key={m.id}
-                      className={`mission-setup__type-card ${missionType === m.id ? 'mission-setup__type-card--active' : ''}`}
-                      onClick={() => setMissionType(m.id)}
-                    >
-                      <span className="mission-setup__type-icon">{MISSION_TYPE_ICONS[m.id]}</span>
-                      <span className="mission-setup__type-label">{m.label}</span>
-                      <span className="mission-setup__type-desc">{m.desc}</span>
-                    </button>
-                  ))}
-              </div>
-            </div>
-          )}
-
-          {/* Paso 3: Dificultad */}
-          {step1Done && (
-            <div className="mission-setup__section mission-setup__section--reveal" style={{ '--reveal-delay': '0.07s' }}>
-              <p className="mission-setup__question">Nivel de riesgo</p>
-              {campaignMode ? (
-                <div className="mission-setup__pills">
-                  <div
-                    className="mission-setup__pill mission-setup__pill--active mission-setup__pill--locked"
-                    style={{ '--pill-color': activeDiff?.color }}
-                  >
-                    <span className="mission-setup__pill-label">{activeDiff?.label}</span>
-                    <span className="mission-setup__pill-desc">{activeDiff?.desc} — fijado por campaña</span>
-                  </div>
-                </div>
-              ) : (
-                <div className="mission-setup__pills">
-                  {DIFFICULTIES.map(d => (
-                    <button
-                      key={d.id}
-                      className={`mission-setup__pill ${difficulty === d.id ? 'mission-setup__pill--active' : ''}`}
-                      style={{ '--pill-color': d.color }}
-                      onClick={() => setDifficulty(d.id)}
-                    >
-                      <span className="mission-setup__pill-label">{d.label}</span>
-                      <span className="mission-setup__pill-desc">{d.desc}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* CTA */}
-          {step1Done && (
-            <button
-              className="mission-setup__start mission-setup__section--reveal"
-              disabled={!campaignMode && !playerName.trim()}
-              onClick={handleStartMission}
-              style={{ '--reveal-delay': '0.13s' }}
-            >
-              {campaignMode ? 'Comenzar nivel' : 'Iniciar operación'}
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </button>
-          )}
-        </div>
-      </div>
+      <MissionSetup
+        campaignMode={campaignMode}
+        selectedChar={selectedChar}
+        selectedLevel={selectedLevel}
+        playerName={playerName}
+        setPlayerName={setPlayerName}
+        playerAlias={playerAlias}
+        difficulty={difficulty}
+        setDifficulty={setDifficulty}
+        missionType={missionType}
+        setMissionType={setMissionType}
+        nameInputRef={nameInputRef}
+        handleStartMission={handleStartMission}
+        onBack={() => setPhase('chars')}
+      />
     )
   }
 
@@ -1060,10 +617,7 @@ export default function MissionPage() {
             </div>
           ) : selectedChar?.image ? (
             <div className="mission-scene-image mission-scene-image--fallback">
-              <img
-                src={selectedChar.image}
-                alt={selectedChar.name}
-              />
+              <img src={selectedChar.image} alt={selectedChar.name} />
               <div className="mission-scene-image__overlay" />
             </div>
           ) : (
@@ -1160,12 +714,8 @@ export default function MissionPage() {
                   </svg>
                 </button>
                 <div className="mission-end-actions__row">
-                  <button className="mission-end-btn mission-end-btn--chars" onClick={handleRestart}>
-                    Campaña
-                  </button>
-                  <button className="mission-end-btn mission-end-btn--home" onClick={() => navigate(ROUTES.HOME)}>
-                    Inicio
-                  </button>
+                  <button className="mission-end-btn mission-end-btn--chars" onClick={handleRestart}>Campaña</button>
+                  <button className="mission-end-btn mission-end-btn--home" onClick={() => navigate(ROUTES.HOME)}>Inicio</button>
                 </div>
               </>
             ) : campaignMode && missionResult === 'lose' ? (
@@ -1178,12 +728,8 @@ export default function MissionPage() {
                   Reintentar nivel
                 </button>
                 <div className="mission-end-actions__row">
-                  <button className="mission-end-btn mission-end-btn--chars" onClick={handleRestart}>
-                    Campaña
-                  </button>
-                  <button className="mission-end-btn mission-end-btn--home" onClick={() => navigate(ROUTES.HOME)}>
-                    Inicio
-                  </button>
+                  <button className="mission-end-btn mission-end-btn--chars" onClick={handleRestart}>Campaña</button>
+                  <button className="mission-end-btn mission-end-btn--home" onClick={() => navigate(ROUTES.HOME)}>Inicio</button>
                 </div>
               </>
             ) : (
@@ -1199,12 +745,8 @@ export default function MissionPage() {
                   <button className="mission-end-btn mission-end-btn--share" onClick={handleShare}>
                     {copied ? 'Copiado' : 'Compartir'}
                   </button>
-                  <button className="mission-end-btn mission-end-btn--chars" onClick={handleRestart}>
-                    Otro personaje
-                  </button>
-                  <button className="mission-end-btn mission-end-btn--home" onClick={() => navigate(ROUTES.HOME)}>
-                    Inicio
-                  </button>
+                  <button className="mission-end-btn mission-end-btn--chars" onClick={handleRestart}>Otro personaje</button>
+                  <button className="mission-end-btn mission-end-btn--home" onClick={() => navigate(ROUTES.HOME)}>Inicio</button>
                 </div>
               </>
             )}
