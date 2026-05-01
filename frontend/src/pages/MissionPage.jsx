@@ -459,10 +459,10 @@ export default function MissionPage() {
 
       const proxyUrl = `${API_URL}/mission/image-proxy?prompt=${encodeURIComponent(imagePrompt)}&width=768&height=432&seed=${seed}&nologo=true`
       let res
-      for (let attempt = 0; attempt < 2; attempt++) {
+      for (let attempt = 0; attempt < 3; attempt++) {
         res = await fetch(proxyUrl)
         if (res.ok) break
-        if (attempt === 0) await new Promise(r => setTimeout(r, 1500))
+        if (attempt < 2) await new Promise(r => setTimeout(r, (attempt + 1) * 4000))
       }
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const blob = await res.blob()

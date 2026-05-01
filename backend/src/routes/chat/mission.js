@@ -290,13 +290,20 @@ router.get('/mission/image-proxy', async (req, res) => {
   const url = `${POLLINATIONS_BASE}/${encodeURIComponent(prompt)}?width=${width}&height=${height}&seed=${seed || Math.floor(Math.random() * 10000)}&nologo=${nologo}&model=flux-schnell&enhance=false`
 
   try {
-    const response = await fetchPollinations(url)
+    let response
+    for (let attempt = 0; attempt <= 2; attempt++) {
+      response = await fetchPollinations(url)
+      if (response.status !== 429) break
+      if (attempt < 2) {
+        const wait = (parseInt(response.headers.get('retry-after') || '8', 10) + attempt * 4) * 1000
+        console.warn(`[image-proxy] 429 de Pollinations, reintentando en ${wait / 1000}s (intento ${attempt + 1}/2)`)
+        await sleep(wait)
+      }
+    }
     if (!response.ok) {
       console.error(`[image-proxy] Upstream error: ${response.status} for prompt "${prompt.slice(0, 60)}..."`)
       if (response.status === 429) {
-        const retryAfter = response.headers.get('retry-after') || '10'
-        res.setHeader('Retry-After', retryAfter)
-        return res.status(429).json({ error: 'Rate limited by image provider', retryAfter: Number(retryAfter) })
+        return res.status(429).json({ error: 'Rate limited by image provider' })
       }
       throw new Error(`Upstream ${response.status}`)
     }
