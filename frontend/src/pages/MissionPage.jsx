@@ -103,7 +103,7 @@ export function parseChoices(block) {
   const pattern = /\[([ABC])[)\]]\s*([\s\S]*?)(?=\s*\[[ABC][)\]]|EFECTOS:|$)/g
   let match
   while ((match = pattern.exec(block)) !== null) {
-    let text = stripMd(match[2].replace(/,\s*$/, '').trim())
+    let text = stripMd(match[2].replace(/\s*ENCADENADO:\s*\[[^\]]*\]/gi, '').replace(/,\s*$/, '').trim())
     const typeMatch = text.match(/^(táctica|agresiva|sigilosa|creativa|social)\s*[—-]\s*/i)
     const type = typeMatch ? typeMatch[1].toLowerCase() : null
     if (typeMatch) text = text.slice(typeMatch[0].length).trim()

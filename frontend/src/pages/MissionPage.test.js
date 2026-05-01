@@ -25,6 +25,13 @@ describe('parseChoices', () => {
     expect(result[2]).toEqual({ key: 'C', text: 'Salir por la puerta', type: null })
   })
 
+  test('elimina etiqueta ENCADENADO del texto visible', () => {
+    const block = '[A] Rompés la lámpara ENCADENADO: [el ruido atrae refuerzos]\n[B] Salís\n[C] Esperás'
+    const result = parseChoices(block)
+    expect(result[0].text).toBe('Rompés la lámpara')
+    expect(result[0].text).not.toContain('ENCADENADO')
+  })
+
   test('elimina comas finales en el texto de las opciones', () => {
     const block = '[A] Primera opción,\n[B] Segunda opción,'
     const result = parseChoices(block)
