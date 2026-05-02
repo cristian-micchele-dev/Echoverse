@@ -5,8 +5,6 @@ import { ROUTES } from '../utils/constants'
 import { API_URL } from '../config/api.js'
 import './AdminPage.css'
 
-const ADMIN_EMAIL = 'cristian.aiki1@gmail.com'
-
 function timeAgo(dateStr) {
   if (!dateStr) return '—'
   const diff = Date.now() - new Date(dateStr).getTime()
@@ -42,21 +40,21 @@ export default function AdminPage() {
   const [charsError, setCharsError] = useState(null)
   const [deletingChar, setDeletingChar] = useState(null)
   const [charSearch, setCharSearch] = useState('')
-
-  const isAdmin = user?.email === ADMIN_EMAIL
+  const [unauthorized, setUnauthorized] = useState(false)
 
   useEffect(() => {
-    if (!isAdmin) return
+    if (!session) return
     fetchUsers()
     fetchChars()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAdmin])
+  }, [session])
 
   async function fetchUsers() {
     try {
       const res = await fetch(`${API_URL}/admin/users`, {
         headers: { Authorization: `Bearer ${session.access_token}` }
       })
+      if (res.status === 403) { setUnauthorized(true); return }
       if (!res.ok) throw new Error('Error al cargar usuarios')
       const data = await res.json()
       setUsers(data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)))
@@ -72,6 +70,7 @@ export default function AdminPage() {
       const res = await fetch(`${API_URL}/admin/custom-characters`, {
         headers: { Authorization: `Bearer ${session.access_token}` }
       })
+      if (res.status === 403) { setUnauthorized(true); return }
       if (!res.ok) {
         const body = await res.json().catch(() => ({}))
         throw new Error(body.error || `HTTP ${res.status}`)
@@ -135,7 +134,7 @@ export default function AdminPage() {
     return q ? chars.filter(c => c.name?.toLowerCase().includes(q)) : chars
   }, [chars, charSearch])
 
-  if (!isAdmin) {
+  if (unauthorized) {
     return (
       <div className="admin-denied">
         <p>Acceso denegado.</p>
@@ -192,12 +191,12 @@ export default function AdminPage() {
                 </thead>
                 <tbody>
                   {filteredUsers.map(u => (
-                    <tr key={u.id} className={u.email === ADMIN_EMAIL ? 'admin-table__row--self' : ''}>
+                    <tr key={u.id} className={u.id === user?.id ? 'admin-table__row--self' : ''}>
                       <td className="admin-table__email">{u.email}</td>
                       <td className="admin-table__username">{u.username || <span className="admin-table__empty">—</span>}</td>
                       <td className="admin-table__date">{timeAgo(u.created_at)}</td>
                       <td className="admin-table__actions">
-                        {u.email !== ADMIN_EMAIL && (
+                        {u.id !== user?.id && (
                           <button
                             className="admin-delete-btn"
                             onClick={() => handleDeleteUser(u)}

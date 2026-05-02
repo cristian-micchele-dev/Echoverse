@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { characters } from '../data/characters'
 import { INTERROGATION_CHAR_IDS } from '../data/interrogationData'
 import { useAuth } from '../context/AuthContext'
+import { useToast } from '../context/ToastContext'
 import { recordCompletion } from '../utils/recordCompletion'
 import './InterrogationPage.css'
 import { API_URL } from '../config/api.js'
@@ -32,6 +33,7 @@ const allIntChars = INTERROGATION_CHAR_IDS
 
 export default function InterrogationPage() {
   const { session } = useAuth()
+  const { showConfirm } = useToast()
   const recordedRef = useRef(false)
 
   const [sessionSeed, setSessionSeed] = useState(0)
@@ -292,7 +294,7 @@ export default function InterrogationPage() {
         onSendSuggestion={sendSuggestion}
         onToggleFlag={toggleFlag}
         onDecide={() => setPhase('confrontation')}
-        onAbandon={() => { if (window.confirm('¿Abandonar el interrogatorio?')) resetGame() }}
+        onAbandon={() => showConfirm('¿Abandonar el interrogatorio?', resetGame)}
       />
     )
   }

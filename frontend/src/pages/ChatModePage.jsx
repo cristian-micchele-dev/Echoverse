@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { ROUTES, chatHistoryKey } from '../utils/constants'
 import { getUserRankName } from '../utils/affinity'
 import { useAuth } from '../context/AuthContext'
+import { useToast } from '../context/ToastContext'
 import { supabase } from '../lib/supabase'
 import { getRecentChats } from './chatMode/utils.js'
 import ChatModeHeader from './chatMode/ChatModeHeader.jsx'
@@ -14,6 +15,7 @@ import './ChatModePage.css'
 export default function ChatModePage() {
   const navigate = useNavigate()
   const { session } = useAuth()
+  const { showConfirm } = useToast()
   const userRank = getUserRankName()
 
   const [visible, setVisible] = useState(false)
@@ -70,17 +72,18 @@ export default function ChatModePage() {
     setTimeout(() => navigate(ROUTES.DUO), 260)
   }
 
-  async function handleDeleteCustomChar(id, e) {
+  function handleDeleteCustomChar(id, e) {
     e.stopPropagation()
-    if (!window.confirm('¿Eliminar este personaje?')) return
-    setDeletingId(id)
-    await supabase
-      .from('custom_characters')
-      .delete()
-      .eq('id', id)
-      .eq('user_id', session.user.id)
-    setCustomChars(prev => prev.filter(c => c.id !== id))
-    setDeletingId(null)
+    showConfirm('¿Eliminar este personaje?', async () => {
+      setDeletingId(id)
+      await supabase
+        .from('custom_characters')
+        .delete()
+        .eq('id', id)
+        .eq('user_id', session.user.id)
+      setCustomChars(prev => prev.filter(c => c.id !== id))
+      setDeletingId(null)
+    })
   }
 
   return (

@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useToast } from '../context/ToastContext'
 import { characters } from '../data/characters'
 import { getAffinityLevel } from '../utils/affinity'
 import { getMissionProgress, resetProgress } from '../utils/missionProgress'
@@ -23,6 +24,7 @@ import './ProfilePage.css'
 
 export default function ProfilePage() {
   const { user, session, loading: authLoading, logout } = useAuth()
+  const { showToast, showConfirm } = useToast()
   const navigate = useNavigate()
 
   const [affinities, setAffinities] = useState([])
@@ -121,26 +123,28 @@ export default function ProfilePage() {
     navigate(ROUTES.HOME)
   }
 
-  async function handleDeleteAccount() {
-    const confirmed = window.confirm(
-      '¿Estás seguro de que querés eliminar tu cuenta? Esta acción es permanente e irreversible. Se borrarán todos tus datos, historial y progreso.'
+  function handleDeleteAccount() {
+    showConfirm(
+      '¿Estás seguro de que querés eliminar tu cuenta? Esta acción es permanente e irreversible.',
+      async () => {
+        try {
+          const res = await fetch(`${API_URL}/auth/account`, {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${session.access_token}` }
+          })
+          if (!res.ok) {
+            const data = await res.json()
+            showToast(data.error || 'No se pudo eliminar la cuenta.')
+            return
+          }
+          await logout().catch(() => {})
+          navigate(ROUTES.HOME, { replace: true })
+        } catch {
+          showToast('Error al eliminar la cuenta. Intentá de nuevo.')
+        }
+      },
+      { confirmText: 'Eliminar cuenta' }
     )
-    if (!confirmed) return
-    try {
-      const res = await fetch(`${API_URL}/auth/account`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${session.access_token}` }
-      })
-      if (!res.ok) {
-        const data = await res.json()
-        alert(data.error || 'No se pudo eliminar la cuenta.')
-        return
-      }
-      await logout().catch(() => {})
-      navigate(ROUTES.HOME, { replace: true })
-    } catch {
-      alert('Error al eliminar la cuenta. Intentá de nuevo.')
-    }
   }
 
   const activeAffinities = affinities

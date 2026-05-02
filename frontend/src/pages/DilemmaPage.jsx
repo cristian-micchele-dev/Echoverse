@@ -114,14 +114,28 @@ export default function DilemmaPage() {
     setConsequenceVisible(false)
     transitionTo('reaction', 60)
     fetchReaction(choice, dilema)
-    fetch(`${API_URL}/db/dilema-votes`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ dilemaId: dilema.id, choiceKey: choice.key })
-    })
-      .then(r => r.json())
-      .then(votes => { if (votes && !votes.error) setGlobalVotes(votes) })
-      .catch(() => {})
+
+    const storageKey = `voted-dilema-${dilema.id}`
+    if (localStorage.getItem(storageKey)) {
+      fetch(`${API_URL}/db/dilema-votes/${dilema.id}`)
+        .then(r => r.json())
+        .then(votes => { if (votes && !votes.error) setGlobalVotes(votes) })
+        .catch(() => {})
+    } else {
+      fetch(`${API_URL}/db/dilema-votes`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dilemaId: dilema.id, choiceKey: choice.key })
+      })
+        .then(r => r.json())
+        .then(votes => {
+          if (votes && !votes.error) {
+            setGlobalVotes(votes)
+            try { localStorage.setItem(storageKey, '1') } catch { /* unavailable */ }
+          }
+        })
+        .catch(() => {})
+    }
   }
 
   const fetchReaction = useCallback(async (choice, dilema) => {

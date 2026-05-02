@@ -4,20 +4,21 @@ import { Helmet } from 'react-helmet-async'
 import { characters } from '../data/characters'
 import { UI_THEMES } from '../data/uiThemes'
 import MessageBubble from '../components/MessageBubble/MessageBubble'
-import { saveSession } from '../utils/session'
-import { chatHistoryKey, MAX_STORED_MESSAGES, ROUTES } from '../utils/constants'
+import { ROUTES } from '../utils/constants'
 import './ChatPage.css'
 import { API_URL } from '../config/api.js'
 import { getAffinityData, getAffinityLevel, getUserRankName, isRankSufficient } from '../utils/affinity'
 import { useAuth } from '../context/AuthContext'
+import { useToast } from '../context/ToastContext'
 import { useAchievements } from '../hooks/useAchievements'
 import { useStreaming } from '../hooks/useStreaming'
+import { useChatMessages } from '../hooks/useChatMessages'
 import { CHARACTER_STREAM_DELAYS } from '../data/characterConfig'
 import AchievementToast from '../components/AchievementToast/AchievementToast'
 import ShareModal from '../components/ShareModal/ShareModal'
 import VerdictBubble from '../components/VerdictBubble/VerdictBubble'
 import { supabase } from '../lib/supabase'
-import { playNotificationSound, detectReaction, formatDateSeparator, updateHistoryMeta } from './chat/utils.js'
+import { formatDateSeparator } from './chat/utils.js'
 import BgParticles from './chat/BgParticles.jsx'
 import ChatHeader from './chat/ChatHeader.jsx'
 import ChatEmpty from './chat/ChatEmpty.jsx'
@@ -55,37 +56,27 @@ export default function ChatPage() {
     return characters.find(c => c.id === characterId) ?? null
   }, [isCustom, customCharData, characterId])
   const { session } = useAuth()
+  const { showConfirm } = useToast()
   const { checkAndUnlock, newlyUnlocked, dismissToast } = useAchievements()
   const { isTyping, isLoading, streamChat } = useStreaming()
+  const { messages, setMessages, reactions, userReactions, cloudSaved, handleUserReact, clearMessages } =
+    useChatMessages({ characterId, character, session, isCustom, isLoading, checkAndUnlock })
 
-  const storageKey = chatHistoryKey(characterId)
-  const userReactionsKey = `reactions-${characterId}`
-  const [messages, setMessages] = useState(() => {
-    try {
-      const saved = localStorage.getItem(storageKey)
-      return saved ? JSON.parse(saved) : []
-    } catch { return [] }
-  })
   const [input, setInput] = useState('')
   const [showScrollBtn, setShowScrollBtn] = useState(false)
   const [headerImgError, setHeaderImgError] = useState(false)
   const [emptyImgError, setEmptyImgError] = useState(false)
   const [chatError, setChatError] = useState(null)
-  const [cloudSaved, setCloudSaved] = useState(false)
   const [showShare, setShowShare] = useState(false)
   const [isVerdictLoading, setIsVerdictLoading] = useState(false)
   const lastFailedInputRef = useRef('')
   const errorTimerRef = useRef(null)
   const [visible, setVisible] = useState(false)
   const [flashEffect, setFlashEffect] = useState('')
-  const [reactions, setReactions] = useState({})
-  const [userReactions, setUserReactions] = useState(() => {
-    try { return JSON.parse(localStorage.getItem(userReactionsKey) || '{}') } catch { return {} }
-  })
   const messagesEndRef = useRef(null)
   const messagesContainerRef = useRef(null)
   const inputRef = useRef(null)
-  const prevIsLoadingRef = useRef(false)
+  const prevFlashRef = useRef(false)
 
   useEffect(() => {
     requestAnimationFrame(() => setVisible(true))
@@ -104,21 +95,6 @@ export default function ChatPage() {
         else navigate(ROUTES.CHAT)
       })
   }, [isCustom, rawCustomId, navigate])
-
-  // Cargar historial desde BD si el usuario está autenticado (solo chars oficiales)
-  useEffect(() => {
-    if (!session || !characterId || isCustom) return
-    fetch(`${API_URL}/db/chat-history/${characterId}`, {
-      headers: { Authorization: `Bearer ${session.access_token}` }
-    })
-      .then(r => r.json())
-      .then(dbMessages => {
-        if (Array.isArray(dbMessages) && dbMessages.length > 0) {
-          setMessages(dbMessages)
-        }
-      })
-      .catch(() => {})
-  }, [session, characterId, isCustom])
 
   // Aplicar tema al :root y restaurar al salir
   useEffect(() => {
@@ -142,33 +118,9 @@ export default function ChatPage() {
     }
   }, [character, isCustom, session, navigate])
 
+  // Flash effect por personaje al completarse la respuesta
   useEffect(() => {
-    if (messages.length === 0) return
-    try {
-      const toSave = messages.filter(m => !m.isVerdict).slice(-MAX_STORED_MESSAGES)
-      localStorage.setItem(storageKey, JSON.stringify(toSave))
-    } catch { /* localStorage unavailable */ }
-  }, [messages, storageKey, isCustom])
-
-  // Persistir reacciones del usuario en localStorage
-  useEffect(() => {
-    try { localStorage.setItem(userReactionsKey, JSON.stringify(userReactions)) } catch { /* localStorage unavailable */ }
-  }, [userReactions, userReactionsKey])
-
-  const handleUserReact = useCallback((msgIndex, emoji) => {
-    setUserReactions(prev => {
-      if (prev[msgIndex] === emoji) {
-        const next = { ...prev }
-        delete next[msgIndex]
-        return next
-      }
-      return { ...prev, [msgIndex]: emoji }
-    })
-  }, [])
-
-  // Sound + reactions + history on response complete
-  useEffect(() => {
-    if (prevIsLoadingRef.current && !isLoading && messages.length > 0) {
+    if (prevFlashRef.current && !isLoading && messages.length > 0) {
       const lastMsg = messages[messages.length - 1]
       if (lastMsg.role === 'assistant' && lastMsg.content && !lastMsg.isVerdict) {
         const CHAR_EFFECTS = {
@@ -183,40 +135,10 @@ export default function ChatPage() {
           setFlashEffect(effect)
           setTimeout(() => setFlashEffect(''), 1200)
         }
-        const reaction = detectReaction(lastMsg.content)
-        if (reaction) {
-          setReactions(prev => ({ ...prev, [messages.length - 1]: reaction }))
-        }
-        playNotificationSound(character?.notificationTone || 'default')
-        updateHistoryMeta(characterId, messages.length)
-        saveSession({
-          characterId,
-          characterName: character?.name || '',
-          modeLabel: 'Chat 1 a 1',
-          route: `/chat/${characterId}`,
-          lastMessage: lastMsg.content?.slice(0, 120) || '',
-        })
-        if (session && !isCustom) {
-          const toSave = messages.slice(-MAX_STORED_MESSAGES)
-          fetch(`${API_URL}/db/chat-history`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
-            body: JSON.stringify({ characterId, messages: toSave })
-          }).then(() => {
-            setCloudSaved(true)
-            setTimeout(() => setCloudSaved(false), 2500)
-          }).catch(() => {})
-          fetch(`${API_URL}/db/affinity`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
-            body: JSON.stringify({ characterId, messageCount: messages.length })
-          }).catch(() => {})
-          checkAndUnlock({ totalMessages: messages.length })
-        }
       }
     }
-    prevIsLoadingRef.current = isLoading
-  }, [isLoading, messages, character, characterId, session, checkAndUnlock, isCustom])
+    prevFlashRef.current = isLoading
+  }, [isLoading, messages, characterId])
 
   useEffect(() => {
     const container = messagesContainerRef.current
@@ -298,6 +220,7 @@ export default function ChatPage() {
     } finally {
       inputRef.current?.focus()
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [input, isLoading, messages, characterId, streamChat, isCustom, character, session])
 
   const handleKeyDown = (e) => {
@@ -308,20 +231,7 @@ export default function ChatPage() {
   }
 
   const clearChat = () => {
-    if (!window.confirm('¿Borrar toda la conversación? Esta acción no se puede deshacer.')) return
-    setMessages([])
-    setReactions({})
-    setUserReactions({})
-    try {
-      localStorage.removeItem(storageKey)
-      localStorage.removeItem(userReactionsKey)
-    } catch { /* localStorage unavailable */ }
-    if (session && !isCustom) {
-      fetch(`${API_URL}/db/chat-history/${characterId}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${session.access_token}` }
-      }).catch(() => {})
-    }
+    showConfirm('¿Borrar toda la conversación? Esta acción no se puede deshacer.', clearMessages)
   }
 
   const handleVerdict = async () => {

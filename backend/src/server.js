@@ -10,6 +10,8 @@ import roomsRouter         from './routes/rooms.js'
 import adminRouter         from './routes/admin.js'
 import onlineRouter        from './routes/online.js'
 import dailyQuoteRouter    from './routes/dailyQuote.js'
+import { supabase }        from './config/supabase.js'
+
 const app = express()
 app.set('trust proxy', 1)
 const PORT = process.env.PORT || 3001
@@ -74,6 +76,18 @@ const voteLimiter = rateLimit({
 app.use('/api/db/battle-votes', voteLimiter)
 app.use('/api/db/dilema-votes', voteLimiter)
 
+const imageLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 6,
+  standardHeaders: true,
+  legacyHeaders: false,
+  validate: { xForwardedForHeader: false },
+  message: { error: 'Demasiadas solicitudes de imagen. Esperá un momento.' }
+})
+app.use('/api/mission/image-proxy', imageLimiter)
+app.use('/api/mission/image-prompt', imageLimiter)
+app.use('/api/mission/scene-image-prompt', imageLimiter)
+
 app.use('/api', chatRouter)
 app.use('/api', interrogationRouter)
 app.use('/api/db', dbRouter)
@@ -85,4 +99,13 @@ app.use('/api', dailyQuoteRouter)
 
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`)
+
+  // Liberar salas que quedaron bloqueadas por un crash o deploy anterior
+  supabase
+    .from('rooms')
+    .update({ is_ai_responding: false })
+    .eq('is_ai_responding', true)
+    .then(({ error }) => {
+      if (error) console.error('[startup] No se pudieron liberar salas bloqueadas:', error.message)
+    })
 })

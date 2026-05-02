@@ -7,6 +7,11 @@ import { streamMistralGenerator } from '../utils/mistral.js'
 
 const router = Router()
 
+// Rastreo en memoria de cuándo se adquirió el lock de is_ai_responding por sala.
+// Permite detectar locks stale sin cambio de schema en la BD.
+const respondingSince = new Map() // roomId → timestamp
+const RESPONDING_TIMEOUT_MS = 90_000 // 90s — tiempo máximo razonable para una respuesta
+
 // Convierte 'john-wick' → 'John Wick' para usarlo como username del personaje
 function charIdToName(id) {
   return id.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
@@ -104,7 +109,18 @@ router.post('/rooms/:roomId/messages', requireAuth, async (req, res) => {
     .single()
 
   if (roomErr || !room) return res.status(404).json({ error: 'Sala no encontrada o inactiva' })
-  if (room.is_ai_responding) return res.status(429).json({ error: 'El personaje ya está respondiendo, esperá un momento' })
+
+  if (room.is_ai_responding) {
+    const since = respondingSince.get(roomId)
+    const isStale = !since || Date.now() - since > RESPONDING_TIMEOUT_MS
+    if (isStale) {
+      // Lock stale (proceso murió o bug en cleanup) — auto-liberar
+      await supabase.from('rooms').update({ is_ai_responding: false }).eq('id', roomId)
+      respondingSince.delete(roomId)
+    } else {
+      return res.status(429).json({ error: 'El personaje ya está respondiendo, esperá un momento' })
+    }
+  }
 
   const character = characters[room.character_id]
   if (!character) return res.status(500).json({ error: 'Personaje de la sala no encontrado' })
@@ -119,8 +135,9 @@ router.post('/rooms/:roomId/messages', requireAuth, async (req, res) => {
     type
   })
 
-  // Marcar que la IA está respondiendo
+  // Marcar que la IA está respondiendo y registrar el timestamp en memoria
   await supabase.from('rooms').update({ is_ai_responding: true }).eq('id', roomId)
+  respondingSince.set(roomId, Date.now())
 
   // Responder al cliente inmediatamente — el streaming ocurre en background
   res.json({ ok: true })
@@ -219,6 +236,7 @@ async function streamToRoom(roomId, character, latestContent = '', participants 
     channel.send({ type: 'broadcast', event: 'ai_done', payload: {} })
     await supabase.removeChannel(channel)
     await supabase.from('rooms').update({ is_ai_responding: false }).eq('id', roomId)
+    respondingSince.delete(roomId)
   }
 }
 

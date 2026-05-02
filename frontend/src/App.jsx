@@ -5,6 +5,7 @@ import { ToastProvider } from './context/ToastContext'
 import { useAuth } from './context/AuthContext'
 import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary'
 import PageLoader from './components/PageLoader/PageLoader'
+import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute'
 import { ROUTES } from './utils/constants'
 import './App.css'
 
@@ -45,10 +46,10 @@ function AnimatedRoutes() {
       <Routes location={location}>
         <Route path={ROUTES.AUTH} element={<AuthPage />} />
         <Route path={ROUTES.RESET_PASSWORD} element={<ResetPasswordPage />} />
-        <Route path={ROUTES.PERFIL} element={<ProfilePage />} />
+        <Route path={ROUTES.PERFIL} element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
         <Route path={ROUTES.HOME} element={<LandingPage />} />
         <Route path={ROUTES.CHAT} element={<ChatModePage />} />
-        <Route path="/chat/:characterId" element={<ChatPage />} />
+        <Route path={ROUTES.CHAT_CHARACTER_ROUTE} element={<ChatPage />} />
         <Route path={ROUTES.DUO} element={<DuoPage />} />
         <Route path={ROUTES.GUESS} element={<GuessPage />} />
         <Route path={ROUTES.MISSION} element={<MissionPage />} />
@@ -60,12 +61,12 @@ function AnimatedRoutes() {
         <Route path={ROUTES.ULTIMA_CENA} element={<UltimaCenaPage />} />
         <Route path={ROUTES.PARECIDO} element={<ParecidoPage />} />
         <Route path={ROUTES.SALAS} element={<RoomsPage />} />
-        <Route path="/salas/:roomId" element={<RoomChatPage />} />
-        <Route path={ROUTES.ADMIN} element={<AdminPage />} />
-        <Route path={ROUTES.CREAR_PERSONAJE} element={<CreateCharacterPage />} />
-        <Route path="/editar-personaje/:id" element={<EditCharacterPage />} />
+        <Route path={ROUTES.SALA_ROUTE} element={<RoomChatPage />} />
+        <Route path={ROUTES.ADMIN} element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
+        <Route path={ROUTES.CREAR_PERSONAJE} element={<ProtectedRoute><CreateCharacterPage /></ProtectedRoute>} />
+        <Route path={ROUTES.EDITAR_PERSONAJE_ROUTE} element={<ProtectedRoute><EditCharacterPage /></ProtectedRoute>} />
         <Route path={ROUTES.COMUNIDAD} element={<ComunidadPage />} />
-        <Route path={ROUTES.DASHBOARD} element={<DashboardPage />} />
+        <Route path={ROUTES.DASHBOARD} element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
         <Route path={ROUTES.PRIVACY} element={<PrivacyPage />} />
         <Route path={ROUTES.TERMS} element={<TermsPage />} />
         <Route path="*" element={<NotFoundPage />} />
