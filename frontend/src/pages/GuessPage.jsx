@@ -1,54 +1,18 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { characters } from '../data/characters'
-import { guessData }   from '../data/guessData'
+import { guessData } from '../data/guessData'
 import { useAuth } from '../context/AuthContext'
 import { recordCompletion } from '../utils/recordCompletion'
-import { ROUTES } from '../utils/constants'
-import { Helmet } from 'react-helmet-async'
 import { shareResult } from '../utils/share'
 import { API_URL } from '../config/api'
+import { ROUNDS, MAX_HINTS, POINTS, CANDIDATES } from './guess/constants.js'
+import { saveBestScore, pickRandom, shuffle, calcRank } from './guess/utils.js'
+import GuessIntro from './guess/GuessIntro.jsx'
+import GuessPlaying from './guess/GuessPlaying.jsx'
+import GuessReveal from './guess/GuessReveal.jsx'
+import GuessSummary from './guess/GuessSummary.jsx'
 import './GuessPage.css'
-
-const ROUNDS     = 8
-const MAX_HINTS  = 3
-const POINTS     = [100, 70, 40]   // points available at hint 1 / 2 / 3
-const COST_LABEL = [null, '−30 pts', '−30 pts']
-const CANDIDATES = 5
-const MAX_SCORE  = ROUNDS * POINTS[0]  // 800
-
-function getBestScore() {
-  try { return parseInt(localStorage.getItem('guess-best-score') || '0') } catch { return 0 }
-}
-function saveBestScore(score) {
-  try {
-    if (score > getBestScore()) localStorage.setItem('guess-best-score', String(score))
-  // eslint-disable-next-line no-empty
-  } catch {}
-}
-
-function pickRandom(arr, exclude = [], n = 1) {
-  const pool = arr.filter(c => !exclude.includes(c.id))
-  const shuffled = [...pool].sort(() => Math.random() - 0.5)
-  return n === 1 ? shuffled[0] : shuffled.slice(0, n)
-}
-
-function shuffle(arr) {
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]]
-  }
-  return arr
-}
-
-function calcRank(score) {
-  const pct = score / MAX_SCORE
-  if (pct === 1)    return { label: 'Leyenda',       desc: 'Adivinaste todo a la primera. Tu conocimiento es impresionante.', color: '#fbbf24', icon: '◆' }
-  if (pct >= 0.85)  return { label: 'Detective',      desc: 'Casi perfecto. Las pistas apenas te hicieron falta.', color: '#a78bfa', icon: '◇' }
-  if (pct >= 0.65)  return { label: 'Conocedor',      desc: 'Buen ojo. Reconocés a la mayoría sin necesitar mucha ayuda.', color: '#60a5fa', icon: '○' }
-  if (pct >= 0.45)  return { label: 'Aprendiz',       desc: 'Algunos se te escaparon, pero vas aprendiendo.', color: '#34d399', icon: '△' }
-  return               { label: 'Espectador',      desc: 'Todavía queda mucho universo por explorar.', color: '#94a3b8', icon: '◌' }
-}
 
 export default function GuessPage() {
   const navigate = useNavigate()
@@ -59,14 +23,14 @@ export default function GuessPage() {
   const [target, setTarget]           = useState(null)
   const [candidates, setCandidates]   = useState([])
   const [hintsShown, setHintsShown]   = useState(1)
-  const [result, setResult]           = useState(null)   // 'win' | 'lose'
+  const [result, setResult]           = useState(null)
   const [guessed, setGuessed]         = useState(null)
   const [totalScore, setTotalScore]   = useState(0)
   const [round, setRound]             = useState(1)
   const [usedIds, setUsedIds]         = useState([])
   const [revealing, setRevealing]     = useState(false)
   const [shareCopied, setShareCopied] = useState(false)
-  const [history, setHistory]         = useState([])     // [{win, pts, char}]
+  const [history, setHistory]         = useState([])
   const [ranking, setRanking]         = useState([])
   const [rankingFetched, setRankingFetched] = useState(false)
 
@@ -76,7 +40,8 @@ export default function GuessPage() {
   const hints  = data?.hints ?? []
   const maxPts = POINTS[hintsShown - 1] ?? POINTS[POINTS.length - 1]
 
-  // ── Start round ──────────────────────────────────────
+  // ── Start round ───────────────────────────────────────────────────────────
+
   const startRound = (char, currentRound) => {
     const decoys = pickRandom(characters, [char.id], CANDIDATES - 1)
     const pool   = shuffle([char, ...decoys])
@@ -98,7 +63,8 @@ export default function GuessPage() {
     startRound(char, 1)
   }
 
-  // ── Reveal next hint ─────────────────────────────────
+  // ── Reveal next hint ──────────────────────────────────────────────────────
+
   const revealNextHint = () => {
     if (hintsShown >= MAX_HINTS) return
     setHintsShown(h => h + 1)
@@ -107,7 +73,8 @@ export default function GuessPage() {
     }, 60)
   }
 
-  // ── Handle guess ─────────────────────────────────────
+  // ── Handle guess ──────────────────────────────────────────────────────────
+
   const handleGuess = (char) => {
     if (result || revealing) return
     const correct = char.id === target.id
@@ -131,6 +98,46 @@ export default function GuessPage() {
     }, 600)
   }
 
+  // ── Next round or summary ─────────────────────────────────────────────────
+
+  const nextRound = () => {
+    const nextIdx = round + 1
+    if (nextIdx > ROUNDS) {
+      setPhase('summary')
+      return
+    }
+    const char = pickRandom(characters, [...usedIds], 1)
+    startRound(char, nextIdx)
+  }
+
+  const resetGame = () => {
+    setPhase('intro')
+    setTotalScore(0)
+    setRound(1)
+    setUsedIds([])
+    setTarget(null)
+    setCandidates([])
+    setResult(null)
+    setGuessed(null)
+    setHistory([])
+    setRanking([])
+    setRankingFetched(false)
+    recordedRef.current = false
+  }
+
+  // ── Share ─────────────────────────────────────────────────────────────────
+
+  const handleShare = async () => {
+    const rank    = calcRank(totalScore)
+    const correct = history.filter(h => h.win).length
+    const res = await shareResult(
+      `${rank.label} — Adiviné ${correct}/${ROUNDS} personajes con ${totalScore} pts en EchoVerse. ¿Podés superarme? echoverse-jet.vercel.app`
+    )
+    if (res === 'copied') { setShareCopied(true); setTimeout(() => setShareCopied(false), 2000) }
+  }
+
+  // ── Record completion ─────────────────────────────────────────────────────
+
   useEffect(() => {
     if (phase === 'summary' && !recordedRef.current) {
       recordedRef.current = true
@@ -152,353 +159,52 @@ export default function GuessPage() {
     }
   }, [phase, session, totalScore])
 
-  // ── Next round or summary ────────────────────────────
-  const nextRound = () => {
-    const nextIdx = round + 1
-    if (nextIdx > ROUNDS) {
-      setPhase('summary')
-      return
-    }
-    const newUsed = [...usedIds]
-    const char = pickRandom(characters, newUsed, 1)
-    startRound(char, nextIdx)
-  }
+  // ── Render ────────────────────────────────────────────────────────────────
 
-  const resetGame = () => {
-    setPhase('intro')
-    setTotalScore(0)
-    setRound(1)
-    setUsedIds([])
-    setTarget(null)
-    setCandidates([])
-    setResult(null)
-    setGuessed(null)
-    setHistory([])
-    setRanking([])
-    setRankingFetched(false)
-    recordedRef.current = false
-  }
+  if (phase === 'intro') return <GuessIntro onStart={startGame} navigate={navigate} />
 
-  // ─────────────────────────────────────────────────────
-  // INTRO
-  // ─────────────────────────────────────────────────────
-  if (phase === 'intro') {
-    return (
-      <div className="gp gp--intro">
-        <Helmet>
-          <title>Adivina el Personaje — EchoVerse</title>
-          <meta name="description" content="Pistas de a una, puntaje que baja. ¿Cuánto conocés a los personajes más icónicos del cine y la TV?" />
-          <link rel="canonical" href="https://echoverse-jet.vercel.app/guess" />
-        </Helmet>
-        <div className="gp-bg" aria-hidden="true">
-          <div className="gp-orb gp-orb--1" />
-          <div className="gp-orb gp-orb--2" />
-          <div className="gp-orb gp-orb--3" />
-          <div className="gp-stars" />
-          <div className="gp-bg-vignette" />
-        </div>
+  if (phase === 'playing') return (
+    <GuessPlaying
+      round={round}
+      totalScore={totalScore}
+      hints={hints}
+      hintsShown={hintsShown}
+      maxPts={maxPts}
+      candidates={candidates}
+      result={result}
+      revealing={revealing}
+      hintAreaRef={hintAreaRef}
+      canRevealMore={hintsShown < MAX_HINTS}
+      onRevealHint={revealNextHint}
+      onGuess={handleGuess}
+      onExit={resetGame}
+    />
+  )
 
-        <div className="gp-intro-strip" aria-hidden="true">
-          {[...characters, ...characters].map((c, i) => (
-            <div key={`s-${i}`} className="gp-intro-strip__card">
-              <img src={c.image} alt="" loading="lazy" decoding="async" />
-            </div>
-          ))}
-        </div>
+  if (phase === 'reveal') return (
+    <GuessReveal
+      target={target}
+      result={result}
+      guessed={guessed}
+      hintsShown={hintsShown}
+      maxPts={maxPts}
+      history={history}
+      round={round}
+      onNext={nextRound}
+      onReset={resetGame}
+    />
+  )
 
-        <button className="gp-back-btn" onClick={() => navigate(ROUTES.HOME)}>← Volver</button>
-
-        <div className="gp-intro-content">
-          <span className="gp-eyebrow">Modo</span>
-          <h1 className="gp-intro-title">¿Lo reconocés?</h1>
-          <p className="gp-intro-sub">
-            Pistas psicológicas y contextuales. Cuanto antes lo adivines, más puntos ganás.
-          </p>
-
-          <div className="gp-intro-pills">
-            <span className="gp-pill">{ROUNDS} rondas</span>
-            <span className="gp-pill">100 pts máx.</span>
-            <span className="gp-pill">◈ Deducción pura</span>
-          </div>
-
-          <div className="gp-teaser">
-            <span className="gp-teaser__label">Pista 1 · Psicológica</span>
-            <p className="gp-teaser__text">
-              Lleva el peso del mundo en sus hombros desde niño, pero nunca lo buscó —
-              simplemente no sabe cómo evitarlo.
-            </p>
-          </div>
-
-          <button className="gp-start-btn" onClick={startGame}>Empezar a adivinar</button>
-        </div>
-      </div>
-    )
-  }
-
-  // ─────────────────────────────────────────────────────
-  // PLAYING
-  // ─────────────────────────────────────────────────────
-  if (phase === 'playing') {
-    const canRevealMore = hintsShown < MAX_HINTS
-
-    return (
-      <div className="gp gp--playing">
-        <div className="gp-bg" aria-hidden="true">
-          <div className="gp-orb gp-orb--1" />
-          <div className="gp-orb gp-orb--2" />
-          <div className="gp-orb gp-orb--3" />
-          <div className="gp-stars" />
-          <div className="gp-bg-vignette" />
-        </div>
-
-        <header className="gp-header">
-          <button className="gp-back-btn" onClick={resetGame}>← Salir</button>
-          <div className="gp-status">
-            <span className="gp-status__round">{round} / {ROUNDS}</span>
-            <span className="gp-status__pts">{totalScore} pts</span>
-          </div>
-        </header>
-
-        <div className="gp-hints" ref={hintAreaRef}>
-          <div className="gp-hints__top">
-            <span className="gp-hints__label">Pistas reveladas</span>
-            <span className="gp-pts-badge">{maxPts} pts disponibles</span>
-          </div>
-
-          {hints.slice(0, hintsShown).map((h, i) => (
-            <div key={i} className={`gp-hint gp-hint--l${i + 1}`} style={{ '--idx': i }}>
-              <div className="gp-hint__header">
-                <span className="gp-hint__num">#{i + 1}</span>
-                <span className="gp-hint__level">{h.level}</span>
-              </div>
-              <p className="gp-hint__text">{h.text}</p>
-            </div>
-          ))}
-        </div>
-
-        <div className="gp-reveal-wrap">
-          {canRevealMore ? (
-            <button className="gp-reveal-btn" onClick={revealNextHint}>
-              <span className="gp-reveal-btn__icon">◎</span>
-              <span className="gp-reveal-btn__text">
-                Pista {hintsShown + 1} · {hints[hintsShown]?.level}
-              </span>
-              <span className="gp-reveal-btn__cost">{COST_LABEL[hintsShown]}</span>
-            </button>
-          ) : (
-            <p className="gp-reveal-maxed">Todas las pistas reveladas — elegí tu respuesta</p>
-          )}
-        </div>
-
-        <div className="gp-candidates">
-          {candidates.map(char => (
-            <button
-              key={char.id}
-              className="gp-candidate"
-              style={{ '--cc': char.themeColor, '--cg': char.gradient }}
-              onClick={() => handleGuess(char)}
-              disabled={!!result || revealing}
-            >
-              <div className="gp-candidate__img">
-                <img src={char.image} alt={char.name} loading="lazy" decoding="async" />
-              </div>
-              <span className="gp-candidate__name">{char.name}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-    )
-  }
-
-  // ─────────────────────────────────────────────────────
-  // REVEAL
-  // ─────────────────────────────────────────────────────
-  if (phase === 'reveal') {
-    const isWin      = result === 'win'
-    const targetData = guessData[target.id]
-    const isLast     = round >= ROUNDS
-
-    const LEVEL_BADGES = [
-      { icon: '◆', label: 'Primera pista', color: '#fbbf24' },
-      { icon: '◇', label: 'Segunda pista', color: '#a78bfa' },
-      { icon: '○', label: 'Tercera pista', color: '#60a5fa' },
-    ]
-    const badge = LEVEL_BADGES[hintsShown - 1]
-
-    return (
-      <div className="gp gp--reveal">
-        <div className="gp-bg" aria-hidden="true">
-          <div className="gp-orb gp-orb--1" />
-          <div className="gp-orb gp-orb--2" />
-          <div className="gp-orb gp-orb--3" />
-          <div className="gp-stars" />
-          <div className="gp-bg-vignette" />
-        </div>
-
-        <div className="gp-reveal-glow" style={{ '--cc': target.themeColor }} aria-hidden="true" />
-        {isWin && <div className="gp-reveal-burst" style={{ '--cc': target.themeColor }} aria-hidden="true" />}
-
-        <div className="gp-reveal-card" style={{ '--cc': target.themeColor }}>
-          <div className={`gp-reveal-avatar ${isWin ? 'gp-reveal-avatar--win' : ''}`}>
-            <img src={target.image} alt={target.name} loading="lazy" decoding="async" />
-          </div>
-
-          <div className={`gp-reveal-mark gp-reveal-mark--${isWin ? 'win' : 'lose'}`}>
-            {isWin ? '✔' : '✕'}
-          </div>
-
-          <h2 className="gp-reveal-name" style={{ color: target.themeColor }}>
-            {target.name}
-          </h2>
-          <p className="gp-reveal-universe">{target.universe}</p>
-
-          {targetData?.revealPhrase && (
-            <blockquote className="gp-reveal-quote">
-              "{targetData.revealPhrase}"
-            </blockquote>
-          )}
-
-          {isWin && (
-            <div className="gp-reveal-score">
-              <span className="gp-reveal-badge" style={{ '--bc': badge.color }}>
-                {badge.icon} {badge.label}
-              </span>
-              <span className="gp-reveal-pts">+{maxPts} pts</span>
-            </div>
-          )}
-
-          {!isWin && guessed && (
-            <p className="gp-reveal-wrong">
-              Elegiste a <strong style={{ color: guessed.themeColor }}>{guessed.name}</strong>
-            </p>
-          )}
-
-          {/* Round progress dots */}
-          <div className="gp-round-dots">
-            {history.map((h, i) => (
-              <span
-                key={i}
-                className={`gp-round-dot gp-round-dot--${h.win ? 'win' : 'lose'}`}
-                title={h.char.name}
-              />
-            ))}
-            {Array.from({ length: ROUNDS - history.length }).map((_, i) => (
-              <span key={`e-${i}`} className="gp-round-dot gp-round-dot--empty" />
-            ))}
-          </div>
-
-          <div className="gp-reveal-actions">
-            <button className="gp-start-btn" onClick={nextRound}>
-              {isLast ? 'Ver resultado' : 'Siguiente'}
-            </button>
-            <button className="gp-back-btn" onClick={resetGame}>Salir</button>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  // ─────────────────────────────────────────────────────
-  // SUMMARY
-  // ─────────────────────────────────────────────────────
-  if (phase === 'summary') {
-    const rank    = calcRank(totalScore)
-    const correct = history.filter(h => h.win).length
-    const best    = getBestScore()
-    const isNew   = totalScore >= best
-
-    return (
-      <div className="gp gp--summary">
-        <div className="gp-bg" aria-hidden="true">
-          <div className="gp-orb gp-orb--1" />
-          <div className="gp-orb gp-orb--2" />
-          <div className="gp-orb gp-orb--3" />
-          <div className="gp-stars" />
-          <div className="gp-bg-vignette" />
-        </div>
-
-        <div className="gp-summary">
-          <span className="gp-eyebrow">Resultado final</span>
-
-          {/* Rank */}
-          <div className="gp-summary__rank" style={{ '--rc': rank.color }}>
-            <span className="gp-summary__rank-icon">{rank.icon}</span>
-            <span className="gp-summary__rank-label">{rank.label}</span>
-          </div>
-          <p className="gp-summary__rank-desc">{rank.desc}</p>
-
-          {/* Score */}
-          <div className="gp-summary__score">
-            <span className="gp-summary__score-num">{totalScore}</span>
-            <span className="gp-summary__score-max">/ {MAX_SCORE} pts</span>
-          </div>
-
-          {isNew && (
-            <span className="gp-summary__best">✦ Nuevo récord personal</span>
-          )}
-
-          {/* Stats */}
-          <div className="gp-summary__stats">
-            <div className="gp-summary__stat">
-              <span className="gp-summary__stat-val">{correct}</span>
-              <span className="gp-summary__stat-lbl">correctas</span>
-            </div>
-            <div className="gp-summary__stat-div" />
-            <div className="gp-summary__stat">
-              <span className="gp-summary__stat-val">{ROUNDS - correct}</span>
-              <span className="gp-summary__stat-lbl">falladas</span>
-            </div>
-            <div className="gp-summary__stat-div" />
-            <div className="gp-summary__stat">
-              <span className="gp-summary__stat-val">{ROUNDS}</span>
-              <span className="gp-summary__stat-lbl">rondas</span>
-            </div>
-          </div>
-
-          {/* History row */}
-          <div className="gp-summary__history">
-            {history.map((h, i) => (
-              <div key={i} className={`gp-summary__hist-item gp-summary__hist-item--${h.win ? 'win' : 'lose'}`}>
-                <div className="gp-summary__hist-img">
-                  <img src={h.char.image} alt={h.char.name} loading="lazy" decoding="async" />
-                </div>
-                <span className="gp-summary__hist-mark">{h.win ? '✔' : '✕'}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Global ranking */}
-          <div className="gp-ranking">
-            <h3 className="gp-ranking__title">Ranking global</h3>
-            {!rankingFetched ? (
-              <p className="gp-ranking__loading">Cargando...</p>
-            ) : ranking.length === 0 ? (
-              <p className="gp-ranking__loading">Sin datos aún.</p>
-            ) : (
-              <ol className="gp-ranking__list">
-                {ranking.map((entry, i) => (
-                  <li key={i} className={`gp-ranking__row${i === 0 ? ' gp-ranking__row--first' : ''}`}>
-                    <span className="gp-ranking__pos">{i + 1}</span>
-                    <span className="gp-ranking__name">{entry.username}</span>
-                    <span className="gp-ranking__score">{entry.best_score} pts</span>
-                  </li>
-                ))}
-              </ol>
-            )}
-          </div>
-
-          <div className="gp-summary__actions">
-            <button className="gp-start-btn" onClick={startGame}>Jugar de nuevo</button>
-            <button className="gp-back-btn" onClick={() => navigate(ROUTES.HOME)}>Inicio</button>
-            <button className="gp-back-btn" onClick={async () => {
-              const res = await shareResult(`${rank.label} — Adiviné ${correct}/${ROUNDS} personajes con ${totalScore} pts en EchoVerse. ¿Podés superarme? echoverse-jet.vercel.app`)
-              if (res === 'copied') { setShareCopied(true); setTimeout(() => setShareCopied(false), 2000) }
-            }}>
-              {shareCopied ? '✓ ¡Copiado!' : '↗ Compartir'}
-            </button>
-          </div>
-        </div>
-      </div>
-    )
-  }
+  if (phase === 'summary') return (
+    <GuessSummary
+      totalScore={totalScore}
+      history={history}
+      ranking={ranking}
+      rankingFetched={rankingFetched}
+      shareCopied={shareCopied}
+      onStartGame={startGame}
+      onShare={handleShare}
+      navigate={navigate}
+    />
+  )
 }
