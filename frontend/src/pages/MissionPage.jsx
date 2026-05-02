@@ -8,6 +8,11 @@ import CinematicIntro from '../components/CinematicIntro/CinematicIntro'
 import MissionVictory from '../components/MissionVictory/MissionVictory'
 import MissionCharSelect from './mission/MissionCharSelect'
 import MissionSetup from './mission/MissionSetup'
+import MissionPlayHeader from './mission/MissionPlayHeader'
+import MissionScene from './mission/MissionScene'
+import MissionChoices from './mission/MissionChoices'
+import MissionEndActions from './mission/MissionEndActions'
+import { stripMd, parseMissionResponse } from './mission/parsers.js'
 import './MissionPage.css'
 import { API_URL } from '../config/api.js'
 import { CAMPAIGN_ARCS } from '../data/missionLevels.js'
@@ -20,81 +25,8 @@ import {
   DIFFICULTIES, MISSION_TYPES,
 } from './mission/constants.jsx'
 
-function stripMd(str) {
-  return str.replace(/\*\*/g, '').replace(/\*/g, '')
-}
-
 // eslint-disable-next-line react-refresh/only-export-components
-export function parseChoices(block) {
-  const choices = []
-  const pattern = /\[([ABC])[)\]]\s*([\s\S]*?)(?=\s*\[[ABC][)\]]|EFECTOS:|$)/g
-  let match
-  while ((match = pattern.exec(block)) !== null) {
-    let text = stripMd(match[2].replace(/\s*ENCADENADO:\s*\[[^\]]*\]/gi, '').replace(/,\s*$/, '').trim())
-    const typeMatch = text.match(/^(táctica|agresiva|sigilosa|creativa|social)\s*[—-]\s*/i)
-    const type = typeMatch ? typeMatch[1].toLowerCase() : null
-    if (typeMatch) text = text.slice(typeMatch[0].length).trim()
-    if (text) choices.push({ key: match[1], text, type })
-  }
-  return choices
-}
-
-// eslint-disable-next-line react-refresh/only-export-components
-export function parseEffects(text) {
-  const effects = {}
-  const pattern = /([ABC]):\s*vida([+-]?\d+)\s+riesgo([+-]?\d+)(?:\s+sigilo([+-]?\d+))?(?:\s+desc:([^\n]+))?/gi
-  let match
-  while ((match = pattern.exec(text)) !== null) {
-    effects[match[1].toUpperCase()] = {
-      vida: parseInt(match[2], 10),
-      riesgo: parseInt(match[3], 10),
-      sigilo: match[4] ? parseInt(match[4], 10) : 0,
-      descripcion: match[5] ? match[5].trim() : null
-    }
-  }
-  return Object.keys(effects).length > 0 ? effects : null
-}
-
-// eslint-disable-next-line react-refresh/only-export-components
-export function parseMissionResponse(text) {
-  let title = null
-  let cleanText = text
-
-  const titleMatch = text.match(/^\*{0,2}(?:MISIÓN|TITULO):\*{0,2}\s*\n?\s*(.+?)(?:\n|$)/i)
-  if (titleMatch) {
-    title = titleMatch[1].trim().replace(/^\*+|\*+$/g, '')
-    cleanText = text.slice(titleMatch[0].length).trimStart()
-  }
-
-  const isFinal = cleanText.includes('[FIN]')
-  if (isFinal) cleanText = cleanText.replace('[FIN]', '').trim()
-
-  let effects = null
-  const efectosMatch = cleanText.match(/\nEFECTOS:\n([\s\S]*?)(\n\n|$)/)
-  if (efectosMatch) {
-    effects = parseEffects(efectosMatch[1])
-    cleanText = cleanText.slice(0, efectosMatch.index).trim()
-  }
-
-  cleanText = cleanText
-    .replace(/^\*{0,2}ESCENA:\*{0,2}\s*\n?/im, '')
-    .replace(/\n\*{0,2}OPCIONES:\*{0,2}\s*\n/i, '\n\n---\n')
-
-  const sepMatch = cleanText.match(/\n?\s*---\s*\n/)
-  if (sepMatch) {
-    const narrative = stripMd(cleanText.slice(0, sepMatch.index).trim())
-    const choiceBlock = cleanText.slice(sepMatch.index + sepMatch[0].length)
-    return { narrative, choices: parseChoices(choiceBlock), isFinal, title, effects }
-  }
-
-  const firstChoice = cleanText.search(/\[A[)\]]/)
-  if (firstChoice !== -1) {
-    const narrative = stripMd(cleanText.slice(0, firstChoice).replace(/---/g, '').trim())
-    return { narrative, choices: parseChoices(cleanText.slice(firstChoice)), isFinal, title, effects }
-  }
-
-  return { narrative: stripMd(cleanText), choices: [], isFinal, title, effects }
-}
+export { parseChoices, parseEffects, parseMissionResponse } from './mission/parsers.js'
 
 export default function MissionPage() {
   const navigate = useNavigate()
@@ -432,14 +364,13 @@ export default function MissionPage() {
     } catch { /* clipboard unavailable */ }
   }
 
-  const totalTurns = 5
-  const turnNumber = history.length + (phase === 'ended' ? 0 : 1)
   const vidaState = vida >= 4 ? 'optimal' : vida >= 2 ? 'injured' : 'critical'
   const vidaName  = VIDA_NAMES[missionType] || 'Resistencia'
   const riesgoIsDanger = (difficulty === 'hard' || difficulty === 'normal') && riesgo >= 4
   const sigiloIsDanger = difficulty === 'hard' && sigilo <= 1
+  const turnNumber = history.length + (phase === 'ended' ? 0 : 1)
 
-  /* ── Intro cinematográfica ───────────────────────── */
+  /* ── Intro cinematográfica ── */
   if (phase === 'intro') {
     return (
       <CinematicIntro
@@ -450,7 +381,7 @@ export default function MissionPage() {
     )
   }
 
-  /* ── Selección de personaje ──────────────────────── */
+  /* ── Selección de personaje ── */
   if (phase === 'chars') {
     return (
       <MissionCharSelect
@@ -464,7 +395,7 @@ export default function MissionPage() {
     )
   }
 
-  /* ── Setup ──────────────────────────────────────── */
+  /* ── Setup ── */
   if (phase === 'setup') {
     return (
       <MissionSetup
@@ -485,92 +416,32 @@ export default function MissionPage() {
     )
   }
 
-  /* ── Misión en curso ─────────────────────────────── */
+  /* ── Misión en curso ── */
   return (
     <div
       className={`mission-page mission-page--playing ${isEnded ? 'mission-page--ended' : ''} ${!isEnded && vidaState === 'critical' ? 'mission-page--critical' : ''}`}
       style={{ '--char-color': selectedChar.themeColor, '--char-gradient': selectedChar.gradient }}
     >
-      <div className="mission-play-header">
-        <div className="mission-header-top">
-          <div className="mission-header-left">
-            <button className="mission-back-btn mission-back-btn--abandon" onClick={handleRestart}>
-              ✕ Abandonar
-            </button>
-            <button
-              className="mission-mute-btn"
-              onClick={() => setMuted(m => !m)}
-              title={muted ? 'Activar música' : 'Silenciar música'}
-              aria-label={muted ? 'Activar música' : 'Silenciar música'}
-              aria-pressed={muted}
-            >
-              {muted
-                ? <svg width="16" height="16" viewBox="0 0 22 22" fill="none"><path d="M3 9v4h4l5 5V4L7 9H3z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/><line x1="17" y1="9" x2="21" y2="13" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/><line x1="21" y1="9" x2="17" y2="13" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
-                : <svg width="16" height="16" viewBox="0 0 22 22" fill="none"><path d="M3 9v4h4l5 5V4L7 9H3z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/><path d="M16 8.5a5 5 0 0 1 0 5M19 6a9 9 0 0 1 0 10" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
-              }
-            </button>
-          </div>
-          <div className="mission-play-identity">
-            {selectedChar.image
-              ? <img src={selectedChar.image} alt={selectedChar.name} className="mission-play-avatar" loading="lazy" decoding="async" />
-              : <span className="mission-play-avatar-emoji">{selectedChar.emoji}</span>
-            }
-            <div>
-              <span className="mission-play-name">{selectedChar.name}</span>
-              <span className="mission-play-universe">{playerAlias}</span>
-            </div>
-          </div>
-          <div className="mission-progress">
-            {Array.from({ length: totalTurns }).map((_, i) => (
-              <span
-                key={i}
-                className={`mission-progress__dot ${
-                  i < history.length ? 'mission-progress__dot--done' :
-                  i === history.length && !isEnded ? 'mission-progress__dot--active' : ''
-                }`}
-              />
-            ))}
-            <span className="mission-progress__label">
-              {isEnded ? 'Final' : `${Math.min(turnNumber, totalTurns)} / ${totalTurns}`}
-            </span>
-          </div>
-        </div>
-        <div className="mission-stats">
-          {isCountdownLevel && countdown !== null && (
-            <div className={`mission-countdown ${countdown <= 10 ? 'mission-countdown--urgent' : ''}`}>
-              <span className="mission-countdown__icon">⏱</span>
-              <span className="mission-countdown__value">{countdown}s</span>
-            </div>
-          )}
-          <div className={`mission-stat mission-stat--${vidaState}${vidaFlash ? ` mission-stat--flash-${vidaFlash}` : ''}`} title={vidaName}>
-            <span className="mission-stat__icon mission-stat__icon--vida">❤</span>
-            <div className="mission-stat__bar">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <span key={i} className={`mission-stat__pip ${i < vida ? 'mission-stat__pip--on' : ''} mission-stat__pip--vida`} />
-              ))}
-            </div>
-            <span className="mission-stat__name">{vidaName}</span>
-          </div>
-          <div className={`mission-stat${riesgoIsDanger ? ' mission-stat--critical' : ''}`} title="Riesgo">
-            <span className="mission-stat__icon">👁</span>
-            <div className="mission-stat__bar">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <span key={i} className={`mission-stat__pip ${i < riesgo ? 'mission-stat__pip--on' : ''} mission-stat__pip--riesgo`} />
-              ))}
-            </div>
-            <span className="mission-stat__name">Riesgo</span>
-          </div>
-          <div className={`mission-stat${sigiloIsDanger ? ' mission-stat--critical' : ''}`} title="Sigilo">
-            <span className="mission-stat__icon">🌑</span>
-            <div className="mission-stat__bar">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <span key={i} className={`mission-stat__pip ${i < sigilo ? 'mission-stat__pip--on' : ''} mission-stat__pip--sigilo`} />
-              ))}
-            </div>
-            <span className="mission-stat__name">Sigilo</span>
-          </div>
-        </div>
-      </div>
+      <MissionPlayHeader
+        selectedChar={selectedChar}
+        muted={muted}
+        onToggleMute={() => setMuted(m => !m)}
+        history={history}
+        isEnded={isEnded}
+        turnNumber={turnNumber}
+        isCountdownLevel={isCountdownLevel}
+        countdown={countdown}
+        vida={vida}
+        vidaFlash={vidaFlash}
+        vidaState={vidaState}
+        vidaName={vidaName}
+        riesgoIsDanger={riesgoIsDanger}
+        riesgo={riesgo}
+        sigiloIsDanger={sigiloIsDanger}
+        sigilo={sigilo}
+        playerAlias={playerAlias}
+        onAbandon={handleRestart}
+      />
 
       <div className="mission-play-content">
 
@@ -592,59 +463,21 @@ export default function MissionPage() {
           </div>
         )}
 
-        <div className={`mission-current ${isEnded ? 'mission-current--final' : ''}`}>
-          {isEnded && missionResult === 'win' && (
-            <div className="mission-final-badge mission-final-badge--win">✔ Misión Completada</div>
-          )}
-          {isEnded && missionResult === 'lose' && (
-            <div className="mission-final-badge mission-final-badge--lose">✕ Misión Fallida</div>
-          )}
-          {missionTitle && (
-            <div className="mission-title-badge">{missionTitle}</div>
-          )}
-          {sceneImage && !imageError ? (
-            <div className="mission-scene-image">
-              <img
-                key={sceneImage}
-                src={sceneImage}
-                alt="Escena de la misión"
-                onError={() => setImageError(true)}
-              />
-            </div>
-          ) : imageLoading ? (
-            <div className="mission-scene-image mission-scene-image--loading">
-              <span className="mission-scene-image__loading-label">Generando escena…</span>
-            </div>
-          ) : selectedChar?.image ? (
-            <div className="mission-scene-image mission-scene-image--fallback">
-              <img src={selectedChar.image} alt={selectedChar.name} />
-              <div className="mission-scene-image__overlay" />
-            </div>
-          ) : (
-            <div
-              className="mission-scene-placeholder"
-              style={{ '--char-gradient': selectedChar?.gradient || 'linear-gradient(135deg, #333, #111)' }}
-            >
-              <div className="mission-scene-placeholder__overlay" />
-              <div className="mission-scene-placeholder__content">
-                <span className="mission-scene-placeholder__label">Misión</span>
-                <span className="mission-scene-placeholder__name">{selectedChar?.name}</span>
-                <span className="mission-scene-placeholder__type">{MISSION_TYPES.find(m => m.id === missionType)?.label}</span>
-              </div>
-            </div>
-          )}
-          {!isEnded && (
-            <div className="mission-turn-badge">
-              {history.length === 0 ? '⚡ La misión comienza' : `— Turno ${history.length + 1}`}
-            </div>
-          )}
-          <div key={sceneKey} className="mission-scene">
-            <p className="mission-narrative">
-              {currentText}
-              {streaming && <span className="mission-cursor">▋</span>}
-            </p>
-          </div>
-        </div>
+        <MissionScene
+          isEnded={isEnded}
+          missionResult={missionResult}
+          missionTitle={missionTitle}
+          sceneImage={sceneImage}
+          imageError={imageError}
+          onImageError={() => setImageError(true)}
+          imageLoading={imageLoading}
+          selectedChar={selectedChar}
+          missionType={missionType}
+          streaming={streaming}
+          currentText={currentText}
+          sceneKey={sceneKey}
+          history={history}
+        />
 
         {isEnded && !streaming && history.length > 0 && (
           <div className="mission-decisions">
@@ -658,105 +491,35 @@ export default function MissionPage() {
           </div>
         )}
 
-        {!streaming && choices.length > 0 && (
-          <div className="mission-choices">
-            <div className="mission-choices__label">⚡ Tomá una decisión</div>
-            <div className="mission-choices__list">
-              {choices.map((choice, index) => (
-                <button
-                  key={choice.key}
-                  className={`mission-choice-btn ${choice.type ? `mission-choice-btn--${choice.type}` : ''}`}
-                  style={{ '--i': index }}
-                  onClick={() => handleChoice(choice)}
-                >
-                  <span className="mission-choice-btn__key">{choice.key}</span>
-                  <span className="mission-choice-btn__body">
-                    {choice.type && <span className="mission-choice-btn__type">{choice.type}</span>}
-                    <span className="mission-choice-btn__text">{choice.text}</span>
-                  </span>
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                    <path d="M3 7h8M7.5 3.5L11 7l-3.5 3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {!streaming && choices.length === 0 && !isEnded && (fetchError || currentText) && (
-          <div className="mission-choices">
-            <p className="mission-choices__label mission-choices__label--warn">
-              {fetchError ? 'Error de conexión — puede ser un límite de la API' : 'No se generaron acciones'}
-            </p>
-            <button className="mission-choice-btn" onClick={() => fetchMission(selectedChar, history, { vida, riesgo })}>
-              <span className="mission-choice-btn__key">↺</span>
-              <span className="mission-choice-btn__text">Reintentar</span>
-            </button>
-          </div>
-        )}
+        <MissionChoices
+          streaming={streaming}
+          choices={choices}
+          fetchError={fetchError}
+          currentText={currentText}
+          isEnded={isEnded}
+          onChoice={handleChoice}
+          onRetry={() => fetchMission(selectedChar, history, { vida, riesgo })}
+        />
 
         {isEnded && !streaming && (
-          <div className="mission-end-actions">
-            {campaignMode && missionResult === 'win' && selectedLevel?.level === 30 ? (
-              <div className="mission-campaign-complete">
-                <p className="mission-campaign-complete__title">¡Campaña completada!</p>
-                <p className="mission-campaign-complete__sub">Superaste los 30 niveles. Sos una leyenda.</p>
-                <button className="mission-end-btn mission-end-btn--chars" onClick={handleRestart}>
-                  Volver a campaña
-                </button>
-              </div>
-            ) : campaignMode && missionResult === 'win' ? (
-              <>
-                <button className="mission-end-btn mission-end-btn--next" onClick={handleNextLevel}>
-                  Siguiente nivel
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                    <path d="M3 7h8M7.5 3.5L11 7l-3.5 3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </button>
-                <div className="mission-end-actions__row">
-                  <button className="mission-end-btn mission-end-btn--chars" onClick={handleRestart}>Campaña</button>
-                  <button className="mission-end-btn mission-end-btn--home" onClick={() => navigate(ROUTES.HOME)}>Inicio</button>
-                </div>
-              </>
-            ) : campaignMode && missionResult === 'lose' ? (
-              <>
-                <button className="mission-end-btn mission-end-btn--new" onClick={() => {
-                  setHistory([])
-                  setMissionTitle('')
-                  setPhase('setup')
-                }}>
-                  Reintentar nivel
-                </button>
-                <div className="mission-end-actions__row">
-                  <button className="mission-end-btn mission-end-btn--chars" onClick={handleRestart}>Campaña</button>
-                  <button className="mission-end-btn mission-end-btn--home" onClick={() => navigate(ROUTES.HOME)}>Inicio</button>
-                </div>
-              </>
-            ) : (
-              <>
-                <button className="mission-end-btn mission-end-btn--new" onClick={() => {
-                  setHistory([])
-                  setMissionTitle('')
-                  setPhase('setup')
-                }}>
-                  Nueva misión
-                </button>
-                <div className="mission-end-actions__row">
-                  <button className="mission-end-btn mission-end-btn--share" onClick={handleShare}>
-                    {copied ? 'Copiado' : 'Compartir'}
-                  </button>
-                  <button className="mission-end-btn mission-end-btn--chars" onClick={handleRestart}>Otro personaje</button>
-                  <button className="mission-end-btn mission-end-btn--home" onClick={() => navigate(ROUTES.HOME)}>Inicio</button>
-                </div>
-              </>
-            )}
-          </div>
+          <MissionEndActions
+            campaignMode={campaignMode}
+            missionResult={missionResult}
+            selectedLevel={selectedLevel}
+            copied={copied}
+            onNextLevel={handleNextLevel}
+            onRestart={handleRestart}
+            onNewMission={() => { setHistory([]); setMissionTitle(''); setPhase('setup') }}
+            onRetryLevel={() => { setHistory([]); setMissionTitle(''); setPhase('setup') }}
+            onShare={handleShare}
+            navigate={navigate}
+          />
         )}
 
         <div ref={bottomRef} />
       </div>
 
-      {/* ── Victory overlay ──────────────────────────────── */}
+      {/* ── Victory overlay ── */}
       {isEnded && missionResult === 'win' && !streaming && victoryReady && !victoryDismissed && (
         <MissionVictory
           missionTitle={missionTitle}
