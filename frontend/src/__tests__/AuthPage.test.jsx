@@ -30,6 +30,7 @@ vi.mock('../context/AuthContext', () => ({
 
 vi.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate,
+  useLocation: () => ({ state: null }),
 }))
 
 // AuthPage importa './AuthPage.css' — Vitest con jsdom no procesa CSS.
@@ -202,7 +203,7 @@ describe('AuthPage — manejo de errores', () => {
     fireEvent.submit(screen.getByRole('button', { name: 'Entrar' }).closest('form'))
 
     await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith('/', { replace: true })
+      expect(mockNavigate).toHaveBeenCalledWith('/dashboard', { replace: true })
     })
   })
 })
