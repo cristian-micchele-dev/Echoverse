@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ROUTES, chatHistoryKey } from '../utils/constants'
 import { getUserRankName } from '../utils/affinity'
@@ -53,11 +53,11 @@ export default function ChatModePage() {
       .then(({ data }) => setCommunityChars(data ?? []))
   }, [session])
 
-  function handleSelect(characterId) {
+  const handleSelect = useCallback((characterId) => {
     setSelectedId(characterId)
     setExiting(true)
     setTimeout(() => navigate(ROUTES.CHAT_CHARACTER(characterId)), 260)
-  }
+  }, [navigate])
 
   function handleDeleteChat(charId, e) {
     e.stopPropagation()
