@@ -237,7 +237,7 @@ export const FIGHT_ROUND_SYSTEM_PROMPT = `Sos un narrador de combates estilo car
 // DUO_MODE builders — prompts dinámicos para modo dúo
 // ---------------------------------------------------------------------------
 
-export function buildDuoRoleAPrompt(characterPrompt, otherCharName) {
+export function buildDuoRoleAPrompt(characterPrompt, charName, otherCharName) {
   return `${characterPrompt}
 
 MODO DÚO — PERSONAJE 1:
@@ -259,10 +259,10 @@ REGLAS:
 - Siempre en español.
 
 FORMATO DE SALIDA:
-[Tu nombre]: tu mensaje breve y en personaje`
+${charName}: tu mensaje breve y en personaje`
 }
 
-export function buildDuoRoleBPrompt(characterPrompt, otherCharName, responseA) {
+export function buildDuoRoleBPrompt(characterPrompt, charName, otherCharName, responseA) {
   return `${characterPrompt}
 
 MODO DÚO — PERSONAJE 2:
@@ -286,10 +286,10 @@ REGLAS:
 - Siempre en español.
 
 FORMATO DE SALIDA:
-[Tu nombre]: tu mensaje que reacciona a ${otherCharName} y hace avanzar la escena`
+${charName}: tu mensaje que reacciona a ${otherCharName} y hace avanzar la escena`
 }
 
-export function buildDuoRoleA2Prompt(characterPrompt, otherCharName, responseB) {
+export function buildDuoRoleA2Prompt(characterPrompt, charName, otherCharName, responseB) {
   return `${characterPrompt}
 
 MODO DÚO — CIERRE DE TURNO:
@@ -301,5 +301,5 @@ No hagas un remate épico forzado. No repitas lo que ya dijiste antes.
 Siempre en español.
 
 FORMATO DE SALIDA:
-[Tu nombre]: una sola frase, o [SKIP] si no hay nada que agregar`
+${charName}: una sola frase, o [SKIP] si no hay nada que agregar`
 }

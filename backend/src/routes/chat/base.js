@@ -29,10 +29,11 @@ const AFFINITY_CONTEXT = {
 
 // ─── Builders de system prompts ──────────────────────────────────────────────
 
-function buildDuoSystemPrompt(characterPrompt, duoMode) {
-  if (duoMode.role === 'A') return buildDuoRoleAPrompt(characterPrompt, duoMode.otherCharName)
-  if (duoMode.role === 'B') return buildDuoRoleBPrompt(characterPrompt, duoMode.otherCharName, duoMode.responseA)
-  if (duoMode.role === 'A2') return buildDuoRoleA2Prompt(characterPrompt, duoMode.otherCharName, duoMode.responseB)
+function buildDuoSystemPrompt(character, duoMode) {
+  const { charName, otherCharName, responseA, responseB } = duoMode
+  if (duoMode.role === 'A') return buildDuoRoleAPrompt(character.systemPrompt, charName, otherCharName)
+  if (duoMode.role === 'B') return buildDuoRoleBPrompt(character.systemPrompt, charName, otherCharName, responseA)
+  if (duoMode.role === 'A2') return buildDuoRoleA2Prompt(character.systemPrompt, charName, otherCharName, responseB)
   return null
 }
 
@@ -66,7 +67,7 @@ La conversación es libre, sin guión.${temaContext}${eventoContext}${remateCont
 function buildChatSystemPrompt(character, body) {
   const { duoMode, battleMode, confesionarioMode, ultimaCenaMode, affinityLevel = 0 } = body
 
-  if (duoMode?.role) return buildDuoSystemPrompt(character.systemPrompt, duoMode)
+  if (duoMode?.role) return buildDuoSystemPrompt(character, duoMode)
   if (ultimaCenaMode?.role) return buildUltimaCenaPrompt(character.systemPrompt, ultimaCenaMode)
   if (battleMode) return `${character.systemPrompt}${BATTLE_MODE_SUFFIX}`
   if (confesionarioMode) return `${character.systemPrompt}${CONFESIONARIO_MODE_SUFFIX}`

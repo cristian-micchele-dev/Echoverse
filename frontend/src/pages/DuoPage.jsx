@@ -70,7 +70,7 @@ export default function DuoPage() {
       if (addressed === 'A' || addressed === 'both') {
         setTypingChar('charA')
         const histA = buildHistory(updatedMsgs, charA.id)
-        const responseA = await fetchCharResponse(charA.id, histA, { role: 'A', otherCharName: charB.name })
+        const responseA = await fetchCharResponse(charA.id, histA, { role: 'A', charName: charA.name, otherCharName: charB.name })
         const msgA = { role: 'charA', content: responseA, char: charA }
         updatedMsgs.push(msgA)
         setMessages([...updatedMsgs])
@@ -79,7 +79,7 @@ export default function DuoPage() {
         if (addressed === 'both') {
           setTypingChar('charB')
           const histB = buildHistory(updatedMsgs, charB.id)
-          const responseB = await fetchCharResponse(charB.id, histB, { role: 'B', otherCharName: charA.name, responseA })
+          const responseB = await fetchCharResponse(charB.id, histB, { role: 'B', charName: charB.name, otherCharName: charA.name, responseA })
           const msgB = { role: 'charB', content: responseB, char: charB }
           updatedMsgs.push(msgB)
           setMessages([...updatedMsgs])
@@ -87,7 +87,7 @@ export default function DuoPage() {
 
           setTypingChar(null)
           const histA2 = buildHistory(updatedMsgs, charA.id)
-          const responseA2 = await fetchCharResponse(charA.id, histA2, { role: 'A2', otherCharName: charB.name, responseB })
+          const responseA2 = await fetchCharResponse(charA.id, histA2, { role: 'A2', charName: charA.name, otherCharName: charB.name, responseB })
           if (responseA2.trim() !== '[SKIP]') {
             const msgA2 = { role: 'charA', content: responseA2, char: charA, isRemate: true }
             updatedMsgs.push(msgA2)
@@ -98,7 +98,7 @@ export default function DuoPage() {
       } else if (addressed === 'B') {
         setTypingChar('charB')
         const histB = buildHistory(updatedMsgs, charB.id)
-        const responseB = await fetchCharResponse(charB.id, histB, { role: 'A', otherCharName: charA.name })
+        const responseB = await fetchCharResponse(charB.id, histB, { role: 'A', charName: charB.name, otherCharName: charA.name })
         const msgB = { role: 'charB', content: responseB, char: charB }
         updatedMsgs.push(msgB)
         setMessages([...updatedMsgs])
