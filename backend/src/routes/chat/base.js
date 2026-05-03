@@ -165,7 +165,7 @@ router.post('/chat/verdict', async (req, res) => {
   if (!character) return res.status(404).json({ error: 'Personaje no encontrado' })
 
   const transcript = (messages ?? [])
-    .map(m => `${m.role === 'user' ? 'Usuario' : character.especialidad ?? character.id}: "${m.content}"`)
+    .map(m => `${m.role === 'user' ? 'Usuario' : character.id}: "${m.content}"`)
     .join('\n')
 
   const verdictPrompt = `${character.systemPrompt}
