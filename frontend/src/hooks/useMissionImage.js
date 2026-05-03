@@ -42,10 +42,11 @@ export function useMissionImage() {
           missionType: currentMissionType,
         })
       })
+      if (!promptRes.ok) throw new Error(`scene-image-prompt ${promptRes.status}`)
       const data = await promptRes.json()
       const imagePrompt = data.imagePrompt || ''
 
-      if (!imagePrompt) return
+      if (!imagePrompt) throw new Error('empty imagePrompt')
 
       const seed = [char.id, currentMissionType, currentDifficulty, narrative.slice(0, 60)]
         .join('|')

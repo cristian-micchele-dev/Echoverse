@@ -78,15 +78,13 @@ app.use('/api/db/dilema-votes', voteLimiter)
 
 const imageLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 6,
+  max: 15,
   standardHeaders: true,
   legacyHeaders: false,
   validate: { xForwardedForHeader: false },
   message: { error: 'Demasiadas solicitudes de imagen. Esperá un momento.' }
 })
 app.use('/api/mission/image-proxy', imageLimiter)
-app.use('/api/mission/image-prompt', imageLimiter)
-app.use('/api/mission/scene-image-prompt', imageLimiter)
 
 app.use('/api', chatRouter)
 app.use('/api', interrogationRouter)
