@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { getMissionIntro } from '../../utils/missionIntro'
+import { getMissionIntro } from '../../utils/game/missionIntro'
 import './CinematicIntro.css'
 
 /* ── Configuración de tiempos ─────────────────────────── */

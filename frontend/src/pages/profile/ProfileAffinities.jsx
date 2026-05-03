@@ -1,5 +1,5 @@
 import { ROUTES, chatHistoryKey } from '../../utils/constants'
-import { getAffinityLabel, getAffinityEmoji } from '../../utils/affinity'
+import { getAffinityLabel, getAffinityEmoji } from '../../utils/game/affinity'
 import { timeAgo } from '../../utils/session'
 
 export default function ProfileAffinities({ activeAffinities, navigate }) {

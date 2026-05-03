@@ -16,9 +16,9 @@ import { stripMd, parseMissionResponse } from './mission/parsers.js'
 import './MissionPage.css'
 import { API_URL } from '../config/api.js'
 import { CAMPAIGN_ARCS } from '../data/missionLevels.js'
-import { getMissionProgress, saveLevelComplete, resetProgress } from '../utils/missionProgress.js'
+import { getMissionProgress, saveLevelComplete, resetProgress } from '../utils/game/missionProgress.js'
 import { useAuth } from '../context/AuthContext'
-import { recordCompletion } from '../utils/recordCompletion'
+import { recordCompletion } from '../utils/api/recordCompletion'
 import { ROUTES } from '../utils/constants'
 import {
   CHAR_SURNAMES, VIDA_NAMES, INITIAL_VIDA, INITIAL_SIGILO,

@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { recordCompletion } from '../utils/recordCompletion'
+import { recordCompletion } from '../utils/api/recordCompletion'
 import { fetchCharResponse, buildHistory } from './duo/utils.js'
 import DuoSetup from './duo/DuoSetup.jsx'
 import DuoChat from './duo/DuoChat.jsx'

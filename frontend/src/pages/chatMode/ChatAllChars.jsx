@@ -1,7 +1,7 @@
 import { characters } from '../../data/characters'
 import CharacterCard from '../../components/CharacterCard/CharacterCard'
 import { CHARACTER_CATEGORIES, CATEGORY_CHIPS, CHARACTER_ORDER } from '../../data/characterConfig'
-import { isRankSufficient } from '../../utils/affinity'
+import { isRankSufficient } from '../../utils/game/affinity'
 
 export default function ChatAllChars({ search, selectedCategory, selectedId, onSearch, onSelectCategory, onSelect, session, userRank, communityChars }) {
   const filtered = characters

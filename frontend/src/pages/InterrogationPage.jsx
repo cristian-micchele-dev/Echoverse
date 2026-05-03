@@ -3,7 +3,7 @@ import { characterMap } from '../data/characters'
 import { INTERROGATION_CHAR_IDS } from '../data/interrogationData'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
-import { recordCompletion } from '../utils/recordCompletion'
+import { recordCompletion } from '../utils/api/recordCompletion'
 import './InterrogationPage.css'
 import { API_URL } from '../config/api.js'
 import {

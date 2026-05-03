@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ROUTES, chatHistoryKey } from '../utils/constants'
-import { getUserRankName } from '../utils/affinity'
+import { getUserRankName } from '../utils/game/affinity'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import { supabase } from '../lib/supabase'

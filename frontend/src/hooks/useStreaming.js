@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { readSSEStream } from '../utils/sse'
+import { readSSEStream } from '../utils/api/sse'
 
 /**
  * Encapsula la lógica de consumo de SSE streaming.

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { shareMessage } from '../../utils/shareImage'
+import { shareMessage } from '../../utils/sharing/shareImage'
 import './MessageBubble.css'
 
 const REACTION_EMOJIS = ['❤️', '😂', '😮', '😢', '🔥', '👏']

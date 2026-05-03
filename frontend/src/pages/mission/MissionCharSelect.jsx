@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { characters, characterMap } from '../../data/characters'
 import { CAMPAIGN_ARCS } from '../../data/missionLevels.js'
-import { getMissionProgress, resetProgress } from '../../utils/missionProgress.js'
+import { getMissionProgress, resetProgress } from '../../utils/game/missionProgress.js'
 import { ROUTES } from '../../utils/constants'
 import { Helmet } from 'react-helmet-async'
 

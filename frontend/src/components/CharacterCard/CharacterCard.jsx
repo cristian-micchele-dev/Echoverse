@@ -2,7 +2,7 @@ import { memo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import CharacterBioModal from '../CharacterBioModal/CharacterBioModal'
 import { characterBios } from '../../data/characterBios'
-import { getAffinityData, getAffinityLevel, getAffinityLabel, getAffinityEmoji, RANK_LABELS } from '../../utils/affinity'
+import { getAffinityData, getAffinityLevel, getAffinityLabel, getAffinityEmoji, RANK_LABELS } from '../../utils/game/affinity'
 import './CharacterCard.css'
 
 const CharacterCard = memo(function CharacterCard({ character, index = 0, onSelect, selected = false, locked = false }) {

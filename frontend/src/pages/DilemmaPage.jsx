@@ -8,8 +8,8 @@ import {
   applyStateEffects,
   pickDilemas
 } from '../data/dilemas'
-import { getAffinityData, getAffinityLevel } from '../utils/affinity'
-import { recordCompletion } from '../utils/recordCompletion'
+import { getAffinityData, getAffinityLevel } from '../utils/game/affinity'
+import { recordCompletion } from '../utils/api/recordCompletion'
 import './DilemmaPage.css'
 import { API_URL } from '../config/api.js'
 import { useAuth } from '../context/AuthContext'

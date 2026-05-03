@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { characterMap } from '../data/characters'
-import { getMissionProgress } from '../utils/missionProgress'
+import { getMissionProgress } from '../utils/game/missionProgress'
 import { useAuth } from '../context/AuthContext'
 import { ROUTES } from '../utils/constants'
 import { API_URL } from '../config/api'

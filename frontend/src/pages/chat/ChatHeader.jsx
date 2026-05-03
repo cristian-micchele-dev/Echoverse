@@ -1,4 +1,4 @@
-import { getAffinityData, getAffinityLevel, getAffinityLabel, getAffinityEmoji } from '../../utils/affinity'
+import { getAffinityData, getAffinityLevel, getAffinityLabel, getAffinityEmoji } from '../../utils/game/affinity'
 
 export default function ChatHeader({
   character, characterId, isCustom,

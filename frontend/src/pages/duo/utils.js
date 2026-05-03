@@ -1,4 +1,4 @@
-import { readSSEStream } from '../../utils/sse'
+import { readSSEStream } from '../../utils/api/sse'
 import { API_URL } from '../../config/api.js'
 
 export async function fetchCharResponse(characterId, messages, duoMode = null) {
