@@ -1,0 +1,8 @@
+{
+  "name": "echoverse",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "validate:characters": "node scripts/validate-characters.js"
+  }
+}
