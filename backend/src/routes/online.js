@@ -8,14 +8,8 @@ const sessions = new Map()
 const TTL = 45_000        // 45s sin ping = offline
 const MAX_SESSIONS = 5_000 // cap para evitar consumo ilimitado de memoria
 
-function activeCount() {
-  const cutoff = Date.now() - TTL
-  let count = 0
-  for (const ts of sessions.values()) {
-    if (ts >= cutoff) count++
-  }
-  return count
-}
+// Cached count — updated on cleanup. Avoids O(n) iteration on every ping.
+let cachedCount = 0
 
 // Limpieza periódica — .unref() permite que el proceso cierre limpiamente
 setInterval(() => {
@@ -23,6 +17,7 @@ setInterval(() => {
   for (const [id, ts] of sessions) {
     if (ts < cutoff) sessions.delete(id)
   }
+  cachedCount = sessions.size // all remaining entries are within TTL
 }, 15_000).unref()
 
 // POST /api/online/ping — el cliente avisa que está vivo
@@ -31,17 +26,19 @@ router.post('/online/ping', (req, res) => {
   if (!sid || typeof sid !== 'string' || sid.length > 64) {
     return res.status(400).json({ error: 'sid inválido' })
   }
+  const isNew = !sessions.has(sid)
   // Permitir actualizar SIDs existentes; rechazar nuevos si el Map está lleno
-  if (!sessions.has(sid) && sessions.size >= MAX_SESSIONS) {
-    return res.json({ online: activeCount() })
+  if (isNew && sessions.size >= MAX_SESSIONS) {
+    return res.json({ online: cachedCount })
   }
   sessions.set(sid, Date.now())
-  res.json({ online: activeCount() })
+  if (isNew) cachedCount++ // optimistic increment for new sessions
+  res.json({ online: cachedCount })
 })
 
 // GET /api/online — devuelve el conteo actual
 router.get('/online', (_req, res) => {
-  res.json({ online: activeCount() })
+  res.json({ online: cachedCount })
 })
 
 export default router
