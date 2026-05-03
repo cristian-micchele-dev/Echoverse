@@ -306,3 +306,156 @@ describe('POST /api/db/mission-progress — validación de body', () => {
     expect(res.body).toEqual({ ok: true })
   })
 })
+
+// ─── Helpers de setup para supabase chain ────────────────────────────────────
+
+function setupChain() {
+  mockSupabaseChain.from.mockReturnValue(mockSupabaseChain)
+  mockSupabaseChain.select.mockReturnValue(mockSupabaseChain)
+  mockSupabaseChain.eq.mockReturnValue(mockSupabaseChain)
+  mockSupabaseChain.single.mockReturnValue(mockSupabaseChain)
+  mockSupabaseChain.upsert.mockReturnValue(mockSupabaseChain)
+}
+
+// ─── Battle votes ─────────────────────────────────────────────────────────────
+
+describe('POST /api/db/battle-votes — validación de body', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+    setupChain()
+  })
+
+  it('responde 400 cuando falta characterId', async () => {
+    const app = buildApp()
+    const res = await request(app)
+      .post('/api/db/battle-votes/frodo-vs-vader')
+      .send({})
+
+    expect(res.status).toBe(400)
+    expect(res.body).toHaveProperty('error')
+  })
+})
+
+describe('POST /api/db/battle-votes — dedup', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+    setupChain()
+  })
+
+  it('primer voto incrementa el conteo y llama a upsert', async () => {
+    const app = buildApp()
+    mockSupabaseChain.single.mockResolvedValueOnce({ data: null, error: { code: 'PGRST116' } })
+    mockSupabaseChain.upsert.mockResolvedValueOnce({ error: null })
+
+    const res = await request(app)
+      .post('/api/db/battle-votes/battle-dedup-test-A')
+      .send({ characterId: 'frodo' })
+
+    expect(res.status).toBe(200)
+    expect(res.body).toEqual({ frodo: 1 })
+    expect(mockSupabaseChain.upsert).toHaveBeenCalledTimes(1)
+  })
+
+  it('segundo voto de la misma IP devuelve votos existentes sin llamar a upsert', async () => {
+    const app = buildApp()
+
+    // Primera request — registra la clave en voteDedup
+    mockSupabaseChain.single.mockResolvedValueOnce({ data: null, error: { code: 'PGRST116' } })
+    mockSupabaseChain.upsert.mockResolvedValueOnce({ error: null })
+    await request(app)
+      .post('/api/db/battle-votes/battle-dedup-test-B')
+      .send({ characterId: 'frodo' })
+
+    // Resetear mocks sin afectar el voteDedup del módulo
+    jest.clearAllMocks()
+    setupChain()
+
+    const existingVotes = { frodo: 5, vader: 3 }
+    mockSupabaseChain.single.mockResolvedValueOnce({ data: { votes: existingVotes }, error: null })
+
+    // Segunda request — misma IP, mismo matchupKey → hit dedup
+    const res = await request(app)
+      .post('/api/db/battle-votes/battle-dedup-test-B')
+      .send({ characterId: 'frodo' })
+
+    expect(res.status).toBe(200)
+    expect(res.body).toEqual(existingVotes)
+    expect(mockSupabaseChain.upsert).not.toHaveBeenCalled()
+  })
+})
+
+// ─── Dilema votes ─────────────────────────────────────────────────────────────
+
+describe('POST /api/db/dilema-votes — validación de body', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+    setupChain()
+  })
+
+  it('responde 400 cuando falta dilemaId', async () => {
+    const app = buildApp()
+    const res = await request(app)
+      .post('/api/db/dilema-votes')
+      .send({ choiceKey: 'A' })
+
+    expect(res.status).toBe(400)
+    expect(res.body).toHaveProperty('error')
+  })
+
+  it('responde 400 cuando falta choiceKey', async () => {
+    const app = buildApp()
+    const res = await request(app)
+      .post('/api/db/dilema-votes')
+      .send({ dilemaId: 'dilema-1' })
+
+    expect(res.status).toBe(400)
+    expect(res.body).toHaveProperty('error')
+  })
+})
+
+describe('POST /api/db/dilema-votes — dedup', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+    setupChain()
+  })
+
+  it('primer voto incrementa el conteo y llama a upsert', async () => {
+    const app = buildApp()
+    mockSupabaseChain.single.mockResolvedValueOnce({ data: null, error: { code: 'PGRST116' } })
+    mockSupabaseChain.upsert.mockResolvedValueOnce({ error: null })
+
+    const res = await request(app)
+      .post('/api/db/dilema-votes')
+      .send({ dilemaId: 'dilema-dedup-test-A', choiceKey: 'A' })
+
+    expect(res.status).toBe(200)
+    expect(res.body).toEqual({ A: 1 })
+    expect(mockSupabaseChain.upsert).toHaveBeenCalledTimes(1)
+  })
+
+  it('segundo voto de la misma IP devuelve votos existentes sin llamar a upsert', async () => {
+    const app = buildApp()
+
+    // Primera request — registra la clave en voteDedup
+    mockSupabaseChain.single.mockResolvedValueOnce({ data: null, error: { code: 'PGRST116' } })
+    mockSupabaseChain.upsert.mockResolvedValueOnce({ error: null })
+    await request(app)
+      .post('/api/db/dilema-votes')
+      .send({ dilemaId: 'dilema-dedup-test-B', choiceKey: 'A' })
+
+    jest.clearAllMocks()
+    setupChain()
+
+    const existingVotes = { A: 10, B: 7 }
+    mockSupabaseChain.single.mockResolvedValueOnce({ data: { votes: existingVotes }, error: null })
+
+    // Segunda request — mismo IP, mismo dilemaId → hit dedup
+    const res = await request(app)
+      .post('/api/db/dilema-votes')
+      .send({ dilemaId: 'dilema-dedup-test-B', choiceKey: 'A' })
+
+    expect(res.status).toBe(200)
+    expect(res.body).toEqual(existingVotes)
+    expect(mockSupabaseChain.upsert).not.toHaveBeenCalled()
+  })
+})
