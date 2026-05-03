@@ -1,4 +1,4 @@
-import { characters } from '../../data/characters'
+import { characterMap } from '../../data/characters'
 import { missions } from '../../data/missions'
 import { SECONDARY_MODES, PROTAGONIST_MODES } from './constants.js'
 import ArrowIcon from './ArrowIcon.jsx'
@@ -19,7 +19,7 @@ export default function LandingModes({ navigate }) {
 
         <div className="lp-mode-cards lp-reveal" style={{ '--reveal-delay': '0.05s' }}>
           {SECONDARY_MODES.map(mode => {
-            const char = characters.find(c => c.id === mode.characterId)
+            const char = characterMap[mode.characterId]
             return (
               <button
                 key={mode.num}
@@ -54,7 +54,7 @@ export default function LandingModes({ navigate }) {
 
         <div className="lp-mode-blocks">
           {PROTAGONIST_MODES.map((mode, i) => {
-            const char = characters.find(c => c.id === mode.characterId)
+            const char = characterMap[mode.characterId]
             return (
               <article
                 key={mode.id}

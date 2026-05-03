@@ -1,4 +1,4 @@
-import { characters } from '../../data/characters'
+import { characterMap } from '../../data/characters'
 import { ROUTES } from '../../utils/constants'
 import { timeAgo } from '../../utils/session'
 
@@ -13,7 +13,7 @@ export default function ProfileInterrogations({ interrogationResults, navigate }
       {interrogationResults.length > 0 ? (
         <div className="pp-intr-list">
           {interrogationResults.slice(0, 5).map(r => {
-            const char = characters.find(c => c.id === r.character_id)
+            const char = characterMap[r.character_id]
             return (
               <div key={r.id} className={`pp-intr-row ${r.correct ? 'pp-intr-row--correct' : 'pp-intr-row--wrong'}`}>
                 <span className="pp-intr-row__verdict">{r.correct ? '✓' : '✗'}</span>

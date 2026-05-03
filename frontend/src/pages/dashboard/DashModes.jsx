@@ -1,4 +1,4 @@
-import { characters } from '../../data/characters'
+import { characterMap } from '../../data/characters'
 import { MODES } from './constants.js'
 
 export default function DashModes({ modeCompletions, modesRef, navigate }) {
@@ -32,7 +32,7 @@ export default function DashModes({ modeCompletions, modesRef, navigate }) {
       </div>
       <div className="dash-modes-grid" ref={modesRef}>
         {sortedModes.map(mode => {
-          const char = characters.find(c => c.id === mode.characterId)
+          const char = characterMap[mode.characterId]
           const img = mode.image ?? char?.image
           const timesPlayed = mode.completionKey ? (modeCompletions[mode.completionKey] || 0) : 0
           const isNew = mode.completionKey !== null && timesPlayed === 0

@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { characters } from '../../data/characters'
+import { characters, characterMap } from '../../data/characters'
 import { CAMPAIGN_ARCS } from '../../data/missionLevels.js'
 import { getMissionProgress, resetProgress } from '../../utils/missionProgress.js'
 import { ROUTES } from '../../utils/constants'
@@ -84,7 +84,7 @@ export default function MissionCharSelect({
           <div className="campaign-grid">
             {CAMPAIGN_ARCS.map((arc, arcIdx) => {
               const isSpecial = arc.levels[0].type === 'countdown'
-              const arcChar = isSpecial ? null : characters.find(c => c.id === arc.character)
+              const arcChar = isSpecial ? null : characterMap[arc.character]
               const allLevelsCompleted = arc.levels.every(lvl => !!campaignProgress.completedLevels[lvl.level])
               const firstUnlocked = arc.levels[0].level <= campaignProgress.highestUnlocked
               const arcLocked = !firstUnlocked

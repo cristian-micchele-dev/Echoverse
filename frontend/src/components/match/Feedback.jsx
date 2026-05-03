@@ -1,10 +1,10 @@
-import { characters } from '../../data/characters'
+import { characterMap } from '../../data/characters'
 import './Feedback.css'
 
 export default function Feedback({ result }) {
   const { chosenId, isTimeout, insight, explanation } = result
 
-  const chosenChar = chosenId ? characters.find(c => c.id === chosenId) : null
+  const chosenChar = chosenId ? characterMap[chosenId] : null
 
   if (isTimeout) {
     return (

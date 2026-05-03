@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import CharacterBioModal from '../CharacterBioModal/CharacterBioModal'
+import { characterBios } from '../../data/characterBios'
 import { getAffinityData, getAffinityLevel, getAffinityLabel, getAffinityEmoji, RANK_LABELS } from '../../utils/affinity'
 import './CharacterCard.css'
 
@@ -76,7 +77,7 @@ export default function CharacterCard({ character, index = 0, onSelect, selected
         )}
 
         {/* Botón info */}
-        {character.bio && (
+        {characterBios[character.id] && (
           <button
             className="char-card__info"
             onClick={handleInfoClick}

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
-import { characters } from '../data/characters'
+import { characterMap } from '../data/characters'
 import { INTERROGATION_CHAR_IDS } from '../data/interrogationData'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
@@ -28,7 +28,7 @@ function pickRandom(arr, n) {
 }
 
 const allIntChars = INTERROGATION_CHAR_IDS
-  .map(id => characters.find(c => c.id === id))
+  .map(id => characterMap[id])
   .filter(Boolean)
 
 export default function InterrogationPage() {

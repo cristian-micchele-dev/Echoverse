@@ -1,4 +1,4 @@
-import { characters } from '../../data/characters'
+import { characters, characterMap } from '../../data/characters'
 import { ROUTES } from '../../utils/constants'
 import { CAST } from './constants.js'
 import ArrowIcon from './ArrowIcon.jsx'
@@ -20,7 +20,7 @@ export default function LandingCast({ navigate }) {
 
       <div className="lp-cast-rail lp-reveal" style={{ '--reveal-delay': '0.1s' }}>
         {CAST.map(fc => {
-          const char = characters.find(c => c.id === fc.id)
+          const char = characterMap[fc.id]
           if (!char) return null
           return (
             <button

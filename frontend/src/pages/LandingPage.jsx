@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
-import { characters } from '../data/characters'
+import { characterMap } from '../data/characters'
 import { loadSession } from '../utils/session'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
@@ -29,9 +29,9 @@ export default function LandingPage() {
   const sidRef = useRef(null)
   const lpRef  = useRef(null)
 
-  const heroChars   = HERO_CHAR_IDS.map(id => characters.find(c => c.id === id)).filter(Boolean)
+  const heroChars   = HERO_CHAR_IDS.map(id => characterMap[id]).filter(Boolean)
   const session     = loadSession()
-  const sessionChar = session ? characters.find(c => c.id === session.characterId) : null
+  const sessionChar = session ? (characterMap[session.characterId] ?? null) : null
 
   useEffect(() => {
     if (user) navigate(ROUTES.DASHBOARD, { replace: true })

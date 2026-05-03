@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { characters } from '../../data/characters'
+import { characterMap } from '../../data/characters'
 import './OptionsGrid.css'
 
 function shuffle(arr) {
@@ -14,7 +14,7 @@ export default function OptionsGrid({ optionIds, onSelect, disabled, lastResult 
     [optionIds.join(',')]
   )
 
-  const chars = shuffled.map(id => characters.find(c => c.id === id)).filter(Boolean)
+  const chars = shuffled.map(id => characterMap[id]).filter(Boolean)
 
   function getModifier(id) {
     if (!lastResult) return ''

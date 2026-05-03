@@ -1,4 +1,4 @@
-import { characters } from '../../data/characters'
+import { characterMap } from '../../data/characters'
 import { ROUTES } from '../../utils/constants'
 import { CONVERSATION_PREVIEWS } from './constants.js'
 import ArrowIcon from './ArrowIcon.jsx'
@@ -20,7 +20,7 @@ export default function LandingPreviews({ navigate }) {
 
         <div className="lp-previews-grid">
           {CONVERSATION_PREVIEWS.map((preview, i) => {
-            const char = characters.find(c => c.id === preview.characterId)
+            const char = characterMap[preview.characterId]
             if (!char) return null
             return (
               <article

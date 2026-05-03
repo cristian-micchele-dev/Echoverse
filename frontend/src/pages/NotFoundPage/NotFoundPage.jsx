@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { characters } from '../../data/characters'
+import { characterMap } from '../../data/characters'
 import { ROUTES } from '../../utils/constants'
 import './NotFoundPage.css'
 
@@ -16,7 +16,7 @@ const CAMEOS = [
 export default function NotFoundPage() {
   const navigate = useNavigate()
   const [cameo] = useState(() => CAMEOS[Math.floor(Math.random() * CAMEOS.length)])
-  const char = characters.find(c => c.id === cameo.id)
+  const char = characterMap[cameo.id]
 
   return (
     <div className="nf">

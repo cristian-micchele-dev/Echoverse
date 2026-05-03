@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { characters } from '../../data/characters'
+import { characterMap } from '../../data/characters'
 import { getTodayChallenge, MODE_LABELS } from '../../data/dailyChallenges'
 import { useAuth } from '../../context/AuthContext'
 import { useStreak } from '../../hooks/useStreak'
@@ -14,7 +14,7 @@ export default function DailyChallenge() {
   const [completed, setCompleted] = useState(false)
 
   const challenge = getTodayChallenge()
-  const char = characters.find(c => c.id === challenge.characterId)
+  const char = characterMap[challenge.characterId]
 
   useEffect(() => {
     if (!session || !char) return

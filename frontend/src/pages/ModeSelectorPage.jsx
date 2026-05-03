@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { characters } from '../data/characters'
+import { characterMap } from '../data/characters'
 import { getMissionProgress } from '../utils/missionProgress'
 import { useAuth } from '../context/AuthContext'
 import { ROUTES } from '../utils/constants'
@@ -198,7 +198,7 @@ export default function ModeSelectorPage() {
         {/* Todos los modos — grid unificado */}
         <div className="ms-main-grid">
           {[...MAIN_MODES, ...SECONDARY_MODES].map((mode, i) => {
-            const char = characters.find(c => c.id === mode.characterId)
+            const char = characterMap[mode.characterId]
             return (
               <button
                 key={mode.id}

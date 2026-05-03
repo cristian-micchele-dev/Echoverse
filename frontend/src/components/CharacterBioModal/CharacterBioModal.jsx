@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { characterBios } from '../../data/characterBios'
 import './CharacterBioModal.css'
 
 export default function CharacterBioModal({ character, onClose }) {
@@ -61,7 +62,7 @@ export default function CharacterBioModal({ character, onClose }) {
 
         {/* Bio */}
         <div className="bio-modal__body">
-          <p className="bio-modal__bio">{character.bio || 'Sin historia disponible.'}</p>
+          <p className="bio-modal__bio">{characterBios[character.id] || 'Sin historia disponible.'}</p>
         </div>
 
         {/* Acciones */}

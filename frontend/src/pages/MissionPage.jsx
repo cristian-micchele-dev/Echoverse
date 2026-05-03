@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { characters } from '../data/characters'
+import { characterMap } from '../data/characters'
 import { useStreaming } from '../hooks/useStreaming'
 import { useMissionImage } from '../hooks/useMissionImage'
 import { useMissionAudio } from '../hooks/useMissionAudio'
@@ -220,7 +220,7 @@ export default function MissionPage() {
       setPhase('chars')
       return
     }
-    const char = characters.find(c => c.id === levelConfig.character)
+    const char = characterMap[levelConfig.character]
     if (!char) return
     setSelectedLevel(levelConfig)
     setSelectedChar(char)

@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useRef, useEffect } from 'react'
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { ToastProvider } from './context/ToastContext'
@@ -38,11 +38,20 @@ const TermsPage = lazy(() => import('./pages/TermsPage'))
 function AnimatedRoutes() {
   const location = useLocation()
   const { loading } = useAuth()
+  const wrapperRef = useRef(null)
+
+  useEffect(() => {
+    const el = wrapperRef.current
+    if (!el) return
+    el.style.animation = 'none'
+    void el.offsetHeight // force reflow so browser sees the reset
+    el.style.animation = ''
+  }, [location.pathname])
 
   if (loading) return <PageLoader />
 
   return (
-    <div key={location.pathname} className="page-transition-wrapper">
+    <div ref={wrapperRef} className="page-transition-wrapper">
       <Routes location={location}>
         <Route path={ROUTES.AUTH} element={<AuthPage />} />
         <Route path={ROUTES.RESET_PASSWORD} element={<ResetPasswordPage />} />

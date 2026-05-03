@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { characters } from '../data/characters'
 import { guessData } from '../data/guessData'
@@ -36,6 +36,8 @@ export default function GuessPage() {
 
   const hintAreaRef = useRef(null)
 
+  const playableCharacters = useMemo(() => characters.filter(c => guessData[c.id]), [])
+
   const data   = target ? guessData[target.id] : null
   const hints  = data?.hints ?? []
   const maxPts = POINTS[hintsShown - 1] ?? POINTS[POINTS.length - 1]
@@ -43,7 +45,7 @@ export default function GuessPage() {
   // ── Start round ───────────────────────────────────────────────────────────
 
   const startRound = (char, currentRound) => {
-    const decoys = pickRandom(characters, [char.id], CANDIDATES - 1)
+    const decoys = pickRandom(playableCharacters, [char.id], CANDIDATES - 1)
     const pool   = shuffle([char, ...decoys])
     setTarget(char)
     setCandidates(pool)
@@ -59,7 +61,7 @@ export default function GuessPage() {
     setTotalScore(0)
     setUsedIds([])
     setHistory([])
-    const char = pickRandom(characters, [], 1)
+    const char = pickRandom(playableCharacters, [], 1)
     startRound(char, 1)
   }
 
@@ -106,7 +108,7 @@ export default function GuessPage() {
       setPhase('summary')
       return
     }
-    const char = pickRandom(characters, [...usedIds], 1)
+    const char = pickRandom(playableCharacters, [...usedIds], 1)
     startRound(char, nextIdx)
   }
 

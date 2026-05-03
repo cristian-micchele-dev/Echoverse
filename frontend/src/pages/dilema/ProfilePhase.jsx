@@ -1,4 +1,4 @@
-import { characters } from '../../data/characters'
+import { characterMap } from '../../data/characters'
 import { PROFILE_RECS } from './constants.js'
 
 export default function ProfilePhase({ profile, character, choices, narrativeState, visible, onRestart, onHome }) {
@@ -17,7 +17,7 @@ export default function ProfilePhase({ profile, character, choices, narrativeSta
     : 'Culpa leve'
 
   const recIds = PROFILE_RECS[profile.id] || []
-  const recs = recIds.map(id => characters.find(c => c.id === id)).filter(Boolean)
+  const recs = recIds.map(id => characterMap[id]).filter(Boolean)
 
   return (
     <div className={`dilema-phase dilema-profile ${visible ? 'dilema-profile--visible' : ''}`}>

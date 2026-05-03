@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { characters } from '../../data/characters'
+import { characterMap } from '../../data/characters'
 import './OnboardingModal.css'
 
 const MODES = [
@@ -57,7 +57,7 @@ export default function OnboardingModal({ onClose }) {
 
         <div className="onb-modes">
           {MODES.map(mode => {
-            const char = characters.find(c => c.id === mode.characterId)
+            const char = characterMap[mode.characterId]
             return (
               <button
                 key={mode.route}

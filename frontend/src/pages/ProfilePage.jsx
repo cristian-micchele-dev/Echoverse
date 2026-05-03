@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
-import { characters } from '../data/characters'
+import { characterMap } from '../data/characters'
 import { getAffinityLevel } from '../utils/affinity'
 import { getMissionProgress, resetProgress } from '../utils/missionProgress'
 import { useAchievements } from '../hooks/useAchievements'
@@ -149,7 +149,7 @@ export default function ProfilePage() {
 
   const activeAffinities = affinities
     .map(a => {
-      const char = characters.find(c => c.id === a.character_id)
+      const char = characterMap[a.character_id]
       if (!char) return null
       const level = getAffinityLevel(a.message_count)
       return { ...a, char, level }

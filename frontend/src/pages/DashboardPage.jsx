@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import { useStreak } from '../hooks/useStreak'
 import { useAchievements } from '../hooks/useAchievements'
 import { supabase } from '../lib/supabase'
-import { characters } from '../data/characters'
+import { characters, characterMap } from '../data/characters'
 import { pickByDay, shuffleByDay } from '../utils/daily'
 import { loadSession, clearSession, hoursUntilMidnight } from '../utils/session'
 import { getMissionProgress } from '../utils/missionProgress'
@@ -47,14 +47,14 @@ export default function DashboardPage() {
   const popularRef = useRef(null)
 
   const featured     = pickByDay(FEATURED_LIST)
-  const featuredChar = characters.find(c => c.id === featured?.characterId)
+  const featuredChar = featured ? characterMap[featured.characterId] : null
   const popularChars = useMemo(() => {
     const shuffled = shuffleByDay(characters)
     const unknown = shuffled.filter(c => !chattedCharIds.has(c.id))
     const known   = shuffled.filter(c =>  chattedCharIds.has(c.id))
     return [...unknown, ...known].slice(0, 8)
   }, [chattedCharIds])
-  const sessionChar = activeSession ? characters.find(c => c.id === activeSession.characterId) : null
+  const sessionChar = activeSession ? (characterMap[activeSession.characterId] ?? null) : null
 
   const heroContext = useMemo(() => {
     if (fetchingStats) return null

@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
-import { characters } from '../data/characters'
+import { characterMap } from '../data/characters'
 import { UI_THEMES } from '../data/uiThemes'
 import MessageBubble from '../components/MessageBubble/MessageBubble'
 import { ROUTES } from '../utils/constants'
@@ -53,7 +53,7 @@ export default function ChatPage() {
         systemPrompt: customCharData.system_prompt,
       }
     }
-    return characters.find(c => c.id === characterId) ?? null
+    return characterMap[characterId] ?? null
   }, [isCustom, customCharData, characterId])
   const { session } = useAuth()
   const { showToast, showConfirm } = useToast()

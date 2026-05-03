@@ -1,8 +1,8 @@
-import { characters } from '../../data/characters'
+import { characterMap } from '../../data/characters'
 
 export default function DashDailyQuote({ dailyQuote, navigate }) {
   if (!dailyQuote) return null
-  const char = characters.find(c => c.id === dailyQuote.characterId)
+  const char = characterMap[dailyQuote.characterId]
   if (!char) return null
 
   return (

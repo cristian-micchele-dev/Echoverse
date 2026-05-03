@@ -1,11 +1,11 @@
 import { ACHIEVEMENTS } from '../../data/achievements'
-import { characters } from '../../data/characters'
+import { characterMap } from '../../data/characters'
 import { ROUTES } from '../../utils/constants'
 import { ACH_CHAR } from './constants.js'
 
 export default function DashLogros({ unlockedIds, navigate }) {
   const lastAch = ACHIEVEMENTS.filter(a => unlockedIds.has(a.id)).at(-1)
-  const achChar = lastAch ? characters.find(c => c.id === ACH_CHAR[lastAch.id]) : null
+  const achChar = lastAch ? characterMap[ACH_CHAR[lastAch.id]] : null
 
   return (
     <section className="dash-section">

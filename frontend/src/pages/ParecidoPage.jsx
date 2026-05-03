@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { characters } from '../data/characters'
+import { characterMap } from '../data/characters'
 import { getRandomQuestions, MATCH_DESCRIPTIONS, computeUserProfile, rankCharacters } from '../data/parecidoQuiz'
 import { useAuth } from '../context/AuthContext'
 import { recordCompletion } from '../utils/recordCompletion'
@@ -57,7 +57,7 @@ export default function ParecidoPage() {
         const enriched = top3.map(({ id, matchPct }) => ({
           id,
           matchPct,
-          char: characters.find(c => c.id === id),
+          char: characterMap[id],
           description: MATCH_DESCRIPTIONS[id] || '',
         }))
         setUserProfile(profile)
