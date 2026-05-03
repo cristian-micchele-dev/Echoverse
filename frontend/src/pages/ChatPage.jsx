@@ -56,7 +56,7 @@ export default function ChatPage() {
     return characters.find(c => c.id === characterId) ?? null
   }, [isCustom, customCharData, characterId])
   const { session } = useAuth()
-  const { showConfirm } = useToast()
+  const { showToast, showConfirm } = useToast()
   const { checkAndUnlock, newlyUnlocked, dismissToast } = useAchievements()
   const { isTyping, isLoading, streamChat } = useStreaming()
   const { messages, setMessages, reactions, userReactions, cloudSaved, handleUserReact, clearMessages } =
@@ -90,11 +90,17 @@ export default function ChatPage() {
       .select('*')
       .eq('id', rawCustomId)
       .single()
-      .then(({ data }) => {
-        if (data) setCustomCharData(data)
-        else navigate(ROUTES.CHAT)
+      .then(({ data, error }) => {
+        if (data) {
+          setCustomCharData(data)
+        } else if (error?.code === 'PGRST116') {
+          navigate(ROUTES.CHAT)
+        } else {
+          showToast('No se pudo cargar el personaje. Intentá de nuevo.')
+          navigate(ROUTES.CHAT)
+        }
       })
-  }, [isCustom, rawCustomId, navigate])
+  }, [isCustom, rawCustomId, navigate, showToast])
 
   // Aplicar tema al :root y restaurar al salir
   useEffect(() => {
