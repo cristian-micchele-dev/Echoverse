@@ -23,7 +23,7 @@ export async function requireAuth(req, res, next) {
 }
 
 export function requireAdmin(req, res, next) {
-  if (req.user?.email !== ADMIN_EMAIL) {
+  if (!ADMIN_EMAIL || req.user?.email !== ADMIN_EMAIL) {
     return res.status(403).json({ error: 'Sin permisos de administrador' })
   }
   next()

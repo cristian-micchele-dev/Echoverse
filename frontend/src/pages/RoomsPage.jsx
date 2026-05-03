@@ -15,7 +15,7 @@ export default function RoomsPage() {
   const [error, setError] = useState(null)
   const [showModal, setShowModal] = useState(false)
 
-  const isAdmin = user?.email === 'cristian.aiki1@gmail.com'
+  const isAdmin = !!import.meta.env.VITE_ADMIN_EMAIL && user?.email === import.meta.env.VITE_ADMIN_EMAIL
 
   async function fetchRooms() {
     try {
