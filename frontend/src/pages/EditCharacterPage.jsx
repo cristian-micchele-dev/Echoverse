@@ -4,10 +4,8 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { buildCustomSystemPrompt } from '../utils/buildCustomSystemPrompt'
 import { ROUTES } from '../utils/constants'
+import { DEFAULT_COLOR, EMOJI_OPTIONS } from './createCharacter/constants.js'
 import './CreateCharacterPage.css'
-
-const DEFAULT_COLOR = '#7252E8'
-const EMOJI_OPTIONS = ['🤖', '🕵️', '🧙', '⚔️', '🦸', '🎭', '👑', '🐉', '🔮', '💀', '🧛', '🌟', '🤠', '🦊', '🎪']
 
 export default function EditCharacterPage() {
   const { id } = useParams()
