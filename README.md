@@ -1,4 +1,4 @@
-# ChatPersonajes
+# EchoVerse
 
 Aplicación full-stack para chatear e interactuar con personajes ficticios icónicos usando IA generativa. Los personajes responden en tiempo real con su propia voz, personalidad y universo — nunca rompen el personaje.
 
@@ -85,8 +85,8 @@ chat-personajes/
 ### 1. Clonar el repositorio
 
 ```bash
-git clone https://github.com/tu-usuario/chat-personajes.git
-cd chat-personajes
+git clone https://github.com/cristian-micchele-dev/Echoverse.git
+cd Echoverse
 ```
 
 ### 2. Configurar el backend
@@ -127,13 +127,16 @@ Ambos servidores deben estar corriendo simultáneamente.
 
 El backend requiere un archivo `.env` basado en `.env.example`:
 
-| Variable | Requerida | Descripción |
-|---|---|---|
-| `MISTRAL_API_KEY` | ✅ | API key de Mistral AI (proveedor principal) |
-| `PORT` | ✅ | Puerto del servidor (default: 3001) |
-| `FRONTEND_URL` | ✅ | URL del frontend para CORS |
-| `GROQ_API_KEY` | Opcional | Alternativa de proveedor IA |
-| `ELEVENLABS_API_KEY` | Opcional | Text-to-speech (no integrado actualmente) |
+| Variable | Dónde | Requerida | Descripción |
+|---|---|---|---|
+| `MISTRAL_API_KEY` | backend | ✅ | API key de Mistral AI |
+| `SUPABASE_URL` | backend | ✅ | URL del proyecto Supabase |
+| `SUPABASE_SERVICE_KEY` | backend | ✅ | Service role key de Supabase |
+| `PORT` | backend | ✅ | Puerto del servidor (default: 3001) |
+| `FRONTEND_URL` | backend | ✅ | URL del frontend para CORS |
+| `VITE_SUPABASE_URL` | frontend | ✅ | URL del proyecto Supabase |
+| `VITE_SUPABASE_ANON_KEY` | frontend | ✅ | Anon key de Supabase |
+| `VITE_API_URL` | frontend | ✅ | URL del backend |
 
 ---
 
