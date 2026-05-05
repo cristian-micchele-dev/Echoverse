@@ -1,5 +1,5 @@
-import { API_URL } from '../config/api'
-import { getTodayChallenge } from '../data/dailyChallenges'
+import { API_URL } from '../../config/api'
+import { getTodayChallenge } from '../../data/dailyChallenges'
 
 export async function recordCompletion(session, mode, characterId = null) {
   if (!session) return

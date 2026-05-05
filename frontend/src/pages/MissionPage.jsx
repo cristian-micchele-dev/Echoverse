@@ -177,7 +177,7 @@ export default function MissionPage() {
           difficulty,
           missionType,
           stats: currentStats,
-          finalResult,
+          ...(finalResult ? { finalResult } : {}),
           isCampaign: campaignMode
         },
         content => {

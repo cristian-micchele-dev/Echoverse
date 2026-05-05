@@ -9,7 +9,7 @@
  *
  * Resultado: { roleLine, quote, operation }
  */
-import { cinematicIntros } from '../data/cinematicIntros'
+import { cinematicIntros } from '../../data/cinematicIntros.js'
 
 // ─── Mapeo de personaje → arquetipo ──────────────────────────────────────────
 // Usado solo si un personaje no tiene entrada en cinematicIntros.
