@@ -95,6 +95,21 @@ app.use('/api/admin', adminRouter)
 app.use('/api', onlineRouter)
 app.use('/api', dailyQuoteRouter)
 
+// ─── Error handler global ───────────────────────────────────────────────────
+// Captura errores lanzados por asyncHandler y los convierte en respuestas JSON.
+
+app.use((err, req, res, next) => {
+  const status = err.statusCode || err.status || 500
+  const message = err.message || 'Error interno del servidor'
+  const code = err.code || 'INTERNAL_ERROR'
+
+  if (status === 500) {
+    console.error('[error]', err)
+  }
+
+  res.status(status).json({ error: message, code })
+})
+
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`)
 

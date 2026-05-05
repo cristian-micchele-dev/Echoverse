@@ -23,4 +23,17 @@ router.use('/', esteOEseRouter)
 router.use('/', ultimaCenaRouter)
 router.use('/', customRouter)
 
+// Error handler para rutas de chat: convierte errores del service layer en JSON
+router.use((err, req, res, next) => {
+  const status = err.statusCode || err.status || 500
+  const message = err.message || 'Error interno del servidor'
+  const code = err.code || 'INTERNAL_ERROR'
+
+  if (status === 500) {
+    console.error('[chat error]', err)
+  }
+
+  res.status(status).json({ error: message, code })
+})
+
 export default router

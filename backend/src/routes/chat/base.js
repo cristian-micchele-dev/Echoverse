@@ -9,8 +9,15 @@ import {
   buildDuoRoleBPrompt,
   buildDuoRoleA2Prompt
 } from '../../data/prompts.js'
-import { streamMistral, withSseStream } from '../../utils/mistral.js'
-import { MAX_HISTORY, DUO_TOKEN_MAP, ULTIMA_CENA_TOKEN_MAP } from '../../config/constants.js'
+import { DUO_TOKEN_MAP, ULTIMA_CENA_TOKEN_MAP } from '../../config/constants.js'
+import { getCharacter, streamAIResponse, sanitizeMessages } from '../../services/aiService.js'
+import { validateBody, asyncHandler } from '../../middleware/validate.js'
+import {
+  ChatBodySchema,
+  BattleVerdictBodySchema,
+  ConfesionarioVerdictBodySchema,
+  ChatVerdictBodySchema,
+} from '../../schemas/chatSchemas.js'
 
 const router = Router()
 
@@ -86,28 +93,21 @@ function resolveChatTokenLimit(body) {
 
 // ─── Rutas ───────────────────────────────────────────────────────────────────
 
-router.post('/chat', async (req, res) => {
+router.post('/chat', validateBody(ChatBodySchema), asyncHandler(async (req, res) => {
   const { characterId, messages: rawMessages } = req.body
 
-  const character = characters[characterId]
-  if (!character) return res.status(404).json({ error: 'Personaje no encontrado' })
-
-  const messages = (Array.isArray(rawMessages) ? rawMessages : [])
-    .slice(-MAX_HISTORY)
-    .map(m => ({
-      role: m.role === 'assistant' ? 'assistant' : 'user',
-      content: typeof m.content === 'string' ? m.content.slice(0, 1000) : '',
-    }))
+  const character = getCharacter(characterId)
+  const messages = sanitizeMessages(rawMessages)
 
   const systemPrompt = buildChatSystemPrompt(character, req.body)
   const maxTokens = resolveChatTokenLimit(req.body)
-  await withSseStream(res, () => streamMistral(res, systemPrompt, messages, maxTokens), {
+  await streamAIResponse(res, systemPrompt, messages, maxTokens, {
     logPrefix: 'Error Mistral /chat',
     errorMessage: 'Error al contactar la IA',
   })
-})
+}))
 
-router.post('/battle/verdict', async (req, res) => {
+router.post('/battle/verdict', validateBody(BattleVerdictBodySchema), asyncHandler(async (req, res) => {
   const { topic, charA, charB, battleLog } = req.body
 
   const transcript = battleLog
@@ -124,16 +124,15 @@ ${transcript}
 
 Analizá este debate y elegí un ganador.`
 
-  await withSseStream(res, () => streamMistral(res, systemPrompt, [{ role: 'user', content: userMessage }], 280), {
+  await streamAIResponse(res, systemPrompt, [{ role: 'user', content: userMessage }], 280, {
     logPrefix: 'Error Mistral /battle/verdict',
     errorMessage: 'Error al contactar la IA',
   })
-})
+}))
 
-router.post('/confesionario/verdict', async (req, res) => {
+router.post('/confesionario/verdict', validateBody(ConfesionarioVerdictBodySchema), asyncHandler(async (req, res) => {
   const { characterId, exchanges } = req.body
-  const character = characters[characterId]
-  if (!character) return res.status(404).json({ error: 'Personaje no encontrado' })
+  const character = getCharacter(characterId)
 
   const summary = exchanges.map((e, i) =>
     `Pregunta ${i + 1}: "${e.question}"\nRespuesta: "${e.answer}"`
@@ -154,18 +153,17 @@ Sin títulos, sin formato. Solo tu voz. Usá referencias ESPECÍFICAS a lo que r
 Terminá con una sola frase impactante que los defina. Que duela un poco. Que sea verdad.
 Respondé siempre en español.`
 
-  await withSseStream(res, () => streamMistral(res, verdictPrompt, [{ role: 'user', content: `Estas fueron las respuestas de la persona:\n\n${summary}\n\nDa tu veredicto final sobre quién es realmente esta persona.` }], 600), {
+  await streamAIResponse(res, verdictPrompt, [{ role: 'user', content: `Estas fueron las respuestas de la persona:\n\n${summary}\n\nDa tu veredicto final sobre quién es realmente esta persona.` }], 600, {
     logPrefix: 'Error Mistral /confesionario/verdict',
     errorMessage: 'Error al generar veredicto',
   })
-})
+}))
 
-router.post('/chat/verdict', async (req, res) => {
+router.post('/chat/verdict', validateBody(ChatVerdictBodySchema), asyncHandler(async (req, res) => {
   const { characterId, messages } = req.body
-  const character = characters[characterId]
-  if (!character) return res.status(404).json({ error: 'Personaje no encontrado' })
+  const character = getCharacter(characterId)
 
-  const transcript = (messages ?? [])
+  const transcript = messages
     .map(m => `${m.role === 'user' ? 'Usuario' : character.id}: "${m.content}"`)
     .join('\n')
 
@@ -180,16 +178,11 @@ Basándote ÚNICAMENTE en cómo se desarrolló esta conversación — las pregun
 - Terminá con una sola frase corta que los defina. Que sea verdad. Que duela un poco.
 - Respondé siempre en español.`
 
-  await withSseStream(res, () => streamMistral(
-    res,
-    verdictPrompt,
-    [{ role: 'user', content: `Esta fue nuestra conversación:\n\n${transcript}\n\nDa tu veredicto sobre quién es realmente esta persona.` }],
-    450
-  ), {
+  await streamAIResponse(res, verdictPrompt, [{ role: 'user', content: `Esta fue nuestra conversación:\n\n${transcript}\n\nDa tu veredicto sobre quién es realmente esta persona.` }], 450, {
     logPrefix: 'Error Mistral /chat/verdict',
     errorMessage: 'Error al generar veredicto',
   })
-})
+}))
 
 router.get('/characters', (req, res) => {
   const list = Object.values(characters).map(({ id, systemPrompt: _, ...rest }) => ({ id, ...rest }))

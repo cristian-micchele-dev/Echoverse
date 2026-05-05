@@ -1,7 +1,8 @@
 import { Router } from 'express'
-import { characters } from '../../data/characters.js'
-import { streamMistral, withSseStream } from '../../utils/mistral.js'
 import { STORY_MAX_RECENT } from '../../config/constants.js'
+import { getCharacter, streamAIResponse } from '../../services/aiService.js'
+import { validateBody, asyncHandler } from '../../middleware/validate.js'
+import { StoryBodySchema } from '../../schemas/chatSchemas.js'
 
 const router = Router()
 
@@ -62,22 +63,19 @@ function buildStoryMessages(scenarioPrompt, history, isFinal) {
   return messages
 }
 
-router.post('/story', async (req, res) => {
-  const { characterId, scenarioPrompt, history = [] } = req.body
-  const character = characters[characterId]
-  if (!character) return res.status(404).json({ error: 'Personaje no encontrado' })
-  if (!scenarioPrompt || typeof scenarioPrompt !== 'string') return res.status(400).json({ error: 'scenarioPrompt requerido' })
-  if (scenarioPrompt.length > 500) return res.status(400).json({ error: 'scenarioPrompt demasiado largo (máx. 500)' })
-  if (!Array.isArray(history)) return res.status(400).json({ error: 'history debe ser un array' })
+router.post('/story', validateBody(StoryBodySchema), asyncHandler(async (req, res) => {
+  const { characterId, scenarioPrompt, history } = req.body
 
+  const character = getCharacter(characterId)
   const isFinal = history.length >= 5
+
   const storySystemPrompt = buildStorySystemPrompt(character.systemPrompt, isFinal, history.length + 1)
   const messages = buildStoryMessages(scenarioPrompt, history, isFinal)
 
-  await withSseStream(res, () => streamMistral(res, storySystemPrompt, messages, isFinal ? 1000 : 900), {
+  await streamAIResponse(res, storySystemPrompt, messages, isFinal ? 1000 : 900, {
     logPrefix: 'Error Mistral /story',
     errorMessage: 'Error al generar historia',
   })
-})
+}))
 
 export default router

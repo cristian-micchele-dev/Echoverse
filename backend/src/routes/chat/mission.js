@@ -2,6 +2,9 @@ import { Router } from 'express'
 import { characters } from '../../data/characters.js'
 import { streamMistral, withSseStream, callMistral } from '../../utils/mistral.js'
 import { MISSION_MAX_RECENT } from '../../config/constants.js'
+import { getCharacter, streamAIResponse } from '../../services/aiService.js'
+import { validateBody, asyncHandler } from '../../middleware/validate.js'
+import { MissionBodySchema, MissionImagePromptBodySchema, MissionSceneImagePromptBodySchema } from '../../schemas/chatSchemas.js'
 
 const POLLINATIONS_BASE = 'https://image.pollinations.ai/prompt'
 
@@ -86,18 +89,17 @@ function buildMissionMessages({ history, recentHistory, alias, isFinal, difficul
   return messages
 }
 
-router.post('/mission', async (req, res) => {
-  const { characterId, history = [], playerName, difficulty = 'normal', missionType = 'combate', stats = {}, finalResult = null, isCampaign = false } = req.body
-  const character = characters[characterId]
-  if (!character) return res.status(404).json({ error: 'Personaje no encontrado' })
+router.post('/mission', validateBody(MissionBodySchema), asyncHandler(async (req, res) => {
+  const { characterId, history, playerName, difficulty, missionType, stats, finalResult, isCampaign } = req.body
 
+  const character = getCharacter(characterId)
   const isFinal = history.length >= 5 || !!finalResult
   const recentHistory = history.slice(-MISSION_MAX_RECENT)
 
   const alias = playerName || 'el agente'
-  const vida = stats.vida ?? 4
-  const riesgo = stats.riesgo ?? 0
-  const sigilo = stats.sigilo ?? 3
+  const vida = stats?.vida ?? 4
+  const riesgo = stats?.riesgo ?? 0
+  const sigilo = stats?.sigilo ?? 3
   const estadoNarrativo =
     vida >= 4 ? 'opera con plena capacidad' :
     vida === 3 ? 'muestra desgaste pero sigue en pie' :
@@ -153,20 +155,17 @@ ${EFECTOS_NOTE[difficulty] || EFECTOS_NOTE.normal}`
 
   const messages = buildMissionMessages({ history, recentHistory, alias, isFinal, difficulty })
 
-  await withSseStream(res, () => streamMistral(res, missionSystemPrompt, messages, isFinal ? 600 : 1000), {
+  await streamAIResponse(res, missionSystemPrompt, messages, isFinal ? 600 : 1000, {
     logPrefix: 'Error Mistral /mission',
     errorMessage: 'Error al generar misión',
   })
-})
+}))
 
 // ─── POST /api/mission/image-prompt ─────────────────────────────────────────
-// Genera UN prompt visual de portada cinematográfica al inicio de la misión.
-// No por turno — una sola imagen que acompaña toda la misión.
 
-router.post('/mission/image-prompt', async (req, res) => {
+router.post('/mission/image-prompt', validateBody(MissionImagePromptBodySchema), asyncHandler(async (req, res) => {
   const { characterId, difficulty, missionType } = req.body
-  const character = characters[characterId]
-  if (!character) return res.status(404).json({ error: 'Personaje no encontrado' })
+  const character = getCharacter(characterId)
 
   const systemPrompt = `You are an expert image-generation prompt engineer. Create a single cinematic cover image prompt for a mission.
 
@@ -202,17 +201,13 @@ Character vibe: ${character.systemPrompt.slice(0, 200)}`
     const fallback = `cinematic scene, ${character.name}, ${missionType || 'action'} mission, ${difficulty || 'normal'} difficulty, dark atmosphere, dramatic lighting, movie still`
     res.json({ imagePrompt: fallback })
   }
-})
+}))
 
 // ─── POST /api/mission/scene-image-prompt ───────────────────────────────────
-// Recibe la narrativa de una escena y genera un prompt de imagen en inglés
-// que capture el contexto visual completo (lugar, acción, atmósfera).
 
-router.post('/mission/scene-image-prompt', async (req, res) => {
+router.post('/mission/scene-image-prompt', validateBody(MissionSceneImagePromptBodySchema), asyncHandler(async (req, res) => {
   const { narrative, characterId, title, difficulty, missionType } = req.body
-  const character = characters[characterId]
-
-  if (!narrative) return res.status(400).json({ error: 'Missing narrative' })
+  const character = characterId ? characters[characterId] : null
 
   const systemPrompt = `You are an expert image-generation prompt engineer. Translate the Spanish mission scene into a vivid cinematic image prompt in ENGLISH.
 
@@ -251,11 +246,9 @@ Scene: ${narrative.slice(0, 500)}`
     const fallback = `cinematic scene, ${character ? character.name : 'agent'}, dark atmosphere, dramatic lighting, movie still`
     res.json({ imagePrompt: fallback })
   }
-})
+}))
 
 // ─── GET /api/mission/image-proxy ───────────────────────────────────────────
-// Proxy para evitar bloqueos CORS / 403 desde el navegador hacia Pollinations.
-// El frontend pide la imagen acá y el backend la retransmite como stream.
 
 const sleep = (ms) => new Promise(r => setTimeout(r, ms))
 
