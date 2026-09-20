@@ -171,3 +171,64 @@ C: vida+0 riesgo+1 sigilo+1 desc:Esperás el momento exacto`
     expect(result.C).toBeUndefined()
   })
 })
+
+// ---------------------------------------------------------------------------
+// Regresión: salida real de ministral-14b-2512 (markdown en cabeceras, acento en TÍTULO)
+// ---------------------------------------------------------------------------
+
+describe('parseMissionResponse — formato markdown de ministral', () => {
+  const RAW = `**TÍTULO:**
+**La Sangre Llama**
+
+**ESCENA:**
+Entrás al *Café des Ombres* en el Bajo Manhattan. El humo de los cigarrillos dibuja siluetas en la penumbra.
+
+**OPCIONES:**
+[A] **Acercarte a la mesa central**
+[B] **Tomar un café en la barra vacía**
+[C] **Salir por la puerta trasera**
+
+**EFECTOS:**
+A: vida+0 riesgo+1 sigilo-1 desc:[Los tres se levantan. *"Pensé que no vendrías, Wick."*]
+B: vida+0 riesgo-1 sigilo+2 desc:[El barista te sirve en silencio. *"Demasiado obvio."*]
+C: vida-1 riesgo+0 sigilo+0 desc:[La puerta está cerrada con cadena. *"Demasiado tarde."*]`
+
+  test('extrae el título aunque venga con acento y negrita', () => {
+    const { title, narrative } = parseMissionResponse(RAW)
+    expect(title).toBe('La Sangre Llama')
+    expect(narrative).not.toMatch(/T[ÍI]TULO/i)
+    expect(narrative).not.toContain('La Sangre Llama')
+  })
+
+  test('extrae los efectos aunque la cabecera EFECTOS venga en negrita', () => {
+    const { effects } = parseMissionResponse(RAW)
+    expect(effects).not.toBeNull()
+    expect(effects.A).toMatchObject({ vida: 0, riesgo: 1, sigilo: -1 })
+    expect(effects.B).toMatchObject({ vida: 0, riesgo: -1, sigilo: 2 })
+    expect(effects.C).toMatchObject({ vida: -1, riesgo: 0, sigilo: 0 })
+  })
+
+  test('la descripción del efecto no conserva los corchetes del template', () => {
+    const { effects } = parseMissionResponse(RAW)
+    expect(effects.A.descripcion).toBe('Los tres se levantan. "Pensé que no vendrías, Wick."')
+  })
+
+  test('las opciones y la narrativa quedan limpias', () => {
+    const { narrative, choices } = parseMissionResponse(RAW)
+    expect(narrative.startsWith('Entrás al Café des Ombres')).toBe(true)
+    expect(narrative).not.toContain('EFECTOS')
+    expect(choices.map(c => c.text)).toEqual([
+      'Acercarte a la mesa central',
+      'Tomar un café en la barra vacía',
+      'Salir por la puerta trasera',
+    ])
+  })
+})
+
+describe('parseEffects — tolerancia de formato', () => {
+  test('acepta espacios y comas entre stats', () => {
+    const effects = parseEffects('A: vida +1, riesgo -2, sigilo +0 desc: algo\nB: vida-1 riesgo+1')
+    expect(effects.A).toMatchObject({ vida: 1, riesgo: -2, sigilo: 0, descripcion: 'algo' })
+    expect(effects.B).toMatchObject({ vida: -1, riesgo: 1, sigilo: 0 })
+  })
+})

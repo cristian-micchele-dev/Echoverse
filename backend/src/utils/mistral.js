@@ -1,9 +1,10 @@
 const MISTRAL_API_KEY = process.env.MISTRAL_API_KEY
 const MISTRAL_BASE_URL = 'https://api.mistral.ai/v1'
 
-// mistral-large tiene 250k tokens/min en el tier gratuito vs 20k de small.
+// ministral-14b tiene 937k tokens/min en el tier gratuito vs 20k de small
+// (mistral-large no está disponible en el plan gratuito).
 // Se lee en cada llamada para poder cambiarlo desde el entorno sin tocar código.
-const DEFAULT_MODEL = 'mistral-large-2512'
+const DEFAULT_MODEL = 'ministral-14b-2512'
 function getModel() {
   return process.env.MISTRAL_MODEL || DEFAULT_MODEL
 }

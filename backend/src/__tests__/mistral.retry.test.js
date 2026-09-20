@@ -281,14 +281,14 @@ describe('modelo configurable por MISTRAL_MODEL', () => {
     else process.env.MISTRAL_MODEL = originalModel
   })
 
-  test('usa mistral-large-2512 por defecto', async () => {
+  test('usa ministral-14b-2512 por defecto', async () => {
     delete process.env.MISTRAL_MODEL
     fetchMock.mockResolvedValueOnce(chatCompletion('ok'))
 
     await callMistral({ messages: [] })
 
     const body = JSON.parse(fetchMock.mock.calls[0][1].body)
-    expect(body.model).toBe('mistral-large-2512')
+    expect(body.model).toBe('ministral-14b-2512')
   })
 
   test('respeta MISTRAL_MODEL en llamadas normales y en streaming', async () => {

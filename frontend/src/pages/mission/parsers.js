@@ -16,16 +16,21 @@ export function parseChoices(block) {
   return choices
 }
 
+// Tolerante a variaciones del modelo: espacios/comas entre stats ("vida +1, riesgo -2")
+// y corchetes copiados del template en desc ("desc:[texto]").
 export function parseEffects(text) {
   const effects = {}
-  const pattern = /([ABC]):\s*vida([+-]?\d+)\s+riesgo([+-]?\d+)(?:\s+sigilo([+-]?\d+))?(?:\s+desc:([^\n]+))?/gi
+  const pattern = /([ABC]):\s*vida\s*([+-]?\d+)[,\s]+riesgo\s*([+-]?\d+)(?:[,\s]+sigilo\s*([+-]?\d+))?(?:[,\s]*desc:\s*([^\n]+))?/gi
   let match
   while ((match = pattern.exec(text)) !== null) {
+    const desc = match[5]
+      ? stripMd(match[5].trim().replace(/^\[|\]$/g, '').trim())
+      : null
     effects[match[1].toUpperCase()] = {
       vida: parseInt(match[2], 10),
       riesgo: parseInt(match[3], 10),
       sigilo: match[4] ? parseInt(match[4], 10) : 0,
-      descripcion: match[5] ? match[5].trim() : null
+      descripcion: desc || null
     }
   }
   return Object.keys(effects).length > 0 ? effects : null
@@ -35,7 +40,8 @@ export function parseMissionResponse(text) {
   let title = null
   let cleanText = text
 
-  const titleMatch = text.match(/^\*{0,2}(?:MISIÓN|TITULO):\*{0,2}\s*\n?\s*(.+?)(?:\n|$)/i)
+  // El modelo puede escribir TÍTULO con acento y envolver cabecera/valor en **negrita**
+  const titleMatch = text.match(/^\*{0,2}(?:MISI[ÓO]N|T[ÍI]TULO):\*{0,2}\s*\n?\s*(.+?)(?:\n|$)/i)
   if (titleMatch) {
     title = titleMatch[1].trim().replace(/^\*+|\*+$/g, '')
     cleanText = text.slice(titleMatch[0].length).trimStart()
@@ -45,7 +51,7 @@ export function parseMissionResponse(text) {
   if (isFinal) cleanText = cleanText.replace('[FIN]', '').trim()
 
   let effects = null
-  const efectosMatch = cleanText.match(/\nEFECTOS:\n([\s\S]*?)(\n\n|$)/)
+  const efectosMatch = cleanText.match(/\n\*{0,2}EFECTOS:\*{0,2}[ \t]*\n([\s\S]*?)(\n\n|$)/i)
   if (efectosMatch) {
     effects = parseEffects(efectosMatch[1])
     cleanText = cleanText.slice(0, efectosMatch.index).trim()

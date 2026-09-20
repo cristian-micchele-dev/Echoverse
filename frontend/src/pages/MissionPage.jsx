@@ -183,7 +183,7 @@ export default function MissionPage() {
         content => {
           fullText += content
           let display = fullText
-            .replace(/^\*{0,2}(?:MISIÓN|TITULO):\*{0,2}[^\n]*\n(?:[^\n]+\n)?/i, '')
+            .replace(/^\*{0,2}(?:MISI[ÓO]N|T[ÍI]TULO):\*{0,2}[^\n]*\n(?:[^\n]+\n)?/i, '')
             .replace(/^\*{0,2}ESCENA:\*{0,2}\s*\n?/im, '')
             .replace(/\n\*{0,2}(?:OPCIONES|EFECTOS):\*{0,2}[\s\S]*$/, '')
             .replace(/\[FIN\]/g, '')
