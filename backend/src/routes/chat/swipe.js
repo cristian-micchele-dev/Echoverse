@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { characters } from '../../data/characters.js'
 import { SWIPE_CARDS_SUFFIX } from '../../data/prompts.js'
 import { callMistral, streamMistral, withSseStream } from '../../utils/mistral.js'
+import { sendAIError } from '../../services/aiService.js'
 
 const router = Router()
 
@@ -27,7 +28,7 @@ router.post('/swipe/cards', async (req, res) => {
     res.json({ cards: cards.slice(0, 10) })
   } catch (error) {
     console.error('Error /swipe/cards:', error.message)
-    res.status(500).json({ error: 'Error al generar las afirmaciones' })
+    sendAIError(res, error, 'Error al generar las afirmaciones')
   }
 })
 

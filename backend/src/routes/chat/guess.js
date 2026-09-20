@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { characters } from '../../data/characters.js'
 import { GUESS_CLUES_SYSTEM_PROMPT } from '../../data/prompts.js'
 import { callMistral } from '../../utils/mistral.js'
+import { sendAIError } from '../../services/aiService.js'
 
 const router = Router()
 
@@ -24,7 +25,7 @@ router.post('/guess/clues', async (req, res) => {
     res.json({ clues: clues.slice(0, 4) })
   } catch (error) {
     console.error('Error /guess/clues:', error.message)
-    res.status(500).json({ error: 'Error al generar pistas' })
+    sendAIError(res, error, 'Error al generar pistas')
   }
 })
 
@@ -55,7 +56,7 @@ Respondé en español.`
     res.json({ message })
   } catch (error) {
     console.error('Error /guess/feedback:', error.message)
-    res.status(500).json({ error: 'Error al generar feedback' })
+    sendAIError(res, error, 'Error al generar feedback')
   }
 })
 

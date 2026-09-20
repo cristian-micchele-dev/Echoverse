@@ -1,5 +1,5 @@
 import { characters } from '../data/characters.js'
-import { streamMistral, withSseStream } from '../utils/mistral.js'
+import { streamMistral, withSseStream, MistralRateLimitError } from '../utils/mistral.js'
 
 /**
  * Busca un personaje por ID. Lanza un error estructurado si no existe.
@@ -46,6 +46,17 @@ export function sendError(res, status, message, code = null) {
   const payload = { error: message }
   if (code) payload.code = code
   res.status(status).json(payload)
+}
+
+/**
+ * Responde un error de IA en rutas JSON (no-streaming). Distingue rate limit
+ * (429 con mensaje específico) del resto (500 con el fallback de la ruta).
+ */
+export function sendAIError(res, error, fallbackMessage) {
+  if (error instanceof MistralRateLimitError) {
+    return sendError(res, 429, error.message, error.code)
+  }
+  return sendError(res, 500, fallbackMessage)
 }
 
 /**

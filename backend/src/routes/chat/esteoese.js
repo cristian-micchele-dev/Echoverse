@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { characters } from '../../data/characters.js'
 import { ESTEOESE_QUESTIONS_SUFFIX, ESTEOESE_RESULT_SUFFIX } from '../../data/prompts.js'
 import { callMistral, streamMistral, withSseStream } from '../../utils/mistral.js'
+import { sendAIError } from '../../services/aiService.js'
 
 const router = Router()
 
@@ -26,7 +27,7 @@ router.post('/esteoese/questions', async (req, res) => {
     res.json({ questions: questions.slice(0, 8) })
   } catch (error) {
     console.error('Error /esteoese/questions:', error.message)
-    res.status(500).json({ error: 'Error al generar preguntas' })
+    sendAIError(res, error, 'Error al generar preguntas')
   }
 })
 

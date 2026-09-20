@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { characters } from '../data/characters.js'
 import { callMistral } from '../utils/mistral.js'
+import { sendAIError } from '../services/aiService.js'
 
 const router = Router()
 
@@ -206,7 +207,7 @@ En tu voz. Español rioplatense. Nada de JSON — solo el texto.`
     res.json({ sessionId, openingStatement })
   } catch (err) {
     console.error('Interrogation start error:', err.message)
-    res.status(500).json({ error: 'Failed to generate opening statement' })
+    sendAIError(res, err, 'Failed to generate opening statement')
   }
 })
 
@@ -255,7 +256,7 @@ router.post('/interrogation/ask', async (req, res) => {
     })
   } catch (err) {
     console.error('Interrogation ask error:', err.message)
-    res.status(500).json({ error: 'Failed to generate response' })
+    sendAIError(res, err, 'Failed to generate response')
   }
 })
 
@@ -339,7 +340,7 @@ Español rioplatense. Solo el texto, separado por "|||".`
     })
   } catch (err) {
     console.error('Interrogation verdict error:', err.message)
-    res.status(500).json({ error: 'Failed to generate reveal' })
+    sendAIError(res, err, 'Failed to generate reveal')
   }
 })
 
