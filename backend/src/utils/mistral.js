@@ -1,6 +1,13 @@
 const MISTRAL_API_KEY = process.env.MISTRAL_API_KEY
 const MISTRAL_BASE_URL = 'https://api.mistral.ai/v1'
 
+// mistral-large tiene 250k tokens/min en el tier gratuito vs 20k de small.
+// Se lee en cada llamada para poder cambiarlo desde el entorno sin tocar código.
+const DEFAULT_MODEL = 'mistral-large-2512'
+function getModel() {
+  return process.env.MISTRAL_MODEL || DEFAULT_MODEL
+}
+
 // Backoff para 429: el tier gratuito de Mistral permite 1 req/seg, así que un
 // solo usuario en modos que encadenan llamadas (misión, interrogatorio) lo supera.
 const RETRY_DELAYS_MS = [1000, 2000, 4000]
@@ -111,7 +118,7 @@ async function* readSSEChunks(reader) {
 
 export async function streamMistral(res, systemPrompt, messages, maxTokens = 512) {
   const response = await fetchChatCompletion({
-    model: 'mistral-small-latest',
+    model: getModel(),
     messages: [{ role: 'system', content: systemPrompt }, ...messages],
     stream: true,
     max_tokens: maxTokens,
@@ -132,7 +139,7 @@ export async function streamMistral(res, systemPrompt, messages, maxTokens = 512
 
 export async function* streamMistralGenerator(systemPrompt, messages, maxTokens = 512, signal) {
   const response = await fetchChatCompletion({
-    model: 'mistral-small-latest',
+    model: getModel(),
     messages: [{ role: 'system', content: systemPrompt }, ...messages],
     stream: true,
     max_tokens: maxTokens,
@@ -145,9 +152,9 @@ export async function* streamMistralGenerator(systemPrompt, messages, maxTokens 
   }
 }
 
-export async function callMistral({ messages, maxTokens = 512, model = 'mistral-small-latest', temperature }) {
+export async function callMistral({ messages, maxTokens = 512, model, temperature }) {
   const body = {
-    model,
+    model: model || getModel(),
     messages,
     stream: false,
     max_tokens: maxTokens,

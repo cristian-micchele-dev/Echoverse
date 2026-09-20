@@ -268,3 +268,48 @@ function makeJsonRes() {
   res.json = (body) => { res._body = body; return res }
   return res
 }
+
+// ---------------------------------------------------------------------------
+// Selección de modelo vía MISTRAL_MODEL
+// ---------------------------------------------------------------------------
+
+describe('modelo configurable por MISTRAL_MODEL', () => {
+  const originalModel = process.env.MISTRAL_MODEL
+
+  afterEach(() => {
+    if (originalModel === undefined) delete process.env.MISTRAL_MODEL
+    else process.env.MISTRAL_MODEL = originalModel
+  })
+
+  test('usa mistral-large-2512 por defecto', async () => {
+    delete process.env.MISTRAL_MODEL
+    fetchMock.mockResolvedValueOnce(chatCompletion('ok'))
+
+    await callMistral({ messages: [] })
+
+    const body = JSON.parse(fetchMock.mock.calls[0][1].body)
+    expect(body.model).toBe('mistral-large-2512')
+  })
+
+  test('respeta MISTRAL_MODEL en llamadas normales y en streaming', async () => {
+    process.env.MISTRAL_MODEL = 'ministral-8b-2512'
+    fetchMock
+      .mockResolvedValueOnce(chatCompletion('ok'))
+      .mockResolvedValueOnce(sseStream(['x']))
+
+    await callMistral({ messages: [] })
+    await streamMistral(makeMockRes(), 'system', [])
+
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body).model).toBe('ministral-8b-2512')
+    expect(JSON.parse(fetchMock.mock.calls[1][1].body).model).toBe('ministral-8b-2512')
+  })
+
+  test('un model explícito en callMistral tiene prioridad sobre el env', async () => {
+    process.env.MISTRAL_MODEL = 'ministral-8b-2512'
+    fetchMock.mockResolvedValueOnce(chatCompletion('ok'))
+
+    await callMistral({ messages: [], model: 'mistral-small-2603' })
+
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body).model).toBe('mistral-small-2603')
+  })
+})

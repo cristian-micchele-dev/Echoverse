@@ -34,7 +34,7 @@ John Wick · Darth Vader · Sherlock Holmes · Walter White · El Profesor · Ga
 ### Backend
 - **Node.js** con ES Modules
 - **Express 4** — API REST + SSE streaming
-- **Mistral AI** (`mistral-small-latest`) vía OpenAI SDK en modo compatibilidad
+- **Mistral AI** (`mistral-large-2512` por defecto, configurable con `MISTRAL_MODEL`) vía REST con `fetch`
 - **SSE** (Server-Sent Events) para respuestas en tiempo real
 - Rate limiting: 60 req/min por IP
 
@@ -130,6 +130,7 @@ El backend requiere un archivo `.env` basado en `.env.example`:
 | Variable | Dónde | Requerida | Descripción |
 |---|---|---|---|
 | `MISTRAL_API_KEY` | backend | ✅ | API key de Mistral AI |
+| `MISTRAL_MODEL` | backend | ❌ | Modelo a usar (default: `mistral-large-2512`). En el tier gratuito, `mistral-small` tiene solo 20k tokens/min |
 | `SUPABASE_URL` | backend | ✅ | URL del proyecto Supabase |
 | `SUPABASE_SERVICE_KEY` | backend | ✅ | Service role key de Supabase |
 | `PORT` | backend | ✅ | Puerto del servidor (default: 3001) |
