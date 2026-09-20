@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { characters } from '../../data/characters.js'
 import { streamMistral, withSseStream, callMistral } from '../../utils/mistral.js'
+import { cleanImagePrompt } from '../../utils/imagePrompt.js'
 import { MISSION_MAX_RECENT } from '../../config/constants.js'
 import { getCharacter, streamAIResponse } from '../../services/aiService.js'
 import { validateBody, asyncHandler } from '../../middleware/validate.js'
@@ -193,9 +194,7 @@ Character vibe: ${character.systemPrompt.slice(0, 200)}`
       temperature: 0.8,
     })
 
-    const clean = imagePrompt.trim().replace(/^["']|["']$/g, '')
-    const truncated = clean.length > 180 ? clean.slice(0, 180) + '...' : clean
-    res.json({ imagePrompt: truncated })
+    res.json({ imagePrompt: cleanImagePrompt(imagePrompt, 180) })
   } catch (error) {
     console.error('Error /mission/image-prompt:', error.message)
     const fallback = `cinematic scene, ${character.name}, ${missionType || 'action'} mission, ${difficulty || 'normal'} difficulty, dark atmosphere, dramatic lighting, movie still`
@@ -209,13 +208,14 @@ router.post('/mission/scene-image-prompt', validateBody(MissionSceneImagePromptB
   const { narrative, characterId, title, difficulty, missionType } = req.body
   const character = characterId ? characters[characterId] : null
 
-  const systemPrompt = `You are an expert image-generation prompt engineer. Translate the Spanish mission scene into a vivid cinematic image prompt in ENGLISH.
+  const systemPrompt = `You are an expert image-generation prompt engineer. Translate the Spanish mission scene into a faithful cinematic image prompt in ENGLISH.
 
 Rules:
-- Max 25 words. Be concise but visual.
-- Include: location, main character, action, atmosphere.
-- Match the mission type and difficulty in tone (hard = darker, tense).
-- No text, no UI, no watermark, no quotes.
+- Max 30 words. Be concise but visual.
+- START with the EXACT setting described in the scene: interior or exterior, and the specific place (e.g. "interior of a dim café", "rooftop at night"). Never replace it with a different or generic location.
+- Then the main character, then the concrete visual elements the scene mentions (people, objects, lighting, weather). Do not invent elements that are not in the scene.
+- Keep the mood of the scene; difficulty only affects lighting and tension, not the place.
+- No text, no UI, no watermark, no quotes, no markdown.
 - Respond with ONLY the prompt. No explanation.`
 
   const missionContext = [
@@ -235,12 +235,10 @@ Scene: ${narrative.slice(0, 500)}`
         { role: 'user', content: userContent }
       ],
       maxTokens: 180,
-      temperature: 0.6,
+      temperature: 0.3,
     })
 
-    const clean = imagePrompt.trim().replace(/^["']|["']$/g, '')
-    const truncated = clean.length > 200 ? clean.slice(0, 200) + '...' : clean
-    res.json({ imagePrompt: truncated })
+    res.json({ imagePrompt: cleanImagePrompt(imagePrompt, 200) })
   } catch (error) {
     console.error('Error /mission/scene-image-prompt:', error.message)
     const fallback = `cinematic scene, ${character ? character.name : 'agent'}, dark atmosphere, dramatic lighting, movie still`
